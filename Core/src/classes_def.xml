@@ -1,0 +1,16 @@
+<lcgdict>
+	<class name="analysis::core::Candidate"/>
+	<class name="std::vector<analysis::core::Candidate>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Candidate> >"/>
+			
+	<class name="analysis::core::DetId"/>
+	<class name="edm::Wrapper<analysis::core::DetId>"/>
+
+	<class name="analysis::core::Digi"/>
+	<class name="std::vector<analysis::core::Digi>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Digi> >"/>
+			
+	<class name="analysis::core::Digi10"/>
+	<class name="std::vector<analysis::core::Digi10>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Digi10> >"/>
+</lcgdict>
