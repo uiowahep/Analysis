@@ -13,7 +13,7 @@ namespace analysis
 		{
 			public:
 				QIE10Frame() {}
-				QIE10Frame(HcalDetId const& id): _id(id)
+				QIE10Frame(HcalDetId const& id): _did(id)
 				{}
 				virtual ~QIE10Frame() {}
 
