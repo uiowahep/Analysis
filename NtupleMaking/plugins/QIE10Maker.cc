@@ -135,7 +135,7 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 		for (int i=0; i<it->size(); i++)
 		{
 			df._adc[i] = it->sample(i).adc();
-			df._nominal_fc[i] = it->sample(i).nominal_fC();
+			df._nominal_fC[i] = it->sample(i).nominal_fC();
 		}
 	}
 

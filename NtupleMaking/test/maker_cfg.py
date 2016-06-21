@@ -60,7 +60,7 @@ process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.maxEvents = cms.untracked.PSet(
 	input = cms.untracked.int32(options.processEvents)
 )
-process.source = cms.Source("HcalTBSource",
+process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(options.inputFiles)
 )
 

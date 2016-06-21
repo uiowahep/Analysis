@@ -18,7 +18,7 @@ namespace analysis
 				//	public members
 				uint32_t	_id;
 				int			_adc[10];
-				double		nominal_fC[10];
+				double		_nominal_fC[10];
 		};
 
 		typedef std::vector<analysis::core::HFFrame> HFDigis;

@@ -2,4 +2,8 @@
 	<class name="analysis::core::QIE10Frame"/>
 	<class name="std::vector<analysis::core::QIE10Frame>"/>
 	<class name="edm::Wrapper<std::vector<analysis::core::QIE10Frame> >"/>
+			
+	<class name="analysis::core::HFFrame"/>
+	<class name="std::vector<analysis::core::HFFrame>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::HFFrame> >"/>
 </lcgdict>
