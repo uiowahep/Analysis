@@ -1,5 +1,5 @@
-#ifndef EventUnit_h
-#define EventUnit_h
+#ifndef Analysis_Core_EventUnit_h
+#define Analysis_Core_EventUnit_h
 
 /**
  *	file:
@@ -11,7 +11,7 @@
 #include "TTree.h"
 
 //	user
-#include "UserCode/Core/interface/Candidate.h"
+#include "Analysis/Core/interface/Object.h"
 
 using namespace std;
 
@@ -22,21 +22,18 @@ namespace analysis
 		class EventUnit : public Object
 		{
 			public:
-				EventUnit() :
-					Object(), _tree(NULL)
-				{}
-				EventUnit(string name, TTree* tree, int v=0, 
-					bool supwarn=false) :
-					Object(name, v, supwarn), _tree(tree)
+				EventUnit() : Object(), _tree(NULL) {}
+				EventUnit(string const& name, TTree* tree) :
+					Object(name), _tree(tree)
 				{}
 				virtual ~EventUnit() {}
 
 				virtual void setbranch() {}
 				virtual void clear() {}
-				virtual void process(edm::Event cosnt&,
+				virtual void process(edm::Event const&,
 					edm::EventSetup const&) {}
 
-			protected:
+				//	public members!
 				TTree		*_tree;
 		};
 	}

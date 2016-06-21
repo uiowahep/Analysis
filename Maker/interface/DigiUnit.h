@@ -1,5 +1,5 @@
-#ifndef DigiUnit_h
-#define DigiUnit_h
+#ifndef Analysis_Maker_DigiUnit_h
+#define Analysis_Maker_DigiUnit_h
 
 /**
  *	file:
@@ -8,23 +8,24 @@
  */
 
 //	user
-#include "UserCode/Core/interface/EventUnit.h"
-#include "UserCode/Core/interface/Digi.h"
+#include "Analysis/Core/interface/EventUnit.h"
+
+//	CMSSW
+#include "DataFormats/interface/HcalDigi/interface/QIE10DataFrame.h"
 
 namespace analysis
 {
 	using namespace core
 	namespace maker
 	{
+		typedef std::vector<QIE10DataFrame> Digis;
 		class DigiUnit : public EventUnit
 		{
 			public:
-				DigiUnit():
-					EventUnit()
+				DigiUnit(): EventUnit()
 				{}
-				DigiUnit(string name, TTree* tree, int v=0,
-					bool supwarn=false) : 
-					EventUnit(name, tree, v, supwarn)
+				DigiUnit(string name, TTree* tree) :
+					EventUnit(name, tree)
 				{}
 				virtual ~DigiUnit() {}
 
@@ -39,10 +40,10 @@ namespace analysis
 				}
 				virtual void process()
 				{
-
+					std::cout << "Processing..." << std::endl;
 				}
 
-			protected:
+				//	public
 				Digis	_digis;
 		};
 	}

@@ -1,10 +1,11 @@
-#ifndef Object_h
-#define Object_h
+#ifndef Analysis_Core_Object_h
+#define Analysis_Core_Object_h
 
 /**
  *	file:
  *	Author:
- *	Description:
+ *
+ *	Description:	Common Base Class 
  */
 
 #include <iostream>
@@ -19,39 +20,14 @@ namespace analysis
 		class Object
 		{
 			public:
-				Object() :
-					_name(string("Object1"))
-				{}
-				Object(string name, int v=0, bool supwarn=false) :
-					_name(name), _verbosity(v), _supwarn(supwarn)
+				Object() :	_name(string("Object1")) {}
+				Object(std::string const& n) :
+					_name(n)
 				{}
 				virtual ~Object() {}
 
-				inline void log(string const& msg) const
-				{
-					if (_verbosity<=0)
-						return;
-
-					cout  << "%MSG" << endl
-						<< "%MSG-LOG Analysis::" << _name << "::" << msg
-						<< endl;
-				}
-
-				inline oid warn(string const& msg) const
-				{
-					if (_supwarn)
-						return;
-
-					cout << "%MSG" << endl
-						<< "%MSG-WARN Analysis::" << _name << "::" << msg
-						<< endl;
-						
-				}
-
-			protected:
+				//	public members!
 				string	_name;
-				int		_verbosity;
-				bool	_supwarn;
 		};
 	}
 }
