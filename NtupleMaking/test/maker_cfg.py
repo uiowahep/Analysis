@@ -52,7 +52,7 @@ process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.GlobalTag.globaltag = "80X_dataRun2_HLT_v12"
-process.hcalDigis.InputLabel = cms.InputTag("source")
+process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
 
 #-----------------------------------------------------------
 #	Pool Source
@@ -80,11 +80,6 @@ process.maker = cms.EDAnalyzer(
 	'QIE10Maker',
 	verbosity = cms.untracked.int32(0),
 )
-
-#-----------------------------------------------------------
-#	for PF HF Clusters/Candidates
-#-----------------------------------------------------------
-#process.pfHF = cms.Sequence(process.particleFlowRecHitHF*process.particleFlowClusterHF)
 
 #-----------------------------------------------------------
 #	Final Path Execution Sequence

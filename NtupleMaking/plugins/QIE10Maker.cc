@@ -21,6 +21,7 @@
 // user include files
 #include "Analysis/NtupleMaking/interface/CommonHeaders.h"
 #include "Analysis/Core/interface/QIE10Frame.h"
+#include "Analysis/Core/interface/HFFrame.h"
 
 //	ROOT includes
 #include "TTree.h"
@@ -52,8 +53,10 @@ class QIE10Maker : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 	  TTree										*_tree;
 	  int										_verbosity;
-	  QIE10Digis								_digis;
+	  QIE10Digis								_qie10digis;
+	  HFDigis									_hfdigis;
 	  edm::EDGetTokenT<QIE10DigiCollection>		_tokQIE10;
+	  edm::EDGetTokenT<HFDigiCollection>		_tokHF;
 };
 
 //
@@ -73,13 +76,15 @@ QIE10Maker::QIE10Maker(const edm::ParameterSet& ps)
 	edm::Service<TFileService> fs;
 	TFileDirectory evsDir		= fs->mkdir("QIE10Maker");
 	_tree = evsDir.make<TTree>("Events", "Events");
-	_tree->Branch("QIE10Digis", "QIE10Digis", (QIE10Digis*)&_digis);
+	_tree->Branch("QIE10Digis", "QIE10Digis", (QIE10Digis*)&_qie10digis);
+	_tree->Branch("HFDigis", "HFDigis", (HFDigis*)&_hfdigis);
 
 	//	init some plugin parameters
 	_verbosity = ps.getUntrackedParameter<int>("verbosity");
 	
 	//	consume the token
 	_tokQIE10 = consumes<QIE10DigiCollection>(edm::InputTag("hcalDigis"));
+	_tokHF = consumes<HFDigiCollection>(edm::InputTag("hcalDigis"));
 }
 
 QIE10Maker::~QIE10Maker()
@@ -98,9 +103,13 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 	using namespace edm;
 
 	edm::Handle<QIE10DigiCollection> cqie10;
+	edm::Handle<HFDigiCollection> chf;
 	if (!e.getByToken(_tokQIE10, cqie10))
 		return;
+	if (!e.getByToken(_tokHF, chf))
+		return;
 
+	//	QIE10
 	for (uint32_t i=0; i<cqie10->size(); i++)
 	{
 		QIE10DataFrame frame = static_cast<QIE10DataFrame>((*cqie10)[i]); 
@@ -110,11 +119,30 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 			df._adc[j] = frame[j].adc();
 			df._ltdc[j] = frame[j].le_tdc();
 		}
-		_digis.push_back(df);
+		_qie10digis.push_back(df);
 	}
 
+	//	HF Digis
+	//	need only 1 PMT robox for iphi 39
+	for (HFDigiCollection::const_iterator it=chf->begin(); it!=chf->end();
+		++it)
+	{
+		HcalDetId did(it->id());
+		if (!(did.ieta()>0 && did.iphi()==39))
+			continue;
+
+		HFFrame df(did.rawId());
+		for (int i=0; i<it->size(); i++)
+		{
+			df._adc[i] = it->sample(i).adc();
+			df._nominal_fc[i] = it->sample(i).nominal_fC();
+		}
+	}
+
+	//	fill and clear
 	_tree->Fill();
-	_digis.clear();
+	_qie10digis.clear();
+	_hfdigis.clear();
 }
 
 
