@@ -137,6 +137,8 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 			df._adc[i] = it->sample(i).adc();
 			df._nominal_fC[i] = it->sample(i).nominal_fC();
 		}
+
+		_hfdigis.push_back(df);
 	}
 
 	//	fill and clear
