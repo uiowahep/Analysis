@@ -73,7 +73,7 @@ QIE10Maker::QIE10Maker(const edm::ParameterSet& ps)
 	edm::Service<TFileService> fs;
 	TFileDirectory evsDir		= fs->mkdir("QIE10Maker");
 	_tree = evsDir.make<TTree>("Events", "Events");
-	_tree->Branch("QIE10Maker", "QIE10Maker", (QIE10Digis*)&_digis);
+	_tree->Branch("QIE10Digis", "QIE10Digis", (QIE10Digis*)&_digis);
 
 	//	init some plugin parameters
 	_verbosity = ps.getUntrackedParameter<int>("verbosity");
@@ -97,7 +97,6 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
 	using namespace edm;
 
-	std::cout << "Processing" << std::endl;
 	edm::Handle<QIE10DigiCollection> cqie10;
 	if (!e.getByToken(_tokQIE10, cqie10))
 		return;

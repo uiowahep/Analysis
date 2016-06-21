@@ -5,7 +5,7 @@ namespace
 {
 	struct dictionary
 	{
-	
+			
 		std::vector<analysis::core::QIE10Frame> dumm5;
 	};
 }
