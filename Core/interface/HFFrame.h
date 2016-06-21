@@ -10,7 +10,14 @@ namespace analysis
 		class HFFrame
 		{
 			public:
-				HFFrame() {}
+				HFFrame() 
+				{
+					for (int i=0; i<10; i++)
+					{
+						_adc[i] = 0;
+						_nominal_fC[i] = 0;
+					}
+				}
 				HFFrame(uint32_t id): _id(id)
 				{}
 				virtual ~HFFrame() {}

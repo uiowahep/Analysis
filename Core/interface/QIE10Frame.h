@@ -10,9 +10,22 @@ namespace analysis
 		class QIE10Frame
 		{
 			public:
-				QIE10Frame() {}
+				QIE10Frame() 
+				{
+					for (int i=0; i<10; i++)
+					{
+						_adc[i] = 0;
+						_ltdc[i] = 0;
+					}
+				}
 				QIE10Frame(uint32_t id): _id(id)
-				{}
+				{
+					for (int i=0; i<10; i++)
+					{
+						_adc[i] = 0;
+						_ltdc[i] = 0;
+					}
+				}
 				virtual ~QIE10Frame() {}
 
 				//	public members

@@ -20,7 +20,13 @@ void test()
 		chain->GetEntry(i);
 		int n = 0;
 		for (uint32_t j=0; j<digis->size(); j++)
+		{
+			for (int k=0; k<10; k++)
+				std::cout << digis->at(j)._adc[k] << "  ";
+			std::cout << std::endl;
 			n++;
+		}
+		std::cout << std::endl;
 		std::cout << n << std::endl;
 	}
 
