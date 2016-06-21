@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
 namespace analysis
 {
 	namespace core
@@ -13,12 +11,12 @@ namespace analysis
 		{
 			public:
 				QIE10Frame() {}
-				QIE10Frame(HcalDetId const& id): _did(id)
+				QIE10Frame(uint32_t id): _id(id)
 				{}
 				virtual ~QIE10Frame() {}
 
 				//	public members
-				HcalDetId	_did;
+				uint32_t	_id;
 				int			_adc[10];
 				int			_ltdc[10];
 //				int			_ttdc[10];

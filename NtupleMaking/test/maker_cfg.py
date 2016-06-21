@@ -67,7 +67,7 @@ process.source = cms.Source("HcalTBSource",
 #-----------------------------------------------------------
 #	TFile Service definition
 #-----------------------------------------------------------
-path = ""
+path = "../../data/ntuples"
 process.TFileService = cms.Service(
 	"TFileService",
 	fileName=cms.string(path + options.outFileName)
