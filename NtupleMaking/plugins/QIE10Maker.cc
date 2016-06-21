@@ -20,7 +20,7 @@
 
 // user include files
 #include "Analysis/NtupleMaking/interface/CommonHeaders.h"
-#include "Analysis/Core/interface/Definitions.h"
+#include "Analysis/Core/interface/QIE10Frame.h"
 
 //	ROOT includes
 #include "TTree.h"
@@ -105,7 +105,12 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 	for (uint32_t i=0; i<cqie10->size(); i++)
 	{
 		QIE10DataFrame frame = static_cast<QIE10DataFrame>((*cqie10)[i]); 
-		QIE10Frame df(frame.detid().rawId());
+		QIE10Frame df(HcalDetId(frame.detid()));
+		for (int j=0; j<frame.samples(); j++)
+		{
+			df._adc[j] = frame[j].adc();
+			df._ltdc[j] = frame[j].le_tdc();
+		}
 		_digis.push_back(df);
 	}
 
