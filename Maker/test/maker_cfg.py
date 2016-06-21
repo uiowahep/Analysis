@@ -7,7 +7,7 @@
 #	main imports and CMS Process Def
 #-----------------------------------------------------------
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("Maker")
+process = cms.Process("NtupleMaker")
 
 #-----------------------------------------------------------
 #	Input Options
@@ -17,7 +17,7 @@ options = VarParsing.VarParsing()
 
 options.register(
 	"inputFiles",
-	"root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/LS1/USC_248441.root",
+	"root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/LS1/USC_275388.root",
 	VarParsing.VarParsing.multiplicity.list,
 	VarParsing.VarParsing.varType.string,
 	"Input Files"
@@ -44,14 +44,14 @@ options.parseArguments()
 #	Load whatever you need from CMSSW and then modify if neccessary
 #-----------------------------------------------------------
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('CondCore.DBCommon.CondDBCommon_cfi')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('CondCore.CondDB.CondDB_cfi')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.GlobalTag.globaltag = "GR_P_V56"
+process.GlobalTag.globaltag = "80X_dataRun2_HLT_v12"
 process.hcalDigis.InputLabel = cms.InputTag("source")
 
 #-----------------------------------------------------------
@@ -77,7 +77,7 @@ process.TFileService = cms.Service(
 #	Define the EDAnalyzer for Stage1
 #-----------------------------------------------------------
 process.maker = cms.EDAnalyzer(
-	'Maker',
+	'QIE10Maker',
 	verbosity = cms.untracked.int32(0),
 )
 

@@ -1,23 +1,5 @@
 <lcgdict>
-	<class name="HFDataFrame"/>
-	<class name="std::vector<HFDataFrame>"/>
-	<class name="edm::Wrapper<std::vector<HFDataFrame> >"/>
-			
-	<class name="HBHEDataFrame"/>
-	<class name="std::vector<HBHEDataFrame>"/>
-	<class name="edm::Wrapper<std::vector<HBHEDataFrame> >"/>
-
-	<class name="HODataFrame"/>
-	<class name="std::vector<HODataFrame>"/>
-		<class name="edm::Wrapper<std::vector<HODataFrame> >"/>
-
-
-	<class name="QIE10DataFrame"/>
-	<class name="std::vector<QIE10DataFrame>"/>
-	<class name="edm::Wrapper<std::vector<QIE10DataFrame> >"/>
-			
-	<class name="QIE11DataFrame"/>
-	<class name="std::vector<QIE11DataFrame>"/>
-	<class name="edm::Wrapper<std::vector<QIE11DataFrame> >"/>
-
+	<class name="analysis::core::QIE10Frame"/>
+	<class name="std::vector<analysis::core::QIE10Frame>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::QIE10Frame> >"/>
 </lcgdict>

@@ -1,10 +1,11 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
-<use name="UserCode/Core"/>
+<use name="Analysis/Core"/>
 <use name="PhysicsTools/UtilAlgos"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/HcalRecHit"/>
+<use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/ParticleFlowReco"/>

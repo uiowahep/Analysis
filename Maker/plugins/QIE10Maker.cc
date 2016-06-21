@@ -19,7 +19,8 @@
 #include <memory>
 
 // user include files
-#include "UserCode/Maker/interface/DigiUnit.h"
+#include "Analysis/Maker/interface/CommonHeaders.h"
+#include "Analysis/Core/interface/Definitions.h"
 
 //	ROOT includes
 #include "TTree.h"
@@ -30,11 +31,10 @@
 //
 
 using namespace analysis::core;
-using namespace analysis::maker;
-class Maker : public edm::EDAnalyzer {
+class QIE10Maker : public edm::EDAnalyzer {
    public:
-      explicit Maker(const edm::ParameterSet&);
-      ~Maker();
+      explicit QIE10Maker(const edm::ParameterSet&);
+      ~QIE10Maker();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -51,8 +51,9 @@ class Maker : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 	  TTree										*_tree;
-	  std::vector<EventUnit*>					_units;
 	  int										_verbosity;
+	  QIE10Digis								_digis;
+	  edm::EDGetTokenT<QIE10DigiCollection>		_tokQIE10;
 };
 
 //
@@ -66,25 +67,22 @@ class Maker : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-Maker::Maker(const edm::ParameterSet& ps)
+QIE10Maker::QIE10Maker(const edm::ParameterSet& ps)
 {
 	//	Initialize the TFileService and create the Directoies + Events Tree
 	edm::Service<TFileService> fs;
-	TFileDirectory evsDir		= fs->mkdir("Events");
+	TFileDirectory evsDir		= fs->mkdir("QIE10Maker");
 	_tree = evsDir.make<TTree>("Events", "Events");
+	_tree->Branch("QIE10Maker", "QIE10Maker", (QIE10Digis*)&_digis);
 
 	//	init some plugin parameters
 	_verbosity = ps.getUntrackedParameter<int>("verbosity");
-
-	//	Initialize the EventUnits you need
-	_units.push_back(new DigiUnit("Digis", _tree));
-
-	for (unsigned int i=0; i<_units.size(); i++)
-		_units[i]->setbranch();
+	
+	//	consume the token
+	_tokQIE10 = consumes<QIE10DigiCollection>(edm::InputTag("hcalDigis"));
 }
 
-
-Maker::~Maker()
+QIE10Maker::~QIE10Maker()
 {
 }
 
@@ -95,29 +93,36 @@ Maker::~Maker()
 
 // ------------ method called for each event  ------------
 void
-Maker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
 	using namespace edm;
 
-	//	Process and Fill
-	for (unsigned int i=0; i<_units.size(); i++)
-		_units[i]->process(iEvent, iSetup);
+	std::cout << "Processing" << std::endl;
+	edm::Handle<QIE10DigiCollection> cqie10;
+	if (!e.getByToken(_tokQIE10, cqie10))
+		return;
+
+	for (uint32_t i=0; i<cqie10->size(); i++)
+	{
+		QIE10DataFrame frame = static_cast<QIE10DataFrame>((*cqie10)[i]); 
+		QIE10Frame df(frame.detid().rawId());
+		_digis.push_back(df);
+	}
+
 	_tree->Fill();
-	//	Clear
-	for (unsigned int i=0; i<_units.size(); i++)
-		_units[i]->clear();
+	_digis.clear();
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-Maker::beginJob()
+QIE10Maker::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-Maker::endJob() 
+QIE10Maker::endJob() 
 {
 }
 
@@ -155,7 +160,7 @@ ForwardStage1::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup c
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-Maker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+QIE10Maker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -164,4 +169,4 @@ Maker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(Maker);
+DEFINE_FWK_MODULE(QIE10Maker);

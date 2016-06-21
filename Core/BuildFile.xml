@@ -1,7 +1,8 @@
 <use name="root"/>
 <use name="FWCore/Framework"/>
+<use name="DataFormats/HcalDigi" />
 
 <export>
-	<lib name="UserCodeCore" />
+	<lib name="AnalysisCore" />
 </export>
 
