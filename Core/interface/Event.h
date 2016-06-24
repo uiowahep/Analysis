@@ -10,8 +10,16 @@ namespace analysis
 		class Event : public Object
 		{
 			public:
-				Event() : Object()
-				{}
+				Event() : Object() {}
+
+				virtual void reset()
+				{
+					_run = 0;
+					_lumi = 0;
+					_event = 0;
+					_bx = 0;
+					_orbit = 0;
+				}
 				virtual ~Event() {}
 
 				int _run;

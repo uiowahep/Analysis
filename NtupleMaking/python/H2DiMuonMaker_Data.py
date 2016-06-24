@@ -17,4 +17,5 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer('H2DiMuonMaker',
     triggerNames = cms.untracked.vstring(
         "HLT_IsoMu20", "HLT_IsoTkMu20", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"
     ),
+    checkTrigger = cms.untracked.bool(True),
 )

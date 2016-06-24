@@ -10,8 +10,16 @@ namespace analysis
 		class GenParticle : public Object
 		{
 			public:
-				GenParticle() : Object()
-				{}
+				GenParticle() : Object() {}
+
+				virtual void GenParticle()
+				{
+					_mass = 0;
+					_pt = 0;
+					_eta = 0;
+					_rapid = 0;
+					_phi = 0;
+				}
 				virtual ~GenParticle() {}
 
 				float _mass;

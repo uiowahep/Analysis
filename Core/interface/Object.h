@@ -23,6 +23,8 @@ namespace analysis
 			public:
 				Object(){}
 				virtual ~Object() {}
+
+				virtual void reset() {}
 		};
 
 		typedef std::vector<analysis::core::Object> Objects;

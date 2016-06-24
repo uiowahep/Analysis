@@ -11,7 +11,9 @@ namespace analysis
 		class HFFrame : public Object
 		{
 			public:
-				HFFrame() : Object()
+				HFFrame() : Object() {}
+
+				virtual reset()				
 				{
 					for (int i=0; i<10; i++)
 					{

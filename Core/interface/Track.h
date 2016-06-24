@@ -10,8 +10,16 @@ namespace analysis
 		class Track : public Object
 		{
 			public:
-				Track() : Object()
-				{}
+				Track() : Object() {}
+
+				virtual void reset()
+				{
+					_charge = 0;
+					_pt = 0;
+					_pterr = 0;
+					_eta = 0;
+					_phi = 0;
+				}
 				virtual ~Track() {}
 
 				int _charge;

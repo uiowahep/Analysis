@@ -10,8 +10,16 @@ namespace analysis
 		class MET : public Object
 		{
 			public:
-				MET() : Object()
-				{}
+				MET() : Object() {}
+
+				virtual void reset()
+				{
+					_px = 0;
+					-py = 0;
+					_pt = 0; 
+					_phi = 0;
+					_sumEt = 0;
+				}
 				virtual ~MET() {}
 
 				float _px;

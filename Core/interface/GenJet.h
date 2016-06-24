@@ -13,6 +13,17 @@ namespace analysis
 				GenJet() : Object()
 				{}
 				virtual ~GenJet() {}
+				virtual void reset()
+				{
+					_px = 0;
+					_py = 0;
+					_pz = 0;
+					_pt = 0;
+					_eta = 0;
+					_phi = 0;
+					_mass = 0;
+					_charge = 0; 
+				}
 
 				float _px;
 				float _py;

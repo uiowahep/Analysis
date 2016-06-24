@@ -10,8 +10,42 @@ namespace analysis
 		class Muon : public Track
 		{
 			public:
-				Muon() : Track()
-				{}
+				Muon() : Track() {}
+
+				virtual void reset()
+				{
+					_isTrk = 0;
+					_isSA = 0;
+					_isGlb = 0;
+					_isTight = 0;
+					_isMedium = 0;
+					_isLoose = 0;
+
+					_normCh2 = 0; 
+					_d0BS = 0;
+					_dzBS = 0;
+					_d0PV = 0;
+					_dzPV = 0;
+
+					_nPLs = 0;
+					_nTLs = 0;
+					_nSLs = 0;
+
+					_nvfrTrk = 0;
+					_nvMuHits = 0;
+					_nvPHits = 0;
+					_nvTrkHits = 0;
+					_nvSHits = 0;
+					_nSegMts =0 ;
+					_nMtsStations = 0;
+
+					_trkIsoSumPt = 0;
+					_trkIsoSumPtCorr = 0;
+
+					_hIso = 0;
+					_eIso = 0;
+					_relCombIso = 0;
+				}
 				virtual ~Muon() {}
 
 				int _isTrk;

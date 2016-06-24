@@ -154,6 +154,9 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		edm::EDGetTokenT<pat::MuonCollection> _tokMuons;
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdFloat;
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdInt;
+
+		//	Trigger
+		std::vector<std::string> _triggerNames;
 };
 
 H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
@@ -164,16 +167,6 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 	edm::Service<TFileService> fs;
 	_tEvents = fs->make<TTree>("Events", "Events");
 	_tMeta = fs->make<TTree>("Meta", "Meta");
-
-	using namespace analysis::core;
-	_tEvents->Branch("Muons", (Muons*)&_muons);
-	_tEvents->Branch("Jets", (Jets*)&_pfjets);
-	_tEvents->Branch("Vertices", (Vertices*)&_vertices);
-	_tEvents->Branch("Tracks", (Tracks*)&_tracks);
-	_tEvents->Branch("Event", (Event*)&_event);
-	_tEvents->Branch("MET", (MET*)&_met);
-	_tEvents->Branch("GenJets", (GenJets*)&_genjets);
-	_tEvents->Branch("GenParticles", (GenParticles*)&_genparts);
 
 	//
 	//	Tags/Tokens
@@ -223,6 +216,19 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 		_tagGenJets);
 	_tokMuons = consumes<pat::MuonCollection>(
 		_tagMuons);
+	
+	using namespace analysis::core;
+	_tEvents->Branch("Muons", (Muons*)&_muons);
+	_tEvents->Branch("Jets", (Jets*)&_pfjets);
+	_tEvents->Branch("Vertices", (Vertices*)&_vertices);
+	_tEvents->Branch("Tracks", (Tracks*)&_tracks);
+	_tEvents->Branch("Event", (Event*)&_event);
+	_tEvents->Branch("MET", (MET*)&_met);
+	if (_isMC)
+	{
+		_tEvents->Branch("GenJets", (GenJets*)&_genjets);
+		_tEvents->Branch("GenParticles", (GenParticles*)&_genparts);
+	}
 }
 
 void H2DiMuonMaker::beginJob()
@@ -231,9 +237,257 @@ void H2DiMuonMaker::beginJob()
 void H2DiMuonMaker::endJob()
 {}
 
-void H2DiMuonMaker::analyze(edm::Event const&, edm::EventSetup const&)
+//
+//	The logic is simple:
+//	- retrieve all the objects needed and save them
+//		1. MC Weights
+//		2. HLT
+//		3.
+//	- accumulate meta information
+//
+void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 {
 	std::cout << "Processing..." << std::endl;
+
+	//
+	//	For MC
+	//
+	if (_isMC)
+	{
+		//
+		//	MC Weights
+		//
+		edm::Handle<GenEventInfoProduct> genEvtInfo;
+		_genWeight = (genEvtInfo->weight() > 0)? 1 : -1;
+		_sumEventWeights += _genWeight;
+
+		//
+		//	MC Truth
+		//
+		edm::Handle<std::vector< PileupSummaryInfo > > hPUInfo;
+		e.getByToken(_tokPU, PupInfo);
+		std::vector<PileupSummaryInfo>::const_iterator pus;
+		for (pus=hPUInfo->begin(); pus!=hPUInfo->end(); ++pus)
+		{
+			int bx = pus->getBunchCrossing();
+			if (bx==0)
+				_nPU = pus->getTrueNumInteractions();
+		}
+
+		//	
+		//	Pruned Gen Particles
+		//
+		edm::Handle<reco::GenParticleCollection> hPrunedGenParticles;
+		e.getByToken(_tokPrunedGenParticle, hPrunedGenParticles);
+		reco::GenParticleCollection hardProcessMuons;
+		bool foundW(false), foundZ(false), foundH(false);
+		for (reco::GenParticleCollection::const_iterator it=
+			hPrunedGenParticles->begin(); it!=hPrunedGenParticles->end();
+			++it)
+		{
+			int id = it->pdgId();
+			int status = it->status();
+
+			if (abs(id)==PDG_ID_Z && (status==22 || status==3))
+			{
+				foundZ = true;
+
+			}
+		}
+
+		//
+		//	Packed Gen Particles
+		//
+		edm::Handle<pat::PackedGenParticleCollection> hPackedGenParticles;
+		e.getByToken(_tokPackedGenParticle, hPackedGenParticles);
+		pat::PackedGenParticleCollection finalStateGenMuons;
+		for (pat::PackedGenParticleCollection::const_iterator it=
+			hPackedGenParticles->begin(); it!=hPackedGenParticles->end();
+			++it)
+		{
+			int id = it->pdgId();
+			if (abs(id)==13)
+				finalStateGenMuons.push_back(*it);
+		}
+
+		//
+		//	Gen Jet
+		//
+		edm::Handle < reco::GenJetCollection > hGenJets;
+		e.getByToken(_tokGenJet, hGenJets);
+		if (!hGenJets->isValid())
+		{
+			std::cout << "Gen Jet Product is not found" << std::endl;
+		}
+		else
+		{
+
+		}
+	}
+
+	//	
+	//	HLT
+	//	- Skip the event if HLT has not fired
+	//
+	e.getByToken(_tokTriggerResults, _hTriggerResults);
+	e.getByToken(_tokTriggerObjects, _hTriggerObjects);
+	if (!hTriggerResults.isValid())
+	{
+		std::cout << "### Trigger Results Product is not found" << std::endl;
+		return;
+	}
+	if (!hTriggerObjects.isValid())
+	{
+		std::cout << "### Trigger Results Product is not found" << std::endl;
+		return;
+	}
+	if (_checkTrigger)
+		if (!passHLT(e))
+			return;
+
+	//	
+	//	Event Info
+	//
+	_event._run = e.id().run();
+	_event._lumi = e.id().lumi();
+	_event._event = e.id().event();
+	_event._bx = e.bunchCrossing();
+	_event._orbit = e.orbitNumber();
+
+	//	
+	//	Vertices
+	//
+	edm::Handle<reco::VertexCollection> hVertices;
+	e.getByToken(_tokPV, hVertices);
+	if (!hVertices.isValid())	
+		std::cout << "### VertexCollection Product is not found" << std::endl;
+	else
+	{
+		for (reco::VertexCollection::const_iterator it=hVertices->begin();
+			it!=hVertices->end(); ++it)
+		{
+			analysis::core::Vertex vtx;
+			if (!it->isValid())
+				vtx._isValid = 0;
+			else
+			{
+				vtx._isValid = 1;
+				vtx._x = it->position().X();
+				vtx._y = it->position().Y();
+				vtx._z = it->position().Z();
+				vtx._xerr = it->xError();
+				vtx._yerr = it->yError();
+				vtx._zerr = it->zError();
+				vtx._chi2 = it->chi2();
+				vtx._ndf = it->ndof();
+				vtx._normChi2 = it->normalizedChi2();
+			}
+			_vertices.push_back(vtx);
+		}
+	}
+
+	//
+	//	Beam Spot
+	//
+	edm::Handle<reco::BeamSpot> hBS;
+	e.getByToken(_tokBS, hBS);
+
+	//
+	//	MET
+	//
+	edm::Handle < std::vector<pat::MET> > hMET;
+	e.getByToken(_tokMET, hMET);
+	if (!hMET.isValid())
+	{
+		std::cout << "MET Product is not found" << std::endl;
+		return;
+	}
+
+	//
+	//	Jet
+	//
+	edm::Handle < std::vector<pat::Jet> > hJets;
+	e.getByToken(_tokJets, hJets);
+	if (!hJets.isValid())
+	{
+		std::cout << "Jet Product is not found" << std::enld;
+		return;
+	}
+	for (uint32_t i=0; i<hJets->size(); i++)
+	{
+		const pat::Jet &jet = hJets->at(i);
+		//	 fill in
+	}
+
+	edm::Handle < reco::GenJetCollection > hGenJets;
+	e.getByToken(_tokGenJet, hGenJets);
+
+	//
+	//	Muons
+	//
+	edm::Handle<pat::MuonCollection> hMuons;
+	e.getByToken(_tokMuons, hMuons);
+	pat::MuonCollection muonsSelected;
+
+	//
+	//	Muon Pre-Selection 1
+	//
+	for (pat::MuonCollection::const_iterator it=hMuons->begin();
+		it!=hMuons->end(); ++it)
+	{
+		muonsSelected.push_back(*it);
+	}
+
+	//	
+	//	Muon Pre-Selection 2 based on #muons @1
+	//
+	if (muonsSelected.size()==0) // 0 muons
+	{
+
+	}
+	else if (muonsSelected.size()==1) // 1 muon
+	{
+
+	}
+	else // 2 or more muons
+	{
+		//	construct dimuon candidates
+	}
+
+	//
+	//	Dump objects to The ROOT Tree
+	//
+	_tEvents->Fill();
+	
+	//
+	//	Reset all objects or clear the containers
+	//
+	_event.reset();
+	_vertices.clear();
+
+}
+
+//
+//	true - passes HLT selections
+//	false - doesn't pass
+//
+bool H2DiMuonMaker::passHLT(edm::Event const& e)
+{
+	const boost::regex re("_v[0-9]+");
+	TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
+	for (uint32_t i=0; i<_hTriggerResults->size(); i++)
+	{
+		std::string triggerName = triggerNames.triggerName(i);
+		string tstripped = boost::regex_replace(triggerName, re, "",
+			boost::match_default | boost::format_sed);
+		for (std::vector<std::string>::const_iterator dit=
+			_triggerNames.begin(); dit!=_triggerNames.end(); ++dit)
+			if (*dit == tstripped &&
+				_hTriggerResults->accept(i))
+				return true;
+	}
+
+	return false;
 }
 
 DEFINE_FWK_MODULE(H2DiMuonMaker);
