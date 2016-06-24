@@ -63,7 +63,7 @@ QIE10Maker::QIE10Maker(const edm::ParameterSet& ps)
 {
 	//	Initialize the TFileService and create the Directoies + Events Tree
 	edm::Service<TFileService> fs;
-	_tree = evsDir.make<TTree>("Events", "Events");
+	_tree =fs->make<TTree>("Events", "Events");
 	_tree->Branch("QIE10Digis", "QIE10Digis", (QIE10Digis*)&_qie10digis);
 	_tree->Branch("HFDigis", "HFDigis", (HFDigis*)&_hfdigis);
 

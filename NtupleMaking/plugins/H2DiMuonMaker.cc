@@ -21,111 +21,85 @@
 #include "TH2F.h"
 #include "TBranch.h"
 
+//	CMSSW
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-// user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "DataFormats/MuonReco/interface/MuonSegmentMatch.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
-
-
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-
-//
-// math classes
-//
 #include "DataFormats/Math/interface/deltaR.h"
-//
-// trigger
-// 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
-
-//
-// vertexing
-//
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-//
-// gen particles
-//
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
-
-// 2010.11.21 Adding the Muon Cocktail
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
-// pfJets and MET
-//#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-
-// PU Info
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
-
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-
 #include "DataFormats/Common/interface/View.h"
+
+//	MY Classes
+#include "Analysis/Core/interface/GenJet.h"
+#include "Analysis/Core/interface/Constants.h"
+#include "Analysis/Core/interface/MET.h"
+#include "Analysis/Core/interface/Track.h"
+#include "Analysis/Core/interface/Event.h"
+#include "Analysis/Core/interface/GenParticle.h"
+#include "Analysis/Core/interface/Jet.h"
+#include "Analysis/Core/interface/Muon.h"
+#include "Analysis/Core/interface/Vertex.h"
 
 class H2DiMuonMaker : public edm::EDAnalyzer
 {
@@ -143,15 +117,14 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		TTree *_tMeta;
 
 		//	Analysis Objects
-		using namespace analysis::core;
-		Muons		_muons;
-		Jets		_pfjets;
-		Vertices	_vertices;
-		Tracks		_tracks;
-		Event		_event;
-		MET			_met;
-		GenJets		_genjets;
-		GenParticles _genparts;
+		analysis::core::Muons		_muons;
+		analysis::core::Jets		_pfjets;
+		analysis::core::Vertices	_vertices;
+		analysis::core::Tracks		_tracks;
+		analysis::core::Event		_event;
+		analysis::core::MET			_met;
+		analysis::core::GenJets		_genjets;
+		analysis::core::GenParticles _genparts;
 
 		//	Input Tags/Tokens
 		edm::InputTag _tagMuons;
@@ -169,16 +142,16 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		edm::EDGetTokenT<edm::TriggerResults> _tokTriggerResults;
 		edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> 
 			_tokTriggerObjects;
-		edm::EDGetTokenT<reco::VertexCollection> _tokVertex;
+		edm::EDGetTokenT<reco::VertexCollection> _tokPV;
 		edm::EDGetTokenT<std::vector<PileupSummaryInfo> > _tokPU;
 		edm::EDGetTokenT<reco::BeamSpot> _tokBS;
-		edm::EDGetTokenT<reco::GenParticleCollection> _tokPrunedGenParticle;
+		edm::EDGetTokenT<reco::GenParticleCollection> _tokPrunedGenParticles;
 		edm::EDGetTokenT<pat::PackedGenParticleCollection> 
-			_tokPackedGenParticle;
+			_tokPackedGenParticles;
 		edm::EDGetTokenT<std::vector<pat::MET> > _tokMET;
-		edm::EDGetTokenT<std::vector<pat::Jet> > _tokJet;
-		edm::EDGetTokenT<reco::GenJetCollection> _tokGenJet;
-		edm::EDGetTokenT<pat::MuonCollection> _tokMuon;
+		edm::EDGetTokenT<std::vector<pat::Jet> > _tokJets;
+		edm::EDGetTokenT<reco::GenJetCollection> _tokGenJets;
+		edm::EDGetTokenT<pat::MuonCollection> _tokMuons;
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdFloat;
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdInt;
 };
@@ -192,7 +165,7 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 	_tEvents = fs->make<TTree>("Events", "Events");
 	_tMeta = fs->make<TTree>("Meta", "Meta");
 
-	using namespace analysis::core
+	using namespace analysis::core;
 	_tEvents->Branch("Muons", (Muons*)&_muons);
 	_tEvents->Branch("Jets", (Jets*)&_pfjets);
 	_tEvents->Branch("Vertices", (Vertices*)&_vertices);
@@ -258,7 +231,7 @@ void H2DiMuonMaker::beginJob()
 void H2DiMuonMaker::endJob()
 {}
 
-void H2DiMuonMaker::analyze()
+void H2DiMuonMaker::analyze(edm::Event const&, edm::EventSetup const&)
 {
 	std::cout << "Processing..." << std::endl;
 }
