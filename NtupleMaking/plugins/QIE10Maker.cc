@@ -1,19 +1,8 @@
-// -*- C++ -*-
-//
-// 
-/**\class ForwardStage1 ForwardStage1.cc FSQAnalysis/ForwardStage1/plugins/ForwardStage1.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Viktor Khristenko
-//         Created:  Thu, 25 Jun 2015 15:55:22 GMT
-//
-//
-
+/*
+ *	Author:
+ *	Date:
+ *	Description:
+ */
 
 // system include files
 #include <memory>
