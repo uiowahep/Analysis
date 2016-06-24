@@ -4,7 +4,7 @@
 #include "TFile.h"
 #include "TChain.h"
 
-#include "/Users/vk/software/HCALDQM/Analysis/Core/interface/QIE10Frame.h"
+#include "Analysis/Core/interface/QIE10Frame.h"
 
 void test()
 {

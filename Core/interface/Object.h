@@ -20,15 +20,11 @@ namespace analysis
 		class Object
 		{
 			public:
-				Object() :	_name(string("Object1")) {}
-				Object(std::string const& n) :
-					_name(n)
-				{}
+				Object(){}
 				virtual ~Object() {}
-
-				//	public members!
-				string	_name;
 		};
+
+		typedef std::vector<analysis::core::Object> Objects;
 	}
 }
 

@@ -1,16 +1,17 @@
 #ifndef Analysis_Core_QIE10Frame_h
 #define Analysis_Core_QIE10Frame_h
 
+#include "Analysis/Core/interface/Object.h"
 #include <vector>
 
 namespace analysis
 {
 	namespace core
 	{
-		class QIE10Frame
+		class QIE10Frame : public Object
 		{
 			public:
-				QIE10Frame() 
+				QIE10Frame() : Object()
 				{
 					for (int i=0; i<10; i++)
 					{
@@ -18,7 +19,7 @@ namespace analysis
 						_ltdc[i] = 0;
 					}
 				}
-				QIE10Frame(uint32_t id): _id(id)
+				QIE10Frame(uint32_t id): Object(), _id(id)
 				{
 					for (int i=0; i<10; i++)
 					{

@@ -1,4 +1,8 @@
 <lcgdict>
+	<class name="analysis::core::Object"/>
+	<class name="std::vector<analysis::core::Object>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Object> >"/>
+			
 	<class name="analysis::core::QIE10Frame"/>
 	<class name="std::vector<analysis::core::QIE10Frame>"/>
 	<class name="edm::Wrapper<std::vector<analysis::core::QIE10Frame> >"/>
@@ -6,4 +10,36 @@
 	<class name="analysis::core::HFFrame"/>
 	<class name="std::vector<analysis::core::HFFrame>"/>
 	<class name="edm::Wrapper<std::vector<analysis::core::HFFrame> >"/>
+	
+	<class name="analysis::core::Event"/>
+	<class name="std::vector<analysis::core::Event>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Event> >"/>
+			
+	<class name="analysis::core::GenParticle"/>
+	<class name="std::vector<analysis::core::GenParticle>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::GenParticle> >"/>
+			
+	<class name="analysis::core::Jet"/>
+	<class name="std::vector<analysis::core::Jet>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Jet> >"/>
+			
+	<class name="analysis::core::Muon"/>
+	<class name="std::vector<analysis::core::Muon>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Muon> >"/>
+			
+	<class name="analysis::core::Vertex"/>
+	<class name="std::vector<analysis::core::Vertex>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Vertex> >"/>
+			
+	<class name="analysis::core::GenJet"/>
+	<class name="std::vector<analysis::core::GenJet>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::GenJet> >"/>
+			
+	<class name="analysis::core::MET"/>
+	<class name="std::vector<analysis::core::MET>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::MET> >"/>
+			
+	<class name="analysis::core::Track"/>
+	<class name="std::vector<analysis::core::Track>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Track> >"/>
 </lcgdict>
