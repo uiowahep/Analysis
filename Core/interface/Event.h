@@ -20,6 +20,8 @@ namespace analysis
 				int _bx;
 				int _orbit;
 		};
+
+		typedef std::vector<analysis::core::Event> Events;
 	}
 }
 

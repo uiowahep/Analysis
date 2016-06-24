@@ -21,7 +21,7 @@ namespace analysis
 				float _phi;
 		};
 
-		std::vector<analysis::core::Track> Tracks;
+		typedef std::vector<analysis::core::Track> Tracks;
 	}
 }
 

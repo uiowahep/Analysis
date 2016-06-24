@@ -15,7 +15,7 @@ namespace
 {
 	struct dictionary
 	{
-		analysis::core::Objects dumm0
+		analysis::core::Objects dumm0;
 		analysis::core::QIE10Digis dumm1;
 		analysis::core::HFDigis dumm2;
 		analysis::core::Events dumm3;

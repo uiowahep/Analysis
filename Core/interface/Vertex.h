@@ -13,7 +13,7 @@ namespace analysis
 				Vertex() : Object()
 				{}
 
-				virtual ~Vertex()
+				virtual ~Vertex() {}
 
 				int _isValid;
 				float _x;

@@ -52,7 +52,7 @@ process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.GlobalTag.globaltag = "80X_dataRun2_HLT_v12"
-process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.hcalDigis.InputLabel = cms.InputTag("source")
 
 #-----------------------------------------------------------
 #	Pool Source
@@ -60,14 +60,14 @@ process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.maxEvents = cms.untracked.PSet(
 	input = cms.untracked.int32(options.processEvents)
 )
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("HcalTBSource",
     fileNames = cms.untracked.vstring(options.inputFiles)
 )
 
 #-----------------------------------------------------------
 #	TFile Service definition
 #-----------------------------------------------------------
-path = "../../data/ntuples/"
+path = "../../files/ntuples/"
 process.TFileService = cms.Service(
 	"TFileService",
 	fileName=cms.string(path + options.outFileName)
