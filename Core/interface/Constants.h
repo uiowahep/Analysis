@@ -15,6 +15,9 @@ namespace analysis
 		int const PDG_ID_W = 24;
 		int const PDG_ID_H = 25;
 		int const PDG_ID_Mu = 13;
+
+		//	some numbers..
+		double const NUM_PI = 3.1415927;
 	}
 }
 

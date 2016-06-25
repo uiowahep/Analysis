@@ -110,6 +110,12 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		virtual void beginJob();
 		virtual void endJob();
 		virtual void analyze(edm::Event const&, edm::EventSetup const&);
+	private:
+		bool passHLT(edm::Event const&);
+		bool isHLTMatched(uint32_t, edm::Event const&,
+			pat::Muon const&);
+		passKinCuts(pat::Muon const&,
+			edm::Handle<reco::BeamSpot> const&);
 
 	private:
 		//	ROOT
@@ -117,14 +123,29 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		TTree *_tMeta;
 
 		//	Analysis Objects
-		analysis::core::Muons		_muons;
+		analysis::core::Muons		_muons1; 
+		analysis::core::Muons		_muons2; // [0]-[0] correspond to a pair
 		analysis::core::Jets		_pfjets;
 		analysis::core::Vertices	_vertices;
-		analysis::core::Tracks		_tracks;
 		analysis::core::Event		_event;
 		analysis::core::MET			_met;
 		analysis::core::GenJets		_genjets;
 		analysis::core::GenParticles _genparts;
+
+		analysis::core::GenParticle	_genZpreFSR;
+		analysis::core::Track		_track1ZpreFSR, _track2ZpreFSR;			
+		analysis::core::GenParticle	_genZpostFSR;
+		analysis::core::Track		_track1ZpostFSR, _track2ZpostFSR;
+		
+		analysis::core::GenParticle	_genWpreFSR;
+		analysis::core::Track		_track1WpreFSR, _track2WpreFSR;			
+		analysis::core::GenParticle	_genWpostFSR;
+		analysis::core::Track		_track1WpostFSR, _track2WpostFSR;
+		
+		analysis::core::GenParticle	_genHpreFSR;
+		analysis::core::Track		_track1HpreFSR, _track2HpreFSR;			
+		analysis::core::GenParticle	_genHpostFSR;
+		analysis::core::Track		_track1HpostFSR, _track2HpostFSR;
 
 		//	Input Tags/Tokens
 		edm::InputTag _tagMuons;
@@ -288,11 +309,96 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			int id = it->pdgId();
 			int status = it->status();
 
+			//	Z
 			if (abs(id)==PDG_ID_Z && (status==22 || status==3))
 			{
 				foundZ = true;
-
+				_genZpreFSR._mass = it->mass();
+				_genZpreFSR._pt = it->pt();
+				_genZpreFSR._eta = it->eta();
+				_genZpreFSR._rapid = it->rapidity();
+				_genZpreFSR._phi = it->phi();
 			}
+			if (abs(id)==PDG_ID_Z && (status==62 || status==2))
+			{
+				_genZpostFSR._mass = it->mass();
+				_genZpostFSR._pt = it->pt();
+				_genZpostFSR._eta = it->eta();
+				_genZpostFSR._rapid = it->rapidity();
+				_genZpostFSR._phi = it->phi();
+			}
+
+			//	W
+			if (abs(id)==PDG_ID_W && (status==22 || status==3))
+			{
+				foundW = true;
+				_genWpreFSR._mass = it->mass();
+				_genWpreFSR._pt = it->pt();
+				_genWpreFSR._eta = it->eta();
+				_genWpreFSR._rapid = it->rapidity();
+				_genWpreFSR._phi = it->phi();
+			}
+			if (abs(id)==PDG_ID_W && (status==62 || status==2))
+			{
+				_genWpostFSR._mass = it->mass();
+				_genWpostFSR._pt = it->pt();
+				_genWpostFSR._eta = it->eta();
+				_genWpostFSR._rapid = it->rapidity();
+				_genWpostFSR._phi = it->phi();
+			}
+
+			//	H
+			if (abs(id)==PDG_ID_H && (status==22 || status==3))
+			{
+				foundH = true;
+				_genHpreFSR._mass = it->mass();
+				_genHpreFSR._pt = it->pt();
+				_genHpreFSR._eta = it->eta();
+				_genHpreFSR._rapid = it->rapidity();
+				_genHpreFSR._phi = it->phi();
+			}
+			if (abs(id)==PDG_ID_H && (status==62 || status==2))
+			{
+				_genHpostFSR._mass = it->mass();
+				_genHpostFSR._pt = it->pt();
+				_genHpostFSR._eta = it->eta();
+				_genHpostFSR._rapid = it->rapidity();
+				_genHpostFSR._phi = it->phi();
+			}
+
+			//	Mu
+			if (abs(id)==PDG_ID_Mu && (status==23 || status==3))
+				hardProcessMuons.push_back(*it);
+		}
+
+		if (foundZ && hardProcessMuons.size()==2)
+		{
+			_track1ZpreFSR._pt = hardProcessMuons[0].pt();
+			_track1ZpreFSR._eta = hardProcessMuons[0].eta();
+			_track1ZpreFSR._phi = hardProcessMuons[0].phi();
+			_track1ZpreFSR._charge = hardProcessMuons[0].charge();
+			_track2ZpreFSR._pt = hardProcessMuons[1].pt();
+			_track2ZpreFSR._eta = hardProcessMuons[1].eta();
+			_track2ZpreFSR._phi = hardProcessMuons[1].phi();
+			_track2ZpreFSR._charge = hardProcessMuons[1].charge();
+		}
+		if (foundW && hardProcessMuons.size()==1)
+		{
+			_trackWpreFSR._pt = hardProcessMuons[0].pt();
+			_trackWpreFSR._eta = hardProcessMuons[0].eta();
+			_trackWpreFSR._phi = hardProcessMuons[0].phi();
+			_trackWpreFSR._charge = hardProcessMuons[0].charge();
+		}
+		if (foundH && hardProcessMuons.size()==2)
+		{
+			_track1HpreFSR._pt = hardProcessMuons[0].pt();
+			_track1HpreFSR._eta = hardProcessMuons[0].eta();
+			_track1HpreFSR._phi = hardProcessMuons[0].phi();
+			_track1HpreFSR._charge = hardProcessMuons[0].charge();
+			_track2HpreFSR._pt = hardProcessMuons[1].pt();
+			_track2HpreFSR._eta = hardProcessMuons[1].eta();
+			_track2HpreFSR._phi = hardProcessMuons[1].phi();
+			_track2HpreFSR._charge = hardProcessMuons[1].charge();
 		}
 
 		//
@@ -304,10 +410,36 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 		for (pat::PackedGenParticleCollection::const_iterator it=
 			hPackedGenParticles->begin(); it!=hPackedGenParticles->end();
 			++it)
-		{
-			int id = it->pdgId();
-			if (abs(id)==13)
+			if (abs(it->pdgId())==13)
 				finalStateGenMuons.push_back(*it);
+		if (foundZ && finalStateMuons.size()==2)
+		{
+			_track1ZpostFSR._pt = finalStateGenMuons[0].pt();
+			_track1ZpostFSR._eta = finalStateGenMuons[0].eta();
+			_track1ZpostFSR._phi = finalStateGenMuons[0].phi();
+			_track1ZpostFSR._charge = finalStateGenMuons[0].charge();
+			_track2ZpostFSR._pt = finalStateGenMuons[1].pt();
+			_track2ZpostFSR._eta = finalStateGenMuons[1].eta();
+			_track2ZpostFSR._phi = finalStateGenMuons[1].phi();
+			_track2ZpostFSR._charge = finalStateGenMuons[1].charge();
+		}
+		if (foundW && finalStateGenMuons.size()==1)
+		{
+			_trackWpostFSR._pt = finalStateGenMuons[0].pt();
+			_trackWpostFSR._eta = finalStateGenMuons[0].eta();
+			_trackWpostFSR._phi = finalStateGenMuons[0].phi();
+			_trackWpostFSR._charge = finalStateGenMuons[0].charge();
+		}
+		if (foundH && finalStateMuons.size()==2)
+		{
+			_track1HpostFSR._pt = finalStateGenMuons[0].pt();
+			_track1HpostFSR._eta = finalStateGenMuons[0].eta();
+			_track1HpostFSR._phi = finalStateGenMuons[0].phi();
+			_track1HpostFSR._charge = finalStateGenMuons[0].charge();
+			_track2HpostFSR._pt = finalStateGenMuons[1].pt();
+			_track2HpostFSR._eta = finalStateGenMuons[1].eta();
+			_track2HpostFSR._phi = finalStateGenMuons[1].phi();
+			_track2HpostFSR._charge = finalStateGenMuons[1].charge();
 		}
 
 		//
@@ -321,7 +453,21 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 		}
 		else
 		{
-
+			sort(hGenJets->begin(), hGenJets.end(),
+				[](reco::GenJet const& it, reco::GenJet const& jt)
+				{return it.pt()>jt.pt();});
+			for (uint32_t i=0; i<hGenJets->size(); i++)
+			{
+				analysis::core::GenJet genjet;
+				genjet._px = hGenJets->at(i).px();
+				genjet._py = hGenJets->at(i).py();
+				genjet._pz = hGenJets->at(i).pz();
+				genjet._py = hGenJets->at(i).pt();
+				genjet._eta = hGenJets->at(i).eta();
+				genjet._phi = hGenJets->at(i).phi();
+				genjet._mass = hGenJets->at(i).mass();
+				_genjets.push_back(genjet);
+			}
 		}
 	}
 
@@ -400,7 +546,14 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	if (!hMET.isValid())
 	{
 		std::cout << "MET Product is not found" << std::endl;
-		return;
+	}
+	else
+	{
+		_met._px = (*hMET)[0].px();
+		_met._py = (*hMET)[0].py();
+		_met._pt = (*hMET)[0].pt();
+		_met._phi = (*hMET)[0].phi();
+		_met._sumEt = (*hMET)[0].sumEt();
 	}
 
 	//
@@ -411,16 +564,66 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	if (!hJets.isValid())
 	{
 		std::cout << "Jet Product is not found" << std::enld;
-		return;
 	}
-	for (uint32_t i=0; i<hJets->size(); i++)
 	{
-		const pat::Jet &jet = hJets->at(i);
-		//	 fill in
-	}
+		for (uint32_t i=0; i<hJets->size(); i++)
+		{
+			const pat::Jet &jet = hJets->at(i);
+			analysis::core::Jet myjet;
+			myjet._px = jet.px();
+			myjet._py = jet.py();
+			myjet._pz = jet.pz();
+			myjet._pt = jet.pt();
+			myjet._eta = jet.eta();
+			myjet._phi = jet.phi();
+			myjet._mass = jet.mass();
+			myjet._partonFlavour = jet.partonFlavour();
 
-	edm::Handle < reco::GenJetCollection > hGenJets;
-	e.getByToken(_tokGenJet, hGenJets);
+			myjet._chf = jet.chargedHadronEnergyFraction();
+			myjet._nhf = jet.neutralHadronEnergyFraction();
+			myjet._cef = jet.chargedEmEnergyFraction();
+			myjet._nef = jet.neutralEmEnergyFraction();
+			myjet._muf = jet.muonEnergyFraction();
+			myjet._hfhf = jet.HFHadronEnergyFraction();
+			myjet._hfef = jet.HFEMEnergyFraction();
+			
+			myjet._cm = jet.chargedMultiplicity();
+			myjet._chm = jet.chargedHadronMultiplicity();
+			myjet._nhm = jet.neutralHadronMultiplicity();
+			myjet._cem = jet.electronMultiplicity();
+			myjet._nem = jet.photonMultiplicity();
+			myjet._mum = jet.muonMultiplicity();
+			myjet._hfhm = jet.HFHadronMultiplicity();
+			myjet._hfem = jet.HFEMMultiplicity();
+
+			myjet._jecu = -1.;
+			myjet._jecf = jet.jecFactor("Uncorrected");
+			myjet._csv = jet.bDiscriminator(
+				"combinedSecondaryVertexBJetTags");
+			myjet._puid = jet.userFloat("pileupJetId:fullDiscriminant");
+
+			//	matche gen jet
+			const reco::GenJet *genJet = jen.genJet();
+			if (genJet!=NULL)
+			{
+				myjet.genMatched=true;
+				myjet._genjet._px = genJet->px();
+				myjet._genjet._py = genJet->py();
+				myjet._genjet._pz = genJet->pz();
+				myjet._genjet._pt = genJet->pt();
+				myjet._genjet._eta = genJet->eta();
+				myjet._genjet._phi = genJet->phi();
+				myjet._genjet._mass = genJet->mass();
+				myjet._genemf = genJet->emEnergy()/genJet->energy();
+				myjet._genhadf = genJet->hadEnergy()/genJet->energy();
+				myjet._geninvf = genJet->invisibleEnergy()/genJet->energy();
+				myjet._genauxf = genJet->auxiliaryEnergy()/genJet->energy();
+			}
+			else
+				myjet.genMatched=false;
+		}
+		_pfjets.push_back(myjet);
+	}
 
 	//
 	//	Muons
@@ -435,23 +638,325 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	for (pat::MuonCollection::const_iterator it=hMuons->begin();
 		it!=hMuons->end(); ++it)
 	{
+		//	global vs tracker vs standalone
+		if (!it->isGlobalMuon() && _isGlobalMuon)
+			continue;
+		if (!it->isTrackerMuon() && _isTrackerMuon)
+			continue;
+		if (!it->isGlobalMuon && !it->isTrackerMuon())
+			continue;
+
+		//	kinematic
+		if (!passKinCuts(*it, hBS))
+			continue;
+
 		muonsSelected.push_back(*it);
 	}
+
+	//	skip the event if the #muons is not what we need
+	if (muonsSelected.size()<_nMuons)
+		return;
 
 	//	
 	//	Muon Pre-Selection 2 based on #muons @1
 	//
-	if (muonsSelected.size()==0) // 0 muons
-	{
-
-	}
-	else if (muonsSelected.size()==1) // 1 muon
-	{
-
-	}
+	if (muonsSelected.size()==0 || muonsSelected.size()==1) // 0 muons
+		return;
 	else // 2 or more muons
 	{
 		//	construct dimuon candidates
+		typedef std::pair<pat::Muon, pat::Muon> MuonPair;
+		typedef std::vector<MuonPair> MuonPairs;
+		MuonPairs muonPairs;
+		for (pat::MuonCollection::const_iterator it=muonsSelected.begin();
+			it!=muonsSelected.end(); ++it)
+			for (pat::MuonCollection::const_iterator jt=(it+1);
+				jt!=muonsSelected.end(); ++jt)
+				muonPairs.push_back(MuonPair(*it, *jt));
+		std::sort(muonPairs.begin(), muonPairs.end(), 
+			[](MuonPair const& p1, MuonPair const& p2)
+			{
+				TLorentzVector m11, m12, d1;
+				reco::Track const t11 = *(p1.first.innerTrack());
+				reco::Track const t12 = *(p1.second.innerTrack());
+				TLorentzVector m21, m22, d2;
+				reco::Track const t21 = *(p2.first.innerTrack());
+				reco::Track const t22 = *(p2.second.innerTrack());
+
+				m11.SetPtEtaPhiM(t11.pt(), t11.eta(), t11.phi(),
+					analysis::core::PDG_MASS_Mu);
+				m12.SetPtEtaPhiM(t12.pt(), t12.eta(), t12.phi(),
+					analysis::core::PDG_MASS_Mu);
+				m21.SetPtEtaPhiM(t21.pt(), t21.eta(), t21.phi(),
+					analysis::core::PDG_MASS_Mu);
+				m22.SetPtEtaPhiM(t22.pt(), t22.eta(), t22.phi(),
+					analysis::core::PDG_MASS_Mu);
+
+				d1 = m11 + m12;
+				d2 = m21 + m22;
+				return fabs(d1.M()-analysis::core::PDG_MASS_Z)<
+					fabs(d2.M()-analysis::core::PDG_MASS_Z);
+			}
+		);
+
+		for (MuonPairs::const_iterator it=muonPairs.begin();
+			it!=muonPairs.end(); ++it)
+		{
+			pat::Muon mu1 = it->first; 
+			analysis::core::Muon _muon1;
+			pat::Muon mu2 = it->second;
+			analysis::core::Muon _muon2;
+
+			double isovar1 = mu1.isolationR03().sumPt;
+			isovar1+= mu1.isolationR03().hadEt;
+			isovar1/=mu1.pt();
+			
+			double isovar2 = mu2.isolationR03().sumPt;
+			isovar2+= mu2.isolationR03().hadEt;
+			isovar2/=mu2.pt();
+
+			_muon1._relCombIso = isovar1;
+			_muon2._relCombIso = isovar2;
+			_muon1._trkIsoSumPt = mu1.isolationR03().sumPt;
+			_muon2._trkIsoSumPt = mu2.isolationR03().sumPt;
+			_muon1._trkIsoSumPtCorr = mu1.isolationR03().sumPt;
+			_muon2._trkIsoSumPtCorr = mu2.isolationR03().sumPt;
+
+			if (mu1.innerTrack().isNonnull())
+			{
+				double deta = mu1.track()->eta()-mu2.track()->eta();
+				double dphi = fabs(mu1.track()->phi()-mu2.track()->phi());
+				if (dphi>analysis::core::NUM_PI)
+					dphi = 2.*analysis::core::NUM_PI - dphi;
+				if (sqrt(deta*deta + dphi*dphi)<0.3 &&
+					_muon2.trackIsoSumPt>0.9*mu1.track()->pt())
+					_muon2.trackIsoSumPtCorr = 
+						_muon2.trackIsoSumPt-mu1.track()->pt();
+			}
+			if (mu2.innerTrack().isNonnull())
+			{
+				double deta = mu2.track()->eta()-mu1.track()->eta();
+				double dphi = fabs(mu2.track()->phi()-mu1.track()->phi());
+				if (dphi>analysis::core::NUM_PI)
+					dphi = 2.*analysis::core::NUM_PI - dphi;
+				if (sqrt(deta*deta + dphi*dphi)<0.3 &&
+					_muon1.trackIsoSumPt>0.9*mu2.track()->pt())
+					_muon1.trackIsoSumPtCorr = 
+						_muon1.trackIsoSumPt-mu2.track()->pt();
+			}
+
+			_muon1.isPF = mu1.isPFMuon(); _muon2.isPF = mu2.isPFMuon();
+			if (mu1.isPFMuon())
+			{
+				reco::Candidate::LorentzVector pfm = mu1.pfP4();
+				_muon1._pt = pfm.Pt();
+				_muon1._eta = pfm.Eta();
+				_muon1._phi = pfm.Phi();
+				_muon1._ChargedHadronPtR03 = 
+					mu1.pfIsolationR03().sumChargedHadronPt;
+				_muon1.sumChargedParticlePtR03 = 
+					mu1.pfIsolationR03().sumChargedParticlePt;
+				_muon1.sumNeutralHadronEtR03 = 
+					mu1.pfIsolationR03().sumNeutralHadronEt;
+				_muon1.sumPhotonEtR03 = mu1.pfIsolationR03().sumPhotonEt;
+				_muon1.sumPUPtR03 = mu1.pfIsolationR03().sumPUPt;
+				_muon1.sumChargedHadronPtR04 = 
+					mu1.pfIsolationR04().sumChargedHadronPt;
+				_muon1.sumChargedParticlePtR04 = 
+					mu1.pfIsolationR04().sumChargedParticlePt;
+				_muon1.sumNeutralHadronEtR04 = 
+					mu1.pfIsolationR04().sumNeutralHadronEt;
+				_muon1.sumPhotonEtR04 = mu1.pfIsolationR04().sumPhotonEt;
+				_muon1.sumPUPtR04 = mu1.pfIsolationR04().sumPUPt;
+			}
+			if (mu2.isPFMuon())
+			{
+				reco::Candidate::LorentzVector pfm = mu2.pfP4();
+				_muon2._pt = pfm.Pt();
+				_muon2._eta = pfm.Eta();
+				_muon2._phi = pfm.Phi();
+				_muon2._ChargedHadronPtR03 = 
+					mu2.pfIsolationR03().sumChargedHadronPt;
+				_muon2.sumChargedParticlePtR03 = 
+					mu2.pfIsolationR03().sumChargedParticlePt;
+				_muon2.sumNeutralHadronEtR03 = 
+					mu2.pfIsolationR03().sumNeutralHadronEt;
+				_muon2.sumPhotonEtR03 = mu2.pfIsolationR03().sumPhotonEt;
+				_muon2.sumPUPtR03 = mu2.pfIsolationR03().sumPUPt;
+				_muon2.sumChargedHadronPtR04 = 
+					mu2.pfIsolationR04().sumChargedHadronPt;
+				_muon2.sumChargedParticlePtR04 = 
+					mu2.pfIsolationR04().sumChargedParticlePt;
+				_muon2.sumNeutralHadronEtR04 = 
+					mu2.pfIsolationR04().sumNeutralHadronEt;
+				_muon2.sumPhotonEtR04 = mu2.pfIsolationR04().sumPhotonEt;
+				_muon2.sumPUPtR04 = mu2.pfIsolationR04().sumPUPt;
+			}
+
+			if (_muon1._trkIsoSumPt > _trackIsoMaxSumPt) return;
+			if (_muon2._trkIsoSumPt > _trackIsoMaxSumPt) return;
+			if (_muon1._relCombIso > _relCombIso) return;
+			if (_muon2._relCombIso > _relCombIso) return;
+			if (!(passKinCuts(mu1, hBS) && passKinCuts(mu2, hBS)))
+				return;
+	
+			//	fill the muon1 information
+			_muon1.isGlb = mu1.isGlobalMuon();
+			_muon1.isTrk = mu1.isTrackerMuon();
+			_muon1.isSA = mu1.isStandAloneMuon();
+			reco::Track track1;
+			if (mu1.isGlobalMuon()) track1 = *(mu1.globalTrack());
+			else if (mu1.isTrackerMuon()) track1 = *(mu1.innerTrack());
+			else
+				return;
+
+			_muon1._charge = mu1.charge();
+			_muon1._pt = mu1.pt();
+			_muon1._pterr = mu1.ptError();
+			_muon1.eta = mu1.eta();
+			_muon1.phi = mu1.phi();
+			if (mu1.isTrackerMuon())
+			{
+				_muon1._track._pt = mu1.innerTrack()->pt();
+				_muon1._track._pterr = mu1.innerTrack()->ptError();
+				_muon1._track._eta  = mu1.innerTrack()->eta();
+				_muon1._track._phi = mu1.innerTrack()->phi();
+			}
+			_muon1._normCh2 = track1.normalizedChi2();
+			_muon1._d0BS = track1.dxy(hBS->position());
+			_muon1._dzBS = track1.dz(hBS->position());
+			reco::Vertex bestVtx1;
+			for (reco::VertexCollection::const_iterator it=hVertices->begin();
+				it!=hVertices->end(); ++it)
+			{
+				if (!it->isValid()) continue;
+				_muon1._d0PV = track1.dxy(it->position());
+				_muon1._dzPV = track1.dz(it->position());
+				bestVtx1 = *it;
+				break;
+			}
+			_muon1._isTight = muon::isTightMuon(mu1, bestVtx1);
+			_muon1._isMedium = muon::isMediumMuon(mu1,);
+			_muon1._isLooseMuon = muon::isLooseMuon(mu1);
+			_muon1._nTLs = 
+				mu1.innerTrack()->hitPattern().trackerLayersWithMeasurement();
+			_muon1._nPLs = 
+				mu1.innerTrack()->hitPattern().pixelLayersWithMeasurement();
+			_muon1._nSLs = 
+				mu1.innerTrack()->hitPattern().stripLayersWithMeasurement();
+
+			_muon1._vfrTrk = mu1.innerTrack()->validFraction();
+			_muon1._nvMHits = track1.hitPattern().numberOfValidMuonHIts();
+			_muon1._nvPHits = 
+				mu1.innerTrack()->hitPattern().numberOfValidPixelHits();
+			_muon1._nvTHits = 
+				mu1.innerTrack()->hitPattern().numberOfValidTrackerHits();
+			_muon1._nvSHits = 
+				mu1.innerTrack()->hitPattern().numberOfValidStripHits();
+			_muon1._nSegMts = mu1.numberOfMatches();
+			_muon1._nMtsStations = mu1.numberOfMatchedStations();
+			_muon1._eIso = mu1.isolationR03().emEt;
+			_muon1._hIso = mu1.isolationR03().hadEt;
+			_muon1._segmentCompatibility = muon::segmentCompatibility(mu1);
+			_muon1._combinedQChi2LocalPosition = 
+				mu1.combinedQuality().chi2LocalPosition();
+			_muon1._combinedQTrkKink = mu1.combinedQuality().trkKink;
+			for (uint32_t i=0; i<_triggerNames.size(); i++)
+			{
+				bool match = isHLTMatched(e, mu1);
+				_muon1._isHLTMatched.push_back(match);
+			}
+
+			//	muon2
+			_muon2.isGlb = mu2.isGlobalMuon();
+			_muon2.isTrk = mu2.isTrackerMuon();
+			_muon2.isSA = mu2.isStandAloneMuon();
+			reco::Track track2;
+			if (mu2.isGlobalMuon()) track2 = *(mu2.globalTrack());
+			else if (mu.isTrackerMuon()) track = *(mu2.innerTrack());
+			else
+				return;
+
+			_muon2._charge = mu2.charge();
+			_muon2._pt = mu2.pt();
+			_muon2._pterr = mu2.ptError();
+			_muon2.eta = mu2.eta();
+			_muon2.phi = mu2.phi();
+			if (mu2.isTrackerMuon())
+			{
+				_muon2._track._pt = mu2.innerTrack()->pt();
+				_muon2._track._pterr = mu2.innerTrack()->ptError();
+				_muon2._track._eta  = mu2.innerTrack()->eta();
+				_muon2._track._phi = mu2.innerTrack()->phi();
+			}
+			_muon2._normCh2 = track2.normalizedChi2();
+			_muon2._d0BS = track2.dxy(hBS->position());
+			_muon2._dzBS = track2.dz(hBS->position());
+			reco::Vertex bestVtx2;
+			for (reco::VertexCollection::const_iterator it=hVertices->begin();
+				it!=hVertices->end(); ++it)
+			{
+				if (!it->isValid()) continue;
+				_muon2._d0PV = track2.dxy(it->position());
+				_muon2._dzPV = track2.dz(it->position());
+				bestVtx2 = *it;
+				break;
+			}
+			_muon2._isTight = muon::isTightMuon(mu2, bestVtx2);
+			_muon2._isMedium = muon::isMediumMuon(mu2,);
+			_muon2._isLooseMuon = muon::isLooseMuon(mu2);
+			_muon2._nTLs = 
+				mu2.innerTrack()->hitPattern().trackerLayersWithMeasurement();
+			_muon2._nPLs = 
+				mu2.innerTrack()->hitPattern().pixelLayersWithMeasurement();
+			_muon2._nSLs = 
+				mu2.innerTrack()->hitPattern().stripLayersWithMeasurement();
+
+			_muon2._vfrTrk = mu2.innerTrack()->validFraction();
+			_muon2._nvMHits = track2.hitPattern().numberOfValidMuonHIts();
+			_muon2._nvPHits = 
+				mu2.innerTrack()->hitPattern().numberOfValidPixelHits();
+			_muon2._nvTHits = 
+				mu2.innerTrack()->hitPattern().numberOfValidTrackerHits();
+			_muon2._nvSHits = 
+				mu2.innerTrack()->hitPattern().numberOfValidStripHits();
+			_muon2._nSegMts = mu2.numberOfMatches();
+			_muon2._nMtsStations = mu2.numberOfMatchedStations();
+			_muon2._eIso = mu2.isolationR03().emEt;
+			_muon2._hIso = mu2.isolationR03().hadEt;
+			_muon2._segmentCompatibility = muon::segmentCompatibility(mu2);
+			_muon2._combinedQChi2LocalPosition = 
+				mu2.combinedQuality().chi2LocalPosition();
+			_muon2._combinedQTrkKink = mu2.combinedQuality().trkKink;
+			for (uint32_t i=0; i<_triggerNames.size(); i++)
+			{
+				bool match = isHLTMatched(i, e, mu2);
+				_muon2._isHLTMatched.push_back(match);
+			}
+
+			//
+			//	Below DiMuon variables - which could be obtained from 
+			//	other ones....
+			//
+			/*
+			reco::Track const mt1 = *(mu1.innerTrack());
+			reco::Track const mt2 = *(mu2.innerTrack());
+			TLorentzVector p4_dimuon = TLorentzVector().SetPtEtaPhiM(
+				mt1.pt(), mt1.eta(), mt1.phi(),
+				analysis::PDG_MASS_Mu) + TLorentzVector().SetPtEtaPhiM(
+				mt2.pt(), mt2.eta(), mt2.phi(), 
+				anallysis::PDG_MASS_Mu);
+
+			_dimuon._mass = p4_dimuon.M();
+			_dimuon._pt = p4_dimuon.Pt();
+			_dimuon._eta = p4_dimuon.PseudoRapidity();
+			_dimuon._rapid = p4_dimuon.Rapidity();
+			_dimuon._phi = p4_dimuon.Phi();
+			*/
+
+			_muons1.push_back(_muon1);
+			_muons2.push_back(_muon2);
+		}
 	}
 
 	//
@@ -464,7 +969,9 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	//
 	_event.reset();
 	_vertices.clear();
-
+	_muons.clear();
+	_pfjets.clear();
+	_genjets.clear();
 }
 
 //
@@ -488,6 +995,88 @@ bool H2DiMuonMaker::passHLT(edm::Event const& e)
 	}
 
 	return false;
+}
+
+//	
+//	true - matched
+//	false - didn't match
+//
+bool H2DiMuonMaker::isHLTMatched(uint32_t itrigger, edm::Event const& e,
+	pat::Muon const& mu)
+{
+	const boost::regex re("_v[0-9]+");
+	TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
+	for (uint32_t i=0; i<_hTriggerResults->size(); i++)
+	{
+		std::string trigerName = triggerNames.triggerName(i);
+		std::string tstripped = boost::regex_replace(triggerName, re, "",
+			boost::match_default | boost::format_sed);
+		if (_triggerNames[itrigger]==tstripped &&
+			_hTriggerResults->accept(i))
+		{
+			for (TriggerObjectsStandAloneCollection::const_iterator it=
+				_hTriggerObjects->begin(); it!=_hTriggerObjects->end(); ++it)
+			{
+				TriggerObjectStandAlone tmp(*it);
+				tmp.unpackPathNames(triggerNames);
+				bool right = tmp.hasPathName(triggerName, true, true);
+				if (right)
+					return (deltaR(tmp, mu) < 0.2);
+			}
+		}
+	}
+
+	return false;
+}
+
+//
+//	true - passes Kinematic Cuts
+//	false - doesn't pass
+//
+bool H2DiMuonMaker::passKinCuts(pat::Muon const& muon,
+	edm::Handle<reco::BeamSpot> const& hBS)
+{
+	reco::Track track;
+	if (muon.isGlobalMuon()) track = *(muon.globalTrack());
+	else if (muon.isTrackerMuon())
+		track = *(muon.innerTrack());
+	else
+		return false;
+
+	if (muon.pt() < _ptMin) return false;
+	if (fabs(muon.eta()) > _etaMax) return false;
+	if (track.hitPattern().numberOfValidTrackerHits() < 
+		_numValidTrackerHitsMin)
+		return false;
+	if (fabs(track.dxy(hBS->position())) > _d0Max) return false;
+	if (track.hitPattern().pixelLayersWithMeasurement() < 
+		_numPixelLayersMin)
+		return false;
+	if (track.hitPattern().trackerLayersWithMeasurement() < 
+		_numTrackerLayers)
+		return false;
+	if (track.hitPattern().stripLayersWithMeasurement() < 
+		_numStripLayersMin)
+		return false;
+	if (track.validFraction() < _validFracTrackerMin)
+		return false;
+	if (track.hitPattern.numberOfValidMuonHits() < 
+		_numValidMuonHitsMin)
+		return false;
+	if (track.hitPattern.numberOfValidPixelHits() < 
+		_numValidPixelHitsMin)
+		return false;
+	if (track.hitPattern.numberOfValidStripHits() <
+		_numValidStripHitsMin)
+		return false;
+	if (muon.numberOfMatches() < _numSegmentMatchesMin)
+		return false;
+	if (muon.numberOfMatchedStations() < _numOfMatchedStationsMin)
+		return false;
+	if (track.normalizedChi2() > _normChi2Max)
+		return false;
+
+	return true;
 }
 
 DEFINE_FWK_MODULE(H2DiMuonMaker);

@@ -21,6 +21,8 @@ namespace analysis
 					_isMedium = 0;
 					_isLoose = 0;
 
+					_isPF = 0;
+
 					_normCh2 = 0; 
 					_d0BS = 0;
 					_dzBS = 0;
@@ -45,15 +47,23 @@ namespace analysis
 					_hIso = 0;
 					_eIso = 0;
 					_relCombIso = 0;
+					Track::reset();
+					_track.reset();
+					_isHLTMatched.clear();
+					_segmentCompatibility = 0;
+					_combinedQChi2LocalPosition = 0;
+					_combinedQTrkKink = 0;
 				}
 				virtual ~Muon() {}
 
-				int _isTrk;
-				int _isSA;
-				int _isGlb;
-				int _isTight;
-				int _isMedium;
-				int _isLoose;
+				bool _isTrk;
+				bool _isSA;
+				bool _isGlb;
+				bool _isTight;
+				bool _isMedium;
+				bool _isLoose;
+
+				bool _isPF;
 
 				int _normCh2;
 				float _d0BS;
@@ -65,7 +75,7 @@ namespace analysis
 				int _nTLs;
 				int _nSLs;
 
-				float _nvfrTrk;
+				float _vfrTrk;
 				int _nvMuHits;
 				int _nvPHits;
 				int _nvTrkHits;
@@ -79,6 +89,12 @@ namespace analysis
 				float _hIso;
 				float _eIso;
 				float _relCombIso;
+				Track _track;
+
+				float _segmentCompatibility;
+				float _combinedQChi2LocalPosition;
+				float _combinedQTrkKink;
+				std::vector<bool> _isHLTMatched;
 		};
 
 		typedef std::vector<analysis::core::Muon> Muons;

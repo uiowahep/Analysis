@@ -2,6 +2,7 @@
 #define Analysis_Core_Jet_h
 
 #include "Analysis/Core/interface/Object.h"
+#include "Analysis/Core/interface/GenJet.h"
 
 namespace analysis
 {
@@ -41,6 +42,14 @@ namespace analysis
 					_jecf = 0;
 					_jecu = 0;
 					_csv = 0;
+					_puid = 0;
+
+					_genjet.reset();
+					_genMatched = 0;
+					_genemf = 0;
+					_genhadf = 0;
+					_geninvf = 0;
+					_genauxf = 0;
 				}
 				virtual ~Jet() {}
 
@@ -72,6 +81,15 @@ namespace analysis
 				float _jecf;
 				float _jecu;
 				float _csv;
+				float _puid;
+
+				//	
+				GenJet _genjet;
+				bool _genMatched;
+				float _genemf;
+				float _genhadf;
+				float _geninvf;
+				float _genauxf;
 		};
 
 		typedef std::vector<analysis::core::Jet> Jets;

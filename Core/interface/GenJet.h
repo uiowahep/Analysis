@@ -22,7 +22,6 @@ namespace analysis
 					_eta = 0;
 					_phi = 0;
 					_mass = 0;
-					_charge = 0; 
 				}
 
 				float _px;
@@ -32,7 +31,6 @@ namespace analysis
 				float _eta;
 				float _phi;
 				float _mass;
-				int _charge;
 		};
 
 		typedef std::vector<analysis::core::GenJet> GenJets;
