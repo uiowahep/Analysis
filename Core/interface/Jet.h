@@ -23,7 +23,7 @@ namespace analysis
 					_phi = 0;
 					_mass = 0;
 					_charge = 0;
-					_partonFlvour = 0;
+					_partonFlavour = 0;
 					_chf = 0;
 					_nhf = 0;
 					_cef = 0;

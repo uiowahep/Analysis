@@ -29,6 +29,23 @@ namespace analysis
 				int _orbit;
 		};
 
+		class EventAuxiliary : public Object
+		{
+			public:
+				EventAuxiliary() :  Object() {}
+				virtual ~EventAuxiliary() {}
+
+				virtual void reset()
+				{
+					_nPU = 0;
+					_genWeight = 0;
+				}
+
+				int _nPU;
+				int _genWeight;
+		};
+
+		typedef std::vector<analysis::core::EventAuxiliary> EventAuxiliaries;
 		typedef std::vector<analysis::core::Event> Events;
 	}
 }

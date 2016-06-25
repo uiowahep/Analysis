@@ -15,7 +15,7 @@ process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-from Samples_v3 import singleMuon_RunC25nsOct_MINIAOD as s
+from Samples_v3 import singleMuon_Run2016B_PromptReco_v2_MINIAOD as s
 
 #
 #   a few settings
@@ -29,11 +29,11 @@ readFiles.extend(s.files);
 #   Differentiate between DATA and MC
 #
 if not thisIsData:
-    process.load("Analysis.NtupleMaking.H2DiMuounMaker_MC")
+    process.load("Analysis.NtupleMaking.H2DiMuonMaker_MC")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     globalTag+="::All"
 else:
-    process.load("Analysis.NtupleMaking.H2DiMuounMaker_Data")
+    process.load("Analysis.NtupleMaking.H2DiMuonMaker_Data")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 #
@@ -61,12 +61,12 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
 if thisIsData:
     import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(filename = s.jsonfiles[1]).getVLuminosityBlockRange()
+    process.source.lumisToProcess = LumiList.LumiList(filename = s.jsonfile).getVLuminosityBlockRange()
 
 #
 #   TFile Service to handle output
 #
-process.TFileService = cms.Service("TFileService", fileName = cms.string("stage_1_"+s.name+".root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuplemaking_"+s.name+".root") )
 
 #
 #   Execution Path

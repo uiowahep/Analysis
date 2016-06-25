@@ -14,9 +14,9 @@ namespace analysis
 
 				virtual void reset()
 				{
-					_isTrk = 0;
-					_isSA = 0;
-					_isGlb = 0;
+					_isTracker = 0;
+					_isStandAlone = 0;
+					_isGlobal = 0;
 					_isTight = 0;
 					_isMedium = 0;
 					_isLoose = 0;
@@ -33,16 +33,16 @@ namespace analysis
 					_nTLs = 0;
 					_nSLs = 0;
 
-					_nvfrTrk = 0;
-					_nvMuHits = 0;
+					_vfrTrk = 0;
+					_nvMHits = 0;
 					_nvPHits = 0;
-					_nvTrkHits = 0;
+					_nvTHits = 0;
 					_nvSHits = 0;
 					_nSegMts =0 ;
 					_nMtsStations = 0;
 
-					_trkIsoSumPt = 0;
-					_trkIsoSumPtCorr = 0;
+					_trackIsoSumPt = 0;
+					_trackIsoSumPtCorr = 0;
 
 					_hIso = 0;
 					_eIso = 0;
@@ -53,12 +53,23 @@ namespace analysis
 					_segmentCompatibility = 0;
 					_combinedQChi2LocalPosition = 0;
 					_combinedQTrkKink = 0;
+
+					_sumChargedHadronPtR03 = 0;
+					_sumChargedParticlePtR03 = 0;
+					_sumNeutralHadronEtR03 = 0;
+					_sumPhotonEtR03 = 0;
+					_sumPUPtR03 = 0;
+					_sumChargedHadronPtR04 = 0;
+					_sumChargedParticlePtR04 = 0;
+					_sumNeutralHadronEtR04 = 0;
+					_sumPhotonEtR04 = 0;
+					_sumPUPtR04 = 0;
 				}
 				virtual ~Muon() {}
 
-				bool _isTrk;
-				bool _isSA;
-				bool _isGlb;
+				bool _isTracker;
+				bool _isStandAlone;
+				bool _isGlobal;
 				bool _isTight;
 				bool _isMedium;
 				bool _isLoose;
@@ -76,15 +87,15 @@ namespace analysis
 				int _nSLs;
 
 				float _vfrTrk;
-				int _nvMuHits;
+				int _nvMHits;
 				int _nvPHits;
-				int _nvTrkHits;
+				int _nvTHits;
 				int _nvSHits;
 				int _nSegMts;
 				int _nMtsStations;
 
-				float _trkIsoSumPt;
-				float _trkIsoSumPtCorr;
+				float _trackIsoSumPt;
+				float _trackIsoSumPtCorr;
 
 				float _hIso;
 				float _eIso;
@@ -95,6 +106,17 @@ namespace analysis
 				float _combinedQChi2LocalPosition;
 				float _combinedQTrkKink;
 				std::vector<bool> _isHLTMatched;
+
+				float _sumChargedHadronPtR03;
+				float _sumChargedParticlePtR03;
+				float _sumNeutralHadronEtR03;
+				float _sumPhotonEtR03;
+				float _sumPUPtR03;
+				float _sumChargedHadronPtR04;
+				float _sumChargedParticlePtR04;
+				float _sumNeutralHadronEtR04;
+				float _sumPhotonEtR04;
+				float _sumPUPtR04;
 		};
 
 		typedef std::vector<analysis::core::Muon> Muons;

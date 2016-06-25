@@ -13,8 +13,32 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer('H2DiMuonMaker',
     tagPFJets = cms.untracked.InputTag("slimmedJets"),
     tagGenJets = cms.untracked.InputTag("slimmedGenJets"),
 
-    #   Trigger Names to select
+	#
+	#	Meta Data
+	#
     triggerNames = cms.untracked.vstring(
         "HLT_IsoMu20", "HLT_IsoTkMu20", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"
     ),
+    checkTrigger = cms.untracked.bool(True),
+	isMC = cms.untracked.bool(True),
+	nMuons = cms.untracked.int32(2),
+	isGlobalMuon = cms.untracked.bool(False),
+	isStandAlone = cms.untracked.bool(False),
+	isTracker = cms.untracked.bool(True),
+	minPt = cms.untracked.double(10),
+	maxeta = cms.untracked.double(2.4),
+	maxNormChi2 = cms.untracked.double(999),
+	minMuonHits = cms.untracked.int32(-999),
+	minPixelhits = cms.untracked.int32(-999),
+	minStripHits = cms.untracked.int32(-999),
+	minTrackerHIts = cms.untracked.int32(-999),
+	minSegmentMatches = cms.untracked.int32(-999),
+	minMatchedStations = cms.untracked.int32(-999),
+	minPixelLayers  = cms.untracked.int32(-999),
+	minTrackerLayers = cms.untracked.int32(-999),
+	minStripLayers = cms.untracked.int32(-999),
+	minValidFractionTracker = cms.untracked.int32(-999),
+	maxd0 = cms.untracked.double(999),
+	maxTrackIsoSumPt = cms.untracked.double(999),
+	maxRelCombIso = cms.untracked.double(999),
 )

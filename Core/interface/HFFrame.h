@@ -13,7 +13,7 @@ namespace analysis
 			public:
 				HFFrame() : Object() {}
 
-				virtual reset()				
+				virtual void reset()				
 				{
 					for (int i=0; i<10; i++)
 					{

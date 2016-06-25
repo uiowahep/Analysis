@@ -15,7 +15,7 @@ namespace analysis
 				virtual void reset()
 				{
 					_px = 0;
-					-py = 0;
+					_py = 0;
 					_pt = 0; 
 					_phi = 0;
 					_sumEt = 0;

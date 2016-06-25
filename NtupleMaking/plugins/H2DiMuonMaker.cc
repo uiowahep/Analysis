@@ -96,6 +96,7 @@
 #include "Analysis/Core/interface/MET.h"
 #include "Analysis/Core/interface/Track.h"
 #include "Analysis/Core/interface/Event.h"
+#include "Analysis/Core/interface/Meta_DiMuon.h"
 #include "Analysis/Core/interface/GenParticle.h"
 #include "Analysis/Core/interface/Jet.h"
 #include "Analysis/Core/interface/Muon.h"
@@ -114,7 +115,7 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		bool passHLT(edm::Event const&);
 		bool isHLTMatched(uint32_t, edm::Event const&,
 			pat::Muon const&);
-		passKinCuts(pat::Muon const&,
+		bool passKinCuts(pat::Muon const&,
 			edm::Handle<reco::BeamSpot> const&);
 
 	private:
@@ -123,11 +124,13 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		TTree *_tMeta;
 
 		//	Analysis Objects
+		analysis::dimuon::Meta		_meta;
 		analysis::core::Muons		_muons1; 
 		analysis::core::Muons		_muons2; // [0]-[0] correspond to a pair
 		analysis::core::Jets		_pfjets;
 		analysis::core::Vertices	_vertices;
 		analysis::core::Event		_event;
+		analysis::core::EventAuxiliary		_eaux;
 		analysis::core::MET			_met;
 		analysis::core::GenJets		_genjets;
 		analysis::core::GenParticles _genparts;
@@ -138,9 +141,9 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		analysis::core::Track		_track1ZpostFSR, _track2ZpostFSR;
 		
 		analysis::core::GenParticle	_genWpreFSR;
-		analysis::core::Track		_track1WpreFSR, _track2WpreFSR;			
+		analysis::core::Track		_trackWpreFSR;	
 		analysis::core::GenParticle	_genWpostFSR;
-		analysis::core::Track		_track1WpostFSR, _track2WpostFSR;
+		analysis::core::Track		_trackWpostFSR;
 		
 		analysis::core::GenParticle	_genHpreFSR;
 		analysis::core::Track		_track1HpreFSR, _track2HpreFSR;			
@@ -176,8 +179,8 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdFloat;
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdInt;
 
-		//	Trigger
-		std::vector<std::string> _triggerNames;
+		edm::Handle<edm::TriggerResults> _hTriggerResults;
+		edm::Handle<pat::TriggerObjectStandAloneCollection> _hTriggerObjects;
 };
 
 H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
@@ -188,6 +191,17 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 	edm::Service<TFileService> fs;
 	_tEvents = fs->make<TTree>("Events", "Events");
 	_tMeta = fs->make<TTree>("Meta", "Meta");
+
+	using namespace analysis::core;
+	using namespace analysis::dimuon;
+	_tEvents->Branch("Muons1", (Muons*)&_muons1);
+	_tEvents->Branch("Muons2", (Muons*)&_muons2);
+	_tEvents->Branch("Jets", (Jets*)&_pfjets);
+	_tEvents->Branch("Vertices", (Vertices*)&_vertices);
+	_tEvents->Branch("Event", (Event*)&_event);
+	_tEvents->Branch("EventAuxiliary", (EventAuxiliary*)&_eaux);
+	_tEvents->Branch("MET", (MET*)&_met);
+	_tMeta->Branch("Meta", (Meta*)&_meta);
 
 	//
 	//	Tags/Tokens
@@ -237,15 +251,36 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 		_tagGenJets);
 	_tokMuons = consumes<pat::MuonCollection>(
 		_tagMuons);
-	
-	using namespace analysis::core;
-	_tEvents->Branch("Muons", (Muons*)&_muons);
-	_tEvents->Branch("Jets", (Jets*)&_pfjets);
-	_tEvents->Branch("Vertices", (Vertices*)&_vertices);
-	_tEvents->Branch("Tracks", (Tracks*)&_tracks);
-	_tEvents->Branch("Event", (Event*)&_event);
-	_tEvents->Branch("MET", (MET*)&_met);
-	if (_isMC)
+
+	_meta._isMC = ps.getUntrackedParameter<bool>("isMC");
+	_meta._triggerNames = ps.getUntrackedParameter<std::vector<std::string> >(
+		"triggerNames");
+	_meta._nMuons = ps.getUntrackedParameter<int>("nMuons");
+	_meta._checkTrigger = ps.getUntrackedParameter<bool>("checkTrigger");
+	_meta._isGlobalMuon = ps.getUntrackedParameter<bool>("isGlobalMuon");
+	_meta._isTrackerMuon = ps.getUntrackedParameter<bool>("isTrackerMuon");
+	_meta._isStandAloneMuon = ps.getUntrackedParameter<bool>("isStandAloneMuon");
+	_meta._minPt = ps.getUntrackedParameter<double>("minPt");
+	_meta._maxeta = ps.getUntrackedParameter<double>("maxeta");
+	_meta._maxNormChi2 = ps.getUntrackedParameter<double>("maxNormChi2");
+	_meta._minMuonHits = ps.getUntrackedParameter<int>("minMuonHits");
+	_meta._minPixelHits = ps.getUntrackedParameter<int>("minPixelHits");
+	_meta._minStripHits = ps.getUntrackedParameter<int>("minStripHits");
+	_meta._minTrackerHits = ps.getUntrackedParameter<int>("minTrackerHits");
+	_meta._minSegmentMatches = ps.getUntrackedParameter<int>("minSegmentMatches");
+	_meta._minMatchedStations = ps.getUntrackedParameter<int>("minMatchedStations");
+	_meta._minPixelLayers = ps.getUntrackedParameter<int>("minPixelLayers");
+	_meta._minTrackerLayers = ps.getUntrackedParameter<int>("minTrackerLayers");
+	_meta._minStripLayers = ps.getUntrackedParameter<int>("minStripLayers");
+	_meta._minValidFractionTracker = 
+		ps.getUntrackedParameter<double>("minValidFractionTracker");
+	_meta._maxd0 = ps.getUntrackedParameter<double>("maxd0");
+	_meta._maxTrackIsoSumPt = ps.getUntrackedParameter<double>(
+		"maxTrackIsoSumPt");
+	_meta._maxRelCombIso = ps.getUntrackedParameter<double>("maxRelCombIso");
+
+	//	additional branching for MC
+	if (_meta._isMC)
 	{
 		_tEvents->Branch("GenJets", (GenJets*)&_genjets);
 		_tEvents->Branch("GenParticles", (GenParticles*)&_genparts);
@@ -256,7 +291,9 @@ void H2DiMuonMaker::beginJob()
 {}
 
 void H2DiMuonMaker::endJob()
-{}
+{
+	_tMeta->Fill();
+}
 
 //
 //	The logic is simple:
@@ -268,38 +305,72 @@ void H2DiMuonMaker::endJob()
 //
 void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 {
-	std::cout << "Processing..." << std::endl;
+	//
+	//	Reset all objects or clear the containers
+	//
+	_event.reset();
+	_eaux.reset();
+	_met.reset();
+
+	_vertices.clear();
+	_pfjets.clear();
+	_genjets.clear();
+	_muons1.clear();
+	_muons2.clear();
+	_genjets.clear();
+	_genparts.clear();
+
+	_genZpreFSR.reset();
+	_track1ZpreFSR.reset();
+	_track2ZpreFSR.reset();
+	
+	_genZpostFSR.reset();
+	_track1ZpostFSR.reset();
+	_track2ZpostFSR.reset();
+
+	_genWpreFSR.reset();
+	_trackWpreFSR.reset();
+	_genWpostFSR.reset();
+	_trackWpostFSR.reset();
+
+	_genHpreFSR.reset();
+	_track1HpreFSR.reset();
+	_track2HpreFSR.reset();
+	
+	_genHpostFSR.reset();
+	_track1HpostFSR.reset();
+	_track2HpostFSR.reset();
 
 	//
 	//	For MC
 	//
-	if (_isMC)
+	if (_meta._isMC)
 	{
 		//
 		//	MC Weights
 		//
 		edm::Handle<GenEventInfoProduct> genEvtInfo;
-		_genWeight = (genEvtInfo->weight() > 0)? 1 : -1;
-		_sumEventWeights += _genWeight;
+		_eaux._genWeight = (genEvtInfo->weight() > 0)? 1 : -1;
+		_meta._sumEventWeights += _eaux._genWeight;
 
 		//
 		//	MC Truth
 		//
 		edm::Handle<std::vector< PileupSummaryInfo > > hPUInfo;
-		e.getByToken(_tokPU, PupInfo);
+		e.getByToken(_tokPU, hPUInfo);
 		std::vector<PileupSummaryInfo>::const_iterator pus;
 		for (pus=hPUInfo->begin(); pus!=hPUInfo->end(); ++pus)
 		{
 			int bx = pus->getBunchCrossing();
 			if (bx==0)
-				_nPU = pus->getTrueNumInteractions();
+				_eaux._nPU = pus->getTrueNumInteractions();
 		}
 
 		//	
 		//	Pruned Gen Particles
 		//
 		edm::Handle<reco::GenParticleCollection> hPrunedGenParticles;
-		e.getByToken(_tokPrunedGenParticle, hPrunedGenParticles);
+		e.getByToken(_tokPrunedGenParticles, hPrunedGenParticles);
 		reco::GenParticleCollection hardProcessMuons;
 		bool foundW(false), foundZ(false), foundH(false);
 		for (reco::GenParticleCollection::const_iterator it=
@@ -310,7 +381,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			int status = it->status();
 
 			//	Z
-			if (abs(id)==PDG_ID_Z && (status==22 || status==3))
+			if (abs(id)==analysis::core::PDG_ID_Z && (status==22 || status==3))
 			{
 				foundZ = true;
 				_genZpreFSR._mass = it->mass();
@@ -319,7 +390,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				_genZpreFSR._rapid = it->rapidity();
 				_genZpreFSR._phi = it->phi();
 			}
-			if (abs(id)==PDG_ID_Z && (status==62 || status==2))
+			if (abs(id)==analysis::core::PDG_ID_Z && (status==62 || status==2))
 			{
 				_genZpostFSR._mass = it->mass();
 				_genZpostFSR._pt = it->pt();
@@ -329,7 +400,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			}
 
 			//	W
-			if (abs(id)==PDG_ID_W && (status==22 || status==3))
+			if (abs(id)==analysis::core::PDG_ID_W && (status==22 || status==3))
 			{
 				foundW = true;
 				_genWpreFSR._mass = it->mass();
@@ -338,7 +409,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				_genWpreFSR._rapid = it->rapidity();
 				_genWpreFSR._phi = it->phi();
 			}
-			if (abs(id)==PDG_ID_W && (status==62 || status==2))
+			if (abs(id)==analysis::core::PDG_ID_W && (status==62 || status==2))
 			{
 				_genWpostFSR._mass = it->mass();
 				_genWpostFSR._pt = it->pt();
@@ -348,7 +419,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			}
 
 			//	H
-			if (abs(id)==PDG_ID_H && (status==22 || status==3))
+			if (abs(id)==analysis::core::PDG_ID_H && (status==22 || status==3))
 			{
 				foundH = true;
 				_genHpreFSR._mass = it->mass();
@@ -357,7 +428,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				_genHpreFSR._rapid = it->rapidity();
 				_genHpreFSR._phi = it->phi();
 			}
-			if (abs(id)==PDG_ID_H && (status==62 || status==2))
+			if (abs(id)==analysis::core::PDG_ID_H && (status==62 || status==2))
 			{
 				_genHpostFSR._mass = it->mass();
 				_genHpostFSR._pt = it->pt();
@@ -367,7 +438,8 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			}
 
 			//	Mu
-			if (abs(id)==PDG_ID_Mu && (status==23 || status==3))
+			if (abs(id)==analysis::core::PDG_ID_Mu 
+				&& (status==23 || status==3))
 				hardProcessMuons.push_back(*it);
 		}
 
@@ -405,14 +477,14 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 		//	Packed Gen Particles
 		//
 		edm::Handle<pat::PackedGenParticleCollection> hPackedGenParticles;
-		e.getByToken(_tokPackedGenParticle, hPackedGenParticles);
+		e.getByToken(_tokPackedGenParticles, hPackedGenParticles);
 		pat::PackedGenParticleCollection finalStateGenMuons;
 		for (pat::PackedGenParticleCollection::const_iterator it=
 			hPackedGenParticles->begin(); it!=hPackedGenParticles->end();
 			++it)
 			if (abs(it->pdgId())==13)
 				finalStateGenMuons.push_back(*it);
-		if (foundZ && finalStateMuons.size()==2)
+		if (foundZ && finalStateGenMuons.size()==2)
 		{
 			_track1ZpostFSR._pt = finalStateGenMuons[0].pt();
 			_track1ZpostFSR._eta = finalStateGenMuons[0].eta();
@@ -430,7 +502,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			_trackWpostFSR._phi = finalStateGenMuons[0].phi();
 			_trackWpostFSR._charge = finalStateGenMuons[0].charge();
 		}
-		if (foundH && finalStateMuons.size()==2)
+		if (foundH && finalStateGenMuons.size()==2)
 		{
 			_track1HpostFSR._pt = finalStateGenMuons[0].pt();
 			_track1HpostFSR._eta = finalStateGenMuons[0].eta();
@@ -446,26 +518,27 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 		//	Gen Jet
 		//
 		edm::Handle < reco::GenJetCollection > hGenJets;
-		e.getByToken(_tokGenJet, hGenJets);
-		if (!hGenJets->isValid())
+		e.getByToken(_tokGenJets, hGenJets);
+		if (!hGenJets.isValid())
 		{
 			std::cout << "Gen Jet Product is not found" << std::endl;
 		}
 		else
 		{
-			sort(hGenJets->begin(), hGenJets.end(),
-				[](reco::GenJet const& it, reco::GenJet const& jt)
+			reco::GenJetCollection sortedGenJets = (*hGenJets);
+			sort(sortedGenJets.begin(), sortedGenJets.end(),
+				[](reco::GenJet it, reco::GenJet jt) -> bool
 				{return it.pt()>jt.pt();});
-			for (uint32_t i=0; i<hGenJets->size(); i++)
+			for (uint32_t i=0; i<sortedGenJets.size(); i++)
 			{
 				analysis::core::GenJet genjet;
-				genjet._px = hGenJets->at(i).px();
-				genjet._py = hGenJets->at(i).py();
-				genjet._pz = hGenJets->at(i).pz();
-				genjet._py = hGenJets->at(i).pt();
-				genjet._eta = hGenJets->at(i).eta();
-				genjet._phi = hGenJets->at(i).phi();
-				genjet._mass = hGenJets->at(i).mass();
+				genjet._px = sortedGenJets[i].px();
+				genjet._py = sortedGenJets[i].py();
+				genjet._pz = sortedGenJets[i].pz();
+				genjet._py = sortedGenJets[i].pt();
+				genjet._eta = sortedGenJets[i].eta();
+				genjet._phi = sortedGenJets[i].phi();
+				genjet._mass = sortedGenJets[i].mass();
 				_genjets.push_back(genjet);
 			}
 		}
@@ -477,17 +550,17 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	//
 	e.getByToken(_tokTriggerResults, _hTriggerResults);
 	e.getByToken(_tokTriggerObjects, _hTriggerObjects);
-	if (!hTriggerResults.isValid())
+	if (!_hTriggerResults.isValid())
 	{
 		std::cout << "### Trigger Results Product is not found" << std::endl;
 		return;
 	}
-	if (!hTriggerObjects.isValid())
+	if (!_hTriggerObjects.isValid())
 	{
 		std::cout << "### Trigger Results Product is not found" << std::endl;
 		return;
 	}
-	if (_checkTrigger)
+	if (_meta._checkTrigger)
 		if (!passHLT(e))
 			return;
 
@@ -495,7 +568,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	//	Event Info
 	//
 	_event._run = e.id().run();
-	_event._lumi = e.id().lumi();
+	_event._lumi = e.id().luminosityBlock();
 	_event._event = e.id().event();
 	_event._bx = e.bunchCrossing();
 	_event._orbit = e.orbitNumber();
@@ -509,9 +582,12 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 		std::cout << "### VertexCollection Product is not found" << std::endl;
 	else
 	{
+		int n=0;
 		for (reco::VertexCollection::const_iterator it=hVertices->begin();
 			it!=hVertices->end(); ++it)
 		{
+			if (n==20)
+				break;
 			analysis::core::Vertex vtx;
 			if (!it->isValid())
 				vtx._isValid = 0;
@@ -529,6 +605,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				vtx._normChi2 = it->normalizedChi2();
 			}
 			_vertices.push_back(vtx);
+			n++;
 		}
 	}
 
@@ -563,11 +640,14 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	e.getByToken(_tokJets, hJets);
 	if (!hJets.isValid())
 	{
-		std::cout << "Jet Product is not found" << std::enld;
+		std::cout << "Jet Product is not found" << std::endl;
 	}
 	{
+		int n =0;
 		for (uint32_t i=0; i<hJets->size(); i++)
 		{
+			if (n==10)
+				break;
 			const pat::Jet &jet = hJets->at(i);
 			analysis::core::Jet myjet;
 			myjet._px = jet.px();
@@ -603,10 +683,10 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			myjet._puid = jet.userFloat("pileupJetId:fullDiscriminant");
 
 			//	matche gen jet
-			const reco::GenJet *genJet = jen.genJet();
+			const reco::GenJet *genJet = jet.genJet();
 			if (genJet!=NULL)
 			{
-				myjet.genMatched=true;
+				myjet._genMatched=true;
 				myjet._genjet._px = genJet->px();
 				myjet._genjet._py = genJet->py();
 				myjet._genjet._pz = genJet->pz();
@@ -620,9 +700,11 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				myjet._genauxf = genJet->auxiliaryEnergy()/genJet->energy();
 			}
 			else
-				myjet.genMatched=false;
+				myjet._genMatched=false;
+
+			_pfjets.push_back(myjet);
+			n++;
 		}
-		_pfjets.push_back(myjet);
 	}
 
 	//
@@ -639,11 +721,11 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 		it!=hMuons->end(); ++it)
 	{
 		//	global vs tracker vs standalone
-		if (!it->isGlobalMuon() && _isGlobalMuon)
+		if (!it->isGlobalMuon() && _meta._isGlobalMuon)
 			continue;
-		if (!it->isTrackerMuon() && _isTrackerMuon)
+		if (!it->isTrackerMuon() && _meta._isTrackerMuon)
 			continue;
-		if (!it->isGlobalMuon && !it->isTrackerMuon())
+		if (!it->isGlobalMuon() && !it->isTrackerMuon())
 			continue;
 
 		//	kinematic
@@ -654,7 +736,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	}
 
 	//	skip the event if the #muons is not what we need
-	if (muonsSelected.size()<_nMuons)
+	if (muonsSelected.size()<_meta._nMuons)
 		return;
 
 	//	
@@ -674,7 +756,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				jt!=muonsSelected.end(); ++jt)
 				muonPairs.push_back(MuonPair(*it, *jt));
 		std::sort(muonPairs.begin(), muonPairs.end(), 
-			[](MuonPair const& p1, MuonPair const& p2)
+			[](MuonPair p1, MuonPair p2)
 			{
 				TLorentzVector m11, m12, d1;
 				reco::Track const t11 = *(p1.first.innerTrack());
@@ -717,10 +799,10 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 
 			_muon1._relCombIso = isovar1;
 			_muon2._relCombIso = isovar2;
-			_muon1._trkIsoSumPt = mu1.isolationR03().sumPt;
-			_muon2._trkIsoSumPt = mu2.isolationR03().sumPt;
-			_muon1._trkIsoSumPtCorr = mu1.isolationR03().sumPt;
-			_muon2._trkIsoSumPtCorr = mu2.isolationR03().sumPt;
+			_muon1._trackIsoSumPt = mu1.isolationR03().sumPt;
+			_muon2._trackIsoSumPt = mu2.isolationR03().sumPt;
+			_muon1._trackIsoSumPtCorr = mu1.isolationR03().sumPt;
+			_muon2._trackIsoSumPtCorr = mu2.isolationR03().sumPt;
 
 			if (mu1.innerTrack().isNonnull())
 			{
@@ -729,9 +811,9 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				if (dphi>analysis::core::NUM_PI)
 					dphi = 2.*analysis::core::NUM_PI - dphi;
 				if (sqrt(deta*deta + dphi*dphi)<0.3 &&
-					_muon2.trackIsoSumPt>0.9*mu1.track()->pt())
-					_muon2.trackIsoSumPtCorr = 
-						_muon2.trackIsoSumPt-mu1.track()->pt();
+					_muon2._trackIsoSumPt>0.9*mu1.track()->pt())
+					_muon2._trackIsoSumPtCorr = 
+						_muon2._trackIsoSumPt-mu1.track()->pt();
 			}
 			if (mu2.innerTrack().isNonnull())
 			{
@@ -740,34 +822,34 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				if (dphi>analysis::core::NUM_PI)
 					dphi = 2.*analysis::core::NUM_PI - dphi;
 				if (sqrt(deta*deta + dphi*dphi)<0.3 &&
-					_muon1.trackIsoSumPt>0.9*mu2.track()->pt())
-					_muon1.trackIsoSumPtCorr = 
-						_muon1.trackIsoSumPt-mu2.track()->pt();
+					_muon1._trackIsoSumPt>0.9*mu2.track()->pt())
+					_muon1._trackIsoSumPtCorr = 
+						_muon1._trackIsoSumPt-mu2.track()->pt();
 			}
 
-			_muon1.isPF = mu1.isPFMuon(); _muon2.isPF = mu2.isPFMuon();
+			_muon1._isPF = mu1.isPFMuon(); _muon2._isPF = mu2.isPFMuon();
 			if (mu1.isPFMuon())
 			{
 				reco::Candidate::LorentzVector pfm = mu1.pfP4();
 				_muon1._pt = pfm.Pt();
 				_muon1._eta = pfm.Eta();
 				_muon1._phi = pfm.Phi();
-				_muon1._ChargedHadronPtR03 = 
+				_muon1._sumChargedHadronPtR03 = 
 					mu1.pfIsolationR03().sumChargedHadronPt;
-				_muon1.sumChargedParticlePtR03 = 
+				_muon1._sumChargedParticlePtR03 = 
 					mu1.pfIsolationR03().sumChargedParticlePt;
-				_muon1.sumNeutralHadronEtR03 = 
+				_muon1._sumNeutralHadronEtR03 = 
 					mu1.pfIsolationR03().sumNeutralHadronEt;
-				_muon1.sumPhotonEtR03 = mu1.pfIsolationR03().sumPhotonEt;
-				_muon1.sumPUPtR03 = mu1.pfIsolationR03().sumPUPt;
-				_muon1.sumChargedHadronPtR04 = 
+				_muon1._sumPhotonEtR03 = mu1.pfIsolationR03().sumPhotonEt;
+				_muon1._sumPUPtR03 = mu1.pfIsolationR03().sumPUPt;
+				_muon1._sumChargedHadronPtR04 = 
 					mu1.pfIsolationR04().sumChargedHadronPt;
-				_muon1.sumChargedParticlePtR04 = 
+				_muon1._sumChargedParticlePtR04 = 
 					mu1.pfIsolationR04().sumChargedParticlePt;
-				_muon1.sumNeutralHadronEtR04 = 
+				_muon1._sumNeutralHadronEtR04 = 
 					mu1.pfIsolationR04().sumNeutralHadronEt;
-				_muon1.sumPhotonEtR04 = mu1.pfIsolationR04().sumPhotonEt;
-				_muon1.sumPUPtR04 = mu1.pfIsolationR04().sumPUPt;
+				_muon1._sumPhotonEtR04 = mu1.pfIsolationR04().sumPhotonEt;
+				_muon1._sumPUPtR04 = mu1.pfIsolationR04().sumPUPt;
 			}
 			if (mu2.isPFMuon())
 			{
@@ -775,35 +857,35 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				_muon2._pt = pfm.Pt();
 				_muon2._eta = pfm.Eta();
 				_muon2._phi = pfm.Phi();
-				_muon2._ChargedHadronPtR03 = 
+				_muon2._sumChargedHadronPtR03 = 
 					mu2.pfIsolationR03().sumChargedHadronPt;
-				_muon2.sumChargedParticlePtR03 = 
+				_muon2._sumChargedParticlePtR03 = 
 					mu2.pfIsolationR03().sumChargedParticlePt;
-				_muon2.sumNeutralHadronEtR03 = 
+				_muon2._sumNeutralHadronEtR03 = 
 					mu2.pfIsolationR03().sumNeutralHadronEt;
-				_muon2.sumPhotonEtR03 = mu2.pfIsolationR03().sumPhotonEt;
-				_muon2.sumPUPtR03 = mu2.pfIsolationR03().sumPUPt;
-				_muon2.sumChargedHadronPtR04 = 
+				_muon2._sumPhotonEtR03 = mu2.pfIsolationR03().sumPhotonEt;
+				_muon2._sumPUPtR03 = mu2.pfIsolationR03().sumPUPt;
+				_muon2._sumChargedHadronPtR04 = 
 					mu2.pfIsolationR04().sumChargedHadronPt;
-				_muon2.sumChargedParticlePtR04 = 
+				_muon2._sumChargedParticlePtR04 = 
 					mu2.pfIsolationR04().sumChargedParticlePt;
-				_muon2.sumNeutralHadronEtR04 = 
+				_muon2._sumNeutralHadronEtR04 = 
 					mu2.pfIsolationR04().sumNeutralHadronEt;
-				_muon2.sumPhotonEtR04 = mu2.pfIsolationR04().sumPhotonEt;
-				_muon2.sumPUPtR04 = mu2.pfIsolationR04().sumPUPt;
+				_muon2._sumPhotonEtR04 = mu2.pfIsolationR04().sumPhotonEt;
+				_muon2._sumPUPtR04 = mu2.pfIsolationR04().sumPUPt;
 			}
 
-			if (_muon1._trkIsoSumPt > _trackIsoMaxSumPt) return;
-			if (_muon2._trkIsoSumPt > _trackIsoMaxSumPt) return;
-			if (_muon1._relCombIso > _relCombIso) return;
-			if (_muon2._relCombIso > _relCombIso) return;
+			if (_muon1._trackIsoSumPt > _meta._maxTrackIsoSumPt) return;
+			if (_muon2._trackIsoSumPt > _meta._maxTrackIsoSumPt) return;
+			if (_muon1._relCombIso > _meta._maxRelCombIso) return;
+			if (_muon2._relCombIso > _meta._maxRelCombIso) return;
 			if (!(passKinCuts(mu1, hBS) && passKinCuts(mu2, hBS)))
 				return;
 	
 			//	fill the muon1 information
-			_muon1.isGlb = mu1.isGlobalMuon();
-			_muon1.isTrk = mu1.isTrackerMuon();
-			_muon1.isSA = mu1.isStandAloneMuon();
+			_muon1._isGlobal = mu1.isGlobalMuon();
+			_muon1._isTracker = mu1.isTrackerMuon();
+			_muon1._isStandAlone = mu1.isStandAloneMuon();
 			reco::Track track1;
 			if (mu1.isGlobalMuon()) track1 = *(mu1.globalTrack());
 			else if (mu1.isTrackerMuon()) track1 = *(mu1.innerTrack());
@@ -812,9 +894,9 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 
 			_muon1._charge = mu1.charge();
 			_muon1._pt = mu1.pt();
-			_muon1._pterr = mu1.ptError();
-			_muon1.eta = mu1.eta();
-			_muon1.phi = mu1.phi();
+			_muon1._pterr = track1.ptError();
+			_muon1._eta = mu1.eta();
+			_muon1._phi = mu1.phi();
 			if (mu1.isTrackerMuon())
 			{
 				_muon1._track._pt = mu1.innerTrack()->pt();
@@ -836,8 +918,8 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				break;
 			}
 			_muon1._isTight = muon::isTightMuon(mu1, bestVtx1);
-			_muon1._isMedium = muon::isMediumMuon(mu1,);
-			_muon1._isLooseMuon = muon::isLooseMuon(mu1);
+			_muon1._isMedium = muon::isMediumMuon(mu1);
+			_muon1._isLoose = muon::isLooseMuon(mu1);
 			_muon1._nTLs = 
 				mu1.innerTrack()->hitPattern().trackerLayersWithMeasurement();
 			_muon1._nPLs = 
@@ -846,7 +928,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				mu1.innerTrack()->hitPattern().stripLayersWithMeasurement();
 
 			_muon1._vfrTrk = mu1.innerTrack()->validFraction();
-			_muon1._nvMHits = track1.hitPattern().numberOfValidMuonHIts();
+			_muon1._nvMHits = track1.hitPattern().numberOfValidMuonHits();
 			_muon1._nvPHits = 
 				mu1.innerTrack()->hitPattern().numberOfValidPixelHits();
 			_muon1._nvTHits = 
@@ -859,29 +941,29 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			_muon1._hIso = mu1.isolationR03().hadEt;
 			_muon1._segmentCompatibility = muon::segmentCompatibility(mu1);
 			_muon1._combinedQChi2LocalPosition = 
-				mu1.combinedQuality().chi2LocalPosition();
+				mu1.combinedQuality().chi2LocalPosition;
 			_muon1._combinedQTrkKink = mu1.combinedQuality().trkKink;
-			for (uint32_t i=0; i<_triggerNames.size(); i++)
+			for (uint32_t i=0; i<_meta._triggerNames.size(); i++)
 			{
-				bool match = isHLTMatched(e, mu1);
+				bool match = isHLTMatched(i, e, mu1);
 				_muon1._isHLTMatched.push_back(match);
 			}
 
 			//	muon2
-			_muon2.isGlb = mu2.isGlobalMuon();
-			_muon2.isTrk = mu2.isTrackerMuon();
-			_muon2.isSA = mu2.isStandAloneMuon();
+			_muon2._isGlobal = mu2.isGlobalMuon();
+			_muon2._isTracker = mu2.isTrackerMuon();
+			_muon2._isStandAlone = mu2.isStandAloneMuon();
 			reco::Track track2;
 			if (mu2.isGlobalMuon()) track2 = *(mu2.globalTrack());
-			else if (mu.isTrackerMuon()) track = *(mu2.innerTrack());
+			else if (mu2.isTrackerMuon()) track2 = *(mu2.innerTrack());
 			else
 				return;
 
 			_muon2._charge = mu2.charge();
 			_muon2._pt = mu2.pt();
-			_muon2._pterr = mu2.ptError();
-			_muon2.eta = mu2.eta();
-			_muon2.phi = mu2.phi();
+			_muon2._pterr = track2.ptError();
+			_muon2._eta = mu2.eta();
+			_muon2._phi = mu2.phi();
 			if (mu2.isTrackerMuon())
 			{
 				_muon2._track._pt = mu2.innerTrack()->pt();
@@ -903,8 +985,8 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				break;
 			}
 			_muon2._isTight = muon::isTightMuon(mu2, bestVtx2);
-			_muon2._isMedium = muon::isMediumMuon(mu2,);
-			_muon2._isLooseMuon = muon::isLooseMuon(mu2);
+			_muon2._isMedium = muon::isMediumMuon(mu2);
+			_muon2._isLoose = muon::isLooseMuon(mu2);
 			_muon2._nTLs = 
 				mu2.innerTrack()->hitPattern().trackerLayersWithMeasurement();
 			_muon2._nPLs = 
@@ -913,7 +995,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				mu2.innerTrack()->hitPattern().stripLayersWithMeasurement();
 
 			_muon2._vfrTrk = mu2.innerTrack()->validFraction();
-			_muon2._nvMHits = track2.hitPattern().numberOfValidMuonHIts();
+			_muon2._nvMHits = track2.hitPattern().numberOfValidMuonHits();
 			_muon2._nvPHits = 
 				mu2.innerTrack()->hitPattern().numberOfValidPixelHits();
 			_muon2._nvTHits = 
@@ -926,9 +1008,9 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			_muon2._hIso = mu2.isolationR03().hadEt;
 			_muon2._segmentCompatibility = muon::segmentCompatibility(mu2);
 			_muon2._combinedQChi2LocalPosition = 
-				mu2.combinedQuality().chi2LocalPosition();
+				mu2.combinedQuality().chi2LocalPosition;
 			_muon2._combinedQTrkKink = mu2.combinedQuality().trkKink;
-			for (uint32_t i=0; i<_triggerNames.size(); i++)
+			for (uint32_t i=0; i<_meta._triggerNames.size(); i++)
 			{
 				bool match = isHLTMatched(i, e, mu2);
 				_muon2._isHLTMatched.push_back(match);
@@ -960,18 +1042,9 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	}
 
 	//
-	//	Dump objects to The ROOT Tree
+	//	Dump objects to The ROOT Tree - ONLY after passing all the cuts
 	//
 	_tEvents->Fill();
-	
-	//
-	//	Reset all objects or clear the containers
-	//
-	_event.reset();
-	_vertices.clear();
-	_muons.clear();
-	_pfjets.clear();
-	_genjets.clear();
 }
 
 //
@@ -981,14 +1054,14 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 bool H2DiMuonMaker::passHLT(edm::Event const& e)
 {
 	const boost::regex re("_v[0-9]+");
-	TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
+	edm::TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
 	for (uint32_t i=0; i<_hTriggerResults->size(); i++)
 	{
 		std::string triggerName = triggerNames.triggerName(i);
 		string tstripped = boost::regex_replace(triggerName, re, "",
 			boost::match_default | boost::format_sed);
 		for (std::vector<std::string>::const_iterator dit=
-			_triggerNames.begin(); dit!=_triggerNames.end(); ++dit)
+			_meta._triggerNames.begin(); dit!=_meta._triggerNames.end(); ++dit)
 			if (*dit == tstripped &&
 				_hTriggerResults->accept(i))
 				return true;
@@ -1005,19 +1078,19 @@ bool H2DiMuonMaker::isHLTMatched(uint32_t itrigger, edm::Event const& e,
 	pat::Muon const& mu)
 {
 	const boost::regex re("_v[0-9]+");
-	TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
+	edm::TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
 	for (uint32_t i=0; i<_hTriggerResults->size(); i++)
 	{
-		std::string trigerName = triggerNames.triggerName(i);
+		std::string triggerName = triggerNames.triggerName(i);
 		std::string tstripped = boost::regex_replace(triggerName, re, "",
 			boost::match_default | boost::format_sed);
-		if (_triggerNames[itrigger]==tstripped &&
+		if (_meta._triggerNames[itrigger]==tstripped &&
 			_hTriggerResults->accept(i))
 		{
-			for (TriggerObjectsStandAloneCollection::const_iterator it=
+			for (pat::TriggerObjectStandAloneCollection::const_iterator it=
 				_hTriggerObjects->begin(); it!=_hTriggerObjects->end(); ++it)
 			{
-				TriggerObjectStandAlone tmp(*it);
+				pat::TriggerObjectStandAlone tmp(*it);
 				tmp.unpackPathNames(triggerNames);
 				bool right = tmp.hasPathName(triggerName, true, true);
 				if (right)
@@ -1043,37 +1116,37 @@ bool H2DiMuonMaker::passKinCuts(pat::Muon const& muon,
 	else
 		return false;
 
-	if (muon.pt() < _ptMin) return false;
-	if (fabs(muon.eta()) > _etaMax) return false;
+	if (muon.pt() < _meta._minPt) return false;
+	if (fabs(muon.eta()) > _meta._maxeta) return false;
 	if (track.hitPattern().numberOfValidTrackerHits() < 
-		_numValidTrackerHitsMin)
+		_meta._minTrackerHits)
 		return false;
-	if (fabs(track.dxy(hBS->position())) > _d0Max) return false;
+	if (fabs(track.dxy(hBS->position())) > _meta._maxd0) return false;
 	if (track.hitPattern().pixelLayersWithMeasurement() < 
-		_numPixelLayersMin)
+		_meta._minPixelLayers)
 		return false;
 	if (track.hitPattern().trackerLayersWithMeasurement() < 
-		_numTrackerLayers)
+		_meta._minTrackerLayers)
 		return false;
 	if (track.hitPattern().stripLayersWithMeasurement() < 
-		_numStripLayersMin)
+		_meta._minStripLayers)
 		return false;
-	if (track.validFraction() < _validFracTrackerMin)
+	if (track.validFraction() < _meta._minValidFractionTracker)
 		return false;
-	if (track.hitPattern.numberOfValidMuonHits() < 
-		_numValidMuonHitsMin)
+	if (track.hitPattern().numberOfValidMuonHits() < 
+		_meta._minMuonHits)
 		return false;
-	if (track.hitPattern.numberOfValidPixelHits() < 
-		_numValidPixelHitsMin)
+	if (track.hitPattern().numberOfValidPixelHits() < 
+		_meta._minPixelHits)
 		return false;
-	if (track.hitPattern.numberOfValidStripHits() <
-		_numValidStripHitsMin)
+	if (track.hitPattern().numberOfValidStripHits() <
+		_meta._minStripHits)
 		return false;
-	if (muon.numberOfMatches() < _numSegmentMatchesMin)
+	if (muon.numberOfMatches() < _meta._minSegmentMatches)
 		return false;
-	if (muon.numberOfMatchedStations() < _numOfMatchedStationsMin)
+	if (muon.numberOfMatchedStations() < _meta._minMatchedStations)
 		return false;
-	if (track.normalizedChi2() > _normChi2Max)
+	if (track.normalizedChi2() > _meta._maxNormChi2)
 		return false;
 
 	return true;

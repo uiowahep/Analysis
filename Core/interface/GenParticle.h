@@ -12,7 +12,7 @@ namespace analysis
 			public:
 				GenParticle() : Object() {}
 
-				virtual void GenParticle()
+				virtual void reset()
 				{
 					_mass = 0;
 					_pt = 0;
