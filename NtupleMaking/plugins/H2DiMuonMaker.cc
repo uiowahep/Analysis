@@ -200,7 +200,7 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 	_tEvents->Branch("Event", (Event*)&_event);
 	_tEvents->Branch("EventAuxiliary", (EventAuxiliary*)&_eaux);
 	_tEvents->Branch("MET", (MET*)&_met);
-	_tMeta->Branch("Meta", (Meta*)&_meta);
+	_tMeta->Branch("Meta", (MetaHiggs*)&_meta);
 
 	//
 	//	Tags/Tokens
