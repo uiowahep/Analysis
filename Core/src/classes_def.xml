@@ -47,9 +47,5 @@
 	<class name="std::vector<analysis::core::Track>"/>
 	<class name="edm::Wrapper<std::vector<analysis::core::Track> >"/>
 			
-	<class name="analysis::core::DiMuon"/>
-	<class name="std::vector<analysis::core::DiMuon>"/>
-	<class name="edm::Wrapper<std::vector<analysis::core::DiMuon> >"/>
-			
-	<class name="analysis::dimuon::MetaDiMuon"/>
+	<class name="analysis::dimuon::MetaHiggs"/>
 </lcgdict>
