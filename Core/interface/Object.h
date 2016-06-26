@@ -14,6 +14,10 @@
 
 using namespace std;
 
+#ifdef STANDALONE
+#include "TObject.h"
+#endif
+
 namespace analysis
 {
 	namespace core
@@ -25,11 +29,19 @@ namespace analysis
 				virtual ~Object() {}
 
 				virtual void reset() {}
+
+#ifdef STANDALONE
+				ClassDef(Object, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::Object> Objects;
 	}
 }
+
+#ifdef STANDALONE
+		ClassImp(analysis::core::Object)
+#endif
 
 #endif
 

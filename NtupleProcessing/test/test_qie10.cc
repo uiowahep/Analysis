@@ -1,12 +1,9 @@
 #include <iostream>
 #include <vector>
 
-
 #include "TFile.h"
 #include "TChain.h"
 
-
-#include "config.h"
 #ifndef STANDALONE
 #include "Analysis/Core/interface/QIE10Frame.h"
 #else
@@ -15,8 +12,8 @@
 
 void test_qie10()
 {
-	TChain *chain = new TChain("maker/QIE10Maker/Events");
-	chain->Add("/Users/vk/software/HCALDQM/Analysis/data/ntuples/test.root");
+	TChain *chain = new TChain("maker/Events");
+	chain->Add("/Users/vk/software/HiggsAnalysis/files/data/qie10/test.root");
 	std::cout << chain->GetEntries() << std::endl;
 
 	analysis::core::QIE10Digis *digis = NULL;
@@ -26,6 +23,7 @@ void test_qie10()
 	{
 		chain->GetEntry(i);
 		int n = 0;
+		std::cout << "#digis=" << digis->size() << std::endl;
 		for (uint32_t j=0; j<digis->size(); j++)
 		{
 			for (int k=0; k<10; k++)

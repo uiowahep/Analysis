@@ -121,10 +121,18 @@ namespace analysis
 				float _sumNeutralHadronEtR04;
 				float _sumPhotonEtR04;
 				float _sumPUPtR04;
+
+#ifdef STANDALONE
+				ClassDef(Muon, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::Muon> Muons;
 	}
 }
+
+#ifdef STANDALONE
+		ClassImp(analysis::core::Muon)
+#endif
 
 #endif

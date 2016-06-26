@@ -31,10 +31,18 @@ namespace analysis
 				float _pterr;
 				float _eta;
 				float _phi;
+
+#ifdef STANDALONE
+				ClassDef(Track, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::Track> Tracks;
 	}
 }
+
+#ifdef STANDALONE
+		ClassImp(analysis::core::Track)
+#endif
 
 #endif
