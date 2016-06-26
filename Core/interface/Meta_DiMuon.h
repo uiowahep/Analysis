@@ -25,7 +25,7 @@ namespace analysis
 	
 				virtual void reset()
 				{
-//					_nEventsProcessed = 0;
+					_nEventsProcessed = 0;
 					_sumEventWeights = 0;
 					_isMC = 0;
 					_triggerNames.clear();
@@ -54,7 +54,7 @@ namespace analysis
 					_maxRelCombIso = 0;
 				}
 
-//				int _nEventsProcessed;
+				int _nEventsProcessed;
 				int _sumEventWeights;
 				bool _isMC;
 				std::vector<std::string> _triggerNames;
