@@ -6,7 +6,7 @@
 
 #include "Analysis/Core/interface/QIE10Frame.h"
 
-void test()
+void test_qie10()
 {
 	TChain *chain = new TChain("maker/QIE10Maker/Events");
 	chain->Add("/Users/vk/software/HCALDQM/Analysis/data/ntuples/test.root");

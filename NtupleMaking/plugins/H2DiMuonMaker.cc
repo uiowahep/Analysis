@@ -303,6 +303,9 @@ void H2DiMuonMaker::endJob()
 //
 void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 {
+	// count total
+	_meta._nEventsProcessed++;
+
 	//
 	//	Reset all objects or clear the containers
 	//
@@ -346,8 +349,8 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 		//
 		//	MC Weights
 		//
-		edm::Handle<GenEventInfoProduct> genEvtInfo;
-		_eaux._genWeight = (genEvtInfo->weight() > 0)? 1 : -1;
+		edm::Handle<GenEventInfoProduct> hGenEvtInfo;
+		_eaux._genWeight = (hGenEvtInfo->weight() > 0)? 1 : -1;
 		_meta._sumEventWeights += _eaux._genWeight;
 
 		//
