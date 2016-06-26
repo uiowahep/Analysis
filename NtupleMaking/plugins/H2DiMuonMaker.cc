@@ -583,12 +583,9 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 		std::cout << "### VertexCollection Product is not found" << std::endl;
 	else
 	{
-		int n=0;
 		for (reco::VertexCollection::const_iterator it=hVertices->begin();
 			it!=hVertices->end(); ++it)
 		{
-			if (n==20)
-				break;
 			analysis::core::Vertex vtx;
 			if (!it->isValid())
 				vtx._isValid = 0;
@@ -606,7 +603,6 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				vtx._normChi2 = it->normalizedChi2();
 			}
 			_vertices.push_back(vtx);
-			n++;
 		}
 	}
 
