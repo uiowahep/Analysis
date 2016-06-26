@@ -133,7 +133,6 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		analysis::core::EventAuxiliary		_eaux;
 		analysis::core::MET			_met;
 		analysis::core::GenJets		_genjets;
-		analysis::core::GenParticles _genparts;
 
 		analysis::core::GenParticle	_genZpreFSR;
 		analysis::core::Track		_track1ZpreFSR, _track2ZpreFSR;			
@@ -283,7 +282,6 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 	if (_meta._isMC)
 	{
 		_tEvents->Branch("GenJets", (GenJets*)&_genjets);
-		_tEvents->Branch("GenParticles", (GenParticles*)&_genparts);
 	}
 }
 
@@ -318,7 +316,6 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	_muons1.clear();
 	_muons2.clear();
 	_genjets.clear();
-	_genparts.clear();
 
 	_genZpreFSR.reset();
 	_track1ZpreFSR.reset();
@@ -529,8 +526,11 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			sort(sortedGenJets.begin(), sortedGenJets.end(),
 				[](reco::GenJet it, reco::GenJet jt) -> bool
 				{return it.pt()>jt.pt();});
+			int n=0; 
 			for (uint32_t i=0; i<sortedGenJets.size(); i++)
 			{
+				if (n==10)
+					break;
 				analysis::core::GenJet genjet;
 				genjet._px = sortedGenJets[i].px();
 				genjet._py = sortedGenJets[i].py();
@@ -540,6 +540,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				genjet._phi = sortedGenJets[i].phi();
 				genjet._mass = sortedGenJets[i].mass();
 				_genjets.push_back(genjet);
+				n++;
 			}
 		}
 	}
