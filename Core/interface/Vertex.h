@@ -1,7 +1,11 @@
 #ifndef Analysis_Core_Vertex_h
 #define Analysis_Core_Vertex_h
 
+#ifndef STANDALONE
 #include "Analysis/Core/interface/Object.h"
+#else
+#include "Object.h"
+#endif
 
 namespace analysis
 {

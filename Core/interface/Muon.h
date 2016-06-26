@@ -1,7 +1,11 @@
 #ifndef Analysis_Core_Muon_h
 #define Analysis_Core_Muon_h
 
+#ifndef STANDALONE
 #include "Analysis/Core/interface/Track.h"
+#else
+#include "Track.h"
+#endif
 
 namespace analysis
 {

@@ -1,8 +1,12 @@
 #ifndef Analysis_Core_Jet_h
 #define Analysis_Core_Jet_h
 
-#include "Analysis/Core/interface/Object.h"
+#ifndef STANDALONE
 #include "Analysis/Core/interface/GenJet.h"
+#else
+#include "GenJet.h"
+#endif
+
 
 namespace analysis
 {

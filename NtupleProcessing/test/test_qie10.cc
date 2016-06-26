@@ -1,10 +1,17 @@
 #include <iostream>
 #include <vector>
 
+
 #include "TFile.h"
 #include "TChain.h"
 
+
+#include "config.h"
+#ifndef STANDALONE
 #include "Analysis/Core/interface/QIE10Frame.h"
+#else
+#include "QIE10Frame.h"
+#endif
 
 void test_qie10()
 {
@@ -29,7 +36,12 @@ void test_qie10()
 		std::cout << std::endl;
 		std::cout << n << std::endl;
 	}
-
 	std::cout << "Finished!" << std::endl;
+}
+
+int main(int argc, char** argv)
+{
+	test_qie10();
+	return 0;
 }
 

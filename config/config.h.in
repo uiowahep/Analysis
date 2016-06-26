@@ -1,0 +1,4 @@
+#define Analysis_VERSION_MAJOR @Analysis_VERSION_MAJOR@
+#define Analysis_VERSION_MINOR @Analysis_VERSION_MINOR@
+
+#cmakedefine STANDALONE

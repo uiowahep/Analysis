@@ -1,4 +1,10 @@
-#include "Core/interface/Muon.h"
+
+#include "config.h"
+#ifndef STANDALONE
+#include "Analysis/Core/interface/Muon.h"
+#else 
+#include "Muon.h"
+#endif
 
 #include "TFile.h"
 #include "TChain.h"
@@ -6,13 +12,14 @@
 
 void test_dimuon()
 {
+	
 	TString filename = "/Users/vk/software/HiggsAnalysis/files/data/ntuplemaking_singleMuon_Run2016B_PromptReco_v2_MINIAOD.root";
 	TChain *chain = new TChain("ntuplemaker_H2DiMuonMaker/Events");
 	chain->Add(filename);
 	std::cout << "Total #Entries: "<< chain->GetEntries() << std::endl;
 
 	using namespace analysis::core;
-	analysis::core::Muons *muons1;
+	analysis::core::Muons *muons1=NULL;
 	chain->SetBranchAddress("Muons1", &muons1);
 	for (int i=0; i<chain->GetEntries(); i++)
 	{
@@ -23,11 +30,11 @@ void test_dimuon()
 //			std::cout <<
 //		}
 	}
-
 	return;
 }
 
-int main(int argc, char** argc)
+int main(int argc, char** argv)
 {
+	test_dimuon();
 	return 0;
 }
