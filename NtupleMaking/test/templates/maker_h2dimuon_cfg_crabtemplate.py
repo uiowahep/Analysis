@@ -21,18 +21,16 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #
 thisIsData = s.isData
 globalTag = s.globaltag
-readFiles = cms.untracked.vstring();
-readFiles.extend(s.files);
 
 #
 #   Differentiate between DATA and MC
 #
 if not thisIsData:
-    process.load("Analysis.NtupleMaking.H2DiMuounMaker_MC")
+    process.load("Analysis.NtupleMaking.H2DiMuouMaker_MC")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     globalTag+="::All"
 else:
-    process.load("Analysis.NtupleMaking.H2DiMuounMaker_Data")
+    process.load("Analysis.NtupleMaking.H2DiMuonMaker_Data")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 #
@@ -45,7 +43,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #
 #   TFile Service to handle output
 #
-process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuples_"+s.name+".root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuplesmaking_"+s.name+".root") )
 
 #
 #   Execution Path

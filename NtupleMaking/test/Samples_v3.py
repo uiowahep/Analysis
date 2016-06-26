@@ -4,13 +4,13 @@
 #   Sample Representation
 #   
 class sample:
-    def __init__(self, name="", dir="", files=[], numevents=0, globaltag="", jsonfile=[], isData=False):
+    def __init__(self, name="", dir="", files=[], numevents=0, globaltag="", jsonfiles=[], isData=False):
         self.name = name
         self.dir = dir     # DAS directory
         self.numevents = numevents
         self.files = files
         self.globaltag = globaltag
-        self.jsonfile = jsonfile
+        self.jsonfiles = jsonfiles
         self.isData = isData
 
 #
@@ -38,7 +38,7 @@ doubleMuon_RunC25nsOct_MINIAOD = sample(name="doubleMuon_RunC25nsOct_MINIAOD",
         files = open('sample_file_lists/data/doubleMuon_RunC25nsOct_MINIAOD.files').read().splitlines(),
                                  numevents=900626,
                                  globaltag = '74X_dataRun2_v4',
-                                 jsonfile = jsonlist25[1],
+								 jsonfiles = jsonlist25[:],
                                  isData = True)
 
 doubleMuon_RunDOct_v1_MINIAOD = sample(name="doubleMuon_RunDOct_v1_MINIAOD", 
@@ -46,7 +46,7 @@ doubleMuon_RunDOct_v1_MINIAOD = sample(name="doubleMuon_RunDOct_v1_MINIAOD",
     files = open('sample_file_lists/data/doubleMuon_RunDOct_v1_MINIAOD.files').read().splitlines(),
                                  numevents=19923262,
                                  globaltag = '74X_dataRun2_reMiniAOD_v0',
-                                 jsonfile = jsonlist25[1],
+								 jsonfiles = jsonlist25[:],
                                  isData = True)
 
 doubleMuon_RunDPrompt_v4_MINIAOD = sample(name="doubleMuon_RunDPrompt_v4_MINIAOD", 
@@ -54,7 +54,7 @@ doubleMuon_RunDPrompt_v4_MINIAOD = sample(name="doubleMuon_RunDPrompt_v4_MINIAOD
     files = open('sample_file_lists/data/doubleMuon_RunDPrompt_v4_MINIAOD.files').read().splitlines(),
                                  numevents=31538841,
                                  globaltag = '74X_dataRun2_Prompt_v4',
-                                 jsonfile = jsonlist25[1],
+								 jsonfiles = jsonlist25[:],
                                  isData = True)
 
 doubleMuon.append(doubleMuon_RunC25nsOct_MINIAOD)
@@ -73,7 +73,7 @@ singleMuon_RunC25nsOct_MINIAOD = sample(name="singleMuon_RunC25nsOct_MINIAOD",
     files = open('sample_file_lists/data/singleMuon_RunC25nsOct_MINIAOD.files').read().splitlines(),
                                  numevents=1341179,
                                  globaltag = '74X_dataRun2_v4',
-                                 jsonfile = jsonlist25[1],
+								 jsonfiles = jsonlist25[:],
                                  isData = True)
 
 singleMuon_RunDOct_v1_MINIAOD = sample(name="singleMuon_RunDOct_v1_MINIAOD", 
@@ -81,7 +81,7 @@ singleMuon_RunDOct_v1_MINIAOD = sample(name="singleMuon_RunDOct_v1_MINIAOD",
                                  files = open('sample_file_lists/data/singleMuon_RunDOct_v1_MINIAOD.files').read().splitlines(),
                                  numevents=31298328,
                                  globaltag = '74X_dataRun2_reMiniAOD_v0',
-                                 jsonfile = jsonlist25[1],
+								 jsonfiles = jsonlist25[:],
                                  isData = True)
 
 singleMuon_RunDPrompt_v4_MINIAOD = sample(name="singleMuon_RunDPrompt_v4_MINIAOD", 
@@ -89,7 +89,7 @@ singleMuon_RunDPrompt_v4_MINIAOD = sample(name="singleMuon_RunDPrompt_v4_MINIAOD
                                  files = open('sample_file_lists/data/singleMuon_RunDPrompt_v4_MINIAOD.files').read().splitlines(),
                                  numevents=61066301,
                                  globaltag = '74X_dataRun2_Prompt_v4',
-                                 jsonfile = jsonlist25[1],
+								 jsonfiles = jsonlist25[:],
                                  isData = True)
 singleMuon_Run2016B_PromptReco_v2_MINIAOD = sample(
 	name = 'singleMuon_Run2016B_PromptReco_v2_MINIAOD',
@@ -97,13 +97,16 @@ singleMuon_Run2016B_PromptReco_v2_MINIAOD = sample(
 	files = open('sample_file_lists/data/singleMuon_Run2016B_PromptReco_v2_MINIAOD.files').read().splitlines(),
 	numevents = 143011542,
 	globaltag = '80X_dataRun2_Prompt_v9',
-	jsonfile = jsonlist25[3],
+	jsonfiles = jsonlist25[:],
 	isData=True
 )
 
 singleMuon.append(singleMuon_RunC25nsOct_MINIAOD)
 singleMuon.append(singleMuon_RunDOct_v1_MINIAOD)
 singleMuon.append(singleMuon_RunDPrompt_v4_MINIAOD)
+
+singleMuon2016 = []
+singleMuon2016.append(singleMuon_Run2016B_PromptReco_v2_MINIAOD)
 
 #
 #   MC Samples: Signal

@@ -24,6 +24,7 @@ thisIsData = s.isData
 globalTag = s.globaltag
 readFiles = cms.untracked.vstring();
 readFiles.extend(s.files);
+jsontouse = 3
 
 #
 #   Differentiate between DATA and MC
@@ -61,7 +62,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
 if thisIsData:
     import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(filename = s.jsonfile).getVLuminosityBlockRange()
+    process.source.lumisToProcess = LumiList.LumiList(filename = 
+		s.jsonfiles[jsontouse]).getVLuminosityBlockRange()
 
 #
 #   TFile Service to handle output
