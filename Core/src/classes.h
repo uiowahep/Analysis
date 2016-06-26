@@ -9,8 +9,7 @@
 #include "Analysis/Core/interface/GenJet.h"
 #include "Analysis/Core/interface/MET.h"
 #include "Analysis/Core/interface/Track.h"
-#include "Analysis/Core/interface/DiMuon.h"
-#include "Analysis/Core/interface/MetaDiMuon.h"
+#include "Analysis/Core/interface/MetaHiggs.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace
@@ -28,8 +27,7 @@ namespace
 		analysis::core::GenJets dumm8;
 		analysis::core::METs dumm9;
 		analysis::core::Tracks dumm10;
-		analysis::core::DiMuons dumm11;
-		analysis::dimuon::MetaDiMuon dumm12;
+		analysis::dimuon::MetaHiggs dumm12;
 		analysis::core::EventAuxiliaries dumm13;
 	};
 }

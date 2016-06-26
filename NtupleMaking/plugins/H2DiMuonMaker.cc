@@ -96,7 +96,7 @@
 #include "Analysis/Core/interface/MET.h"
 #include "Analysis/Core/interface/Track.h"
 #include "Analysis/Core/interface/Event.h"
-#include "Analysis/Core/interface/Meta_DiMuon.h"
+#include "Analysis/Core/interface/MetaHiggs.h"
 #include "Analysis/Core/interface/GenParticle.h"
 #include "Analysis/Core/interface/Jet.h"
 #include "Analysis/Core/interface/Muon.h"
@@ -124,7 +124,7 @@ class H2DiMuonMaker : public edm::EDAnalyzer
 		TTree *_tMeta;
 
 		//	Analysis Objects
-		analysis::dimuon::Meta		_meta;
+		analysis::dimuon::MetaHiggs		_meta;
 		analysis::core::Muons		_muons1; 
 		analysis::core::Muons		_muons2; // [0]-[0] correspond to a pair
 		analysis::core::Jets		_pfjets;
