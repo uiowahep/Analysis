@@ -60,6 +60,15 @@ ROOT_GENERATE_DICTIONARY(G__Core
 	${PROJECT_SOURCE_DIR}/Core/interface/Object.h
 	${PROJECT_SOURCE_DIR}/Core/interface/Track.h
 	${PROJECT_SOURCE_DIR}/Core/interface/Muon.h
+	${PROJECT_SOURCE_DIR}/Core/interface/GenJet.h
+	${PROJECT_SOURCE_DIR}/Core/interface/Jet.h
+	${PROJECT_SOURCE_DIR}/Core/interface/GenParticle.h
+	${PROJECT_SOURCE_DIR}/Core/interface/MET.h
+	${PROJECT_SOURCE_DIR}/Core/interface/Vertex.h
+	${PROJECT_SOURCE_DIR}/Core/interface/Event.h
+	${PROJECT_SOURCE_DIR}/Core/interface/HFFrame.h
+	${PROJECT_SOURCE_DIR}/Core/interface/MetaHiggs.h
+	${PROJECT_SOURCE_DIR}/Core/interface/QIE10Frame.h
 	LINKDEF ${PROJECT_SOURCE_DIR}/config/LinkDef.h
 	OPTIONS -DSTANDALONE=1
 )

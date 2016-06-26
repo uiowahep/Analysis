@@ -31,6 +31,10 @@ namespace analysis
 				long long int _event;
 				int _bx;
 				int _orbit;
+
+#ifdef STANDALONE
+				ClassDef(Event, 1)
+#endif
 		};
 
 		class EventAuxiliary : public Object
@@ -47,11 +51,20 @@ namespace analysis
 
 				int _nPU;
 				int _genWeight;
+
+#ifdef STANDALONE
+				ClassDef(EventAuxiliary, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::EventAuxiliary> EventAuxiliaries;
 		typedef std::vector<analysis::core::Event> Events;
 	}
 }
+
+#ifdef STANDALONE
+ClassImpUnique(analysis::core::Event, Event)
+ClassImpUnique(analysis::core::EventAuxiliary, EventAuxiliary)
+#endif
 
 #endif

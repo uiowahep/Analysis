@@ -31,10 +31,21 @@ namespace analysis
 				float _pt;
 				float _phi;
 				float _sumEt;
+
+#ifdef STANDALONE
+				ClassDef(MET, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::MET> METs;
 	}
 }
+
+//
+//	Using the unique
+//
+#ifdef STANDALONE
+ClassImpUnique(analysis::core::MET, MET)
+#endif
 
 #endif

@@ -42,10 +42,19 @@ namespace analysis
 				float _chi2;
 				float _ndf;
 				float _normChi2;
+
+#ifdef STANDALONE
+				ClassDef(Vertex,1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::Vertex> Vertices;
 	}
 }
+
+
+#ifdef STANDALONE
+ClassImpUnique(analysis::core::Vertex, Vertex)
+#endif
 
 #endif

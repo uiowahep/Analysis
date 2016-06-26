@@ -35,10 +35,18 @@ namespace analysis
 				float _eta;
 				float _phi;
 				float _mass;
+
+#ifdef STANDALONE
+				ClassDef(GenJet, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::GenJet> GenJets;
 	}
 }
+
+#ifdef STANDALONE
+ClassImpUnique(analysis::core::GenJet, GenJet)
+#endif
 
 #endif

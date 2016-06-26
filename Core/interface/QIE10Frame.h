@@ -41,10 +41,18 @@ namespace analysis
 				int			_adc[10];
 				int			_ltdc[10];
 //				int			_ttdc[10];
+		
+#ifdef STANDALONE
+				ClassDef(QIE10Frame, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::QIE10Frame> QIE10Digis;
 	}
 }
+
+#ifdef STANDALONE
+ClassImpUnique(analysis::core::QIE10Frame, QIE10Frame)
+#endif
 
 #endif

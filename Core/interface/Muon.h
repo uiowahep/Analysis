@@ -132,7 +132,7 @@ namespace analysis
 }
 
 #ifdef STANDALONE
-		ClassImp(analysis::core::Muon)
+ClassImpUnique(analysis::core::Muon, Muon)
 #endif
 
 #endif

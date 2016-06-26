@@ -39,8 +39,11 @@ namespace analysis
 	}
 }
 
+//
+//	Unique!
+//
 #ifdef STANDALONE
-		ClassImp(analysis::core::Object)
+ClassImpUnique(analysis::core::Object, Object)
 #endif
 
 #endif

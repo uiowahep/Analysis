@@ -10,7 +10,7 @@
 #include "Analysis/Core/interface/MET.h"
 #include "Analysis/Core/interface/Track.h"
 #include "Analysis/Core/interface/DiMuon.h"
-#include "Analysis/Core/interface/Meta_DiMuon.h"
+#include "Analysis/Core/interface/MetaDiMuon.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace
@@ -29,7 +29,7 @@ namespace
 		analysis::core::METs dumm9;
 		analysis::core::Tracks dumm10;
 		analysis::core::DiMuons dumm11;
-		analysis::dimuon::Meta dumm12;
+		analysis::dimuon::MetaDiMuon dumm12;
 		analysis::core::EventAuxiliaries dumm13;
 	};
 }

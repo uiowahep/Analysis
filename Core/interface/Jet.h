@@ -94,10 +94,18 @@ namespace analysis
 				float _genhadf;
 				float _geninvf;
 				float _genauxf;
+
+#ifdef STANDALONE 
+				ClassDef(Jet, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::Jet> Jets;
 	}
 }
+
+#ifdef STANDALONE
+ClassImpUnique(analysis::core::Jet, Jet)
+#endif
 
 #endif

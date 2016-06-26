@@ -31,10 +31,21 @@ namespace analysis
 				float _eta;
 				float _rapid;
 				float _phi;
+
+#ifdef STANDALONE
+				ClassDef(GenParticle, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::GenParticle> GenParticles;
 	}
 }
+
+//	
+//	Note - we are using Unique!!!
+//
+#ifdef STANDALONE
+ClassImpUnique(analysis::core::GenParticle, GenParticle)
+#endif
 
 #endif

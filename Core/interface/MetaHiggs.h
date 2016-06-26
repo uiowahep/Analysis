@@ -1,5 +1,5 @@
-#ifndef Analysis_Core_Meta_DiMuon_h
-#define Analysis_Core_Meta_DiMuon_h
+#ifndef Analysis_Core_MetaHigss_h
+#define Analysis_Core_MetaHigss_h
 
 /**
  *	file:
@@ -17,11 +17,11 @@ namespace analysis
 {
 	namespace dimuon
 	{
-		class Meta : public analysis::core::Object
+		class MetaHiggs : public analysis::core::Object
 		{
 			public:
-				Meta() : Object() {}
-				virtual ~Meta() {}
+				MetaHiggs() : Object() {}
+				virtual ~MetaHiggs() {}
 	
 				virtual void reset()
 				{
@@ -82,8 +82,15 @@ namespace analysis
 				float _maxTrackIsoSumPt;
 				float _maxRelCombIso;
 
+#ifdef STANDALONE
+				ClassDef(MetaHiggs, 1)
+#endif
 		};
 	}
 }
+
+#ifdef STANDALONE
+ClassImpUnique(analysis::dimuon::MetaHiggs, MetaHiggs)
+#endif
 
 #endif

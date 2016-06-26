@@ -41,8 +41,12 @@ namespace analysis
 	}
 }
 
+//
+//	IMPORTANT!!! ROOT uses __LINE__ to generate the unique id......
+//	and since we are in a global namespace....
+//
 #ifdef STANDALONE
-		ClassImp(analysis::core::Track)
+ClassImpUnique(analysis::core::Track, Track)
 #endif
 
 #endif

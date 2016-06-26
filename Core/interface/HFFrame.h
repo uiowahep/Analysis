@@ -34,10 +34,18 @@ namespace analysis
 				uint32_t	_id;
 				int			_adc[10];
 				double		_nominal_fC[10];
+
+#ifdef STANDALONE
+				ClassDef(HFFrame, 1)
+#endif
 		};
 
 		typedef std::vector<analysis::core::HFFrame> HFDigis;
 	}
 }
+
+#ifdef STANDALONE
+ClassImpUnique(analysis::core::HFFrame, HFFrame)
+#endif
 
 #endif
