@@ -282,6 +282,27 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 	if (_meta._isMC)
 	{
 		_tEvents->Branch("GenJets", (GenJets*)&_genjets);
+		_tEvents->Branch("GenZpreFSR", (GenParticle*)&_genZpreFSR);
+		_tEvents->Branch("Track1ZpreFSR", (Track*)&_track1ZpreFSR);
+		_tEvents->Branch("Track2ZpreFSR", (Track*)&_track2ZpreFSR);
+
+		_tEvents->Branch("GenZpostFSR", (GenParticle*)&_genZpostFSR);
+		_tEvents->Branch("Track1ZpostFSR", (Track*)&_track1ZpostFSR);
+		_tEvents->Branch("Track2ZpostFSR", (Track*)&_track2ZpostFSR);
+
+		_tEvents->Branch("GenWpreFSR", (GenParticle*)&_genWpreFSR);
+		_tEvents->Branch("TrackWpreFSR", (Track*)&_trackWpreFSR);
+
+		_tEvents->Branch("GenWpostFSR", (GenParticle*)&_genWpostFSR);
+		_tEvents->Branch("TrackWpostFSR", (Track*)&_trackWpostFSR);
+
+		_tEvents->Branch("GenHpreFSR", (GenParticle*)&_genHpreFSR);
+		_tEvents->Branch("Track1HpreFSR", (Track*)&_track1HpreFSR);
+		_tEvents->Branch("Track2HpreFSR", (Track*)&_track2HpreFSR);
+
+		_tEvents->Branch("GenHpostFSR", (GenParticle*)&_genHpostFSR);
+		_tEvents->Branch("Track1HpostFSR", (Track*)&_track1HpostFSR);
+		_tEvents->Branch("Track2HpostFSR", (Track*)&_track2HpostFSR);
 	}
 }
 

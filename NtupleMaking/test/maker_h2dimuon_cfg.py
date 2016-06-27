@@ -31,11 +31,8 @@ jsontouse = 3
 #
 if not thisIsData:
     process.load("Analysis.NtupleMaking.H2DiMuonMaker_MC")
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-    globalTag+="::All"
 else:
     process.load("Analysis.NtupleMaking.H2DiMuonMaker_Data")
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 #
 #   Debug/Loggin
