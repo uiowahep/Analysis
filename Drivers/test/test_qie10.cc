@@ -11,7 +11,7 @@
 void test_qie10()
 {
 	TChain *chain = new TChain("maker/Events");
-	chain->Add("/Users/vk/software/HiggsAnalysis/files/data/qie10/test.root");
+	chain->Add("/Users/vk/software/HiggsAnalysis/files/data/qie10/ntuplesmaking_qie10_ExpressPhysics_275376.root");
 	std::cout << chain->GetEntries() << std::endl;
 
 	analysis::core::QIE10Digis *digis = NULL;
