@@ -87,11 +87,11 @@ file (GLOB SOURCES ${PROJECT_SOURCE_DIR}/NtupleProcessing/src/*.cc)
 #
 #	add all the executables and link against ROOT
 #
-file (GLOB MAIN_FILES1 ${PROJECT_SOURCE_DIR}/Execution/test/*.cc)
-file (GLOB MAIN_FILES2 ${PROJECT_SOURCE_DIR}/Execution/bin/*.cc)
+file (GLOB MAIN_FILES1 ${PROJECT_SOURCE_DIR}/Drivers/test/*.cc)
+file (GLOB MAIN_FILES2 ${PROJECT_SOURCE_DIR}/Drivers/bin/*.cc)
 foreach (MAIN_FILE ${MAIN_FILES1})
 	string(REPLACE ".cc" "" EXECUTABLE_NAME ${MAIN_FILE})
-	string(REPLACE "${PROJECT_SOURCE_DIR}/Execution/test/" "" 
+	string(REPLACE "${PROJECT_SOURCE_DIR}/Drivers/test/" "" 
 		EXECUTABLE_NAME ${EXECUTABLE_NAME}
 	)
 	message("Adding Executable: ${EXECUTABLE_NAME}")
@@ -100,7 +100,7 @@ foreach (MAIN_FILE ${MAIN_FILES1})
 endforeach(MAIN_FILE)
 foreach (MAIN_FILE ${MAIN_FILES2})
 	string(REPLACE ".cc" "" EXECUTABLE_NAME ${MAIN_FILE})
-	string(REPLACE "${PROJECT_SOURCE_DIR}/Execution/bin/" "" 
+	string(REPLACE "${PROJECT_SOURCE_DIR}/Drivers/bin/" "" 
 		EXECUTABLE_NAME ${EXECUTABLE_NAME}
 	)
 	message("Adding Executable: ${EXECUTABLE_NAME}")
