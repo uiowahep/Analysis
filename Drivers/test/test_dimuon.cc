@@ -1,10 +1,7 @@
 
 //	
-#ifndef STANDALONE
-#include "Analysis/Core/interface/Muon.h"
-#else 
+#ifdef STANDALONE
 #include "Muon.h"
-#endif
 
 //	ROOT headers
 #include "TFile.h"
@@ -45,3 +42,5 @@ int main(int argc, char** argv)
 	test_dimuon();
 	return 0;
 }
+
+#endif

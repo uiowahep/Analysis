@@ -1,14 +1,12 @@
+#ifdef STANDALONE
+
 #include <iostream>
 #include <vector>
 
 #include "TFile.h"
 #include "TChain.h"
 
-#ifndef STANDALONE
-#include "Analysis/Core/interface/QIE10Frame.h"
-#else
 #include "QIE10Frame.h"
-#endif
 
 void test_qie10()
 {
@@ -43,3 +41,4 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+#endif
