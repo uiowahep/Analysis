@@ -25,13 +25,16 @@ namespace analysis
 						_adc[i] = 0;
 						_nominal_fC[i] = 0;
 					}
+					_iphi = 0;
+					_ieta = 0;
+					_depth = 0;
 				}
-				HFFrame(uint32_t id): Object(), _id(id)
-				{}
 				virtual ~HFFrame() {}
 
 				//	public members
-				uint32_t	_id;
+				int			_iphi;
+				int			_ieta;
+				int			_depth;
 				int			_adc[10];
 				double		_nominal_fC[10];
 

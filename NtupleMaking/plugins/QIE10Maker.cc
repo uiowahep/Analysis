@@ -102,6 +102,10 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 	{
 		QIE10DataFrame frame = static_cast<QIE10DataFrame>((*cqie10)[i]); 
 		QIE10Frame df(HcalDetId(frame.detid()).rawId());
+		HcalDetId did(frame.detid());
+		df._iphi = did.iphi();
+		df._ieta = did.ieta();
+		df._depth = did.depth();
 		for (int j=0; j<frame.samples(); j++)
 		{
 			df._adc[j] = frame[j].adc();
@@ -119,7 +123,10 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 		if (!(did.ieta()>0 && did.iphi()==39))
 			continue;
 
-		HFFrame df(did.rawId());
+		HFFrame df;
+		df._iphi = did.iphi();
+		df._ieta = did.ieta();
+		df._depth = did.depth();
 		for (int i=0; i<it->size(); i++)
 		{
 			df._adc[i] = it->sample(i).adc();

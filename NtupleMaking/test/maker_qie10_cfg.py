@@ -40,6 +40,11 @@ options.register(
 
 options.parseArguments()
 
+#
+#   import samples
+#
+from Samples_qie10 import qie10_ExpressPhysics_275376 as s
+
 #-----------------------------------------------------------
 #	Load whatever you need from CMSSW and then modify if neccessary
 #-----------------------------------------------------------
@@ -50,27 +55,27 @@ process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.GlobalTag.globaltag = "80X_dataRun2_HLT_v12"
-process.hcalDigis.InputLabel = cms.InputTag("source")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.GlobalTag.globaltag = s.globaltag
+process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
 
 #-----------------------------------------------------------
 #	Pool Source
 #-----------------------------------------------------------
 process.maxEvents = cms.untracked.PSet(
-	input = cms.untracked.int32(options.processEvents)
+	input = cms.untracked.int32(1000000)
 )
-process.source = cms.Source("HcalTBSource",
-    fileNames = cms.untracked.vstring(options.inputFiles)
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(s.files)
 )
 
 #-----------------------------------------------------------
 #	TFile Service definition
 #-----------------------------------------------------------
-path = "../../files/ntuples/"
+path = "../../files/ntuples/qie10/"
 process.TFileService = cms.Service(
 	"TFileService",
-	fileName=cms.string(path + options.outFileName)
+	fileName=cms.string(path + "ntuplesmaking_"+s.name+".root")
 )
 
 #-----------------------------------------------------------

@@ -25,22 +25,18 @@ namespace analysis
 						_adc[i] = 0;
 						_ltdc[i] = 0;
 					}
-				}
-				QIE10Frame(uint32_t id): Object(), _id(id)
-				{
-					for (int i=0; i<10; i++)
-					{
-						_adc[i] = 0;
-						_ltdc[i] = 0;
-					}
+					_iphi = 0;
+					_ieta = 0;
+					_depth = 0;
 				}
 				virtual ~QIE10Frame() {}
 
 				//	public members
-				uint32_t	_id;
+				int			_iphi;
+				int			_ieta;
+				int			_depth;
 				int			_adc[10];
 				int			_ltdc[10];
-//				int			_ttdc[10];
 		
 #ifdef STANDALONE
 				ClassDef(QIE10Frame, 1)
