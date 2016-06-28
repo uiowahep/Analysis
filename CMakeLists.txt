@@ -52,6 +52,7 @@ set (EXTRA_LIBS ${EXTRA_LIBS} ${ROOT_LIBRARIES})
 #	add the includes to the search path
 #
 include_directories ("${PROJECT_SOURCE_DIR}/Core/interface")
+include_directories ("${PROJECT_SOURCE_DIR}/NtupleProcessing/interface")
 
 #
 #	Generate ROOT Dictionary and Shared Lib
@@ -77,17 +78,32 @@ target_link_libraries(AnalysisCore ${ROOT_LIBRARIES})
 set (EXTRA_LIBS ${EXTRA_LIBS} AnalysisCore)
 
 #
-#	add all the executables
+#	Add files to be compiled as well and against which executables should be 
+#	compiled
 #
-add_executable(test_dimuon 
-	${PROJECT_SOURCE_DIR}/NtupleProcessing/test/test_dimuon.cc
-)
-add_executable(test_qie10
-	${PROJECT_SOURCE_DIR}/NtupleProcessing/test/test_qie10.cc
-)
+file (GLOB HEADERS ${PROJECT_SOURCE_DIR}/NtupleProcessing/interface/*.h)
+file (GLOB SOURCES ${PROJECT_SOURCE_DIR}/NtupleProcessing/src/*.cc)
 
 #
-#	Link against whatever
+#	add all the executables and link against ROOT
 #
-target_link_libraries (test_dimuon ${EXTRA_LIBS})
-target_link_libraries (test_qie10 ${EXTRA_LIBS})
+file (GLOB MAIN_FILES1 ${PROJECT_SOURCE_DIR}/Execution/test/*.cc)
+file (GLOB MAIN_FILES2 ${PROJECT_SOURCE_DIR}/Execution/bin/*.cc)
+foreach (MAIN_FILE ${MAIN_FILES1})
+	string(REPLACE ".cc" "" EXECUTABLE_NAME ${MAIN_FILE})
+	string(REPLACE "${PROJECT_SOURCE_DIR}/Execution/test/" "" 
+		EXECUTABLE_NAME ${EXECUTABLE_NAME}
+	)
+	message("Adding Executable: ${EXECUTABLE_NAME}")
+	add_executable(${EXECUTABLE_NAME} ${MAIN_FILE} ${SOURCES} ${HEADERS})
+	target_link_libraries (${EXECUTABLE_NAME} ${EXTRA_LIBS})
+endforeach(MAIN_FILE)
+foreach (MAIN_FILE ${MAIN_FILES2})
+	string(REPLACE ".cc" "" EXECUTABLE_NAME ${MAIN_FILE})
+	string(REPLACE "${PROJECT_SOURCE_DIR}/Execution/bin/" "" 
+		EXECUTABLE_NAME ${EXECUTABLE_NAME}
+	)
+	message("Adding Executable: ${EXECUTABLE_NAME}")
+	add_executable(${EXECUTABLE_NAME} ${MAIN_FILE} ${SOURCES} ${HEADERS})
+	target_link_libraries (${EXECUTABLE_NAME} ${EXTRA_LIBS})
+endforeach(MAIN_FILE)

@@ -18,6 +18,9 @@ namespace analysis
 
 		//	some numbers..
 		double const NUM_PI = 3.1415927;
+
+		//	various names
+		std::string const NTUPLEMAKER_NAME = "ntuplemaker_H2DiMuonMaker";
 	}
 }
 
