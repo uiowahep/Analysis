@@ -16,7 +16,7 @@ config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
 #config.Data.lumiMask = 's.jsonfiles[1]'
 config.Data.unitsPerJob = 100
-config.Data.outLFNDirBase = '/store/user/vkhriste/ntuples'
+config.Data.outLFNDirBase = '/store/user/vkhriste/ntuples1'
 config.Data.publication = False
 config.Data.outputDatasetTag = 's.name'
 

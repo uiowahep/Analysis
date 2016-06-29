@@ -16,7 +16,7 @@ namespace analysis
 		class HFFrame : public Object
 		{
 			public:
-				HFFrame() : Object() {}
+				HFFrame() : Object() {this->reset();}
 
 				virtual void reset()				
 				{

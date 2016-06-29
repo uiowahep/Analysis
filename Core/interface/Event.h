@@ -14,7 +14,7 @@ namespace analysis
 		class Event : public Object
 		{
 			public:
-				Event() : Object() {}
+				Event() : Object() {this->reset();}
 
 				virtual void reset()
 				{
@@ -40,7 +40,7 @@ namespace analysis
 		class EventAuxiliary : public Object
 		{
 			public:
-				EventAuxiliary() :  Object() {}
+				EventAuxiliary() :  Object() {this->reset();}
 				virtual ~EventAuxiliary() {}
 
 				virtual void reset()

@@ -14,7 +14,7 @@ namespace analysis
 		class MET : public Object
 		{
 			public:
-				MET() : Object() {}
+				MET() : Object() {this->reset();}
 
 				virtual void reset()
 				{

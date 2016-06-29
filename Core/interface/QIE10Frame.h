@@ -16,7 +16,7 @@ namespace analysis
 		class QIE10Frame : public Object
 		{
 			public:
-				QIE10Frame() : Object() {}
+				QIE10Frame() : Object() {this->reset();}
 
 				virtual void reset()
 				{

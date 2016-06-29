@@ -14,7 +14,7 @@ namespace analysis
 		class Muon : public Track
 		{
 			public:
-				Muon() : Track() {}
+				Muon() : Track() {this->reset();}
 
 				virtual void reset()
 				{

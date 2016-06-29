@@ -20,7 +20,7 @@ namespace analysis
 		class MetaHiggs : public analysis::core::Object
 		{
 			public:
-				MetaHiggs() : Object() {}
+				MetaHiggs() : analysis::core::Object() {this->reset();}
 				virtual ~MetaHiggs() {}
 	
 				virtual void reset()

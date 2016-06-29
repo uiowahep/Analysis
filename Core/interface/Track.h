@@ -14,7 +14,7 @@ namespace analysis
 		class Track : public Object
 		{
 			public:
-				Track() : Object() {}
+				Track() : Object() {this->reset();}
 
 				virtual void reset()
 				{

@@ -15,7 +15,7 @@ namespace analysis
 		class Jet : public Object
 		{
 			public:
-				Jet() : Object() {}
+				Jet() : Object() {this->reset();}
 
 				virtual void reset()
 				{

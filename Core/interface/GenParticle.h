@@ -14,7 +14,7 @@ namespace analysis
 		class GenParticle : public Object
 		{
 			public:
-				GenParticle() : Object() {}
+				GenParticle() : Object() {this->reset();}
 
 				virtual void reset()
 				{

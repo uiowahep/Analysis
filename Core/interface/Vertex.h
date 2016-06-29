@@ -14,7 +14,7 @@ namespace analysis
 		class Vertex : public Object
 		{
 			public:
-				Vertex() : Object() {}
+				Vertex() : Object() {this->reset();}
 
 				virtual void reset()
 				{	

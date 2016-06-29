@@ -15,7 +15,7 @@ namespace analysis
 		{
 			public:
 				GenJet() : Object()
-				{}
+				{this->reset();}
 				virtual ~GenJet() {}
 				virtual void reset()
 				{

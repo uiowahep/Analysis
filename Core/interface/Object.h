@@ -25,7 +25,7 @@ namespace analysis
 		class Object
 		{
 			public:
-				Object(){}
+				Object(){this->reset();}
 				virtual ~Object() {}
 
 				virtual void reset() {}
