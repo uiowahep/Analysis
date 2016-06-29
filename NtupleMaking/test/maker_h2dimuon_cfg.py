@@ -15,7 +15,8 @@ process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-from Samples_v3 import singleMuon_Run2016B_PromptReco_v2_MINIAOD as s
+#from Samples_v3 import singleMuon_RunC25nsOct_MINIAOD as s
+from Samples_v3 import gg_HToMuMu as s
 
 #
 #   a few settings
@@ -24,7 +25,7 @@ thisIsData = s.isData
 globalTag = s.globaltag
 readFiles = cms.untracked.vstring();
 readFiles.extend(s.files);
-jsontouse = 3
+jsontouse = 1
 
 #
 #   Differentiate between DATA and MC
@@ -33,6 +34,8 @@ if not thisIsData:
     process.load("Analysis.NtupleMaking.H2DiMuonMaker_MC")
 else:
     process.load("Analysis.NtupleMaking.H2DiMuonMaker_Data")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 #
 #   Debug/Loggin
