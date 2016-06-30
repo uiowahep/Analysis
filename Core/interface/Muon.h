@@ -80,7 +80,7 @@ namespace analysis
 
 				bool _isPF;
 
-				int _normCh2;
+				float _normChi2;
 				float _d0BS;
 				float _dzBS;
 				float _d0PV;
