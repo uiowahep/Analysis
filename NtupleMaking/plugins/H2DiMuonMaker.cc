@@ -926,7 +926,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				_muon1._track._eta  = mu1.innerTrack()->eta();
 				_muon1._track._phi = mu1.innerTrack()->phi();
 			}
-			_muon1._normCh2 = track1.normalizedChi2();
+			_muon1._normChi2 = track1.normalizedChi2();
 			_muon1._d0BS = track1.dxy(hBS->position());
 			_muon1._dzBS = track1.dz(hBS->position());
 			reco::Vertex bestVtx1;
@@ -993,7 +993,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 				_muon2._track._eta  = mu2.innerTrack()->eta();
 				_muon2._track._phi = mu2.innerTrack()->phi();
 			}
-			_muon2._normCh2 = track2.normalizedChi2();
+			_muon2._normChi2 = track2.normalizedChi2();
 			_muon2._d0BS = track2.dxy(hBS->position());
 			_muon2._dzBS = track2.dz(hBS->position());
 			reco::Vertex bestVtx2;
@@ -1091,13 +1091,10 @@ bool H2DiMuonMaker::passHLT(edm::Event const& e)
 				if (_hTriggerResults->accept(i))
 				{
 					_eaux._hasHLTFired.push_back(true);
-					pass=pass&&true;
+					pass=true;
 				}
 				else
-				{
 					_eaux._hasHLTFired.push_back(false);
-					pass=pass&&false;
-				}
 			}
 	}
 

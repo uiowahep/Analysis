@@ -15,8 +15,8 @@ process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-#from Samples_v3 import singleMuon_RunC25nsOct_MINIAOD as s
-from Samples_v3 import gg_HToMuMu as s
+from Samples_v3 import singleMuon_RunC25nsOct_MINIAOD as s
+#from Samples_v3 import gg_HToMuMu as s
 
 #
 #   a few settings
