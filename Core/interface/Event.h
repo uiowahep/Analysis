@@ -47,10 +47,12 @@ namespace analysis
 				{
 					_nPU = 0;
 					_genWeight = 0;
+					_hasHLTFired.clear();
 				}
 
 				int _nPU;
 				int _genWeight;
+				std::vector<bool> _hasHLTFired;
 
 #ifdef STANDALONE
 				ClassDef(EventAuxiliary, 1)

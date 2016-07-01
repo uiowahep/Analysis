@@ -12,7 +12,7 @@
 
 #define NUMBER_FRAMES 4
 
-
+#define PEDESTAL 40
 
 // NEEDS UPDATING
 double adc2fC_QIE10[256]={
@@ -85,6 +85,8 @@ void test_qie10()
 	TH2D *hCorrelationTS[4];
 	TH2D *hfCAnodeCorrelation[4];
 	TH1D *hAnodeRatios[4];
+	TH1D *hAnodeChargeRatio = new TH1D("AnodeChargeRatio", "AnodeChargeRatio",
+		200, 0, 2);
 	TH1D *hM4[4];
 	TH2D *hM4vsRatios[4];
 	for (int i=0; i<NUMBER_FRAMES; i++)
@@ -131,7 +133,7 @@ void test_qie10()
 		256, 0, 256, 64, 0, 64);
 
 	TChain *chain = new TChain("maker/Events");
-	chain->Add("/Users/vk/software/HiggsAnalysis/files/data/qie10/ntuplesmaking_qie10_ExpressPhysics_275376.root");
+	chain->Add("/Users/vk/software/Analysis/files/data/qie10/ntuplesmaking_qie10_ExpressPhysics_275376.root");
 	std::cout << chain->GetEntries() << std::endl;
 
 	using namespace analysis::core;
@@ -204,6 +206,9 @@ void test_qie10()
 				df2._adc[k]);
 			hAnodeTDCCorrelation->Fill(df1._ltdc[k], df2._ltdc[k]);
 			hfCAnodeCorrelation[k]->Fill(fc1, fc2);
+			
+			if (fc1>PEDESTAL && fc2>PEDESTAL && k==2) 
+				hAnodeChargeRatio->Fill(fc1/fc2);
 
 			double s1,s2;
 			s1 = fc1;

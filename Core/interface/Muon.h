@@ -27,7 +27,7 @@ namespace analysis
 
 					_isPF = 0;
 
-					_normCh2 = 0; 
+					_normChi2 = 0; 
 					_d0BS = 0;
 					_dzBS = 0;
 					_d0PV = 0;

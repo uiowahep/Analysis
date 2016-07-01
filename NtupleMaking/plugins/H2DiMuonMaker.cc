@@ -930,13 +930,13 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			_muon1._d0BS = track1.dxy(hBS->position());
 			_muon1._dzBS = track1.dz(hBS->position());
 			reco::Vertex bestVtx1;
-			for (reco::VertexCollection::const_iterator it=hVertices->begin();
-				it!=hVertices->end(); ++it)
+			for (reco::VertexCollection::const_iterator vt=hVertices->begin();
+				vt!=hVertices->end(); ++vt)
 			{
-				if (!it->isValid()) continue;
-				_muon1._d0PV = track1.dxy(it->position());
-				_muon1._dzPV = track1.dz(it->position());
-				bestVtx1 = *it;
+				if (!vt->isValid()) continue;
+				_muon1._d0PV = track1.dxy(vt->position());
+				_muon1._dzPV = track1.dz(vt->position());
+				bestVtx1 = *vt;
 				break;
 			}
 			_muon1._isTight = muon::isTightMuon(mu1, bestVtx1);
@@ -997,13 +997,13 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 			_muon2._d0BS = track2.dxy(hBS->position());
 			_muon2._dzBS = track2.dz(hBS->position());
 			reco::Vertex bestVtx2;
-			for (reco::VertexCollection::const_iterator it=hVertices->begin();
-				it!=hVertices->end(); ++it)
+			for (reco::VertexCollection::const_iterator vt=hVertices->begin();
+				vt!=hVertices->end(); ++vt)
 			{
-				if (!it->isValid()) continue;
-				_muon2._d0PV = track2.dxy(it->position());
-				_muon2._dzPV = track2.dz(it->position());
-				bestVtx2 = *it;
+				if (!vt->isValid()) continue;
+				_muon2._d0PV = track2.dxy(vt->position());
+				_muon2._dzPV = track2.dz(vt->position());
+				bestVtx2 = *vt;
 				break;
 			}
 			_muon2._isTight = muon::isTightMuon(mu2, bestVtx2);
@@ -1077,6 +1077,8 @@ bool H2DiMuonMaker::passHLT(edm::Event const& e)
 {
 	const boost::regex re("_v[0-9]+");
 	edm::TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
+
+	bool pass=false;
 	for (uint32_t i=0; i<_hTriggerResults->size(); i++)
 	{
 		std::string triggerName = triggerNames.triggerName(i);
@@ -1084,12 +1086,22 @@ bool H2DiMuonMaker::passHLT(edm::Event const& e)
 			boost::match_default | boost::format_sed);
 		for (std::vector<std::string>::const_iterator dit=
 			_meta._triggerNames.begin(); dit!=_meta._triggerNames.end(); ++dit)
-			if (*dit == tstripped &&
-				_hTriggerResults->accept(i))
-				return true;
+			if (*dit == tstripped)
+			{
+				if (_hTriggerResults->accept(i))
+				{
+					_eaux._hasHLTFired.push_back(true);
+					pass=pass&&true;
+				}
+				else
+				{
+					_eaux._hasHLTFired.push_back(false);
+					pass=pass&&false;
+				}
+			}
 	}
 
-	return false;
+	return pass;
 }
 
 //	
@@ -1115,8 +1127,8 @@ bool H2DiMuonMaker::isHLTMatched(uint32_t itrigger, edm::Event const& e,
 				pat::TriggerObjectStandAlone tmp(*it);
 				tmp.unpackPathNames(triggerNames);
 				bool right = tmp.hasPathName(triggerName, true, true);
-				if (right)
-					return (deltaR(tmp, mu) < 0.2);
+				if (right && (deltaR(tmp, mu)<0.2))
+					return true;
 			}
 		}
 	}
