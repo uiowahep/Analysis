@@ -90,7 +90,6 @@ float jetMuondR(float jeta,float jphi, float meta, float mphi)
 void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2, 
 	MET const& met, Event const& event)
 {
-	std::cout << "Categorizing" << std::endl;
 	int run = event._run;
 	long long e = event._event;
 	std::pair<int, long long int> runevent(run, e);
@@ -119,6 +118,8 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			}
 		}
 	}
+	if (p4jets.size()>2)
+		return;
 
 	bool isPreSelected = false;
 	if (p4jets.size()==2)
@@ -153,7 +154,7 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 	}
 	if (!isPreSelected)
 	{
-		if (p4dimuon.Pt()>10)
+		if (p4dimuon.Pt()>=10)
 		{
 			categories[JET01Tight].push_back(runevent);
 			mapcats[CATEGORY_NAMES[JET01Tight]].push_back(runevent);
@@ -207,11 +208,13 @@ void synchronize(std::string const& inputname)
 	streamer._chain->SetBranchAddress("EventAuxiliary", &aux);
 	streamer._chain->SetBranchAddress("MET", &met);
 
-	for (uint32_t i=0; i<streamer._chain->GetEntries(); i++)
+	uint32_t numEntries = streamer._chain->GetEntries();
+	for (uint32_t i=0; i<numEntries; i++)
 	{
 		streamer._chain->GetEntry(i);
 		if (i%1000==0)
-			std::cout << "### Event " << i << std::endl;
+			std::cout << "### Event " << i << " / " << numEntries
+				<< std::endl;
 
 		//
 		//	Selections
@@ -257,8 +260,8 @@ int main(int argc, char** argv)
 		mapcats[CATEGORY_NAMES[i]] = std::vector<std::pair<int, long long int>>();
 	}
 
-	synchronize(argv[1]);
 	sampleinfo(argv[1]);
+	synchronize(argv[1]);
 	return 0;
 }
 
