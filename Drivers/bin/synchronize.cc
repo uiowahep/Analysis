@@ -87,7 +87,7 @@ float jetMuondR(float jeta,float jphi, float meta, float mphi)
 	return p4j.DeltaR(p4m);
 }
 
-void categorizeJets(Jets* jets, Muon const& mu1, Muon const&  mu2, 
+void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2, 
 	MET const& met, Event const& event)
 {
 	std::cout << "Categorizing" << std::endl;
@@ -98,7 +98,7 @@ void categorizeJets(Jets* jets, Muon const& mu1, Muon const&  mu2,
 	TLorentzVector p4m1, p4m2;
 	p4m1.SetPtEtaPhiM(mu1._pt, mu1._eta, 
 		mu1._phi, PDG_MASS_Mu);
-	p4m2.SetPtEtaPhiM(mu1._pt, mu2._eta, 
+	p4m2.SetPtEtaPhiM(mu2._pt, mu2._eta, 
 		mu2._phi, PDG_MASS_Mu);
 	TLorentzVector p4dimuon = p4m1 + p4m2;
 	if (!(p4dimuon.M()>100 && p4dimuon.M()<110 &&
@@ -119,9 +119,6 @@ void categorizeJets(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			}
 		}
 	}
-
-	if (!(p4jets.size()<=2 && jets->size()>=2))
-		return;
 
 	bool isPreSelected = false;
 	if (p4jets.size()==2)
@@ -156,7 +153,7 @@ void categorizeJets(Jets* jets, Muon const& mu1, Muon const&  mu2,
 	}
 	if (!isPreSelected)
 	{
-		if (p4dimuon.Pt()>=10)
+		if (p4dimuon.Pt()>10)
 		{
 			categories[JET01Tight].push_back(runevent);
 			mapcats[CATEGORY_NAMES[JET01Tight]].push_back(runevent);
@@ -200,12 +197,14 @@ void synchronize(std::string const& inputname)
 	Jets *jets=NULL;
 	Vertices *vertices=NULL;
 	Event *event=NULL;
+	EventAuxiliary *aux=NULL;
 	MET *met=NULL;
 	streamer._chain->SetBranchAddress("Muons1", &muons1);
 	streamer._chain->SetBranchAddress("Muons2", &muons2);
 	streamer._chain->SetBranchAddress("Jets", &jets);
 	streamer._chain->SetBranchAddress("Vertices", &vertices);
 	streamer._chain->SetBranchAddress("Event", &event);
+	streamer._chain->SetBranchAddress("EventAuxiliary", &aux);
 	streamer._chain->SetBranchAddress("MET", &met);
 
 	for (uint32_t i=0; i<streamer._chain->GetEntries(); i++)
@@ -219,11 +218,13 @@ void synchronize(std::string const& inputname)
 		//
 		if (!passVertex(vertices))
 			continue;
+		if (!(aux->_hasHLTFired[0] || aux->_hasHLTFired[1]))
+			continue;
 		for (uint32_t im=0; im<muons1->size(); im++)
 		{
 			if (!passMuons(muons1->at(im), muons2->at(im)))
 				continue;
-			categorizeJets(jets, muons1->at(im), muons2->at(im), *met, *event);
+			categorize(jets, muons1->at(im), muons2->at(im), *met, *event);
 		}
 	}
 
