@@ -282,6 +282,8 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 	if (_meta._isMC)
 	{
 		_tEvents->Branch("GenJets", (GenJets*)&_genjets);
+		
+		/*
 		_tEvents->Branch("GenZpreFSR", (GenParticle*)&_genZpreFSR);
 		_tEvents->Branch("Track1ZpreFSR", (Track*)&_track1ZpreFSR);
 		_tEvents->Branch("Track2ZpreFSR", (Track*)&_track2ZpreFSR);
@@ -295,6 +297,7 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 
 		_tEvents->Branch("GenWpostFSR", (GenParticle*)&_genWpostFSR);
 		_tEvents->Branch("TrackWpostFSR", (Track*)&_trackWpostFSR);
+		*/
 
 		_tEvents->Branch("GenHpreFSR", (GenParticle*)&_genHpreFSR);
 		_tEvents->Branch("Track1HpreFSR", (Track*)&_track1HpreFSR);
