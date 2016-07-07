@@ -180,12 +180,14 @@ void sampleinfo(std::string const& inputname)
 	MetaHiggs *meta=NULL;
 	s._chain->SetBranchAddress("Meta", &meta);
 
+	long long int numEvents = 0;
 	for (int i=0; i<s._chain->GetEntries(); i++)
 	{
 		s._chain->GetEntry(i);
-		std::cout 
-			<< "events processed " << meta->_nEventsProcessed << std::endl;
+		numEvents+=meta->_nEventsProcessed;
 	}
+		std::cout 
+			<< "events processed " << numEvents << std::endl;
 }
 
 void synchronize(std::string const& inputname)

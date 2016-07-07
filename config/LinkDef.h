@@ -17,7 +17,7 @@
 #pragma link C++ class analysis::core::HFFrame+;
 #pragma link C++ class analysis::core::QIE10Frame+;
 #pragma link C++ class analysis::dimuon::MetaHiggs+;
-
+#pragma link C++ class analysis::processing::Streamer+;
 
 #pragma link C++ class std::vector<analysis::core::Object>+;
 #pragma link C++ class std::vector<analysis::core:Muon>+;

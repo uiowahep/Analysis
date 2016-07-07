@@ -53,6 +53,7 @@ set (EXTRA_LIBS ${EXTRA_LIBS} ${ROOT_LIBRARIES})
 #
 include_directories ("${PROJECT_SOURCE_DIR}/Core/interface")
 include_directories ("${PROJECT_SOURCE_DIR}/NtupleProcessing/interface")
+include_directories ("${PROJECT_SOURCE_DIR}/AuxTools/interface")
 
 #
 #	Generate ROOT Dictionary and Shared Lib
@@ -78,11 +79,24 @@ target_link_libraries(AnalysisCore ${ROOT_LIBRARIES})
 set (EXTRA_LIBS ${EXTRA_LIBS} AnalysisCore)
 
 #
-#	Add files to be compiled as well and against which executables should be 
-#	compiled
+#	Add Ntuple Processing as shared lib but compiled as a ROOT dictionary
 #
-file (GLOB HEADERS ${PROJECT_SOURCE_DIR}/NtupleProcessing/interface/*.h)
-file (GLOB SOURCES ${PROJECT_SOURCE_DIR}/NtupleProcessing/src/*.cc)
+ROOT_GENERATE_DICTIONARY(G__NtupleProcessing
+	${PROJECT_SOURCE_DIR}/NtupleProcessing/interface/Streamer.h
+	LINKDEF ${PROJECT_SOURCE_DIR}/config/LinkDef.h
+	OPTIONS -DSTANDALONE=1
+)
+add_library(AnalysisNtupleProcessing SHARED 
+	${PROJECT_SOURCE_DIR}/NtupleProcessing/src/Streamer.cc 
+	G__NtupleProcessing.cxx
+)
+target_link_libraries(AnalysisNtupleProcessing ${ROOT_LIBRARIES})
+set (EXTRA_LIBS ${EXTRA_LIBS} AnalysisNtupleProcessing)
+
+#
+#	Add the headers to compile against
+#
+file (GLOB HEADERS ${PROJECT_SOURCE_DIR}/AuxTools/interface/*.h)
 
 #
 #	add all the executables and link against ROOT
@@ -95,7 +109,8 @@ foreach (MAIN_FILE ${MAIN_FILES1})
 		EXECUTABLE_NAME ${EXECUTABLE_NAME}
 	)
 	message("Adding Executable: ${EXECUTABLE_NAME}")
-	add_executable(${EXECUTABLE_NAME} ${MAIN_FILE} ${SOURCES} ${HEADERS})
+	#	add_executable(${EXECUTABLE_NAME} ${MAIN_FILE} ${SOURCES} ${HEADERS})
+	add_executable(${EXECUTABLE_NAME} ${MAIN_FILE} ${HEADERS})
 	target_link_libraries (${EXECUTABLE_NAME} ${EXTRA_LIBS})
 endforeach(MAIN_FILE)
 foreach (MAIN_FILE ${MAIN_FILES2})
@@ -104,6 +119,13 @@ foreach (MAIN_FILE ${MAIN_FILES2})
 		EXECUTABLE_NAME ${EXECUTABLE_NAME}
 	)
 	message("Adding Executable: ${EXECUTABLE_NAME}")
-	add_executable(${EXECUTABLE_NAME} ${MAIN_FILE} ${SOURCES} ${HEADERS})
+	#add_executable(${EXECUTABLE_NAME} ${MAIN_FILE} ${SOURCES} ${HEADERS})
+	add_executable(${EXECUTABLE_NAME} ${MAIN_FILE} ${HEADERS})
 	target_link_libraries (${EXECUTABLE_NAME} ${EXTRA_LIBS})
 endforeach(MAIN_FILE)
+
+#
+#	copy whatever you need
+#
+file (GLOB ALL_SCRIPTS ${PROJECT_SOURCE_DIR}/scripts/*.*)
+file (COPY ${ALL_SCRIPTS} DESTINATION ${PROJECT_BINARY_DIR}/scripts)
