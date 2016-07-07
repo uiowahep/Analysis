@@ -151,7 +151,7 @@ singleMuon.append(singleMuon_RunDPrompt_v4_MINIAOD)
 
 singleMuon2015ReReco = []
 singleMuon2015ReReco.append(singleMuon_Run2015C25nsReReco_16Dec_MINIAOD)
-singleMuno2015ReReco.append(singleMuon_Run2015DReReco_16Dec_MINIAOD)
+singleMuon2015ReReco.append(singleMuon_Run2015DReReco_16Dec_MINIAOD)
 
 singleMuon2016 = []
 singleMuon2016.append(singleMuon_Run2016B_PromptReco_v2_MINIAOD)
@@ -163,9 +163,9 @@ signal2015_74X = []
 signal2015_76X = []
 signal2016_80X = []
 
-background_74X = []
-background_76X = []
-background_80X = []
+background2015_74X = []
+background2015_76X = []
+background2016_80X = []
 
 
 # ----------------------------
@@ -210,7 +210,7 @@ vbf_HToMuMu_76X2015 = sample(
 )
 
 signal2015_74X.append(vbf_HToMuMu)
-signal2015_76X.append(vbf_HToMuMu_76X)
+signal2015_76X.append(vbf_HToMuMu_76X2015)
 
 # ----------------------------
 # W/Z to Higgs
@@ -373,8 +373,8 @@ GluGluToZZTo4mu = sample(name="GluGluToZZTo4mu",
 
 singleAndMC = []
 singleAndMC.extend(singleMuon)
-singleAndMC.extend(signal)
-singleAndMC.extend(background)
+singleAndMC.extend(signal2015_74X)
+singleAndMC.extend(background2015_74X)
 
 MC2015_74X = []
 MC2015_76X = []
