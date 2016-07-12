@@ -39,6 +39,11 @@ TH1D *hDiJetMass;
 TH1D *hDiJetdeta;
 TH1D *hDiMuonMass;
 TH1D *hDiMuonpt;
+TH1D *hDiMuoneta;
+TH1D *hDiMuondphi;
+TH1D *hMuonpt;
+TH1D *hMuoneta;
+TH1D *hMuonphi;
 
 bool passVertex(Vertices* v)
 {
@@ -143,10 +148,23 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			met._pt<40)
 		{
 			isPreSelected = true;
+
+			//	fill the histograms
+			double dphi = p4m1.DeltaPhi(p4m2);
 			hDiJetMass->Fill(dijetmass);
 			hDiJetdeta->Fill(TMath::Abs(deta));
 			hDiMuonpt->Fill(p4dimuon.Pt());
 			hDiMuonMass->Fill(p4dimuon.M());
+			hDiMuoneta->Fill(p4dimuon.Eta());
+			hDiMuondphi->Fill(dphi);
+			hMuonpt->Fill(p4m1.Pt());
+			hMuonpt->Fill(p4m2.Pt());
+			hMuoneta->Fill(p4m1.Eta());
+			hMuoneta->Fill(p4m2.Eta());
+			hMuonphi->Fill(p4m1.Phi());
+			hMuonphi->Fill(p4m2.Phi());
+
+			//	categorize further
 			if (dijetmass>650 && TMath::Abs(deta)>3.5)
 			{
 				categories[VBFTight].push_back(runevent);
@@ -210,6 +228,11 @@ void synchronize(std::string const& inputname)
 	hDiJetMass = new TH1D("DiJetMass", "DiJetMass", 20, 0, 1000);
 	hDiMuonpt = new TH1D("DiMuonpt", "DiMuonpt", 20, 0, 200);
 	hDiMuonMass = new TH1D("DiMuonMass", "DiMuonMass", 50, 110, 160);
+	hDiMuoneta = new TH1D("DiMuoneta", "DiMuoneta", 50, -2.5, 2.5);
+	hDiMuondphi = new TH1D("DiMuondphi", "DiMoundphi", 18, -3.6, 3.6);
+	hMuonpt = new TH1D("Muonpt", "Muonpt", 50, 0, 100);
+	hMuoneta = new TH1D("Muoneta", "Muoneta", 50, -2.5, 2.5);
+	hMuonphi = new TH1D("Muonphi", "Muonphi", 36, -3.6, 3.6);
 
 	Streamer streamer(inputname, NTUPLEMAKER_NAME+"/Events");
 	streamer.chainup();
