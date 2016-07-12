@@ -147,7 +147,7 @@ singleMuon_Run2016B_PromptReco_v2_MINIAOD = sample(
 )
 
 singleMuon_Run2016B_PromptReco_v1_MINIAOD = sample(
-    name="singleMuon_Run2016B_PromptReco_v2_MINIAOD",
+    name="singleMuon_Run2016B_PromptReco_v1_MINIAOD",
     dir="/SingleMuon/Run2016B-PromptReco-v1/MINIAOD",
     files=open('sample_file_lists/data/singleMuon_Run2016B_PromptReco_v1_MINIAOD.files').read().splitlines(),
     numevents = 2816842,
@@ -159,7 +159,7 @@ singleMuon_Run2016B_PromptReco_v1_MINIAOD = sample(
 singleMuon_Run2016C_PromptReco_v2_MINIAOD = sample(
     name = "singleMuon_Run2016C_PromptReco_v2_MINIAOD",
     dir = "/SingleMuon/Run2016C-PromptReco-v2/MINIAOD",
-    files = open('sample_file_lists/data//SingleMuon/Run2016C-PromptReco-v2/MINIAOD.files').read().splitlines(),
+    files = open('sample_file_lists/data/singleMuon_Run2016C_PromptReco_v2_MINIAOD.files').read().splitlines(),
     numevents = 68492270,
     globaltag = '80X_dataRun2_Prompt_v9',
     jsonfiles = jsonlist25[:],
