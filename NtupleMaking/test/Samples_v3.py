@@ -24,7 +24,8 @@ jsonlist25 = [
     'sample_file_lists/data/json/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt',
     'sample_file_lists/data/json/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt',
     'sample_file_lists/data/json/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt',
-    'sample_file_lists/data/json/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt'
+    'sample_file_lists/data/json/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt',
+    'sample_file_lists/data/json/Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'
 ] 
 
 #
@@ -145,6 +146,26 @@ singleMuon_Run2016B_PromptReco_v2_MINIAOD = sample(
 	isData=True
 )
 
+singleMuon_Run2016B_PromptReco_v1_MINIAOD = sample(
+    name="singleMuon_Run2016B_PromptReco_v2_MINIAOD",
+    dir="/SingleMuon/Run2016B-PromptReco-v1/MINIAOD",
+    files=open('sample_file_lists/data/singleMuon_Run2016B_PromptReco_v1_MINIAOD.files').read().splitlines(),
+    numevents = 2816842,
+    globaltag= '80X_dataRun2_Prompt_v9',
+    jsonfiles = jsonlist25[:],
+    isData=True
+)
+
+singleMuon_Run2016C_PromptReco_v2_MINIAOD = sample(
+    name = "singleMuon_Run2016C_PromptReco_v2_MINIAOD",
+    dir = "/SingleMuon/Run2016C-PromptReco-v2/MINIAOD",
+    files = open('sample_file_lists/data//SingleMuon/Run2016C-PromptReco-v2/MINIAOD.files').read().splitlines(),
+    numevents = 68492270,
+    globaltag = '80X_dataRun2_Prompt_v9',
+    jsonfiles = jsonlist25[:],
+    isData = True
+)
+
 singleMuon.append(singleMuon_RunC25nsOct_MINIAOD)
 singleMuon.append(singleMuon_RunDOct_v1_MINIAOD)
 singleMuon.append(singleMuon_RunDPrompt_v4_MINIAOD)
@@ -155,6 +176,8 @@ singleMuon2015ReReco.append(singleMuon_Run2015DReReco_16Dec_MINIAOD)
 
 singleMuon2016 = []
 singleMuon2016.append(singleMuon_Run2016B_PromptReco_v2_MINIAOD)
+singleMuon2016.append(singleMuon_Run2016B_PromptReco_v1_MINIAOD)
+singleMuon2016.append(singleMuon_Run2016C_PromptReco_v2_MINIAOD)
 
 # ----------------------------
 #   MC Samples: Signal
