@@ -146,6 +146,7 @@ singleMuon_Run2016B_PromptReco_v2_MINIAOD = sample(
 	isData=True
 )
 
+#   seems like none of the runs from this set are included in the json!
 singleMuon_Run2016B_PromptReco_v1_MINIAOD = sample(
     name="singleMuon_Run2016B_PromptReco_v1_MINIAOD",
     dir="/SingleMuon/Run2016B-PromptReco-v1/MINIAOD",
@@ -176,7 +177,6 @@ singleMuon2015ReReco.append(singleMuon_Run2015DReReco_16Dec_MINIAOD)
 
 singleMuon2016 = []
 singleMuon2016.append(singleMuon_Run2016B_PromptReco_v2_MINIAOD)
-singleMuon2016.append(singleMuon_Run2016B_PromptReco_v1_MINIAOD)
 singleMuon2016.append(singleMuon_Run2016C_PromptReco_v2_MINIAOD)
 
 # ----------------------------

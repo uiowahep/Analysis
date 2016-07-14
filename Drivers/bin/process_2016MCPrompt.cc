@@ -9,30 +9,33 @@
 #include "Constants.h"
 #include "Streamer.h"
 #include "MetaHiggs.h"
-#include "HistogramSets.h"
 
 //	ROOT headers
 #include "TFile.h"
 #include "TChain.h"
 #include "TString.h"
 #include "TMath.h"
-#include "TLorentzVector.h"
 #include "TH1D.h"
+#include "TLorentzVector.h"
+#include "LumiReweightingStandAlone.h"
+#include "HistogramSets.h"
+
+#include "boost/program_options.hpp"
+#include <signal.h>
+
+/*
+ *	Declare/Define all the globals
+ */
+std::string __inputfilename;
+std::string __outputfilename;
+bool __isMC;
+std::string __puMCfilename;
+std::string __puDATAfilename;
+bool __continueRunning = true;
 
 std::string const NTUPLEMAKER_NAME =  "ntuplemaker_H2DiMuonMaker";
-std::string const CATEGORY_NAMES[5] = {
-	"VBFTight", "ggFTight", "VBFLoose", "01JetTight", "01JetLoose" } ;
 
-#define VBFTight 0
-#define ggFTight 1
-#define VBFLoose 2
-#define JET01Tight 3
-#define JET01Loose 4
-#define NCATEGORIES 5
-
-std::map<std::string, std::vector<std::pair<int, long long int> > > mapcats;
-std::vector<std::pair<int, long long int> >  categories[NCATEGORIES];
-
+namespace po = boost::program_options;
 using namespace analysis::core;
 using namespace analysis::dimuon;
 using namespace analysis::processing;
@@ -60,8 +63,6 @@ bool passVertex(Vertices* v)
 
 bool passMuon(Muon const& m)
 {
-	float muIso = (m._sumChargedHadronPtR04 + max(0., 
-		m._sumNeutralHadronEtR04+m._sumPhotonEtR04-0.5*m._sumPUPtR04))/m._pt;
 	if (m._isGlobal && m._isTracker &&
 		m._pt>10 && TMath::Abs(m._eta)<2.4 &&
 		m._isTight && (m._trackIsoSumPt/m._pt)<0.1)
@@ -97,21 +98,14 @@ float jetMuondR(float jeta,float jphi, float meta, float mphi)
 }
 
 void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2, 
-	MET const& met, Event const& event)
+	MET const& met, Event const& event, float puweight=1.)
 {
-	int run = event._run;
-	long long e = event._event;
-	std::pair<int, long long int> runevent(run, e);
-
 	TLorentzVector p4m1, p4m2;
 	p4m1.SetPtEtaPhiM(mu1._pt, mu1._eta, 
 		mu1._phi, PDG_MASS_Mu);
 	p4m2.SetPtEtaPhiM(mu2._pt, mu2._eta, 
 		mu2._phi, PDG_MASS_Mu);
 	TLorentzVector p4dimuon = p4m1 + p4m2;
-	if (!(p4dimuon.M()>110 && p4dimuon.M()<160 &&
-		mu1._isPF && mu2._isPF))
-		return;
 
 	//	Fill the No Categorization Set
 	double dphi = p4m1.DeltaPhi(p4m2);
@@ -125,6 +119,10 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 	setNoCats.hMuoneta->Fill(p4m2.Eta());
 	setNoCats.hMuonphi->Fill(p4m1.Phi());
 	setNoCats.hMuonphi->Fill(p4m2.Phi());
+	
+	if (!(p4dimuon.M()>110 && p4dimuon.M()<160 &&
+		mu1._isPF && mu2._isPF))
+		return;
 
 	std::vector<TLorentzVector> p4jets;
 	for (Jets::const_iterator it=jets->begin(); it!=jets->end(); ++it)
@@ -140,7 +138,6 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			}
 		}
 	}
-
 	if (p4jets.size()>2)
 		return;
 
@@ -150,14 +147,15 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 		TLorentzVector p4lead = p4jets[0]; 
 		TLorentzVector p4sub = p4jets[1];
 		TLorentzVector dijet = p4lead + p4sub;
+
 		float deta = p4lead.Eta() - p4sub.Eta();
 		float dijetmass = dijet.M();
-		
+			
 		if (p4lead.Pt()>40 && p4sub.Pt()>30 &&
 			met._pt<40)
 		{
 			isPreSelected = true;
-	
+
 			set2Jets.hDiJetMass->Fill(dijetmass);
 			set2Jets.hDiJetdeta->Fill(TMath::Abs(deta));
 			set2Jets.hDiMuonpt->Fill(p4dimuon.Pt());
@@ -171,20 +169,16 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			set2Jets.hMuonphi->Fill(p4m1.Phi());
 			set2Jets.hMuonphi->Fill(p4m2.Phi());
 
+			//	categorize
 			if (dijetmass>650 && TMath::Abs(deta)>3.5)
 			{
-				categories[VBFTight].push_back(runevent);
-				mapcats[CATEGORY_NAMES[VBFTight]].push_back(runevent);
-				return;}
+				return;
+			}
 			if (dijetmass>250 && p4dimuon.Pt()>50)
 			{
-				categories[ggFTight].push_back(runevent);
-				mapcats[CATEGORY_NAMES[ggFTight]].push_back(runevent);
 				return;}
 			else
 			{
-				categories[VBFLoose].push_back(runevent);
-				mapcats[CATEGORY_NAMES[VBFLoose]].push_back(runevent);
 				return;}
 		}
 	}
@@ -202,14 +196,10 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 		set01Jets.hMuonphi->Fill(p4m2.Phi());
 		if (p4dimuon.Pt()>=10)
 		{
-			categories[JET01Tight].push_back(runevent);
-			mapcats[CATEGORY_NAMES[JET01Tight]].push_back(runevent);
 			return;
 		}
 		else
 		{
-			categories[JET01Loose].push_back(runevent);
-			mapcats[CATEGORY_NAMES[JET01Loose]].push_back(runevent);
 			return;
 		}
 	}
@@ -217,7 +207,7 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 	return;
 }
 
-void sampleinfo(std::string const& inputname)
+float sampleinfo(std::string const& inputname)
 {
 	Streamer s(inputname, NTUPLEMAKER_NAME+"/Meta");
 	s.chainup();
@@ -227,22 +217,31 @@ void sampleinfo(std::string const& inputname)
 	s._chain->SetBranchAddress("Meta", &meta);
 
 	long long int numEvents = 0;
+	long long int numEventsWeighted = 0;
 	for (int i=0; i<s._chain->GetEntries(); i++)
 	{
 		s._chain->GetEntry(i);
-		numEvents += meta->_nEventsProcessed;
+		numEvents+=meta->_nEventsProcessed;
+		numEventsWeighted+=meta->_sumEventWeights;
 	}
-	std::cout << "#events processed total = " << numEvents << std::endl;
+	std::cout 
+		<< "#events processed total = " << numEvents << std::endl
+		<< "#events weighted total = " << numEventsWeighted << std::endl;
+
+	return numEventsWeighted;
 }
 
-void synchronize(std::string const& inputname)
+void process()
 {
-	TFile *outroot = new TFile("process_2016Prompt.root", "recreate");
+	long long int numEventsWeighted = sampleinfo(__inputfilename);
+
+	//	out ...
+	TFile *outroot = new TFile(__outputfilename.c_str(), "recreate");
 	setNoCats.init();
 	set2Jets.init();
 	set01Jets.init();
 
-	Streamer streamer(inputname, NTUPLEMAKER_NAME+"/Events");
+	Streamer streamer(__inputfilename, NTUPLEMAKER_NAME+"/Events");
 	streamer.chainup();
 
 	Muons *muons1=NULL;
@@ -260,13 +259,27 @@ void synchronize(std::string const& inputname)
 	streamer._chain->SetBranchAddress("EventAuxiliary", &aux);
 	streamer._chain->SetBranchAddress("MET", &met);
 
+	//	init the PU reweighter
+	reweight::LumiReWeighting *weighter = NULL;
+	if (__isMC)
+	{
+		TString mc_pileupfile = __puMCfilename.c_str();
+		TString data_pileupfile = __puDATAfilename.c_str();
+		weighter = new reweight::LumiReWeighting(
+		mc_pileupfile.Data(), data_pileupfile.Data(), "pileup", "pileup");
+	}
+
+	//	Main Loop
 	uint32_t numEntries = streamer._chain->GetEntries();
-	for (uint32_t i=0; i<numEntries; i++)
+	for (uint32_t i=0; i<numEntries && __continueRunning; i++)
 	{
 		streamer._chain->GetEntry(i);
 		if (i%1000==0)
 			std::cout << "### Event " << i << " / " << numEntries
 				<< std::endl;
+
+		float puweight = __isMC ? weighter->weight(aux->_nPU)*aux->_genWeight :
+			1.;
 
 		//
 		//	Selections
@@ -279,7 +292,8 @@ void synchronize(std::string const& inputname)
 		{
 			if (!passMuons(muons1->at(im), muons2->at(im)))
 				continue;
-			categorize(jets, muons1->at(im), muons2->at(im), *met, *event);
+			categorize(jets, muons1->at(im), muons2->at(im), *met, *event,
+				puweight);
 		}
 	}
 
@@ -289,23 +303,55 @@ void synchronize(std::string const& inputname)
 	return;
 }
 
+void sigHandler(int sig)
+{
+	cout << "### Signal: " << sig << " caughter. Exiting..." << endl;
+	__continueRunning = false;
+}
+
 int main(int argc, char** argv)
 {
-	if (argc<2 || argc>2)
+	/*
+	 *	Register signals
+	 */
+	signal(SIGABRT, &sigHandler);
+	signal(SIGTERM, &sigHandler);
+	signal(SIGINT, &sigHandler);
+
+	std::string none;
+
+	/*
+	 *	Pare Options
+	 */
+	po::options_description desc("Allowed Program Options");
+	desc.add_options()
+		("help", "produce help messages")
+		("input", po::value<std::string>(), "a file specifying all the ROOT files to process")
+		("isMC", po::value<bool>(), "type of data: DATA vs MC")
+		("output", po::value<std::string>(), "output file name")
+		("puMC", po::value<std::string>(&none)->default_value("None"), "MC PU Reweight file")
+		("puDATA", po::value<std::string>(&none)->default_value("None"), "DATA PU Reweight file")
+	;
+
+	po::variables_map vm;
+	po::store(po::parse_command_line(argc, argv, desc), vm);
+	po::notify(vm);
+
+	if (vm.count("help") || argc<2)
 	{
-		std::cout << "Usage:" << std::endl
-			<< "./synchronize <input file name>" << std::endl;
+		std::cout << desc << std::endl;
 		return 1;
 	}
 
-	for (int i=0; i<NCATEGORIES; i++)
-	{
-		std::cout << CATEGORY_NAMES[i] << std::endl;
-		mapcats[CATEGORY_NAMES[i]] = std::vector<std::pair<int, long long int>>();
-	}
+	//	Assign globals
+	__inputfilename = vm["input"].as<std::string>();
+	__isMC = vm["isMC"].as<bool>();
+	__outputfilename = vm["output"].as<std::string>();
+	__puMCfilename = vm["puMC"].as<std::string>();
+	__puDATAfilename = vm["puDATA"].as<std::string>();
 
-	sampleinfo(argv[1]);
-	synchronize(argv[1]);
+	//	start processing
+	process();
 	return 0;
 }
 

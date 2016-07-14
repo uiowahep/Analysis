@@ -1,8 +1,8 @@
 import ROOT as R
 
 picpath = "/Users/vk/software/Analysis/docs/H2mu/pics/"
-varName = "DiMuonMass"
-year = 2016
+varName = "DiMuoneta"
+year = 2015
 
 datapath = "../"
 mcnames = ["DY Jets", "tt Jets", "VBF H", "ggH2MuMu"]
@@ -38,6 +38,10 @@ mcsigevsnumber = [248812., 250000.]
 bgstack = R.THStack("bgstack", "")
 mcbghists = []
 c = R.TCanvas("c1", "c1", 600, 400)
+pad1 = R.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+pad1.SetBottomMargin(0)
+pad1.Draw()
+pad1.cd()
 
 # bg
 counter = 0
@@ -45,10 +49,6 @@ f0 = R.TFile(mcbgfiles[counter])
 h0 = f0.Get(varName)
 h0.Scale(lumi*mcbgxsec[counter]/mcbgevsnumber[counter])
 h0.SetFillColor(colors[counter])
-if varName=="DiMuonMass":
-    for i in range(h0.GetNbinsX()):
-        if h0.GetBinCenter(i+1)>120 and h0.GetBinCenter(i+1)<130:
-            h0.SetBinContent(i+1, 0)
 bgstack.Add(h0)
 #h0.Draw("hist")
 
@@ -57,33 +57,29 @@ f1 = R.TFile(mcbgfiles[counter])
 h1 = f1.Get(varName)
 h1.Scale(lumi*mcbgxsec[counter]/mcbgevsnumber[counter])
 h1.SetFillColor(colors[counter])
-if varName=="DiMuonMass":
-    for i in range(h1.GetNbinsX()):
-        if h1.GetBinCenter(i+1)>120 and h1.GetBinCenter(i+1)<130:
-            h1.SetBinContent(i+1, 0)
 bgstack.Add(h1)
 #h1.Draw("hist")
 
 # sig
-counter = 0
-f2 = R.TFile(mcsigfiles[counter])
-h2 = f2.Get(varName)
-h2.Scale(lumi*mcsigxsec[counter]/mcsigevsnumber[counter])
-h2.SetLineColor(sigcolors[counter])
+#counter = 0
+#f2 = R.TFile(mcsigfiles[counter])
+#h2 = f2.Get(varName)
+#h2.Scale(lumi*mcsigxsec[counter]/mcsigevsnumber[counter])
+#h2.SetLineColor(sigcolors[counter])
 
-counter = 1
-f3 = R.TFile(mcsigfiles[counter])
-h3 = f3.Get(varName)
-h3.Scale(lumi*mcsigxsec[counter]/mcsigevsnumber[counter])
-h3.SetLineColor(sigcolors[counter])
+#counter = 1
+#f3 = R.TFile(mcsigfiles[counter])
+#h3 = f3.Get(varName)
+#h3.Scale(lumi*mcsigxsec[counter]/mcsigevsnumber[counter])
+#h3.SetLineColor(sigcolors[counter])
 
 #data
 fdata = R.TFile(datafile)
 hdata = fdata.Get(varName)
-if varName=="DiMuonMass":
-    for i in range(hdata.GetNbinsX()):
-        if hdata.GetBinCenter(i+1)>120 and hdata.GetBinCenter(i+1)<130:
-            hdata.SetBinContent(i+1, 0)
+#if varName=="DiMuonMass":
+#    for i in range(hdata.GetNbinsX()):
+#        if hdata.GetBinCenter(i+1)>120 and hdata.GetBinCenter(i+1)<130:
+#           hdata.SetBinContent(i+1, 0)
 
 leg = R.TLegend(0.7, 0.7, 0.9, 0.9)
 leg.SetHeader("Samples")
@@ -114,4 +110,28 @@ leg.Draw()
 bgstack.GetXaxis().SetTitle(varName)
 bgstack.GetYaxis().SetTitle("#Events")
 R.gPad.Modified()
+
+c.cd()
+pad2 = R.TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
+pad2.SetTopMargin(0)
+pad2.Draw()
+pad2.cd()
+hbgsum = h0.Clone()
+hbgsum.Add(h1)
+hratio = hdata.Clone("hratio")
+hratio.Divide(hbgsum)
+hratio.SetMaximum(2)
+hratio.SetMinimum(0)
+hratio.SetTitle("")
+hratio.SetStats(0)
+hratio.GetYaxis().SetTitle("Data/MC")
+hratio.GetYaxis().SetTitleSize(0.005)
+hratio.GetYaxis().SetTitleOffset(6)
+hratio.GetYaxis().SetLabelSize(0.1)
+hratio.GetXaxis().SetTitle(varName)
+hratio.GetXaxis().SetTitleSize(0.0005)
+hratio.GetXaxis().SetTitleOffset(50)
+hratio.GetXaxis().SetLabelSize(0.1)
+hratio.Draw("ep")
+
 c.SaveAs(picpath+varName+("_%d.pdf"%year))

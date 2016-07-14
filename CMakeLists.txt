@@ -35,6 +35,14 @@ option (STANDALONE
 	"Compile and build in standalone mode without CMSSW" ON
 )
 
+#
+#	Find BOOST
+#
+find_package(Boost COMPONENTS program_options system REQUIRED )
+include_directories("${Boost_INCLUDE_DIRS}")
+set (EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
+add_definitions(${})
+
 #	
 #	find and add ROOT
 #
@@ -54,6 +62,7 @@ set (EXTRA_LIBS ${EXTRA_LIBS} ${ROOT_LIBRARIES})
 include_directories ("${PROJECT_SOURCE_DIR}/Core/interface")
 include_directories ("${PROJECT_SOURCE_DIR}/NtupleProcessing/interface")
 include_directories ("${PROJECT_SOURCE_DIR}/AuxTools/interface")
+include_directories ("${PROJECT_SOURCE_DIR}/Drivers/interface")
 
 #
 #	Generate ROOT Dictionary and Shared Lib
@@ -97,6 +106,8 @@ set (EXTRA_LIBS ${EXTRA_LIBS} AnalysisNtupleProcessing)
 #	Add the headers to compile against
 #
 file (GLOB HEADERS ${PROJECT_SOURCE_DIR}/AuxTools/interface/*.h)
+file (GLOB HEADERS1 ${PROJECT_SOURCE_DIR}/Drivers/interface/*.h)
+set (HEADERS ${HEADERS} ${HEADERS1})
 
 #
 #	add all the executables and link against ROOT
