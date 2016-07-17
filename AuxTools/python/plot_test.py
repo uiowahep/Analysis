@@ -1,6 +1,7 @@
 import ROOT as R
 
-picpath = "/Users/vk/software/Analysis/docs/H2mu/pics/"
+picpath = "/Users/vk/software/Analysis/docs/H2mu/pics/14072016"
+category="NoCats"
 varName = "DiMuoneta"
 year = 2015
 

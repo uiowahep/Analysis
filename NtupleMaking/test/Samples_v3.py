@@ -302,7 +302,8 @@ ttJets = sample(
 
 ttJets_76X2015 = sample(
     name="ttJets_76X2015",
-    dir="/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM",
+    dir = "/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM",
+#    dir="/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM",
     files=open("sample_file_lists/bg/ttJets_76X2015.files").read().splitlines(),
     numevents = 6102376,
     globaltag="76X_mcRun2_asymptotic_v12"
@@ -316,6 +317,9 @@ ttZToLLNuNu = sample(name="ttZToLLNuNu",
 
 background2015_74X.append(ttJets)
 background2015_76X.append(ttJets_76X2015)
+
+background2016_76X_ttjetsonly = []
+background2016_76X_ttjetsonly.append(ttJets_76X2016)
 #background.append(ttZToLLNuNu)
 
 # DiBoson
