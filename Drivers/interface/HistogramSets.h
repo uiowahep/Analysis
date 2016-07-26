@@ -20,8 +20,6 @@ namespace analysis
 
 			void init()
 			{
-				if (_postfix.Data()[0]!='_')
-					_postfix = "_"+_postfix;
 				gDirectory->mkdir(_postfix);
 				gDirectory->cd(_postfix);
 				hDiJetMass = new TH1D("DiJetMass", "DiJetMass",

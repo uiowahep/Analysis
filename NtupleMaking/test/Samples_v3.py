@@ -25,7 +25,8 @@ jsonlist25 = [
     'sample_file_lists/data/json/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt',
     'sample_file_lists/data/json/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt',
     'sample_file_lists/data/json/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt',
-    'sample_file_lists/data/json/Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'
+    'sample_file_lists/data/json/Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt',
+    "sample_file_lists/data/json/Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON.txt"
 ] 
 
 #
@@ -107,16 +108,6 @@ singleMuon_RunDPrompt_v4_MINIAOD = sample(
 )
 
 singleMuon_Run2015C25nsReReco_16Dec_MINIAOD = sample(
-    name="singleMuon_RunDPrompt_v4_MINIAOD",
-    dir="/SingleMuon/Run2015D-PromptReco-v4/MINIAOD",
-    files=open('sample_file_lists/data/singleMuon_RunDPrompt_v4_MINIAOD.files').read().splitlines(),
-    numevents=61066301,
-    globaltag='74X_dataRun2_Prompt_v4',
-    jsonfiles=jsonlist25[:],
-    isData=True
-)
-
-singleMuon_Run2015C25nsReReco_16Dec_MINIAOD = sample(
     name="singleMuon_Run2015C25nsReReco_16Dec_MINIAOD",
     dir="/SingleMuon/Run2015C_25ns-16Dec2015-v1/MINIAOD",
     files=open('sample_file_lists/data/singleMuon_Run2015C25nsReReco_16Dec_MINIAOD.files').read().splitlines(),
@@ -163,6 +154,16 @@ singleMuon_Run2016C_PromptReco_v2_MINIAOD = sample(
     files = open('sample_file_lists/data/singleMuon_Run2016C_PromptReco_v2_MINIAOD.files').read().splitlines(),
     numevents = 68492270,
     globaltag = '80X_dataRun2_Prompt_v9',
+    jsonfiles = jsonlist25[:],
+    isData = True
+)
+
+singleMuon_Run2016D_PromptReco_v2_MINIAOD = sample(
+    name = "singleMuon_Run2016D_PromptReco_v2_MINIAOD",
+    dir = "/SingleMuon/Run2016D-PromptReco-v2/MINIAOD",
+    files = open('sample_file_lists/data/singleMuon_Run2016D_PromptReco_v2_MINIAOD.files').read().splitlines(),
+    numevents = 98175265,
+    globaltag = "80X_dataRun2_Prompt_v9",
     jsonfiles = jsonlist25[:],
     isData = True
 )

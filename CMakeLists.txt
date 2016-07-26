@@ -47,7 +47,7 @@ add_definitions(${})
 #	find and add ROOT
 #
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
-find_package(ROOT)
+find_package(ROOT REQUIRED COMPONENTS RHTTP)
 include_directories("${ROOT_INCLUDE_DIR}")
 add_definitions(${ROOT_CXX_FLAGS})
 
@@ -140,4 +140,4 @@ endforeach(MAIN_FILE)
 #
 file (GLOB ALL_SCRIPTS ${PROJECT_SOURCE_DIR}/scripts/*.*)
 file (COPY ${ALL_SCRIPTS} DESTINATION ${PROJECT_BINARY_DIR}/scripts)
-file (COPY ${PROJECT_SOURCE_DIR}/AuxTools/python DESTINATION ${PROJECT_BINARY_DIR}/AuxTools/python)
+file (COPY ${PROJECT_SOURCE_DIR}/AuxTools/python DESTINATION ${PROJECT_BINARY_DIR}/AuxTools)

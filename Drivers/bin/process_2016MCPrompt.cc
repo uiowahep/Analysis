@@ -40,9 +40,14 @@ using namespace analysis::core;
 using namespace analysis::dimuon;
 using namespace analysis::processing;
 
-DimuonSet setNoCats("_NoCats");
-DimuonSet set2Jets("_2Jets");
-DimuonSet set01Jets("_01Jets");
+DimuonSet setNoCats("NoCats");
+DimuonSet set2Jets("2Jets");
+DimuonSet setVBFTight("VBFTight");
+DimuonSet setggFTight("ggFTight");
+DimuonSet setggFLoose("ggFLoose");
+DimuonSet set01Jets("01Jets");
+DimuonSet set01JetsTight("01JetsTight");
+DimuonSet set01JetsLoose("01JetsLoose");
 
 bool passVertex(Vertices* v)
 {
@@ -109,16 +114,16 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 
 	//	Fill the No Categorization Set
 	double dphi = p4m1.DeltaPhi(p4m2);
-	setNoCats.hDiMuonpt->Fill(p4dimuon.Pt());
-	setNoCats.hDiMuonMass->Fill(p4dimuon.M());
-	setNoCats.hDiMuoneta->Fill(p4dimuon.Eta());
-	setNoCats.hDiMuondphi->Fill(dphi);
-	setNoCats.hMuonpt->Fill(p4m1.Pt());
-	setNoCats.hMuonpt->Fill(p4m2.Pt());
-	setNoCats.hMuoneta->Fill(p4m1.Eta());
-	setNoCats.hMuoneta->Fill(p4m2.Eta());
-	setNoCats.hMuonphi->Fill(p4m1.Phi());
-	setNoCats.hMuonphi->Fill(p4m2.Phi());
+	setNoCats.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
+	setNoCats.hDiMuonMass->Fill(p4dimuon.M(), puweight);
+	setNoCats.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
+	setNoCats.hDiMuondphi->Fill(dphi, puweight);
+	setNoCats.hMuonpt->Fill(p4m1.Pt(), puweight);
+	setNoCats.hMuonpt->Fill(p4m2.Pt(), puweight);
+	setNoCats.hMuoneta->Fill(p4m1.Eta(), puweight);
+	setNoCats.hMuoneta->Fill(p4m2.Eta(), puweight);
+	setNoCats.hMuonphi->Fill(p4m1.Phi(), puweight);
+	setNoCats.hMuonphi->Fill(p4m2.Phi(), puweight);
 	
 	if (!(p4dimuon.M()>110 && p4dimuon.M()<160 &&
 		mu1._isPF && mu2._isPF))
@@ -138,11 +143,11 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			}
 		}
 	}
-	if (p4jets.size()>2)
-		return;
+//	if (p4jets.size()>2)
+//		return;
 
 	bool isPreSelected = false;
-	if (p4jets.size()==2)
+	if (p4jets.size()>=2)
 	{
 		TLorentzVector p4lead = p4jets[0]; 
 		TLorentzVector p4sub = p4jets[1];
@@ -156,50 +161,111 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 		{
 			isPreSelected = true;
 
-			set2Jets.hDiJetMass->Fill(dijetmass);
-			set2Jets.hDiJetdeta->Fill(TMath::Abs(deta));
-			set2Jets.hDiMuonpt->Fill(p4dimuon.Pt());
-			set2Jets.hDiMuonMass->Fill(p4dimuon.M());
-			set2Jets.hDiMuoneta->Fill(p4dimuon.Eta());
-			set2Jets.hDiMuondphi->Fill(dphi);
-			set2Jets.hMuonpt->Fill(p4m1.Pt());
-			set2Jets.hMuonpt->Fill(p4m2.Pt());
-			set2Jets.hMuoneta->Fill(p4m1.Eta());
-			set2Jets.hMuoneta->Fill(p4m2.Eta());
-			set2Jets.hMuonphi->Fill(p4m1.Phi());
-			set2Jets.hMuonphi->Fill(p4m2.Phi());
+			set2Jets.hDiJetMass->Fill(dijetmass, puweight);
+			set2Jets.hDiJetdeta->Fill(TMath::Abs(deta), puweight);
+			set2Jets.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
+			set2Jets.hDiMuonMass->Fill(p4dimuon.M(), puweight);
+			set2Jets.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
+			set2Jets.hDiMuondphi->Fill(dphi, puweight);
+			set2Jets.hMuonpt->Fill(p4m1.Pt(), puweight);
+			set2Jets.hMuonpt->Fill(p4m2.Pt(), puweight);
+			set2Jets.hMuoneta->Fill(p4m1.Eta(), puweight);
+			set2Jets.hMuoneta->Fill(p4m2.Eta(), puweight);
+			set2Jets.hMuonphi->Fill(p4m1.Phi(), puweight);
+			set2Jets.hMuonphi->Fill(p4m2.Phi(), puweight);
 
 			//	categorize
 			if (dijetmass>650 && TMath::Abs(deta)>3.5)
 			{
+				//	VBF Tight
+				setVBFTight.hDiJetMass->Fill(dijetmass, puweight);
+				setVBFTight.hDiJetdeta->Fill(TMath::Abs(deta), puweight);
+				setVBFTight.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
+				setVBFTight.hDiMuonMass->Fill(p4dimuon.M(), puweight);
+				setVBFTight.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
+				setVBFTight.hDiMuondphi->Fill(dphi, puweight);
+				setVBFTight.hMuonpt->Fill(p4m1.Pt(), puweight);
+				setVBFTight.hMuonpt->Fill(p4m2.Pt(), puweight);
+				setVBFTight.hMuoneta->Fill(p4m1.Eta(), puweight);
+				setVBFTight.hMuoneta->Fill(p4m2.Eta(), puweight);
+				setVBFTight.hMuonphi->Fill(p4m1.Phi(), puweight);
+				setVBFTight.hMuonphi->Fill(p4m2.Phi(), puweight);
 				return;
 			}
 			if (dijetmass>250 && p4dimuon.Pt()>50)
 			{
+				//	ggF Tight
+				setggFTight.hDiJetMass->Fill(dijetmass, puweight);
+				setggFTight.hDiJetdeta->Fill(TMath::Abs(deta), puweight);
+				setggFTight.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
+				setggFTight.hDiMuonMass->Fill(p4dimuon.M(), puweight);
+				setggFTight.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
+				setggFTight.hDiMuondphi->Fill(dphi, puweight);
+				setggFTight.hMuonpt->Fill(p4m1.Pt(), puweight);
+				setggFTight.hMuonpt->Fill(p4m2.Pt(), puweight);
+				setggFTight.hMuoneta->Fill(p4m1.Eta(), puweight);
+				setggFTight.hMuoneta->Fill(p4m2.Eta(), puweight);
+				setggFTight.hMuonphi->Fill(p4m1.Phi(), puweight);
+				setggFTight.hMuonphi->Fill(p4m2.Phi(), puweight);
 				return;}
 			else
-			{
-				return;}
+			{	//	ggF Loose
+				setggFLoose.hDiJetMass->Fill(dijetmass, puweight);
+				setggFLoose.hDiJetdeta->Fill(TMath::Abs(deta), puweight);
+				setggFLoose.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
+				setggFLoose.hDiMuonMass->Fill(p4dimuon.M(), puweight);
+				setggFLoose.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
+				setggFLoose.hDiMuondphi->Fill(dphi, puweight);
+				setggFLoose.hMuonpt->Fill(p4m1.Pt(), puweight);
+				setggFLoose.hMuonpt->Fill(p4m2.Pt(), puweight);
+				setggFLoose.hMuoneta->Fill(p4m1.Eta(), puweight);
+				setggFLoose.hMuoneta->Fill(p4m2.Eta(), puweight);
+				setggFLoose.hMuonphi->Fill(p4m1.Phi(), puweight);
+				setggFLoose.hMuonphi->Fill(p4m2.Phi(), puweight);
+				return;
+			}
 		}
 	}
 	if (!isPreSelected)
 	{
-		set01Jets.hDiMuonpt->Fill(p4dimuon.Pt());
-		set01Jets.hDiMuonMass->Fill(p4dimuon.M());
-		set01Jets.hDiMuoneta->Fill(p4dimuon.Eta());
-		set01Jets.hDiMuondphi->Fill(dphi);
-		set01Jets.hMuonpt->Fill(p4m1.Pt());
-		set01Jets.hMuonpt->Fill(p4m2.Pt());
-		set01Jets.hMuoneta->Fill(p4m1.Eta());
-		set01Jets.hMuoneta->Fill(p4m2.Eta());
-		set01Jets.hMuonphi->Fill(p4m1.Phi());
-		set01Jets.hMuonphi->Fill(p4m2.Phi());
+		set01Jets.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
+		set01Jets.hDiMuonMass->Fill(p4dimuon.M(), puweight);
+		set01Jets.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
+		set01Jets.hDiMuondphi->Fill(dphi, puweight);
+		set01Jets.hMuonpt->Fill(p4m1.Pt(), puweight);
+		set01Jets.hMuonpt->Fill(p4m2.Pt(), puweight);
+		set01Jets.hMuoneta->Fill(p4m1.Eta(), puweight);
+		set01Jets.hMuoneta->Fill(p4m2.Eta(), puweight);
+		set01Jets.hMuonphi->Fill(p4m1.Phi(), puweight);
+		set01Jets.hMuonphi->Fill(p4m2.Phi(), puweight);
 		if (p4dimuon.Pt()>=10)
 		{
+			//	01Jet Tight
+			set01JetsTight.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
+			set01JetsTight.hDiMuonMass->Fill(p4dimuon.M(), puweight);
+			set01JetsTight.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
+			set01JetsTight.hDiMuondphi->Fill(dphi, puweight);
+			set01JetsTight.hMuonpt->Fill(p4m1.Pt(), puweight);
+			set01JetsTight.hMuonpt->Fill(p4m2.Pt(), puweight);
+			set01JetsTight.hMuoneta->Fill(p4m1.Eta(), puweight);
+			set01JetsTight.hMuoneta->Fill(p4m2.Eta(), puweight);
+			set01JetsTight.hMuonphi->Fill(p4m1.Phi(), puweight);
+			set01JetsTight.hMuonphi->Fill(p4m2.Phi(), puweight);
 			return;
 		}
 		else
 		{
+			//	01Jet Loose
+			set01JetsLoose.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
+			set01JetsLoose.hDiMuonMass->Fill(p4dimuon.M(), puweight);
+			set01JetsLoose.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
+			set01JetsLoose.hDiMuondphi->Fill(dphi, puweight);
+			set01JetsLoose.hMuonpt->Fill(p4m1.Pt(), puweight);
+			set01JetsLoose.hMuonpt->Fill(p4m2.Pt(), puweight);
+			set01JetsLoose.hMuoneta->Fill(p4m1.Eta(), puweight);
+			set01JetsLoose.hMuoneta->Fill(p4m2.Eta(), puweight);
+			set01JetsLoose.hMuonphi->Fill(p4m1.Phi(), puweight);
+			set01JetsLoose.hMuonphi->Fill(p4m2.Phi(), puweight);
 			return;
 		}
 	}
@@ -240,6 +306,11 @@ void process()
 	setNoCats.init();
 	set2Jets.init();
 	set01Jets.init();
+	setVBFTight.init();
+	setggFTight.init();
+	setggFLoose.init();
+	set01JetsTight.init();
+	set01JetsLoose.init();
 
 	Streamer streamer(__inputfilename, NTUPLEMAKER_NAME+"/Events");
 	streamer.chainup();
@@ -263,6 +334,8 @@ void process()
 	reweight::LumiReWeighting *weighter = NULL;
 	if (__isMC)
 	{
+		std::cout << "mcPU=" << __puMCfilename << "  dataPU="
+			<< __puDATAfilename << std::endl;
 		TString mc_pileupfile = __puMCfilename.c_str();
 		TString data_pileupfile = __puDATAfilename.c_str();
 		weighter = new reweight::LumiReWeighting(
