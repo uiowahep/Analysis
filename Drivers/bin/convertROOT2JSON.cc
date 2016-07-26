@@ -28,7 +28,6 @@ std::string __ntuplemakername = "ntuplemaker_H2DiMuonMaker";
 
 using namespace analysis::core;
 using namespace analysis::processing;
-TH1D *h = new TH1D("h1", "h1", 100, 0, 10);
 
 /*
  *	Functions 
@@ -47,14 +46,20 @@ void convert()
 	Event *event=NULL;
 	s._chain->SetBranchAddress("Event", &event);
 	uint32_t numEntries = s._chain->GetEntries();
+	ofstream out(__outputfile);
+	out << "[";
 	for (uint32_t i=0; i<numEntries && __continueRunning; i++)
 	{
+		if (i%1000==0)
+			std::cout << "### Processing Event " << i << std::endl;
 		s._chain->GetEntry(i);
-		h->FillRandom("gaus", 10000);
-		TString json = TBufferJSON::ConvertToJSON(h);
-//		TString json = TBufferJSON::ConvertToJSON(event, new TClass("Event"));
+//		h->FillRandom("gaus", 10000);
+//		TString json = TBufferJSON::ConvertToJSON(h);
+		TString json = TBufferJSON::ConvertToJSON(event, TClass::GetClass("analysis::core::Event"));
+		out << json.Data() << ","<< std::endl; 
 //		std::cout << json.Data() << std::endl;
 	}
+	out << "]";
 
 	return;
 }
