@@ -23,6 +23,32 @@
 #include "boost/program_options.hpp"
 #include <signal.h>
 
+#define FILL_JETS(set) \
+	set.hDiJetMass->Fill(dijetmass, puweight); \
+	set.hDiJetdeta->Fill(TMath::Abs(deta), puweight); \
+	set.hDiMuonpt->Fill(p4dimuon.Pt(), puweight); \
+	set.hDiMuonMass->Fill(p4dimuon.M(), puweight); \
+	set.hDiMuoneta->Fill(p4dimuon.Eta(), puweight); \
+	set.hDiMuondphi->Fill(dphi, puweight); \
+	set.hMuonpt->Fill(p4m1.Pt(), puweight); \
+	set.hMuonpt->Fill(p4m2.Pt(), puweight); \
+	set.hMuoneta->Fill(p4m1.Eta(), puweight); \
+	set.hMuoneta->Fill(p4m2.Eta(), puweight); \
+	set.hMuonphi->Fill(p4m1.Phi(), puweight); \
+	set.hMuonphi->Fill(p4m2.Phi(), puweight);
+
+#define FILL_NOJETS(set) \
+	set.hDiMuonpt->Fill(p4dimuon.Pt(), puweight); \
+	set.hDiMuonMass->Fill(p4dimuon.M(), puweight); \
+	set.hDiMuoneta->Fill(p4dimuon.Eta(), puweight); \
+	set.hDiMuondphi->Fill(dphi, puweight); \
+	set.hMuonpt->Fill(p4m1.Pt(), puweight); \
+	set.hMuonpt->Fill(p4m2.Pt(), puweight); \
+	set.hMuoneta->Fill(p4m1.Eta(), puweight); \
+	set.hMuoneta->Fill(p4m2.Eta(), puweight); \
+	set.hMuonphi->Fill(p4m1.Phi(), puweight); \
+	set.hMuonphi->Fill(p4m2.Phi(), puweight);
+
 /*
  *	Declare/Define all the globals
  */
@@ -45,9 +71,43 @@ DimuonSet set2Jets("2Jets");
 DimuonSet setVBFTight("VBFTight");
 DimuonSet setggFTight("ggFTight");
 DimuonSet setggFLoose("ggFLoose");
+
 DimuonSet set01Jets("01Jets");
 DimuonSet set01JetsTight("01JetsTight");
 DimuonSet set01JetsLoose("01JetsLoose");
+DimuonSet set01JetsBB("01JetsBB");
+DimuonSet set01JetsBO("01JetsBO");
+DimuonSet set01JetsBE("01JetsBE");
+DimuonSet set01JetsOO("01JetsOO");
+DimuonSet set01JetsOE("01JetsOE");
+DimuonSet set01JetsEE("01JetsEE");
+DimuonSet set01JetsTightBB("01JetsTightBB");
+DimuonSet set01JetsTightBO("01JetsTightBO");
+DimuonSet set01JetsTightBE("01JetsTightBE");
+DimuonSet set01JetsTightOO("01JetsTightOO");
+DimuonSet set01JetsTightOE("01JetsTightOE");
+DimuonSet set01JetsTightEE("01JetsTightEE");
+DimuonSet set01JetsLooseBB("01JetsLooseBB");
+DimuonSet set01JetsLooseBO("01JetsLooseBO");
+DimuonSet set01JetsLooseBE("01JetsLooseBE");
+DimuonSet set01JetsLooseOO("01JetsLooseOO");
+DimuonSet set01JetsLooseOE("01JetsLooseOE");
+DimuonSet set01JetsLooseEE("01JetsLooseEE");
+
+bool isBarrel(Muon const& m)
+{
+	return TMath::Abs(m._eta)<0.8;
+}
+
+bool isOverlap(Muon const& m)
+{
+	return TMath::Abs(m._eta)>=0.8 && TMath::Abs(m._eta)<1.6;
+}
+
+bool isEndcap(Muon const& m)
+{
+	return TMath::Abs(m._eta)>=1.6 && TMath::Abs(m._eta)<2.1;
+}
 
 bool passVertex(Vertices* v)
 {
@@ -238,6 +298,41 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 		set01Jets.hMuoneta->Fill(p4m2.Eta(), puweight);
 		set01Jets.hMuonphi->Fill(p4m1.Phi(), puweight);
 		set01Jets.hMuonphi->Fill(p4m2.Phi(), puweight);
+		if (isBarrel(mu1) && isBarrel(mu2))
+		{
+			//	BB
+			FILL_NOJETS(set01JetsBB);
+		}
+		else if ((isBarrel(mu1) && isOverlap(mu2)) ||
+			(isBarrel(mu2) && isOverlap(mu1)))
+		{
+			//	BO
+			FILL_NOJETS(set01JetsBO);
+		}
+		else if ((isBarrel(mu1) & isEndcap(mu2)) || 
+			(isBarrel(mu2) && isEndcap(mu1)))
+		{
+			//	BE
+			FILL_NOJETS(set01JetsBE);
+		}
+		else if (isOverlap(mu1) && isOverlap(mu2))
+		{
+			//	OO
+			FILL_NOJETS(set01JetsOO);
+		}
+		else if ((isOverlap(mu1) && isEndcap(mu2)) ||
+			(isOverlap(mu2) && isEndcap(mu1)))
+		{
+			//	OE
+			FILL_NOJETS(set01JetsOE);
+		}
+		else if (isEndcap(mu1) && isEndcap(mu2))
+		{
+			//	EE
+			FILL_NOJETS(set01JetsEE);
+		}
+
+		//	separate loose vs tight
 		if (p4dimuon.Pt()>=10)
 		{
 			//	01Jet Tight
@@ -251,6 +346,39 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			set01JetsTight.hMuoneta->Fill(p4m2.Eta(), puweight);
 			set01JetsTight.hMuonphi->Fill(p4m1.Phi(), puweight);
 			set01JetsTight.hMuonphi->Fill(p4m2.Phi(), puweight);
+			if (isBarrel(mu1) && isBarrel(mu2))
+			{
+				//	BB
+				FILL_NOJETS(set01JetsTightBB);
+			}
+			else if ((isBarrel(mu1) && isOverlap(mu2)) ||
+				(isBarrel(mu2) && isOverlap(mu1)))
+			{
+				//	BO
+				FILL_NOJETS(set01JetsTightBO);
+			}
+			else if ((isBarrel(mu1) & isEndcap(mu2)) || 
+				(isBarrel(mu2) && isEndcap(mu1)))
+			{
+				//	BE
+				FILL_NOJETS(set01JetsTightBE);
+			}
+			else if (isOverlap(mu1) && isOverlap(mu2))
+			{
+				//	OO
+				FILL_NOJETS(set01JetsTightOO);
+			}
+			else if ((isOverlap(mu1) && isEndcap(mu2)) ||
+				(isOverlap(mu2) && isEndcap(mu1)))
+			{
+				//	OE
+				FILL_NOJETS(set01JetsTightOE);
+			}
+			else if (isEndcap(mu1) && isEndcap(mu2))
+			{
+				//	EE
+				FILL_NOJETS(set01JetsTightEE);
+			}
 			return;
 		}
 		else
@@ -266,6 +394,39 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			set01JetsLoose.hMuoneta->Fill(p4m2.Eta(), puweight);
 			set01JetsLoose.hMuonphi->Fill(p4m1.Phi(), puweight);
 			set01JetsLoose.hMuonphi->Fill(p4m2.Phi(), puweight);
+			if (isBarrel(mu1) && isBarrel(mu2))
+			{
+				//	BB
+				FILL_NOJETS(set01JetsLooseBB);
+			}
+			else if ((isBarrel(mu1) && isOverlap(mu2)) ||
+				(isBarrel(mu2) && isOverlap(mu1)))
+			{
+				//	BO
+				FILL_NOJETS(set01JetsLooseBO);
+			}
+			else if ((isBarrel(mu1) & isEndcap(mu2)) || 
+				(isBarrel(mu2) && isEndcap(mu1)))
+			{
+				//	BE
+				FILL_NOJETS(set01JetsLooseBE);
+			}
+			else if (isOverlap(mu1) && isOverlap(mu2))
+			{
+				//	OO
+				FILL_NOJETS(set01JetsLooseOO);
+			}
+			else if ((isOverlap(mu1) && isEndcap(mu2)) ||
+				(isOverlap(mu2) && isEndcap(mu1)))
+			{
+				//	OE
+				FILL_NOJETS(set01JetsLooseOE);
+			}
+			else if (isEndcap(mu1) && isEndcap(mu2))
+			{
+				//	EE
+				FILL_NOJETS(set01JetsLooseEE);
+			}
 			return;
 		}
 	}
@@ -311,6 +472,24 @@ void process()
 	setggFLoose.init();
 	set01JetsTight.init();
 	set01JetsLoose.init();
+	set01JetsBB.init();
+	set01JetsBO.init();
+	set01JetsBE.init();
+	set01JetsOO.init();
+	set01JetsOE.init();
+	set01JetsEE.init();
+	set01JetsTightBB.init();
+	set01JetsTightBO.init();
+	set01JetsTightBE.init();
+	set01JetsTightOO.init();
+	set01JetsTightOE.init();
+	set01JetsTightEE.init();
+	set01JetsLooseBB.init();
+	set01JetsLooseBO.init();
+	set01JetsLooseBE.init();
+	set01JetsLooseOO.init();
+	set01JetsLooseOE.init();
+	set01JetsLooseEE.init();
 
 	Streamer streamer(__inputfilename, NTUPLEMAKER_NAME+"/Events");
 	streamer.chainup();
