@@ -5,3 +5,5 @@
 *.swn
 *.swm
 *.pyc
+*.files
+*.json
