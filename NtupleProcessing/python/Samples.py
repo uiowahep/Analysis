@@ -208,11 +208,12 @@ def initialize():
 
 def printShelve():
     ds = shelve.open(filename)
+    print "Datasets DB @filename=%s" % filename
     for key in ds.keys():
         for k in ds[key]:
             print ds[key][k]
     ds.close()
 
 if __name__=="__main__":
-    initializeForce()
+#    initializeForce()
     printShelve()

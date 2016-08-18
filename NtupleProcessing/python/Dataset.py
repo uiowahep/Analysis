@@ -171,6 +171,19 @@ class JsonFile(object):
         if "url" in wargs:
             self.url = wargs["url"]
 
+    def __str__(self):
+        s = "-"*80 + "\n" +\
+            "JsonFile:" + "\n" +\
+            ">>> filename="+str(self.filename)+"\n"+\
+            ">>> intlumi="+str(self.intlumi)+"\n"+\
+            ">>> url="+str(self.url)+"\n"+\
+            "-"*80 +\
+            "\n"
+        return s
+
+    def __repr__(self):
+        return self.__str__()
+
 class MCResult(Ntuple, PileUp):
     """
     MC Result of MC Ntuple Processing

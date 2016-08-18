@@ -6,12 +6,20 @@ Crab Config Generator.
 """
 import os,sys, shelve
 
+#   input options
+commitUpdates = False
+
 #   import the Analysis dependency
 if "ANALYSISHOME" not in os.environ.keys():
     raise NameError("Can not find ANALYSISHOME env var")
 sys.path.append(os.environ["ANALYSISHOME"])
-import NtupleProcessing.Samples as Samples
-import NtupleProcessing.Dataset as DS
+
+#   we must include the directory in which the module resides to make it work!
+sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "NtupleProcessing/python"))
+
+#   import whatever you need
+import NtupleProcessing.python.Samples as Samples
+import NtupleProcessing.python.Dataset as DS
 
 #   get the datasets to be processed
 filename=Samples.filename
@@ -26,24 +34,26 @@ jsonfiles = ds["jsonfiles"]
 jsontag = "2016_Prompt_16900"
 jsonfile = jsonfiles[jsontag]
 
-#   Final list of samples to be crab-submitted
+#   select the datasets to be submitted for grid processing
 datasets = []
 for k in data_datasets:
     if data_datasets[k].year==2016:
         datasets.append(data_datasets[k])
 samples = []
-for ds in datasets:
+
+#   create the Ntuple objects for all of the datasets
+for d in datasets:
     globaltag = "80X_dataRun2_Prompt_v9"
     cmssw = "80X"
     storage = "EOS"
     rootpath = "/store/user/vkhriste/higgs_ntuples"
-    if ds.isData:
+    if d.isData:
         rootpath+="/data"
     else:
         rootpath+="/mc"
-    s = Samples.Ntuple(ds, 
+    s = DS.Ntuple(d, 
         globaltag=globaltag,
-        json = jsonfile,
+        json = jsonfile.filename,
         cmssw = cmssw,
         storage = storage,
         rootpath=rootpath,
@@ -53,6 +63,10 @@ for ds in datasets:
 
 #   iterate/generate/commit and create config files
 for s in samples:
+
+    "Generating...."
+    print "-"*80
+    print s
 
     #   create a config filename
     cfgname = 'dimu_'
@@ -66,8 +80,6 @@ for s in samples:
     for line in file:
         if 's.isData' in line: 
             line = line.replace('s.isData', str(s.isData))
-        if 's.name' in line: 
-            line = line.replace('s.label', '\"' + s.label + '\"')
         if 's.globaltag' in line: 
             line = line.replace('s.globaltag', '\"' + s.globaltag + '\"')
         outfile.write(line)
@@ -81,10 +93,10 @@ for s in samples:
     file = open('templates/crab_template.py', 'r')
     if s.isData: 
         #   and open the crab cfg to be generated
-        outfile = open('crab_auto_submit_'+s.name+'_'+jsontag+'.py', 'w')
+        outfile = open('crab_auto_submit_'+s.label+'_'+jsontag+'.py', 'w')
 
     else:
-        outfile = open('crab_auto_submit_'+s.name+'.py', 'w')
+        outfile = open('crab_auto_submit_'+s.label+'.py', 'w')
     
     # read in the template and replace the parameters to make a
     # crab submission file that uses the above cmssw script
@@ -95,7 +107,7 @@ for s in samples:
             line = line.replace('FileBased', 'LumiBased')
         if s.isData and 'config.Data.lumiMask' in line: 
             line = line.replace('#', '')
-            line = line.replace('JSONFILE', s.json)
+            line = line.replace('JSONFILE', "json/"+s.json)
         if "REQUESTNAME" in line:
             if s.isData:
                 line = line.replace("REQUESTNAME", s.label.split(".")[1]+".%s" % jsontag)
@@ -121,12 +133,19 @@ for s in samples:
     outfile.close()
     file.close()
 
-for s in samples:
-    if s.isData:
-        datantuples[s.label+"."+jsontag] = s
-    else:
-        mcntuples[s.label.split(".")[0]+".%s"%s.cmssw]
-datantuples = ds["DataNtuples"]
-mcntuples = ds["MCNtuples"]
-ds["DataNtuples"] = datantuples
-ds["MCNtuples"] = mcntuples
+#   Commit all the Ntuples that you are going to generate
+if commitUpdates:
+    print "-"*80
+    print "Commiting Updates"
+    print "-"*80
+    for s in samples:
+        print s
+        if s.isData:
+            datantuples[s.label+"."+jsontag] = s
+        else:
+            mcntuples[s.label.split(".")[0]+".%s"%s.cmssw]
+    datantuples = ds["DataNtuples"]
+    mcntuples = ds["MCNtuples"]
+    ds["DataNtuples"] = datantuples
+    ds["MCNtuples"] = mcntuples
+ds.close()

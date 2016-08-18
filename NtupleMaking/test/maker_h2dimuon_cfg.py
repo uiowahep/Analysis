@@ -18,9 +18,10 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 import os,sys,shelve
 if "ANALYSISHOME" not in os.environ.keys():
     raise NameError("Can not find ANALYSISHOME env var")
-sys.patha.append(os.environ["ANALYSISHOME"])
-import NtupleProcessing.Samples as Samples
-import NtupleProcessing.Dataset as DS
+sys.path.append(os.environ["ANALYSISHOME"])
+sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "NtupleProcessing/python"))
+import NtupleProcessing.python.Samples as Samples
+import NtupleProcessing.python.Dataset as DS
 
 #   example of how to get the dataset
 filename = Samples.filename
@@ -37,7 +38,7 @@ for key in data_datasets.keys():
 
 ntunple = DS.Ntuple(dataset, 
     globaltag="80X_dataRun2_Prompt_v9",
-    json="json/"+jsonfile,
+    json="json/"+jsonfile.filename,
     cmssw="80X",
     storage=None,
     rootpath=None,
@@ -92,7 +93,7 @@ if thisIsData:
 #
 #   TFile Service to handle output
 #
-process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuplemaking_"+s.label+".root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuples"+s.label+".root") )
 
 #
 #   Execution Path
