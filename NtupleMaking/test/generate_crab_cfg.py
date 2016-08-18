@@ -4,7 +4,7 @@ Crab Config Generator.
 - Create and Commit new Ntuples that will be generated with Crab
 - Generate the crab cfg files to be submitted
 """
-import os,sys, shelve
+import os,sys, shelve, pickle
 
 #   input options
 commitUpdates = False
@@ -23,7 +23,9 @@ import NtupleProcessing.python.Dataset as DS
 
 #   get the datasets to be processed
 filename=Samples.filename
-ds = shelve.open(filename)
+f = open(filename, "r")
+ds = pickle.load(f)
+f.close()
 data_datasets = ds["DataDatasets"]
 mc_datasets = ds["MCDatasets"]
 datantuples = ds["DataNtuples"]
@@ -148,4 +150,4 @@ if commitUpdates:
     mcntuples = ds["MCNtuples"]
     ds["DataNtuples"] = datantuples
     ds["MCNtuples"] = mcntuples
-ds.close()
+pickle.dump(ds, open(filename, "w"))

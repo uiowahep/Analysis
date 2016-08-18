@@ -15,7 +15,7 @@ process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-import os,sys,shelve
+import os,sys,shelve, pickle
 if "ANALYSISHOME" not in os.environ.keys():
     raise NameError("Can not find ANALYSISHOME env var")
 sys.path.append(os.environ["ANALYSISHOME"])
@@ -25,7 +25,7 @@ import NtupleProcessing.python.Dataset as DS
 
 #   example of how to get the dataset
 filename = Samples.filename
-ds = shelve.open(filename)
+ds = pickle.load(open(filename, "r"))
 data_datasets = ds["DataDatasets"]
 jsonfiles = ds["jsonfiles"]
 jsontag = "2016_Prompt_16900"

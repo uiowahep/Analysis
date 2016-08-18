@@ -8,4 +8,4 @@ if "ANALYSISRESOURCESHOME" not in os.environ.keys():
 
 analysisHome = os.environ["ANALYSISRESOURCESHOME"]
 pathToShelve = os.path.join(analysisHome,"resources")
-shelve_filename = os.path.join(pathToShelve,"SamplesInformation")
+shelve_filename = os.path.join(pathToShelve,"SamplesInformation.pkl")

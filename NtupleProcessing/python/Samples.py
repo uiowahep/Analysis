@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import shelve
+import shelve, pickle
 import Dataset as DS
 import os,sys
 if "ANALYSISHOME" not in os.environ.keys():
@@ -179,41 +179,36 @@ datantuples = {}
 mcntuples = {}
 
 def initializeForce():
-    ds = shelve.open(filename)
-    for key in ds.keys():
-        del ds[key]
+    f = open(filename, "r")
+    ds = pickle.load(f)
+    f.close()
     ds["DataDatasets"] = datadatasets
     ds["MCDatasets"] = mcdatasets
     ds["DataNtuples"] = datantuples
     ds["MCNtuples"] = mcntuples
     ds["jsonfiles"] = jsonfiles
-    ds.close()
+    pickle.dump(ds, open(filename, "w"))
 
 def initialize():
     """
     Initialize the db from scratch. In principle should only be done once...
     """
-    ds = shelve.open(filename)
-    if len(ds.keys())>0:
-        print "shelve is alreayd initialized"
-        ds.close()
-        return
-
+    if os.path.exists(filename): return
+    ds = {}
     ds["DataDatasets"] = datadatasets
     ds["MCDatasets"] = mcdatasets
     ds["DataNtuples"] = datantuples
     ds["MCNtuples"] = mcntuples
     ds["jsonfiles"] = jsonfiles
-    ds.close()
+    pickle.dump(ds, open(filename, "w"))
 
 def printShelve():
-    ds = shelve.open(filename)
+    ds = pickle.load(open(filename, "r"))
     print "Datasets DB @filename=%s" % filename
     for key in ds.keys():
         for k in ds[key]:
             print ds[key][k]
-    ds.close()
 
 if __name__=="__main__":
-#    initializeForce()
+    initializeForce()
     printShelve()
