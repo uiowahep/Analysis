@@ -137,7 +137,13 @@ endforeach(MAIN_FILE)
 
 #
 #	copy whatever you need
+#	For Python Processing - copy python folders as well with purely python stuff
 #
 file (GLOB ALL_SCRIPTS ${PROJECT_SOURCE_DIR}/scripts/*.*)
+file (GLOB ALL_CONFIG ${PROJECT_SOURCE_DIR}/config/*.*)
+file (GLOB ALL_RESOURCES ${PROJECT_SOURCE_DIR}/resources/*.*)
 file (COPY ${ALL_SCRIPTS} DESTINATION ${PROJECT_BINARY_DIR}/scripts)
+file (COPY ${ALL_CONFIG} DESTINATION ${PROJECT_BINARY_DIR}/config)
+file (COPY ${ALL_RESOURCES} DESTINATION ${PROJECT_BINARY_DIR}/resources)
 file (COPY ${PROJECT_SOURCE_DIR}/AuxTools/python DESTINATION ${PROJECT_BINARY_DIR}/AuxTools)
+file (COPY ${PROJECT_SOURCE_DIR}/NtupleProcessing/python DESTINATION ${PROJECT_BINARY_DIR}/NtupleProcessing)

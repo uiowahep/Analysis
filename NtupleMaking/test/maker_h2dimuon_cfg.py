@@ -15,17 +15,42 @@ process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-from Samples_v3 import singleMuon_RunC25nsOct_MINIAOD as s
-#from Samples_v3 import gg_HToMuMu as s
+import os,sys,shelve
+if "ANALYSISHOME" not in os.environ.keys():
+    raise NameError("Can not find ANALYSISHOME env var")
+sys.patha.append(os.environ["ANALYSISHOME"])
+import NtupleProcessing.Samples as Samples
+import NtupleProcessing.Dataset as DS
+
+#   example of how to get the dataset
+filename = Samples.filename
+ds = shelve.open(filename)
+data_datasets = ds["DataDatasets"]
+jsonfiles = ds["jsonfiles"]
+jsontag = "2016_Prompt_16900"
+jsonfile = jsonfiles[jsontag]
+dataset = ""
+for key in data_datasets.keys():
+    if data_datasets[key].label=="SingleMuon.Run2016B-PromptReco-v2.MINIAOD":
+        dataset=data_datasets[key]
+        break
+
+ntunple = DS.Ntuple(dataset, 
+    globaltag="80X_dataRun2_Prompt_v9",
+    json="json/"+jsonfile,
+    cmssw="80X",
+    storage=None,
+    rootpath=None,
+    timestamp=None
+)
 
 #
 #   a few settings
 #
-thisIsData = s.isData
-globalTag = s.globaltag
+thisIsData = ntuple.isData
+globalTag = ntuple.globaltag
 readFiles = cms.untracked.vstring();
-readFiles.extend(s.files);
-jsontouse = 1
+readFiles.extend(open(ntuple.test_file).read().splitlines());
 
 #
 #   Differentiate between DATA and MC
@@ -49,8 +74,7 @@ if thisIsData:
 else:
     print 'Running over MC sample'
 
-print "Sample Name:    " +  s.name
-print "Sample DAS DIR: " +  s.dir
+print "Sample Name:    " +  ntuple.name
 print ""; print ""
 
 #
@@ -63,12 +87,12 @@ process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
 if thisIsData:
     import FWCore.PythonUtilities.LumiList as LumiList
     process.source.lumisToProcess = LumiList.LumiList(filename = 
-		s.jsonfiles[jsontouse]).getVLuminosityBlockRange()
+		ntuple.json).getVLuminosityBlockRange()
 
 #
 #   TFile Service to handle output
 #
-process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuplemaking_"+s.name+".root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuplemaking_"+s.label+".root") )
 
 #
 #   Execution Path

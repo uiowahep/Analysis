@@ -45,7 +45,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #
 #   TFile Service to handle output
 #
-process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuplemaking_"+s.name+".root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuplemaking_"+s.label+".root") )
 
 #
 #   Execution Path
