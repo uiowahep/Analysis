@@ -23,8 +23,8 @@ datadatasets = {
         isData=True,
         year=2015
     ),
-    "SingleMuon/Run2015D-PromptReco-v4/MINIAOD" : DS.Dataset(
-        name="SingleMuon/Run2015D-PromptReco-v4/MINIAOD",
+    "/SingleMuon/Run2015D-PromptReco-v4/MINIAOD" : DS.Dataset(
+        name="/SingleMuon/Run2015D-PromptReco-v4/MINIAOD",
         isData=True,
         year=2015
     ),
@@ -169,6 +169,15 @@ def buildDatasetTagName(ntuple):
     else:
         return "%s_%s" % (ntuple.label.split(".")[0], ntuple.cmssw)
 
+def isReReco(dataset):
+	if dataset.year==2015:
+		if "16Dec2015" in dataset.name:
+			return True
+		else:
+			return False
+	else:
+		return False
+
 #
 #   
 #
@@ -181,8 +190,6 @@ def initializeForce():
     f.close()
     ds["DataDatasets"] = datadatasets
     ds["MCDatasets"] = mcdatasets
-    ds["DataNtuples"] = datantuples
-    ds["MCNtuples"] = mcntuples
     ds["jsonfiles"] = jsonfiles
     pickle.dump(ds, open(filename, "w"))
 
@@ -194,8 +201,6 @@ def initialize():
     ds = {}
     ds["DataDatasets"] = datadatasets
     ds["MCDatasets"] = mcdatasets
-    ds["DataNtuples"] = datantuples
-    ds["MCNtuples"] = mcntuples
     ds["jsonfiles"] = jsonfiles
     pickle.dump(ds, open(filename, "w"))
 
@@ -207,5 +212,5 @@ def printShelve():
             print ds[key][k]
 
 if __name__=="__main__":
-   # initializeForce()
-    printShelve()
+	#initializeForce()
+	printShelve()

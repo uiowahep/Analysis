@@ -33,20 +33,21 @@ mcntuples = ds["MCNtuples"]
 
 #   get the json file to be used if needed
 jsonfiles = ds["jsonfiles"]
-jsontag = "2016_Prompt_7648"
+jsontag = "2015_Prompt"
 jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
 datasets = []
-for k in data_datasets:
-    if data_datasets[k].year==2016:
-        datasets.append(data_datasets[k])
+sets_to_consider=mc_datasets
+for k in sets_to_consider:
+    if sets_to_consider[k].initial_cmssw=="74X":
+        datasets.append(sets_to_consider[k])
 samples = []
 
 #   create the Ntuple objects for all of the datasets
 for d in datasets:
-    globaltag = "80X_dataRun2_Prompt_v9"
-    cmssw = "80X"
+    globaltag = "74X_mcRun2_asymptotic_v2"
+    cmssw = d.initial_cmssw
     storage = "EOS"
     rootpath = "/store/user/vkhriste/higgs_ntuples"
     if d.isData:
@@ -55,7 +56,7 @@ for d in datasets:
         rootpath+="/mc"
     s = DS.Ntuple(d, 
         globaltag=globaltag,
-        json = jsonfile.filename,
+        json = None,
         cmssw = cmssw,
         storage = storage,
         rootpath=rootpath,
@@ -114,7 +115,8 @@ for s in samples:
             line = line.replace('JSONFILE', "json/"+s.json)
         if "REQUESTNAME" in line:
             if s.isData:
-                line = line.replace("REQUESTNAME", s.label.split(".")[1].split("-")[0]+"_%s" % jsontag)
+                line = line.replace("REQUESTNAME", s.label.split(".")[1].split("-")[0]+\
+					s.label.split(".")[1].split("-")[1]+"_%s" % jsontag)
             else:
                 line = line.replace("REQUESTNAME", s.label.split(".")[0].split("-")[0]+"_%s" % s.initial_cmssw)
         if 'DATASETTAGNAME' in line: 
@@ -144,9 +146,7 @@ if commitUpdates:
         if s.isData:
             datantuples[s.label+"."+jsontag] = s
         else:
-            mcntuples[s.label.split(".")[0]+".%s"%s.cmssw]
-    datantuples = ds["DataNtuples"]
-    mcntuples = ds["MCNtuples"]
+            mcntuples[s.label.split(".")[0]+".%s"%s.cmssw] = s
     ds["DataNtuples"] = datantuples
     ds["MCNtuples"] = mcntuples
 pickle.dump(ds, open(filename, "w"))
