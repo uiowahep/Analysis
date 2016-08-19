@@ -394,7 +394,7 @@ sS'filename'
 p120
 S'Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'
 p121
-sbsS'2015_ReReco'
+sbsS'2016_Prompt_12900'
 p122
 g6
 (g114
@@ -404,9 +404,9 @@ Rp124
 (dp125
 g118
 Nsg119
-F2318.0
+F12900.0
 sg120
-S'Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt'
+S'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON.txt'
 p126
 sbsS'2016_Prompt_16900'
 p127
@@ -435,7 +435,7 @@ F2169.0
 sg120
 S'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
 p135
-sbsS'2016_Prompt_12900'
+sbsS'2015_ReReco'
 p136
 g6
 (g114
@@ -445,9 +445,9 @@ Rp138
 (dp139
 g118
 Nsg119
-F12900.0
+F2318.0
 sg120
-S'Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON.txt'
+S'Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt'
 p140
 sbssS'DataDatasets'
 p141
