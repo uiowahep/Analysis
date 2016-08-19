@@ -6,4 +6,5 @@
 *.swm
 *.pyc
 *.json
+*.log
 crab_projects/
