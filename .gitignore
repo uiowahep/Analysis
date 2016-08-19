@@ -7,3 +7,5 @@
 *.pyc
 *.files
 *.json
+*.log
+crab_projects/
