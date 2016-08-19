@@ -15,7 +15,7 @@ class Dataset(object):
         self.name = wargs["name"]
         self.isData = wargs["isData"]
         if 'label' not in wargs.keys():
-            self.label = self.name.replace("/", ".")[1:]
+			self.label = self.name.replace("/", ".")[1:]
         else:
             self.label = wargs["label"]
         self.year = wargs["year"]

@@ -36,7 +36,7 @@ for key in data_datasets.keys():
         dataset=data_datasets[key]
         break
 
-ntunple = DS.Ntuple(dataset, 
+ntuple = DS.Ntuple(dataset, 
     globaltag="80X_dataRun2_Prompt_v9",
     json="json/"+jsonfile.filename,
     cmssw="80X",
@@ -51,7 +51,7 @@ ntunple = DS.Ntuple(dataset,
 thisIsData = ntuple.isData
 globalTag = ntuple.globaltag
 readFiles = cms.untracked.vstring();
-readFiles.extend(open(ntuple.test_file).read().splitlines());
+readFiles.extend(open("sample_file_lists/data/"+ntuple.test_file).read().splitlines());
 
 #
 #   Differentiate between DATA and MC
@@ -90,12 +90,5 @@ if thisIsData:
     process.source.lumisToProcess = LumiList.LumiList(filename = 
 		ntuple.json).getVLuminosityBlockRange()
 
-#
-#   TFile Service to handle output
-#
-process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuples"+s.label+".root") )
-
-#
-#   Execution Path
-#
+process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuples"+ntuple.label+".root") )
 process.p = cms.Path(process.ntuplemaker_H2DiMuonMaker)

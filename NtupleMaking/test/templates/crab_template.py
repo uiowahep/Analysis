@@ -19,6 +19,6 @@ config.Data.unitsPerJob = JOBUNITS
 config.Data.outLFNDirBase = 'ROOTPATH'
 config.Data.publication = False
 config.Data.outputDatasetTag = 'DATASETTAGNAME'
-config.Data.outputPrimaryDataset = "PRIMARYDATASETNAME"
+#config.Data.outputPrimaryDataset = "PRIMARYDATASETNAME"
 
 config.Site.storageSite = 'T2_CH_CERN'

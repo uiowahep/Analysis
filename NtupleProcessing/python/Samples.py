@@ -163,14 +163,11 @@ jsonfiles = {
 #
 #   Useful functions to build up the name
 #
-def buildPrimaryDatasetName(ntuple):
-    return ntuple.label
-
 def buildDatasetTagName(ntuple):
     if ntuple.isData:
-        return "%s" % ntuple.json
+		return "%s_%s" % (ntuple.label.split(".")[1],ntuple.json[:-4])
     else:
-        return "%s" % ntuple.cmssw
+        return "%s_%s" % (ntuple.label.split(".")[0], ntuple.cmssw)
 
 #
 #   
@@ -210,5 +207,5 @@ def printShelve():
             print ds[key][k]
 
 if __name__=="__main__":
-    initializeForce()
+   # initializeForce()
     printShelve()

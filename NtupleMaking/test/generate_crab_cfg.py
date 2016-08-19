@@ -7,7 +7,7 @@ Crab Config Generator.
 import os,sys, shelve, pickle
 
 #   input options
-commitUpdates = False
+commitUpdates = True
 
 #   import the Analysis dependency
 if "ANALYSISHOME" not in os.environ.keys():
@@ -64,6 +64,7 @@ for d in datasets:
     samples.append(s)
 
 #   iterate/generate/commit and create config files
+print "Generating Config Files..."
 for s in samples:
 
     "Generating...."
@@ -72,8 +73,8 @@ for s in samples:
 
     #   create a config filename
     cfgname = 'dimu_'
-    cfgname += s.label
-    if s.isData: cfgname += str(jsontag)
+    cfgname += s.label.replace(".", "_")
+    if s.isData:cfgname += str(jsontag)
     cfgname += '_for_crab.py'
     outfile = open(cfgname, 'w')
     
@@ -95,10 +96,11 @@ for s in samples:
     file = open('templates/crab_template.py', 'r')
     if s.isData: 
         #   and open the crab cfg to be generated
-        outfile = open('crab_auto_submit_'+s.label+'_'+jsontag+'.py', 'w')
+        outfile = open('crab_auto_submit_'+s.label.replace(".", "_")+
+			'_'+jsontag+'.py', 'w')
 
     else:
-        outfile = open('crab_auto_submit_'+s.label+'.py', 'w')
+        outfile = open('crab_auto_submit_'+s.label.replace(".", "_")+'.py', 'w')
     
     # read in the template and replace the parameters to make a
     # crab submission file that uses the above cmssw script
@@ -112,15 +114,12 @@ for s in samples:
             line = line.replace('JSONFILE', "json/"+s.json)
         if "REQUESTNAME" in line:
             if s.isData:
-                line = line.replace("REQUESTNAME", s.label.split(".")[1]+".%s" % jsontag)
+                line = line.replace("REQUESTNAME", s.label.split(".")[1].split("-")[0]+"_%s" % jsontag)
             else:
-                line = line.replace("REQUESTNAME", s.label.split(".")[i]+".%s" % s.initial_cmssw)
+                line = line.replace("REQUESTNAME", s.label.split(".")[0].split("-")[0]+"_%s" % s.initial_cmssw)
         if 'DATASETTAGNAME' in line: 
             datasettag = Samples.buildDatasetTagName(s)
             line = line.replace('DATASETTAGNAME', datasettag)
-        if "PRIMARYDATASETNAME" in line:
-            primaryname = Samples.buildPrimaryDatasetName(s)
-            line = line.replace("PRIMARYDATASETNAME", primaryname)
         if 's.name' in line: 
             line = line.replace('s.name', s.name)
         if 'ROOTPATH' in line:
