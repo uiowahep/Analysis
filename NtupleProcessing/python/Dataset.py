@@ -148,16 +148,23 @@ class DataResult(Ntuple):
     """
     Data Result of Data Ntuple Processing
     """
-    def __init__(self, **wargs):
+    def __init__(self, *kargs, **wargs):
+        if len(kargs)>0: 
+            DataResult.startup(self, kargs[0], **wargs)
+            return
         Ntuple.__init__(self, **wargs)
+        self.filelist = wargs["filelist"]
 
-class PileUp:
-    """
-    Represents the Pile up file information for MC
-    """
-    def __init__(self, **wargs):
-        self.cross_section = wargs["cross_section"]
-        self.pileupdatajson = wargs["pileupdatajson"]
+    def startup(self, other, **wargs):
+        Ntuple.__init__(self, other,
+            globaltag=other.globaltag,
+            json = other.json,
+            cmssw = other.cmssw,
+            timestamp = other.timestamp,
+            storage=other.storage,
+            rootpath=other.rootpath
+        )
+        self.filelist = wargs["filelist"]
 
 class JsonFile(object):
     """
@@ -184,13 +191,40 @@ class JsonFile(object):
     def __repr__(self):
         return self.__str__()
 
-class MCResult(Ntuple, PileUp):
+class MCResult(DataResult):
     """
     MC Result of MC Ntuple Processing
     """
-    def __init__(self, *wargs):
-        Ntuple.__init__(self, **wargs)
-        PileUp.__init__(self, **wargs)
+    def __init__(self, *kargs, **wargs):
+        if len(kargs)>0: 
+            MCResult.startup(self, kargs[0], **wargs)
+            return
+        DataResult.__init__(self, **wargs)
+        self.cross_section = wargs["cross_section"]
+        self.pileupdatajson = wargs["pileupdatajson"]
+    def startup(self, other, **wargs):
+        DataResult.__init__(self, other, **wargs)
+        self.cross_section = wargs["cross_section"]
+        self.pileupdatajson = wargs["pileupdatajson"]
+
+class PileUp(object):
+    """
+    """
+    def __init__(self, **wargs):
+        object.__init__(self)
+        self.cross_section = wargs["cross_section"]
+        self.datajson = wargs["datajson"]
+
+    def __str__(self):
+        s = "-"*80 + "\n" + \
+            "PileUp: " + "\n" + \
+            ">>> cross_section="+self.cross_section + "\n" + \
+            ">>> datajson="+self.datajson + "\n" + \
+            "-"*80 + \
+            "\n"
+        return s
+    def __repr__(self):
+        return self.__str__()
 
 if __name__=="__main__":
     ds = Dataset(name="/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD",

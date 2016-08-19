@@ -55,6 +55,7 @@
 std::string __inputfilename;
 std::string __outputfilename;
 bool __isMC;
+bool __genPUMC;
 std::string __puMCfilename;
 std::string __puDATAfilename;
 bool __continueRunning = true;
@@ -458,9 +459,35 @@ float sampleinfo(std::string const& inputname)
 	return numEventsWeighted;
 }
 
+void generatePUMC()
+{
+	TFile *pufile = new TFile(__puMCfilename, "recreate");
+	TH1D *h = new TH1D("pileup", "pileup", 50, 0, 50);
+
+	Streamer s(inputname, NTUPLERMAKER_NAME+"/Events");
+	s.chainup();
+
+	EventAuxiliary *aux=NULL;
+	streamer._chain->SetBranchAddress("EventAuxiliary", &aux);
+	int numEvents = s._chain->GetEntries();
+	for (uint32_t i=0; i<numEvents; i++)
+	{
+		s._chain->GetEntry(i);
+		h->Fill(aux._nPU, aux._genWeight);
+	}
+
+	pufile->Write();
+	pufile->Close();
+}
+
 void process()
 {
+	//	get the total events, etc...
 	long long int numEventsWeighted = sampleinfo(__inputfilename);
+
+	//	generate the MC Pileup histogram
+	if (__genPUMC && __isMC)
+		generatePUMC();
 
 	//	out ...
 	TFile *outroot = new TFile(__outputfilename.c_str(), "recreate");
@@ -571,6 +598,7 @@ int main(int argc, char** argv)
 	signal(SIGINT, &sigHandler);
 
 	std::string none;
+	bool genPUMC = false;
 
 	/*
 	 *	Pare Options
@@ -581,6 +609,7 @@ int main(int argc, char** argv)
 		("input", po::value<std::string>(), "a file specifying all the ROOT files to process")
 		("isMC", po::value<bool>(), "type of data: DATA vs MC")
 		("output", po::value<std::string>(), "output file name")
+		("genPUMC", po::value<bool>(&genPUMC)->default_value(false), "true if should generate the MC PU file")
 		("puMC", po::value<std::string>(&none)->default_value("None"), "MC PU Reweight file")
 		("puDATA", po::value<std::string>(&none)->default_value("None"), "DATA PU Reweight file")
 	;
@@ -599,6 +628,7 @@ int main(int argc, char** argv)
 	__inputfilename = vm["input"].as<std::string>();
 	__isMC = vm["isMC"].as<bool>();
 	__outputfilename = vm["output"].as<std::string>();
+	__genPUMC = vm["genPUMC"].as<bool>();
 	__puMCfilename = vm["puMC"].as<std::string>();
 	__puDATAfilename = vm["puDATA"].as<std::string>();
 

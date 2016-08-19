@@ -2,7 +2,7 @@
 
 import shelve, pickle
 import Dataset as DS
-import os,sys
+import os,sys,subprocess
 if "ANALYSISHOME" not in os.environ.keys():
     raise NameError("Can not find ANALYSISHOME env var")
 sys.path.append(os.environ["ANALYSISHOME"])
@@ -161,6 +161,18 @@ jsonfiles = {
 }
 
 #
+#   list all the pileup files
+#
+pileups = {}
+for k in jsonfiles.keys():
+    jfilename = jsonfiles[k].filename
+    for cs in ["68", "69", "70", "71", "72", "71p3"]:
+        s = "pileup_%s_%s" % (jfilename[:-4], cs)
+        pileups[s] = DS.PileUp(
+            cross_section=cs, datajson=jfilename
+        )
+
+#
 #   Useful functions to build up the name
 #
 def buildDatasetTagName(ntuple):
@@ -178,6 +190,25 @@ def isReReco(dataset):
 	else:
 		return False
 
+def discoverNtuples(ntuple):
+    prefix = ""
+    if ntuple.storage=="EOS":
+        prefix+="/eos/cms"
+        tstamp = getTimeStamp(ntuple)
+        ntuple.timestamp = tstamp
+        pathstring = os.path.join(prefix, ntuple.rootpath, ntuple.name.split("/")[0],
+            buildDatasetTagName(ntuple), tstamp, "0000")
+        x = subprocess.check_output(["eos", "ls %s/*.root" % pathstring]).split("\n")
+        return pathstring,x
+    else:
+        pathstring = os.path.join(prefix, ntuple.rootpath, ntuple.name.split("/")[0],
+            buildDatasetTagName(ntuple))
+        x = subprocess.check_output(["eos", "ls %s/*.root" % pathstring]).split("\n")
+        return pathstring,x
+
+def getFileList(ntuple):
+    pass
+
 #
 #   
 #
@@ -191,17 +222,7 @@ def initializeForce():
     ds["DataDatasets"] = datadatasets
     ds["MCDatasets"] = mcdatasets
     ds["jsonfiles"] = jsonfiles
-    pickle.dump(ds, open(filename, "w"))
-
-def initialize():
-    """
-    Initialize the db from scratch. In principle should only be done once...
-    """
-    if os.path.exists(filename): return
-    ds = {}
-    ds["DataDatasets"] = datadatasets
-    ds["MCDatasets"] = mcdatasets
-    ds["jsonfiles"] = jsonfiles
+    ds["pileups"] = pileups
     pickle.dump(ds, open(filename, "w"))
 
 def printShelve():
@@ -212,5 +233,5 @@ def printShelve():
             print ds[key][k]
 
 if __name__=="__main__":
-	#initializeForce()
+	initializeForce()
 	printShelve()
