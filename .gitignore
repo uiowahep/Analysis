@@ -5,5 +5,5 @@
 *.swn
 *.swm
 *.pyc
-*.files
 *.json
+crab_projects/
