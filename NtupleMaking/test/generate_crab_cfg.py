@@ -33,7 +33,7 @@ mcntuples = ds["MCNtuples"]
 
 #   get the json file to be used if needed
 jsonfiles = ds["jsonfiles"]
-jsontag = "2016_Prompt_16900"
+jsontag = "2016_Prompt_7648"
 jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
