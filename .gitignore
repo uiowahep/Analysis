@@ -1,4 +1,5 @@
 *~
+*.db
 *.root
 *.sqp
 *.swo

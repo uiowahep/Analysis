@@ -15,10 +15,11 @@ class Dataset(object):
         self.name = wargs["name"]
         self.isData = wargs["isData"]
         if 'label' not in wargs.keys():
-			self.label = self.name.replace("/", ".")[1:]
+            self.label = self.name[1:].replace("/", "__")
         else:
             self.label = wargs["label"]
         self.year = wargs["year"]
+        self.globaltag = wargs["globaltag"]
         if 'test_file' not in wargs.keys():
             self.test_file = self.label+".files"
         else:
@@ -31,6 +32,7 @@ class Dataset(object):
         self.isData = other.isData
         self.year = other.year
         self.test_file = other.test_file
+        self.globaltag = other.globaltag
 
     def __repr__(self):
         return self.__str__()
@@ -42,6 +44,7 @@ class Dataset(object):
             ">>> label="+self.label+"\n" +\
             ">>> isData="+str(self.isData)+"\n" +\
             ">>> year="+str(self.year)+"\n"+\
+            ">>> globaltag="+str(self.globaltag)+"\n"+\
             ">>> test_file="+str(self.test_file)+"\n"+\
             "-"*80 +\
             "\n"
@@ -62,6 +65,11 @@ class MCDataset(Dataset):
             self.initial_cmssw = None
         else:
             self.initial_cmssw = wargs["initial_cmssw"]
+
+        if "cross_section" not in wargs.keys():
+            self.cross_section = None
+        else:
+            self.cross_section = wargs["cross_section"]
 
     def __str__(self):
         s = "-"*80 + "\n" +\
@@ -89,6 +97,10 @@ class MCDataset(Dataset):
             self.initial_cmssw = other.initial_cmssw
         else:
             self.initial_cmssw = None
+        if hasattr(other, "cross_section"):
+            self.cross_section=other.cross_section
+        else:
+            self.cross_section=None
 
 class Ntuple(MCDataset):
     """
@@ -103,13 +115,17 @@ class Ntuple(MCDataset):
             return
 
         MCDataset.__init__(self, **wargs)
-        self.globaltag = wargs["globaltag"]
         self.json = wargs["json"]
         self.cmssw = wargs["cmssw"]
 
         self.timestamp = wargs["timestamp"]
         self.storage = wargs["storage"]
         self.rootpath = wargs["rootpath"]
+
+        if "aux" not in wargs.keys():
+            self.aux=None
+        else:
+            self.aux = wargs["aux"]
 
     def __str__(self):
         s = "-"*80 + "\n" +\
@@ -136,13 +152,16 @@ class Ntuple(MCDataset):
 
     def startup(self, otherds, **wargs):
         MCDataset.__init__(self, otherds)
-        self.globaltag = wargs["globaltag"]
         self.json = wargs["json"]
         self.cmssw = wargs["cmssw"]
 
         self.timestamp = wargs["timestamp"]
         self.storage = wargs["storage"]
         self.rootpath = wargs["rootpath"]
+        if "aux" not in wargs.keys():
+            self.aux=None
+        else:
+            self.aux = wargs["aux"]
 
 class DataResult(Ntuple):
     """
@@ -157,12 +176,12 @@ class DataResult(Ntuple):
 
     def startup(self, other, **wargs):
         Ntuple.__init__(self, other,
-            globaltag=other.globaltag,
             json = other.json,
             cmssw = other.cmssw,
             timestamp = other.timestamp,
             storage=other.storage,
-            rootpath=other.rootpath
+            rootpath=other.rootpath,
+            aux=other.aux
         )
         self.filelist = wargs["filelist"]
 
@@ -200,11 +219,9 @@ class MCResult(DataResult):
             MCResult.startup(self, kargs[0], **wargs)
             return
         DataResult.__init__(self, **wargs)
-        self.cross_section = wargs["cross_section"]
         self.pileupdatajson = wargs["pileupdatajson"]
     def startup(self, other, **wargs):
         DataResult.__init__(self, other, **wargs)
-        self.cross_section = wargs["cross_section"]
         self.pileupdatajson = wargs["pileupdatajson"]
 
 class PileUp(object):
@@ -228,7 +245,7 @@ class PileUp(object):
 
 if __name__=="__main__":
     ds = Dataset(name="/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD",
-        isData=True,
+        isData=True, globaltag = "gt",
         year=2015, test_file="/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD")
     ntuple = Ntuple(ds, globaltag="test", cmssw="test", json="test", timestamp="",
         storage="test", rootpath="test")

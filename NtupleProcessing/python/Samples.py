@@ -6,8 +6,6 @@ import os,sys,subprocess
 if "ANALYSISHOME" not in os.environ.keys():
     raise NameError("Can not find ANALYSISHOME env var")
 sys.path.append(os.environ["ANALYSISHOME"])
-import config.datasets_configuration as dcfg
-filename = dcfg.shelve_filename
 
 #
 #   Specify the full list of CMSSW Datasets
@@ -16,47 +14,56 @@ datadatasets = {
     "/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD",
         isData=True,
-        year=2015
+        year=2015,
+        globaltag = "74X_dataRun2_v4"
     ),
     "/SingleMuon/Run2015D-05Oct2015-v1/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2015D-05Oct2015-v1/MINIAOD",
         isData=True,
-        year=2015
+        year=2015,
+        globaltag = "74X_dataRun2_reMiniAOD_v0"
     ),
     "/SingleMuon/Run2015D-PromptReco-v4/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2015D-PromptReco-v4/MINIAOD",
         isData=True,
-        year=2015
+        year=2015,
+        globaltag = "74X_dataRun2_Prompt_v4"
     ),
     "/SingleMuon/Run2015C_25ns-16Dec2015-v1/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2015C_25ns-16Dec2015-v1/MINIAOD",
         isData=True,
-        year=2015
+        year=2015,
+        globaltag = "76X_dataRun2_v15"
     ),
     "/SingleMuon/Run2015D-16Dec2015-v1/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2015D-16Dec2015-v1/MINIAOD",
         isData=True,
-        year=2015
+        year=2015,
+        globaltag = "76X_dataRun2_v15"
     ),
     "/SingleMuon/Run2016B-PromptReco-v2/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2016B-PromptReco-v2/MINIAOD",
         isData=True,
-        year=2016
+        year=2016,
+        globaltag = "80X_dataRun2_Prompt_v9"
     ),
     "/SingleMuon/Run2016C-PromptReco-v2/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2016C-PromptReco-v2/MINIAOD",
         isData=True,
-        year=2016
+        year=2016,
+        globaltag = "80X_dataRun2_Prompt_v9"
     ),
     "/SingleMuon/Run2016D-PromptReco-v2/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2016D-PromptReco-v2/MINIAOD",
         isData=True,
-        year=2016
+        year=2016,
+        globaltag = "80X_dataRun2_Prompt_v9"
     ),
     "/SingleMuon/Run2016E-PromptReco-v2/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2016E-PromptReco-v2/MINIAOD",
         isData=True,
-        year=2016
+        year=2016,
+        globaltag = "80X_dataRun2_Prompt_v9"
     )
 }
 
@@ -69,28 +76,36 @@ mcdatasets = {
         isData=False,
         year=2015,
         isSignal=True,
-        initial_cmssw = "74X"
+        initial_cmssw = "74X",
+        globaltag = "74X_mcRun2_asymptotic_v2",
+        cross_section =  43.62*0.00022
     ),
     "/GluGlu_HToMuMu_M125_13TeV_powheg_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM" : DS.MCDataset(
         name="/GluGlu_HToMuMu_M125_13TeV_powheg_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM",
         year=2015,
         isData=False,
         isSignal=True,
-        initial_cmssw = "76X"
+        initial_cmssw = "76X",
+        globaltag = "76X_mcRun2_asymptotic_v12",
+        cross_section =  43.62*0.00022
     ),
     "/VBF_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM" : DS.MCDataset(
         name="/VBF_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
         year=2015,
         isData=False,
         isSignal=True,
-        initial_cmssw = "74X"
+        initial_cmssw = "74X",
+        globaltag = "74X_mcRun2_asymptotic_v2",
+        cross_section = 3.727*0.00022
     ),
     "/VBF_HToMuMu_M125_13TeV_powheg_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM" : DS.MCDataset(
         name="/VBF_HToMuMu_M125_13TeV_powheg_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM",
         year=2015,
         isData=False,
         isSignal=True,
-        initial_cmssw = "76X"
+        initial_cmssw = "76X",
+        globaltag = "76X_mcRun2_asymptotic_v12",
+        cross_section = 3.727*0.00022
     ),
 
     #
@@ -100,28 +115,36 @@ mcdatasets = {
         name="/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
         year=2015,isData=False,
         isSignal=False,
-        initial_cmssw = "74X"
+        initial_cmssw = "74X",
+        globaltag = "74X_mcRun2_asymptotic_v2",
+        cross_section = 6025.2
     ),
     "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM" : DS.MCDataset(
         name="/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM",
         year=2015,
         isData=False,
         isSignal=True,
-        initial_cmssw = "76X"
+        initial_cmssw = "76X",
+        globaltag = "76X_mcRun2_asymptotic_v12",
+        cross_section = 6025.2
     ),
     "/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/MINIAODSIM" : DS.MCDataset(
         name="/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/MINIAODSIM",
         year=2015,
         isData=False,
         isSignal=False,
-        initial_cmssw="74X"
+        initial_cmssw="74X",
+        globaltag = "74X_mcRun2_asymptotic_v2",
+        cross_section = 831.76
     ),
     "/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM" : DS.MCDataset(
         name="/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM",
         year=2015,
         isData=False,
         isSignal=False,
-        initial_cmssw="76X"
+        initial_cmssw="76X",
+        globaltag = "76X_mcRun2_asymptotic_v12",
+        cross_section = 831.76
     )
 }
 
@@ -167,7 +190,7 @@ pileups = {}
 for k in jsonfiles.keys():
     jfilename = jsonfiles[k].filename
     for cs in ["68", "69", "70", "71", "72", "71p3"]:
-        s = "pileup_%s_%s" % (jfilename[:-4], cs)
+        s = "pileup__%s__%s" % (jfilename[:-4], cs)
         pileups[s] = DS.PileUp(
             cross_section=cs, datajson=jfilename
         )
@@ -177,9 +200,22 @@ for k in jsonfiles.keys():
 #
 def buildDatasetTagName(ntuple):
     if ntuple.isData:
-		return "%s_%s" % (ntuple.label.split(".")[1],ntuple.json[:-4])
+	s = "%s__%s" % (ntuple.label.split("__")[1],ntuple.json[:-4])
     else:
-        return "%s_%s" % (ntuple.label.split(".")[0], ntuple.cmssw)
+        s = "%s" % (ntuple.cmssw)
+    if ntuple.aux!=None and ntuple.aux!="":
+        s+="__%s" % ntuple.aux
+    return s
+
+def buildRequestName(ntuple, *kargs):
+    if ntuple.isData:
+        s = ntuple.label.split("__")[1]
+        s += kargs[0]
+    else:
+        s = ntuple.label.split("__")[0].split("-")[0]+"__%s" % ntuple.initial_cmssw
+    if ntuple.aux!=None and ntuple.aux!="":
+        s+="__%s" % ntuple.aux
+    return s
 
 def isReReco(dataset):
 	if dataset.year==2015:
@@ -209,29 +245,5 @@ def discoverNtuples(ntuple):
 def getFileList(ntuple):
     pass
 
-#
-#   
-#
-datantuples = {}
-mcntuples = {}
-
-def initializeForce():
-    f = open(filename, "r")
-    ds = pickle.load(f)
-    f.close()
-    ds["DataDatasets"] = datadatasets
-    ds["MCDatasets"] = mcdatasets
-    ds["jsonfiles"] = jsonfiles
-    ds["pileups"] = pileups
-    pickle.dump(ds, open(filename, "w"))
-
-def printShelve():
-    ds = pickle.load(open(filename, "r"))
-    print "Datasets DB @filename=%s" % filename
-    for key in ds.keys():
-        for k in ds[key]:
-            print ds[key][k]
-
 if __name__=="__main__":
-	initializeForce()
-	printShelve()
+    pass

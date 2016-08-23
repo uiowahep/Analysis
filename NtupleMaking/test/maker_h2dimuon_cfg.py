@@ -24,10 +24,8 @@ import NtupleProcessing.python.Samples as Samples
 import NtupleProcessing.python.Dataset as DS
 
 #   example of how to get the dataset
-filename = Samples.filename
-ds = pickle.load(open(filename, "r"))
-data_datasets = ds["DataDatasets"]
-jsonfiles = ds["jsonfiles"]
+data_datasets = Samples.datadatasets
+jsonfiles = Samples.jsonfiles
 jsontag = "2016_Prompt_16900"
 jsonfile = jsonfiles[jsontag]
 dataset = ""
@@ -37,7 +35,6 @@ for key in data_datasets.keys():
         break
 
 ntuple = DS.Ntuple(dataset, 
-    globaltag="80X_dataRun2_Prompt_v9",
     json="json/"+jsonfile.filename,
     cmssw="80X",
     storage=None,

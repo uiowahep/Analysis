@@ -6,9 +6,6 @@ Crab Config Generator.
 """
 import os,sys, shelve, pickle
 
-#   input options
-commitUpdates = True
-
 #   import the Analysis dependency
 if "ANALYSISHOME" not in os.environ.keys():
     raise NameError("Can not find ANALYSISHOME env var")
@@ -22,17 +19,11 @@ import NtupleProcessing.python.Samples as Samples
 import NtupleProcessing.python.Dataset as DS
 
 #   get the datasets to be processed
-filename=Samples.filename
-f = open(filename, "r")
-ds = pickle.load(f)
-f.close()
-data_datasets = ds["DataDatasets"]
-mc_datasets = ds["MCDatasets"]
-datantuples = ds["DataNtuples"]
-mcntuples = ds["MCNtuples"]
+data_datasets = Samples.datadatasets
+mc_datasets = Samples.mcdatasets
 
 #   get the json file to be used if needed
-jsonfiles = ds["jsonfiles"]
+jsonfiles = Samples.jsonfiles
 jsontag = "2015_ReReco"
 jsonfile = jsonfiles[jsontag]
 
@@ -47,7 +38,6 @@ samples = []
 #   create the Ntuple objects for all of the datasets
 for d in datasets:
     #globaltag = "76X_dataRun2_v15"
-    globaltag = "76X_mcRun2_asymptotic_v12"
     cmssw = d.initial_cmssw
     storage = "EOS"
     rootpath = "/store/user/vkhriste/higgs_ntuples"
@@ -56,7 +46,6 @@ for d in datasets:
     else:
         rootpath+="/mc"
     s = DS.Ntuple(d, 
-        globaltag=globaltag,
         json = None,
         cmssw = cmssw,
         storage = storage,
@@ -115,11 +104,7 @@ for s in samples:
             line = line.replace('#', '')
             line = line.replace('JSONFILE', "json/"+s.json)
         if "REQUESTNAME" in line:
-            if s.isData:
-                line = line.replace("REQUESTNAME", s.label.split(".")[1].split("-")[0]+\
-					s.label.split(".")[1].split("-")[1]+"_%s" % jsontag)
-            else:
-                line = line.replace("REQUESTNAME", s.label.split(".")[0].split("-")[0]+"_%s" % s.initial_cmssw)
+                line = line.replace("REQUESTNAME", Samples.buildRequestName(s, jsontag))
         if 'DATASETTAGNAME' in line: 
             datasettag = Samples.buildDatasetTagName(s)
             line = line.replace('DATASETTAGNAME', datasettag)
@@ -131,23 +116,8 @@ for s in samples:
             if s.isData:
                 line = line.replace("JOBUNITS", "100")
             else:
-                line = line.replace("JOBUNITS", "10")
+                line = line.replace("JOBUNITS", "40")
         outfile.write(line)
     
     outfile.close()
     file.close()
-
-#   Commit all the Ntuples that you are going to generate
-if commitUpdates:
-    print "-"*80
-    print "Commiting Updates"
-    print "-"*80
-    for s in samples:
-        print s
-        if s.isData:
-            datantuples[s.label+"."+jsontag] = s
-        else:
-            mcntuples[s.label.split(".")[0]+".%s"%s.cmssw] = s
-    ds["DataNtuples"] = datantuples
-    ds["MCNtuples"] = mcntuples
-pickle.dump(ds, open(filename, "w"))
