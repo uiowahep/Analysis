@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+pt = 22
 
 ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer('H2DiMuonMaker',
     #   Tags
@@ -17,7 +18,7 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer('H2DiMuonMaker',
 	#	Meta Data
 	#
     triggerNames = cms.untracked.vstring(
-        "HLT_IsoMu20", "HLT_IsoTkMu20", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"
+        "HLT_IsoMu%d" % pt, "HLT_IsoTkMu%d" % pt, "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"
     ),
     checkTrigger = cms.untracked.bool(True),
 	isMC = cms.untracked.bool(True),

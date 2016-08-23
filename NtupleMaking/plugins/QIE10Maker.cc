@@ -98,7 +98,7 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 		return;
 
 	//	QIE10
-	for (int i=0; i<cqie10->size(); i++)
+	for (uint32_t i=0; i<cqie10->size(); i++)
 	{
 		QIE10DataFrame frame = static_cast<QIE10DataFrame>((*cqie10)[i]); 
 		QIE10Frame df;

@@ -24,21 +24,21 @@ mc_datasets = Samples.mcdatasets
 
 #   get the json file to be used if needed
 jsonfiles = Samples.jsonfiles
-jsontag = "2015_ReReco"
+jsontag = "2016_Prompt_20100"
 jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
 datasets = []
-sets_to_consider=mc_datasets
+sets_to_consider=data_datasets
 for k in sets_to_consider:
-	if sets_to_consider[k].initial_cmssw=="76X":
-		datasets.append(sets_to_consider[k])
+    if sets_to_consider[k].year==2016:
+        datasets.append(sets_to_consider[k])
 samples = []
 
 #   create the Ntuple objects for all of the datasets
 for d in datasets:
     #globaltag = "76X_dataRun2_v15"
-    cmssw = d.initial_cmssw
+    cmssw = "80X"
     storage = "EOS"
     rootpath = "/store/user/vkhriste/higgs_ntuples"
     if d.isData:
@@ -46,11 +46,12 @@ for d in datasets:
     else:
         rootpath+="/mc"
     s = DS.Ntuple(d, 
-        json = None,
+        json = jsonfile.filename,
         cmssw = cmssw,
         storage = storage,
         rootpath=rootpath,
-        timestamp=None
+        timestamp=None,
+        aux="Mu22"
     )
     samples.append(s)
 

@@ -64,6 +64,12 @@ datadatasets = {
         isData=True,
         year=2016,
         globaltag = "80X_dataRun2_Prompt_v9"
+    ),
+    "/SingleMuon/Run2016F-PromptReco-v1/MINIAOD" : DS.Dataset(
+        name="/SingleMuon/Run2016F-PromptReco-v1/MINIAOD",
+        isData=True,
+        year=2016,
+        globaltag = "80X_dataRun2_Prompt_v9"
     )
 }
 
@@ -180,6 +186,10 @@ jsonfiles = {
     "2016_Prompt_16900" : DS.JsonFile(
         filename="Cert_271036-277148_13TeV_PromptReco_Collisions16_JSON.txt",
         intlumi = 16900.
+    ),
+    "2016_Prompt_20100" : DS.JsonFile(
+        filename = "Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt",
+        intlumi = 20100.
     )
 }
 
@@ -210,7 +220,7 @@ def buildDatasetTagName(ntuple):
 def buildRequestName(ntuple, *kargs):
     if ntuple.isData:
         s = ntuple.label.split("__")[1]
-        s += kargs[0]
+        s += "__%s"%kargs[0]
     else:
         s = ntuple.label.split("__")[0].split("-")[0]+"__%s" % ntuple.initial_cmssw
     if ntuple.aux!=None and ntuple.aux!="":
