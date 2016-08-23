@@ -219,10 +219,10 @@ class MCResult(DataResult):
             MCResult.startup(self, kargs[0], **wargs)
             return
         DataResult.__init__(self, **wargs)
-        self.pileupdatajson = wargs["pileupdatajson"]
+        self.pileupdata = wargs["pileupdata"]
     def startup(self, other, **wargs):
         DataResult.__init__(self, other, **wargs)
-        self.pileupdatajson = wargs["pileupdatajson"]
+        self.pileupdata = wargs["pileupdata"]
 
 class PileUp(object):
     """

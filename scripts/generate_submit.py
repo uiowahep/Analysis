@@ -14,10 +14,12 @@ def main():
     shouldGenPUMC = 1
     filelistdir = "."
     resultsdir = "."
-    pileupdir = ""
+    pileupdir = "."
     version = "v0"
-    commitUpdates = False
     resultsdir+= "/"+version
+    rootpath = "/store/user/vkhriste/higgs_ntuples"
+    aux = "Mu22"
+    shouldCreateFileList = False
     if not os.path.exists(resultsdir):
         os.system("mkdir %s" % resultsdir)
 
@@ -25,48 +27,70 @@ def main():
     if "ANALYSISHOME" not in os.environ.keys():
         raise NameError("Can not find ANALYSISHOME env var")
     sys.path.append(os.environ["ANALYSISHOME"])
-    import config.datasets_configuration as dcfg
     sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "NtupleProcessing/python"))
     import NtupleProcessing.python.Samples as S
     import NtupleProcessing.python.Dataset as DS
 
-    #   initialize the ntuples
-    filename = S.filename
-    f = open(filename, "r")
-    ds = pickle.load(f); f.close()
-    datantuples = ds["DataNtuples"]
-    mcntuples = ds["MCNtuples"]
-    pileups = ds["pileups"]
+    #
+    #   generate all the Ntuple objects that are ready to be processed
+    #
+    data_datasets = S.datadatasets
+    mc_datasets = S.mcdatasets
+    jsonfiles = S.jsonfiles
+    jsontag = "2016_Prompt_20100"
+    jsonfile = jsonfiles[jsontag]
+    data_ntuples = []
+    mc_ntuples = []
+    cmssw = "80X"
+    storage = "EOS"
+    for k in data_datasets:
+        if data_datasets[k].year!=2016: continue
+        ntuple = DS.Ntuple(data_datasets[k],
+            json = jsonfile.filename,
+            cmssw = cmssw,
+            storage = storage,
+            rootpath = os.path.join(rootpath, "data"),
+            timestamp = None,
+            aux = aux
+        )
+        data_ntuples.append(ntuple)
+    for k in mc_datasets:
+        ntuple = DS.Ntuple(mc_datasets[k],
+            json = None,
+            cmssw = mc_datasets[k].initial_cmssw,
+            storage=storage,
+            rootpath = os.path.join(rootpath, "mc"),
+            timestamp=None,
+            aux=aux
+        )
+    ntuples = []
+    ntuples.extend(data_ntuples).extend(mc_ntuples)
 
-    #   select the ntuples to process
+    #
+    #   Generate all the Results objects that are to be produced
+    #   
     results = []
-    sets = mcntuples
-    for k in sets:
-        #   if we are running locally, but ntuple is at CERN skip it
-        if sets[k].storage=="EOS" and not atCern:
-            continue
-        pathstring,x = S.discoverNtuples(sets[k])
-        if sets[k].isData:
-            filelistname = os.path.join(filelistdir, "filelist.%s.%s.files" %
-                sets[k].label.split(".")[1], sets[k].json)
-            results.append(DS.DataResult(sets[k], filelist=filelistname))
+    for ntuple in ntuples:
+        filelist_as_list = SdiscoverFileList(ntuple)
+        filelist = os.path.join(filelistdir,S.buildFileListName(ntuple))
+        if shouldCreateFileList:
+            f = open(file, "w")
+            for x in filelist_as_list:
+                f.write("%s\n" % x)
+            f.close()
+        if ntuple.isData:
+            result = DS.DataResult(ntuple,
+                filelist = filelist
+            )
+            results.append(result)
         else:
-            filelistname = os.path.join(filelistdir, "filelist.%s.%s.files" %
-                sets[k].label.split(".")[0], sets[k].cmssw)
-            for pkey in pileups.keys():
-                results.append(DS.MCResult(sets[k],
-                    cross_section=pileups[pkey].cross_section,
-                    pileupdatajson=pileups[pkey].datajson,
-                    filelist=filelistname))
-        f = open(filelistname, "w")
-        for xx in x:
-            name =""
-            if sets[k].storage=="EOS":
-                name = os.path.join("root://eoscms.cern.ch/",
-                    pathstring, xx)
-            else:
-                name = os.path.join(pathstring, xx)
-            f.write("%s\n" % name)
+            for ipu in S.pileups:
+                pu = S.pileups[ipu]
+                result = DS.MCResult(ntuple,
+                    filelist=filelist,
+                    pileupdata=pu
+                )
+                results.append(result)
 
     #   construct the processing schema  
     print "-"*80
@@ -75,19 +99,13 @@ def main():
     joblist = []
     for result in results:
         input_filelist = filelistdir+"/";
-        print result
-        if result.isData:
-            output = resultsdir + "/" + "result.%s.%s.root" % (
-                result.label.split(".")[1], result.json[:-4])
-        else:
-            output = resultsdir+ "/" + "result.%s.%s.%s.%smb.root" % (
-                result.label.split(".")[0], result.cmssw,
-                result.pileupdatajson[:-4], result.cross_section)
+        print resulti
+        output = S.buildResultOutputPathName(result)
+        output = os.path.join(resultsdir, output)
         if not result.isData:
-            puMCfilename = pileupdir+"/"+"pileup_%s_%s.root" % (
-                result.label.split(".")[0], result.cmssw)
-            puDATAfilename = pileupdir+"/"+"pileup_%s_%smb.root" % (
-                result.pileupdatajson[:-4], result.cross_section)
+            (puMCfilename, puDATAfilename) = S.buildPUfilenames(result)
+            puMCfilename = os.path.join(pileupdir, puMCfilename)
+            puDATAfilename = os.path.join(pileupdir, puDATAfilename)
 
         if batchSubmission:
             pass

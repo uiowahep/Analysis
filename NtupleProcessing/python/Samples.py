@@ -236,6 +236,61 @@ def isReReco(dataset):
 	else:
 		return False
 
+def buildPUfilenames(result):
+    if result.isData:
+        return ("", "")
+    sdata = "pileup__%s__%smb.root" % (result.pileupdata.datajson[:-4],
+        result.pileupdata.cross_section)
+    smc = "pileup__%s__%s.root" % (result.label.split("__")[0],
+        result.cmssw)
+    return (smc, sdata)
+
+def buildTimeStamp(ntuple):
+    fullpattern = os.path.join(ntuple.rootpath,
+        ntuple.label.split("__")[0],
+        buildDatasetTagName(ntuple), "*")
+    cmd = "ls" if ntuple.storage=="local" else "eos"
+    args = "%s" % fullpattern if ntuple.storage=="local" else "ls %s" % (
+        os.path.join("/eos/cms", fullpattern))
+    x = subprocess.check_output([cmd, args]).split("\n")[0]
+    return x
+
+def discoverFileList(ntuple):
+    fullpattern = os.path.join(ntuple.rootpath,
+        ntuple.label.split("__")[0],
+        buildDatasetTagName(ntuple), buildTimeStamp(ntuple), "0000", "*.root")
+    cmd = "ls" if ntuple.storage=="local" else "eos"
+    args = "%s" % fullpattern if ntuple.storage=="local" else "ls %s" % (
+        os.path.join("/eos/cms", fullpattern))
+    x = subprocess.check_output([cmd, args]).split("\n")[:-1]
+    return x
+
+def buildFileListName(ntuple):
+    if ntuple.isData:
+        s = "filelist__%s__%s" % (ntuple.label.split("__")[1],
+                ntuple.json[:-4])
+    else:
+        s = "filelist__%s__%s" % (ntuple.label.split("__")[0],
+            ntuple.cmssw)
+    if ntuple.aux!=None and ntuple.aux!="":
+        s += "__%s" % ntuple.aux
+    s+=".files"
+    return s
+
+def buildResultOutputPathName(result):
+    s = "result"
+    if result.isData:
+        s+="__%s__%s" % (result.label.split("__")[1],
+            result.json[:-4])
+    else:
+        s += "__%s__%s__%s__%smb" % (result.label.split("__")[0],
+            result.cmssw, result.pileupdata.datajson[:-4], 
+            result.pileupdata.cross_section)
+    if result.aux!=None and result.aux!="":
+        s += "__%s" % result.aux
+    s += ".root"
+    return s
+
 def discoverNtuples(ntuple):
     prefix = ""
     if ntuple.storage=="EOS":
