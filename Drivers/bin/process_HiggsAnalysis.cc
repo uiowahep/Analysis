@@ -59,6 +59,7 @@ bool __genPUMC;
 std::string __puMCfilename;
 std::string __puDATAfilename;
 bool __continueRunning = true;
+double _minMuonPt = 22.;
 
 std::string const NTUPLEMAKER_NAME =  "ntuplemaker_H2DiMuonMaker";
 
@@ -139,7 +140,7 @@ bool passMuon(Muon const& m)
 bool passMuonHLT(Muon const& m)
 {
 	if ((m._isHLTMatched[1] || m._isHLTMatched[0]) &&
-		m._pt>20 && TMath::Abs(m._eta)<2.4)
+		m._pt>_minMuonPt && TMath::Abs(m._eta)<2.4)
 		return true;
 
 	return false;
@@ -461,19 +462,20 @@ float sampleinfo(std::string const& inputname)
 
 void generatePUMC()
 {
-	TFile *pufile = new TFile(__puMCfilename, "recreate");
+    std::cout << "### Generate PU MC file...." << std::endl;
+	TFile *pufile = new TFile(__puMCfilename.c_str(), "recreate");
 	TH1D *h = new TH1D("pileup", "pileup", 50, 0, 50);
 
-	Streamer s(inputname, NTUPLERMAKER_NAME+"/Events");
+	Streamer s(__inputfilename, NTUPLEMAKER_NAME+"/Events");
 	s.chainup();
 
 	EventAuxiliary *aux=NULL;
-	streamer._chain->SetBranchAddress("EventAuxiliary", &aux);
+	s._chain->SetBranchAddress("EventAuxiliary", &aux);
 	int numEvents = s._chain->GetEntries();
 	for (uint32_t i=0; i<numEvents; i++)
 	{
 		s._chain->GetEntry(i);
-		h->Fill(aux._nPU, aux._genWeight);
+		h->Fill(aux->_nPU, aux->_genWeight);
 	}
 
 	pufile->Write();

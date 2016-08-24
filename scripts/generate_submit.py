@@ -7,22 +7,6 @@ def main():
     print (" "*40)+"SET UP"+(" "*40)
     print "-"*80
 
-    #   set some system vars
-    batchSubmission = False
-    atCern = False
-    executable = "./process_Higgs"
-    shouldGenPUMC = 1
-    filelistdir = "."
-    resultsdir = "."
-    pileupdir = "."
-    version = "v0"
-    resultsdir+= "/"+version
-    rootpath = "/store/user/vkhriste/higgs_ntuples"
-    aux = "Mu22"
-    shouldCreateFileList = False
-    if not os.path.exists(resultsdir):
-        os.system("mkdir %s" % resultsdir)
-
     #   do the Framework imports
     if "ANALYSISHOME" not in os.environ.keys():
         raise NameError("Can not find ANALYSISHOME env var")
@@ -31,9 +15,38 @@ def main():
     import NtupleProcessing.python.Samples as S
     import NtupleProcessing.python.Dataset as DS
 
+    #   set the variables
+    executable = os.path.join(os.environ["ANALYSISHOME"], "process_HiggsAnalysis")
+    batchSubmission = True
+    dirToLaunchFrom = os.path.join(os.environ["ANALYSISHOME"], "submission")
+    if not os.path.exists(dirToLaunchFrom):
+        os.system("mkdir %s" % dirToLaunchFrom)
+    storage = "EOS"
+    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_12/src/Analysis"
+    dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
+    analysisHome = os.environ["ANALYSISHOME"]
+    shouldGenPUMC = 1
+    filelistdir = os.path.join(dirToUse, "filelists")
+    resultsdir = os.path.join(dirToUse, "results")
+    pileupdir = os.path.join(dirToUse, "pileup")
+    import datetime
+    version = "v0_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    resultsdir+= "/"+version
+    queue = '1nh'
+    rootpath = "/store/user/vkhriste/higgs_ntuples"
+    aux = "Mu22"
+    shouldCreateFileList = True
+    shouldCreateLaunchers = True
+    shouldCreateSubmitter = True
+    if not os.path.exists(resultsdir):
+        os.system("mkdir %s" % resultsdir)
+
     #
     #   generate all the Ntuple objects that are ready to be processed
     #
+    print "-"*80
+    print (" "*40)+"SET UP Ntuples"+(" "*40)
+    print "-"*80
     data_datasets = S.datadatasets
     mc_datasets = S.mcdatasets
     jsonfiles = S.jsonfiles
@@ -42,7 +55,6 @@ def main():
     data_ntuples = []
     mc_ntuples = []
     cmssw = "80X"
-    storage = "EOS"
     for k in data_datasets:
         if data_datasets[k].year!=2016: continue
         ntuple = DS.Ntuple(data_datasets[k],
@@ -63,18 +75,29 @@ def main():
             timestamp=None,
             aux=aux
         )
+        mc_ntuples.append(ntuple)
+    print data_ntuples
+    print mc_ntuples
     ntuples = []
-    ntuples.extend(data_ntuples).extend(mc_ntuples)
+    ntuples.extend(data_ntuples)
+    ntuples.extend(mc_ntuples)
 
     #
     #   Generate all the Results objects that are to be produced
     #   
     results = []
+    print "-"*80
+    print (" "*40)+"SET UP Result Objects"+(" "*40)
+    print "-"*80
     for ntuple in ntuples:
-        filelist_as_list = SdiscoverFileList(ntuple)
-        filelist = os.path.join(filelistdir,S.buildFileListName(ntuple))
+        try:
+            filelist_as_list = S.discoverFileList(ntuple)
+            print filelist_as_list
+            filelist = os.path.join(filelistdir,S.buildFileListName(ntuple))
+        except Exception as exc:
+            continue
         if shouldCreateFileList:
-            f = open(file, "w")
+            f = open(filelist, "w")
             for x in filelist_as_list:
                 f.write("%s\n" % x)
             f.close()
@@ -97,29 +120,63 @@ def main():
     print (" "*40)+"START"+(" "*40)
     print "-"*80
     joblist = []
+    cmdlist = []
+    jobid = 0
     for result in results:
-        input_filelist = filelistdir+"/";
-        print resulti
+        input_filelist = result.filelist;
+        print result
         output = S.buildResultOutputPathName(result)
         output = os.path.join(resultsdir, output)
         if not result.isData:
             (puMCfilename, puDATAfilename) = S.buildPUfilenames(result)
             puMCfilename = os.path.join(pileupdir, puMCfilename)
             puDATAfilename = os.path.join(pileupdir, puDATAfilename)
-
-        if batchSubmission:
-            pass
-        else:
             cmd = ("{executable} --input={input} --output={output} --isMC={isMC} "+
-                "--genPUMC={genPUMC} --puMCfilename={puMCfilename} "+
-                "--puDATAfilename={puDATAfilename}").format(executable=executable,
-                input=input_filelist, output=output, isMC=0 if result.isData else 1,
-                genPUMC=0 if result.isData else shouldGenPUMC, 
-                puMCfilename="" if result.isData else puMCfilename,
-                puDATAfilename="" if result.isData else puDATAfilename)
-            joblist.append(cmd)
-    for cmd in joblist:
+                "--genPUMC={genPUMC} --puMC={puMCfilename} "+
+                "--puDATA={puDATAfilename}").format(executable=executable,
+                input=input_filelist, output=output, isMC=1,
+                genPUMC=0, 
+                puMCfilename=puMCfilename,
+                puDATAfilename=puDATAfilename)
+        else:
+            cmd = ("{executable} --input={input} --output={output} --isMC={isMC} "
+                ).format(executable=executable,
+                input=input_filelist, output=output, isMC=0)
+        cmdlist.append(cmd)
+        if batchSubmission:
+            launchername = "launcher_%d.sh" % jobid
+            if shouldCreateLaunchers:
+                launcher = open(os.path.join(dirToLaunchFrom, launchername), 
+                        "w")
+                launcher.write("cd %s\n" % cmsswdir)
+                launcher.write("eval `scramv1 runtime -sh`\n")
+                launcher.write("source %s\n" % os.path.join(
+                        os.environ["ANALYSISHOME"], "config", "env.sh"))
+                launcher.write("%s\n" % cmd)
+                launcher.close()
+                os.system("chmod 755 %s" % os.path.join(dirToLaunchFrom, launchername))
+            joblist.append("bsub -q {queue} -o {logfile} -e {errorfile} {launcherscript}".format(queue=queue, logfile=os.path.join(dirToLaunchFrom, "log_%d.log" % (
+        jobid)), errorfile=os.path.join(dirToLaunchFrom, "error_%d.log" % (
+        jobid)), launcherscript=os.path.join(dirToLaunchFrom, "launcher_%d.sh" % jobid)))
+        jobid+=1
+    
+    for cmd in cmdlist:
+        print "-"*40
         print cmd
+        print "-"*40
+
+    if shouldCreateSubmitter:
+        submittername = "submit.sh"
+        sub = open(os.path.join(dirToLaunchFrom, submittername), "w")
+    for cmd in joblist:
+        print "-"*40
+        print cmd
+        print "-"*40
+        if shouldCreateSubmitter:
+            sub.write("%s\n" % cmd)
+    if shouldCreateSubmitter:
+        os.system("chmod 755 %s" % os.path.join(dirToLaunchFrom, submittername))
+        sub.close()
 
 if __name__=="__main__":
     main()

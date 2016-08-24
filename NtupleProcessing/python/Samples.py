@@ -249,20 +249,33 @@ def buildTimeStamp(ntuple):
     fullpattern = os.path.join(ntuple.rootpath,
         ntuple.label.split("__")[0],
         buildDatasetTagName(ntuple), "*")
+    print fullpattern
     cmd = "ls" if ntuple.storage=="local" else "eos"
-    args = "%s" % fullpattern if ntuple.storage=="local" else "ls %s" % (
-        os.path.join("/eos/cms", fullpattern))
+    if ntuple.storage=="local":
+        args = fullpattern
+    else:
+        args = "ls %s" % os.path.join("/eos/cms", fullpattern)
+    print "%s %s" % (cmd, args)
     x = subprocess.check_output([cmd, args]).split("\n")[0]
+    print x
     return x
 
 def discoverFileList(ntuple):
-    fullpattern = os.path.join(ntuple.rootpath,
+    fullpath= os.path.join(ntuple.rootpath,
         ntuple.label.split("__")[0],
-        buildDatasetTagName(ntuple), buildTimeStamp(ntuple), "0000", "*.root")
+        buildDatasetTagName(ntuple), buildTimeStamp(ntuple), "0000")
+    fullpattern = os.path.join(fullpath, "*.root")
     cmd = "ls" if ntuple.storage=="local" else "eos"
-    args = "%s" % fullpattern if ntuple.storage=="local" else "ls %s" % (
+    args = "-d %s" % fullpattern if ntuple.storage=="local" else "ls %s" % (
         os.path.join("/eos/cms", fullpattern))
     x = subprocess.check_output([cmd, args]).split("\n")[:-1]
+    if ntuple.storage=="EOS":
+        xxx = []
+        for f in x:
+            fullpathname = os.path.join("root://eoscms.cern.ch//", "eos/cms")
+            fullpathname = fullpathname+os.path.join(fullpath, f)
+            xxx.append(fullpathname)
+        return xxx
     return x
 
 def buildFileListName(ntuple):

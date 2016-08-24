@@ -2,11 +2,12 @@ import ROOT as R
 import sys
 
 def genPU():
-    if (len(sys.argv)<3):
-        print "Usage: python2.7 genPU.py <input.files> out.root"
-        sys.exit(1)
-    inputFileName = sys.argv[1]
-    outFileName = sys.argv[2]
+    if "ANALYSISHOME" not in os.environ.keys():
+        raise NameError("Can not find ANALYSISHOME env var")
+    sys.path.append(os.environ["ANALYSISHOME"])
+    sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "NtupleProcessing/python"))
+    import NtupleProcessing.python.Samples as S
+    import NtupleProcessing.python.Dataset as DS
 
     print "input = " + inputFileName
     print "output = " + outFileName
