@@ -68,6 +68,7 @@ using namespace analysis::core;
 using namespace analysis::dimuon;
 using namespace analysis::processing;
 
+TH1D *hEventWeights = NULL;
 DimuonSet setNoCats("NoCats");
 DimuonSet set2Jets("2Jets");
 DimuonSet setVBFTight("VBFTight");
@@ -484,15 +485,9 @@ void generatePUMC()
 
 void process()
 {
-	//	get the total events, etc...
-	long long int numEventsWeighted = sampleinfo(__inputfilename);
-
-	//	generate the MC Pileup histogram
-	if (__genPUMC && __isMC)
-		generatePUMC();
-
 	//	out ...
 	TFile *outroot = new TFile(__outputfilename.c_str(), "recreate");
+    hEventWeights = new TH1D("eventWeights", "eventWeights", 1, 0, 1);
 	setNoCats.init();
 	set2Jets.init();
 	set01Jets.init();
@@ -519,6 +514,14 @@ void process()
 	set01JetsLooseOO.init();
 	set01JetsLooseOE.init();
 	set01JetsLooseEE.init();
+
+	//	get the total events, etc...
+	long long int numEventsWeighted = sampleinfo(__inputfilename);
+    hEventWeights->Fill(0.5, numEventsWeighted);
+
+	//	generate the MC Pileup histogram
+	if (__genPUMC && __isMC)
+		generatePUMC();
 
 	Streamer streamer(__inputfilename, NTUPLEMAKER_NAME+"/Events");
 	streamer.chainup();
