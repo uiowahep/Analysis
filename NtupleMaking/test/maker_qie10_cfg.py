@@ -9,41 +9,34 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("NtupleMaker")
 
-#-----------------------------------------------------------
-#	Input Options
-#-----------------------------------------------------------
-import FWCore.ParameterSet.VarParsing as VarParsing
-options = VarParsing.VarParsing()
-
-options.register(
-	"inputFiles",
-	"root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/LS1/USC_275388.root",
-	VarParsing.VarParsing.multiplicity.list,
-	VarParsing.VarParsing.varType.string,
-	"Input Files"
-)
-
-options.register(
-	"outFileName",
-	"test.root",
-	VarParsing.VarParsing.multiplicity.singleton,
-	VarParsing.VarParsing.varType.string
-)
-
-options.register(
-	'processEvents',
-	-1,
-	VarParsing.VarParsing.multiplicity.singleton,
-	VarParsing.VarParsing.varType.int,
-	"Number of Events to process"
-)
-
-options.parseArguments()
-
 #
 #   import samples
 #
-from Samples_qie10 import qie10_ExpressPhysics_275376 as s
+import os,sys,shelve, pickle
+if "ANALYSISHOME" not in os.environ.keys():
+    raise NameError("Can not find ANALYSISHOME env var")
+sys.path.append(os.environ["ANALYSISHOME"])
+sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "NtupleProcessing/python"))
+import NtupleProcessing.python.Samples as Samples
+import NtupleProcessing.python.Dataset as DS
+
+data_datasets = Samples.jethtdatasets
+jsonfiles = Samples.jsonfiles
+jsontag = "2016_Prompt_20100"
+jsonfile = jsonfiles[jsontag]
+dataset = ""
+for key in data_datasets.keys():
+    if data_datasets[key].name == "/JetHT/Run2016F-v1/RAW":
+        dataset=data_datasets[key]
+        break
+
+tuple = DS.Ntuple(dataset,
+    json="json/"+jsonfile.filename,
+    cmssw="80X",
+    storage=None,
+    rootpath=None,
+    timestamp=None
+)
 
 #-----------------------------------------------------------
 #	Load whatever you need from CMSSW and then modify if neccessary
@@ -56,7 +49,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.GlobalTag.globaltag = s.globaltag
+process.GlobalTag.globaltag = ntuple.globaltag
 process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
 
 #-----------------------------------------------------------
@@ -65,17 +58,18 @@ process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.maxEvents = cms.untracked.PSet(
 	input = cms.untracked.int32(1000000)
 )
+readFiles = cms.untracked.vstring()
+readFiles.extend(open("sample_file_lists/data/"+ntuple.test_file).read().splitlines())
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(s.files)
+    fileNames = cms.untracked.vstring(readFiles)
 )
 
 #-----------------------------------------------------------
 #	TFile Service definition
 #-----------------------------------------------------------
-path = "../../files/ntuples/qie10/"
 process.TFileService = cms.Service(
 	"TFileService",
-	fileName=cms.string(path + "ntuplesmaking_"+s.name+".root")
+	fileName=cms.string("qie10ntuples.root")
 )
 
 #-----------------------------------------------------------

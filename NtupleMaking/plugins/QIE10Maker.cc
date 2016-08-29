@@ -98,7 +98,7 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 		return;
 
 	//	QIE10
-	for (int i=0; i<cqie10->size(); i++)
+	for (uint32_t i=0; i<cqie10->size(); i++)
 	{
 		QIE10DataFrame frame = static_cast<QIE10DataFrame>((*cqie10)[i]); 
 		QIE10Frame df;
@@ -127,7 +127,7 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 		df._iphi = did.iphi();
 		df._ieta = did.ieta();
 		df._depth = did.depth();
-		for (int i=0; i<it->size(); i++)
+		for (uint32_t i=0; i<it->size(); i++)
 		{
 			df._adc[i] = it->sample(i).adc();
 			df._nominal_fC[i] = it->sample(i).nominal_fC();

@@ -19,6 +19,7 @@ cd CMSSWXXX/src
 cmsenv
 git clone https://github.com/uiowahep/Analysis
 scram b -j 8
+source $PWD/Analysis/config/env.sh - source with the full path!
 ```
 
 ### Standalone
@@ -34,6 +35,7 @@ git clone https://github.com/uiowahep/Analysis
 mkdir build 
 cd build
 cmake ../Analysis
+source $PWD/config/env.sh - source with the full path
 ```
 
 **Requirements**:
