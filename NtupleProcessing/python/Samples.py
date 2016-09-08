@@ -7,26 +7,6 @@ if "ANALYSISHOME" not in os.environ.keys():
     raise NameError("Can not find ANALYSISHOME env var")
 sys.path.append(os.environ["ANALYSISHOME"])
 
-expressdatasets = {
-    "/ExpressPhysics/Run2016F-Express-v1/FEVT" : DS.Dataset(
-        name="/ExpressPhysics/Run2016F-Express-v1/FEVT",
-        isData=True,
-        year=2016,
-        globaltag = "80X_dataRun2_Express_v9",
-        test_file =  "ExpressPhysics__Run2016F-Express-v1__FEVT.files"
-    )
-}
-
-jethtdatasets = {
-    "/JetHT/Run2016F-v1/RAW" : DS.Dataset(
-        name="/JetHT/Run2016F-v1/RAW",
-        isData=True,
-        year=2016,
-        globaltag = "80X_dataRun2_Express_v9",
-        test_file = "JetHT__Run2016F-v1__RAW.files"
-    )
-}
-
 #
 #   Specify the full list of CMSSW Datasets
 #
