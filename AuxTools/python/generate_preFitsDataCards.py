@@ -29,43 +29,80 @@ R.gSystem.Load(libdir+"/libAnalysisNtupleProcessing.dylib")
 R.gSystem.Load(libdir+"/libAnalysisCore.dylib")
 aux = "Mu22"
 
+#
+#   Build Specific Models and associated variables
+#
 def buildModel_SingleGaus(ws, *kargs, **wargs):
     imc = wargs["imc"]
-    ws.factory("m%d_mass[125, 110, 160]" % imc)
-    ws.factory("m%d_width[1.0, 0.1, 10]" % imc)
-    ws.factory("Gaussian::smodel%d(x, m%d_mass, m%d_width)" % (imc, imc, imc))
+    category=wargs["category"]
+    ws.factory("Gaussian::smodel{imc}(x, m{imc}_mass_{category}, m{imc}_width_{category})".format(imc=imc, category=category))
     return ws.pdf("smodel%d" % imc)
+
+def createVariables_SingleGaus(ws, *kargs, **wargs):
+    imc = wargs["imc"]
+    category=wargs["category"]
+    ws.factory("m{imc}_mass_{category}[125, {massmin}, {massmax}]".format(
+        imc=imc, category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
+    ws.factory("m{imc}_width_{category}[1.0, 0.1, 10]".format(imc=imc, category=category))
 
 def buildModel_DoubleGaus(ws, *kargs, **wargs):
     imc = wargs["imc"]
-    ws.factory("m%d_g1_mass[125, 110, 160]" % imc)
-    ws.factory("m%d_g2_mass[125, 110, 160]" % imc)
-    ws.factory("m%d_g1_width[1.0, 0.1, 10]" % imc)
-    ws.factory("m%d_g2_width[1.0, 0.1, 10]" % imc)
-    ws.factory("Gaussian::smodel%d_g1(x, m%d_g1_mass, m%d_g1_width)" % (imc, imc, imc))
-    ws.factory("Gaussian::smodel%d_g2(x, m%d_g2_mass, m%d_g2_width)" % (imc, imc, imc))
-    ws.factory("smodel%d_coef[0.1, 0.0001, 1.0]" % imc)
-    ws.factory("SUM::smodel%d(smodel%d_coef*smodel%d_g1, smodel%d_g2)" % (imc, imc, imc, imc))
+    category=wargs["category"]
+    ws.factory("Gaussian::smodel{imc}_g1_{category}(x, m{imc}_g1_mass_{category}, m{imc}_g1_width_{category})".format(imc=imc, category=category))
+    ws.factory("Gaussian::smodel{imc}_g2_{category}(x, m{imc}_g2_mass_{category}, m{imc}_g2_width_{category})".format(imc=imc, category=category))
+    ws.factory("SUM::smodel{imc}(smodel{imc}_coef_{category}*smodel{imc}_g1_{category}, smodel{imc}_g2_{category})".format(imc=imc, category=category))
     return ws.pdf("smodel%d" % imc)
 
+def createVariables_DoubleGaus(ws, *kargs, **wargs):
+    imc = wargs["imc"]
+    category=wargs["category"]
+    ws.factory("m{imc}_g1_mass_{category}[125, {massmin}, {massmax}]".format(imc=imc, 
+        category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
+    ws.factory("m{imc}_g2_mass_{category}[125, {massmin}, {massmax}]".format(imc=imc, 
+        category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
+    ws.factory("m{imc}_g1_width_{category}[1.0, 0.1, 10]".format(imc=imc, 
+        category=category))
+    ws.factory("m{imc}_g2_width_{category}[1.0, 0.1, 10]".format(imc=imc, 
+        category=category))
+    ws.factory("smodel{imc}_coef_{category}[0.1, 0.0001, 1.0]".format(imc=imc, 
+        category=category))
+
+def buildModel_ExpGaus(ws, *kargs, **wargs):
+    category = wargs["category"]
+    ws.factory('expr::f("-(a1_{category}*(x/100)+a2_{category}*(x/100)^2)",a1_{category},a2_{category},x)'.format(category=category))
+    ws.factory('Exponential::bmodel(f, 1)')
+    return ws.pdf('bmodel')
+
+def createVariables_ExpGaus(ws, *kargs, **wargs):
+    ndata = wargs["ndata"]
+    category=wargs["category"]
+    ws.factory('a1_%s[ 5.0, -1000, 1000]' % category)
+    ws.factory('a2_%s[ 5.0, -1000, 1000]' % category)
+    ws.factory("bmodel_norm[%f, %f, %f]" % (ndata, ndata/2, ndata*2))
+
+#
+#   Set/Fix Parameters for specific models
+#
 def setParameters_SingleGaus(ws, *kargs, **wargs):
     imc = wargs["imc"]
     norm = wargs["norm"]
+    category=wargs["category"]
     ws.factory("smodel%d_norm[%f, 0.0, 1000]" % (imc, norm))
     ws.var("smodel%d_norm" % imc).setConstant(kTRUE)
-    ws.var("m%d_mass" % imc).setConstant(kTRUE)
-    ws.var("m%d_width" % imc).setConstant(kTRUE)
+    ws.var("m%d_mass_%s" % (imc, category)).setConstant(kTRUE)
+    ws.var("m%d_width_%s" % (imc, category)).setConstant(kTRUE)
 
 def setParameters_DoubleGaus(ws, *kargs, **wargs):
     imc = wargs["imc"]
     norm = wargs["norm"]
+    category=wargs["category"]
     ws.factory("smodel%d_norm[%f, 0.0, 1000]" % (imc, norm))
     ws.var("smodel%d_norm" % imc).setConstant(kTRUE)
-    ws.var("m%d_g1_mass" % imc).setConstant(kTRUE)
-    ws.var("m%d_g2_mass" % imc).setConstant(kTRUE)
-    ws.var("m%d_g1_width" % imc).setConstant(kTRUE)
-    ws.var("m%d_g2_width" % imc).setConstant(kTRUE)
-    ws.var("smodel%d_coef" % imc).setConstant(kTRUE)
+    ws.var("m%d_g1_mass_%s" % (imc, category)).setConstant(kTRUE)
+    ws.var("m%d_g2_mass_%s" % (imc, category)).setConstant(kTRUE)
+    ws.var("m%d_g1_width_%s" % (imc, category)).setConstant(kTRUE)
+    ws.var("m%d_g2_width_%s" % (imc, category)).setConstant(kTRUE)
+    ws.var("smodel%d_coef_%s" % (imc, category)).setConstant(kTRUE)
 
 def getEventWeights(resultpathname):
     print resultpathname
@@ -73,7 +110,182 @@ def getEventWeights(resultpathname):
     h = f.Get("eventWeights")
     return h.GetBinContent(1)
 
-def generate(variables, (data, mcbg, mcsig), opt=0):
+#
+#   Prepare DataHistograms
+#
+def prepareHistogram(hist, **wargs):
+    newname = wargs["name"]
+    massmin = wargs["massmin"]; massmax = wargs["massmax"]
+    newhist = R.TH1D(newname, newname, massmax-massmin, massmin, massmax)
+    newibin = 0
+    for ibin in range(hist.GetNbinsX()):
+        if hist.GetBinCenter(ibin+1)>massmin and hist.GetBinCenter(ibin+1)<massmax:
+            newhist.SetBinContent(newibin+1, hist.GetBinContent(ibin+1))
+            newibin+=1
+    return newhist
+
+#
+#   Prepare the Signals Models - Build/Fit/Fix
+#
+def prepareSignalModel(ws, signals, **wargs):
+    smode = wargs["smode"]    
+    category = wargs["category"]
+    fulllimitspath = wargs["fulllimitspath"]
+    if smode=="Combined":
+        counter = 0
+        #   Sum up all the Signals
+        print "-"*40
+        print "Sum up Signal Histograms"
+        for name in signals:
+            print "%s events = %f" % (name, signals[name].Integral())
+            if counter==0:
+                signal = signals[name]
+            else:
+                signal.Add(signals[name])
+            counter+=1
+        #   convert it into the RooDataHist
+        newhist = prepareHistogram(signal, name="signal", massmin=wargs["massmin"],
+            massmax=wargs["massmax"])
+        print "%s events = %f" % (newhist.GetName(), newhist.Integral())
+        roo_hist = R.RooDataHist("roo_signal", "roo_signal", RooArgList(wargs["obs"]),
+            newhist)
+        print "%s events = %f" % (roo_hist.GetName(), roo_hist.sumEntries())
+        #   Create Vars - build model - fit - fix parameters - plot
+        imc = 1
+        c = TCanvas("c1", "c1", 800, 600)
+        xframe = ws.var("x").frame()
+        xframe.SetTitle(category)
+        print "-"*40
+        print roo_hist.GetName(), roo_hist.sumEntries()
+        if wargs["smodel"]=="DoubleGaus":
+            createVariables_DoubleGaus(ws, imc=imc, **wargs)
+            smodel = buildModel_DoubleGaus(ws, imc=imc, **wargs)
+            r = smodel.fitTo(roo_hist, RooFit.Save(), RooFit.Range(wargs["fitmin"],
+                wargs["fitmax"]))
+            setParameters_DoubleGaus(ws, imc=imc, norm=roo_hist.sumEntries(), 
+                **wargs)
+        elif wargs["smodel"]=="SingleGaus":
+            createVariables_SingleGaus(ws, imc=imc, **wargs)
+            smodel = buildModel_SingleGaus(ws, imc=imc, **wargs)
+            r = smodel.fitTo(roo_hist, RooFit.Save(), RooFit.Range(wargs["fitmin"],
+                wargs["fitmax"]))
+            setParameters_SingleGaus(ws, imc=imc, norm=roo_hist.sumEntries(),
+                **wargs)
+        r.Print("v")
+        roo_hist.plotOn(xframe)
+        smodel.plotOn(xframe, RooFit.Color(kRed))
+        smodel.paramOn(xframe)
+        xframe.Draw()
+        c.SaveAs(fulllimitspath+"/%s__%s__%s__%s__%s__%s.png" % (
+            "Signal", category, wargs["mass"], wargs["bmodel"], wargs["smode"],
+            wargs["smodel"]))
+    elif smode=="Separate":
+        lsignals = []
+        #   convert all of histos into RooDataHist
+        for name in signals:
+            newhist = prepareHistogram(signals[name], name=name.split("_")[0],
+                massmin=wargs["massmin"], massmax=wargs["massmax"])
+            print "%s events = %f" % (name, newhist.Integral())
+            roo_hist = R.RooDataHist(newhist.GetName(), 
+                newhist.GetName(), RooArgList(wargs["obs"]),
+                newhist)
+            print "%s events = %f" % (roo_hist.GetName(), roo_hist.sumEntries())
+            lsignals.append(roo_hist)
+        imc = 1
+        c = TCanvas("c1", "c1", 800, 600)
+        c.cd()
+        #   build Models - Fit - Fix parameters - Produce Plots
+        for s in lsignals:
+            xframe = ws.var("x").frame()
+            xframe.SetTitle(category)
+            print "-"*40
+            print s.GetName(), s.sumEntries()
+
+            if wargs["smodel"]=="DoubleGaus":
+                createVariables_DoubleGaus(ws, imc=imc, **wargs)
+                smodel = buildModel_DoubleGaus(ws, imc=imc, **wargs)
+                r = smodel.fitTo(s, RooFit.Save(), RooFit.Range(wargs["fitmin"],
+                    wargs["fitmax"]))
+                setParameters_DoubleGaus(ws, imc=imc, norm=s.sumEntries(),
+                    **wargs)
+            elif wargs["smodel"]=="SingleGaus":
+                createVariables_SingleGaus(ws, imc=imc, **wargs)
+                smodel = buildModel_SingleGaus(ws, imc=imc, **wargs)
+                r = smodel.fitTo(s, RooFit.Save(), RooFit.Range(wargs["fitmin"],
+                    wargs["fitmax"]))
+                setParameters_SingleGaus(ws, imc=imc, norm=s.sumEntries(),
+                    **wargs)
+
+            r.Print("v")
+            s.plotOn(xframe)
+            smodel.plotOn(xframe, RooFit.Color(kRed))
+            smodel.paramOn(xframe)
+            xframe.Draw()
+            c.SaveAs(fulllimitspath+"/%s__%s__%s__%s__%s__%s.png" % (
+                s.GetName(), category, wargs["mass"], wargs["bmodel"], wargs["smode"],
+                wargs["smodel"]))
+            imc+=1
+
+#
+#   Build Datacards
+#
+def buildDatacard_analytic_Combined(**wargs):
+    category = wargs["category"]
+    mass = wargs["mass"]
+    bmodel = wargs["bmodel"]
+    smodel = wargs["smodel"]
+    smode = wargs["smode"]
+    fulllimitspath=wargs["fulllimitspath"]
+    fout = open(fulllimitspath+"/datacard__analytic__%s__%s__%s__%s__%s.txt" % (category,
+        mass, bmodel, smode, smodel), "w")
+    fout.write("imax 1\n")
+    fout.write("jmax 1\n")
+    fout.write("kmax *\n")
+    fout.write(("-"*40) + "\n")
+    fout.write("shapes * * %s higgs:$PROCESS\n" % ("shape__analytic__%s__%s__%s__%s__%s.root" % (category, mass, bmodel, smode, smodel)))
+    fout.write(("-"*40) + "\n")
+    fout.write("bin %s\n" % category)
+    fout.write("observation -1\n")
+    fout.write(("-"*40)+"\n")
+    binstr = "bin  %s  %s\n" % (category, category)
+    p1str = "process  %s  %s\n" % ("smodel1", "bmodel")
+    p2str = "process  0  1\n"
+    ratestr = "rate  1  1\n"
+    fout.write(binstr)
+    fout.write(p1str)
+    fout.write(p2str)
+    fout.write(ratestr)
+    fout.close()
+
+def buildDatacard_analytic_Separate(**wargs):
+    category = wargs["category"]
+    mass = wargs["mass"]
+    bmodel = wargs["bmodel"]
+    smodel = wargs["smodel"]
+    smode = wargs["smode"]
+    fulllimitspath=wargs["fulllimitspath"]
+    fout = open(fulllimitspath+"/datacard__analytic__%s__%s__%s__%s__%s.txt" % (category,
+        mass, bmodel, smode, smodel), "w")
+    fout.write("imax 1\n")
+    fout.write("jmax 2\n")
+    fout.write("kmax *\n")
+    fout.write(("-"*40) + "\n")
+    fout.write("shapes * * %s higgs:$PROCESS\n" % ("shape__analytic__%s__%s__%s__%s__%s.root" % (category, mass, bmodel, smode, smodel)))
+    fout.write(("-"*40) + "\n")
+    fout.write("bin %s\n" % category)
+    fout.write("observation -1\n")
+    fout.write(("-"*40)+"\n")
+    binstr = "bin  %s  %s  %s\n" % (category, category, category)
+    p1str = "process  %s  %s  %s\n" % ("smodel1", "smodel2", "bmodel")
+    p2str = "process  -1  0  1\n"
+    ratestr = "rate  1  1  1\n"
+    fout.write(binstr)
+    fout.write(p1str)
+    fout.write(p2str)
+    fout.write(ratestr)
+    fout.close()
+
+def generate(variables, (data, mcbg, mcsig), **wargs):
     """
     variable is the dictionary of the form
     {
@@ -148,33 +360,32 @@ def generate(variables, (data, mcbg, mcsig), opt=0):
             mchsig[imcsig["name"]].Scale(data["luminosity"]*imcsig["xsection"]/imcsig["eweight"])
             
         #   generate the proper root files with   
-        if opt==0:
+        if wargs["analytic"]==0:
             #   with templates as histos 
-            generateTemplate(fulllimitspath, variable, hdata, mch, mchsig)
+            generateTemplate(fulllimitspath, variable, hdata, mch, mchsig, **wargs)
         else:
             #   with RooFit Workspace in the outpu
-            generateAnalytic(fulllimitspath, variable, hdata, mch, mchsig)
+            generateAnalytic(fulllimitspath, variable, hdata, mch, mchsig, **wargs)
 
-def generateAnalytic(fulllimitspath, variable, hdata, backgrounds, signals):
+#
+#   Analytic Datacard Preparation
+#
+def generateAnalytic(fulllimitspath, variable, hdata, backgrounds, signals, **wargs):
     from time import sleep
     category = variable["fullpath"].split("/")[0]
+    mass = wargs["mass"]
+    smode = wargs["smode"]
 
     #
     #   Prepare the Data for Workspace
     #
     print "-"*40
     print "Prepare the Data histogram"
-    newhdata = R.TH1D("newhdata", "newhdata", 50, 110, 160)
-    newibin = 0
-    massmin = 110; massmax = 160
-    for ibin in range(hdata.GetNbinsX()):
-        if hdata.GetBinCenter(ibin+1)>massmin and hdata.GetBinCenter(ibin+1)<massmax:
-            newhdata.SetBinContent(newibin+1, hdata.GetBinContent(ibin+1))
-            newibin+=1
-    nbins = newhdata.GetNbinsX()
-    massmin = newhdata.GetBinLowEdge(1)
-    massmax = massmin + nbins*newhdata.GetBinWidth(1)
-    ndata = int(newhdata.Integral())
+    hdata = prepareHistogram(hdata, name="newhdata", **wargs)
+    nbins = hdata.GetNbinsX()
+    massmin = hdata.GetBinLowEdge(1)
+    massmax = massmin + nbins*hdata.GetBinWidth(1)
+    ndata = int(hdata.Integral())
 
     #   suppress msgs
     R.RooMsgService.instance().setGlobalKillBelow(R.RooFit.FATAL)
@@ -183,223 +394,66 @@ def generateAnalytic(fulllimitspath, variable, hdata, backgrounds, signals):
     wspace = R.RooWorkspace("higgs")
 
     #
-    #   Prepare all the Observable Variable and import data
+    #   Prepare all the Observable Variables and import data
     #
     print "-"*40
-    print "Prepare the Variables"
+    print "Create the Observable Variable and Import the RooDataHist"
     wspace.factory("x[125.0, %f, %f]" % (massmin, massmax))
     wspace.var('x').SetTitle('m_{#mu#mu}')
     wspace.var('x').setUnit('GeV')
     wspace.defineSet("obs", "x")
     obs = wspace.set("obs")
-    data = R.RooDataHist("data_obs", "data_obs", RooArgList(obs), newhdata)
+    data = R.RooDataHist("data_obs", "data_obs", RooArgList(obs), hdata)
     getattr(wspace, "import")(data, RooCmdArg())
-    
+
     #
-    #   Prepare the MC histograms
+    #   prepare Signal Model
     #
     print "-"*40
-    print "Prepare the MC histograms"
-    lsignals = []
-    for name in signals:
-        s = R.TH1D(name.split("_")[0], name.split("_")[0], nbins, massmin, massmax)
-        newibin = 0
-        for ibin in range(signals[name].GetNbinsX()):
-            if signals[name].GetBinCenter(ibin+1)>massmin and signals[name].GetBinCenter(ibin+1)<massmax:
-                s.SetBinContent(newibin+1, signals[name].GetBinContent(ibin+1))
-                newibin+=1
-        print "%s events = %f" % (name, s.Integral())
-        hist_mc = R.RooDataHist("data_obs", "data_obs", RooArgList(obs), s)
-        print "%s events = %f" % (s.GetName(), hist_mc.sumEntries())
-        lsignals.append((s.GetName(), hist_mc))
+    print "prepare Signal Models"
+    prepareSignalModel(wspace, signals, fulllimitspath=fulllimitspath, category=category, obs=obs, **wargs)
+    
+    #
+    #   Build the Background
+    #
+    print "-"*40
+    print "Build Background Models"
+    if wargs["bmodel"]=="ExpGaus":
+        createVariables_ExpGaus(wspace, ndata=ndata, category=category)
+        bmodel  = buildModel_ExpGaus(wspace, ndata=ndata, category=category)
 
-    #
-    #   Prepare the background model
-    #
-    wspace.factory('a1[ 5.0, -1000, 1000]')
-    wspace.factory('a2[ 5.0, -1000, 1000]')
-    wspace.factory('expr::f("-(a1*(x/100)+a2*(x/100)^2)",a1,a2,x)')
-    wspace.factory('Exponential::bmodel(f, 1)')
-    wspace.factory("bmodel_norm[%f, %f, %f]" % (ndata, ndata/2, ndata*2))
-    bmodel  = wspace.pdf('bmodel')
-
-    #
-    #   Prepare the Signals - Fit the MC and fix the parameters
-    #
-    imc = 1
-    c = TCanvas("c1", "c1", 800, 600)
-    c.cd()
-    for s in lsignals:
-        #
-        #   Fit 
-        #
-        xframe = wspace.var("x").frame()
-        xframe.SetTitle(category)
-        print "-"*40
-        print s[0], s[1].sumEntries()
-        model = buildModel_DoubleGaus(wspace, imc=imc)
-        r = model.fitTo(s[1], RooFit.Save(), RooFit.Range(115, 135))
-        r.Print()
-        s[1].plotOn(xframe)
-        model.plotOn(xframe)
-        model.paramOn(xframe)
-        xframe.Draw()
-        c.SaveAs(fulllimitspath+'/%s__%s.png' % (s[0], category))
-
-        #   fix/set
-        setParameters_DoubleGaus(wspace, imc=imc, norm=s[1].sumEntries())
-        imc+=1
-        
     #
     #   save the workspace
     #
-    category = variable["fullpath"].split("/")[0]
-    filename = fulllimitspath+"/shape__analytic__%s.root" % category
+    print "-"*40
+    print "Save Workspace"
+    filename = fulllimitspath+"/shape__analytic__%s__%s__%s__%s__%s.root" % (
+        category, mass, wargs["bmodel"], wargs["smode"], wargs["smodel"])
     wspace.SaveAs(filename)
     
     #
     #   Generate the Datacard
     #   - rates for signal are given thru the model_norm
     #
-    fout = open(fulllimitspath+"/datacard__analytic__%s.txt" % category, "w")
-    fout.write("imax 1\n")
-    fout.write("jmax 2\n")
-    fout.write("kmax *\n")
-    fout.write(("-"*40) + "\n")
-    fout.write("shapes * * %s higgs:$PROCESS\n" % ("shape__analytic__%s.root" % category))
-    fout.write(("-"*40) + "\n")
-    fout.write("bin %s\n" % category)
-    fout.write("observation -1\n")
-    fout.write(("-"*40)+"\n")
-    binstr = "bin  %s  %s  %s\n" % (category, category, category)
-    p1str = "process  %s  %s  %s\n" % ("smodel1", "smodel2", "bmodel")
-    p2str = "process  -1  0  1\n"
-    ratestr = "rate  1  1  1\n" 
-    fout.write(binstr)
-    fout.write(p1str)
-    fout.write(p2str)
-    fout.write(ratestr)
-    fout.close()
-
-    sss = """wspace.factory('SUM::model(bmodel_norm*bmodel, smodel_norm*smodel)')
-    model = wspace.pdf('model')
-
-    #   fit
     print "-"*40
-    b = data.sumEntries()
-   # wspace.var("bmodel_norm").setVal(b)
-    swatch = R.TStopwatch()
-    swatch.Start()
-    model.fitTo(data)
-    print "real time: %10.3f s" % swatch.RealTime()
+    print "Build Datacard"
+    if smode=="Combined":
+        buildDatacard_analytic_Combined(category=category, fulllimitspath=fulllimitspath,
+            **wargs)
+    elif smode=="Separate":
+        buildDatacard_analytic_Separate(category=category, fulllimitspath=fulllimitspath,
+            **wargs)
 
-    vbkg = wspace.var('bmodel_norm')
-    vsig = wspace.var('smodel_norm')
-    vmass= wspace.var('mass')
-    vwidth=wspace.var('w')
-
-    bkg   = vbkg.getVal()
-    ebkg  = vbkg.getError()
-    sig   = vsig.getVal()
-    esig  = vsig.getError()
-    mass  = vmass.getVal()
-    emass = vmass.getError()
-    width = vwidth.getVal()
-    ewidth= vwidth.getError()
-#    zvalue= sig / esig
-    
-    print "-"*40
-    print "background: %10.1f +\-%-5.1f GeV" % (bkg, ebkg)
-    print "signal:     %10.1f +\-%-5.1f" % (sig, esig)
-    print "mass:       %10.1f +\-%-4.1f GeV" % (mass, emass)
-    print "width:      %10.1f +\-%-4.1f GeV" % (width, ewidth)
-#    print "sig/esig:   %10.1f" % zvalue
-
-    wspace.Print()
-
-    #   save the fit plot
-    x = wspace.var('x')
-    xframe = x.frame()
-    yframe = x.frame().Clone()
-    zframe = x.frame().Clone()
-    xframe.GetXaxis().SetNdivisions(505)
-    xframe.SetTitle("%s" % category) 
-    yframe.SetTitle("%s" % category) 
-    zframe.SetTitle("%s" % category)
-    data.plotOn(xframe)
-    model.plotOn(xframe, RooFit.LineColor(kRed))
-    bmodel.plotOn(xframe, RooFit.LineColor(kBlue), RooFit.LineStyle(kDashed))
-    smodel.plotOn(xframe, RooFit.LineColor(kGreen), RooFit.LineStyle(kDashed))
-    wspace.var('a1').setConstant()
-    wspace.var('a2').setConstant()
-    model.paramOn(xframe, RooFit.Layout(0.5, 0.9, 0.8))
-    xframe.getAttText().SetTextSize(0.03)
-    c1 = TCanvas('fig_hmumu_fit', 'fit', 10, 10, 500, 500)
-    xframe.Draw()
-    c1.SaveAs(fulllimitspath+'/%s.png' % category)
-
-    #
-    #   Generate the Datacard
-    #
-    fout = open(fulllimitspath+"/datacard__analytic__%s.txt" % category, "w")
-    fout.write("imax 1\n")
-    fout.write("jmax 1\n")
-    fout.write("kmax *\n")
-    fout.write(("-"*40) + "\n")
-    fout.write("shapes * * %s higgs:$PROCESS\n" % ("shape__analytic__%s.root" % category))
-    fout.write(("-"*40) + "\n")
-    fout.write("bin %s\n" % category)
-    fout.write("observation -1\n")
-    fout.write(("-"*40)+"\n")
-    binstr = "bin  %s  %s\n" % (category, category)
-    p1str = "process  %s  %s\n" % ("smodel", "bmodel")
-    p2str = "process  0  1\n"
-    ratestr = "rate  1  1\n" 
-    fout.write(binstr)
-    fout.write(p1str)
-    fout.write(p2str)
-    fout.write(ratestr)
-    fout.close()
-
-    
-    #   generate also the blinded plot
-    h = newhdata.Clone("newh")
-    for i in range(h.GetNbinsX()):
-        if h.GetBinCenter(i+1)>120 and h.GetBinCenter(i+1)<130:
-            h.SetBinContent(i+1, 0)
-    data_blind = R.RooDataHist("data_obs_blind", "data_obs_blind", RooArgList(obs), h)
-    yframe.GetXaxis().SetNdivisions(505)
-    data_blind.plotOn(yframe)
-#pdf->plotOn(frame,Normalization(234,RooAbsReal::NumEvent))
-    model.plotOn(yframe, RooFit.LineColor(kRed), RooFit.Normalization(b, 2))
-    bmodel.plotOn(yframe, RooFit.LineColor(kBlue), RooFit.LineStyle(kDashed),
-        RooFit.Normalization(b, 2))
-    smodel.plotOn(yframe, RooFit.LineColor(kGreen), RooFit.LineStyle(kDashed),
-        RooFit.Normalization(b, 2))
-    wspace.var('a1').setConstant()
-    wspace.var('a2').setConstant()
-#    model.paramOn(yframe, RooFit.Layout(0.5, 0.9, 0.8))
-#    yframe.getAttText().SetTextSize(0.03)
-    yframe.Draw()
-    c1.SaveAs(fulllimitspath+"/%s_Blind.png" % category)
-
-    zframe.GetXaxis().SetNdivisions(505)
-    data_blind.plotOn(zframe)
-    model.plotOn(zframe, RooFit.LineColor(kRed), RooFit.Normalization(b, 2))
-    bmodel.plotOn(zframe, RooFit.LineColor(kBlue), RooFit.LineStyle(kDashed),
-        RooFit.Normalization(b, 2))
-    wspace.var('a1').setConstant()
-    wspace.var('a2').setConstant()
-    zframe.Draw()
-    c1.SaveAs(fulllimitspath+"/%s_BlindnoS.png" % category)
-    """
-
-def generateTemplate(fulllimitspath, variable, hdata, backgrounds, signals):
+#
+#   Template Datacard Preparation
+#
+def generateTemplate(fulllimitspath, variable, hdata, backgrounds, signals, **wargs):
     category = variable["fullpath"].split("/")[0]
-    filename = fulllimitspath+"/shape__templates__%s.root" % category
+    mass =wargs["mass"]
+    filename = fulllimitspath+"/shape__templates__%s__%s.root" % (category, mass) 
     f = R.TFile(filename, "recreate")
 
-    massmin = 115; massmax = 135; nbins = massmax - massmin
+    massmin = wargs["massmin"]; massmax = wargs["massmax"]; nbins = massmax - massmin
     data_obs = R.TH1D("data_obs", "data_obs", nbins, massmin, massmax)
     newibin = 0
     for ibin in range(hdata.GetNbinsX()):
@@ -408,12 +462,14 @@ def generateTemplate(fulllimitspath, variable, hdata, backgrounds, signals):
             newibin+=1
     data_obs.Write()
     
-    fout = open(fulllimitspath+"/datacard__templates__%s.txt" % category, "w")
+    fout = open(fulllimitspath+"/datacard__templates__%s__%s.txt" % (
+        category, mass), "w")
     fout.write("imax 1\n")
     fout.write("jmax %d\n" % (len(signals)+len(backgrounds)-1))
     fout.write("kmax *\n")
     fout.write(("-"*40) + "\n")
-    fout.write("shapes * * %s $PROCESS\n" % ("shape__templates__%s.root" % category))
+    fout.write("shapes * * %s $PROCESS\n" % ("shape__templates__%s__%s.root" % (
+        category, mass)))
     fout.write(("-"*40)+"\n")
     fout.write("bin %s\n" % category)
     fout.write("observation -1\n")
@@ -673,9 +729,21 @@ if __name__=="__main__":
     #
     #   Generate all the distributions
     #
-    print "Produce Plots for variables: %s" % str(varNames)
-    for cmssw in ["76X"]:
-        for pu in pus:
-            generate(variables, (data2016_M22, 
-                mcbkgs["%s__%s" % (cmssw, pu)],
-                mcsignals["%s__%s" % (cmssw, pu)]), 1)
+    smodels = ["SingleGaus", "DoubleGaus"]
+    smodes = ["Separate", "Combined"]
+    analytic = False
+    if analytic:
+        for smodel in smodels:
+            for smode in smodes:
+                for cmssw in ["76X"]:
+                    for pu in pus:
+                        generate(variables, (data2016_M22, 
+                            mcbkgs["%s__%s" % (cmssw, pu)],
+                            mcsignals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135)
+    else:
+        for cmssw in ["76X"]:
+            for pu in pus:
+                generate(variables, (data2016_M22,
+                    mcbkgs["%s__%s" % (cmssw, pu)],
+                    mcsignals["%s__%s" % (cmssw, pu)]), analytic=0, mass=125,
+                    massmin=110, massmax=160)
