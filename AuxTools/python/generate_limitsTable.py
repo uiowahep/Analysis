@@ -5,6 +5,24 @@ import plotly.plotly as py
 from plotly.tools import FigureFactory as FF
 py.sign_in('username', 'api_key')
 
+def skipCategories(d):
+    newd = {}
+    for key in d.keys():
+        nkey = key
+#        if "Jets" in key:
+#            nkey = nkey.replace("Jets", "J")
+#        if "Jet" in key:
+#            nkey = nkey.replace("Jet", "J")
+#        if "Tight" in key:
+#            nkey = nkey.replace("Tight", "T") 
+#        if "Loose" in key:
+#            nkey = nkey.replace("Loose", "L")
+        if "Combination" in key:
+  #          nkey = nkey.replace("Combination", "C")
+            newd[nkey] = d[key]
+
+    return newd
+
 def main():
     template_limits = "/Users/vk/software/Analysis/files/limits_higsscombined_results/v0p6_20160824_1100/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22"
     analytic_limits = "/Users/vk/software/Analysis/files/limits_higsscombined_results/v0p5_20160824_1100/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22"
@@ -22,7 +40,7 @@ def main():
             print "Processing Template file %s" % f
             s = f[:-5].split("/")[-1].split("__")
             mass = s[-1]
-            alldata["templates"][pu] = json.load(open(f))
+            alldata["templates"][pu] = skipCategories(json.load(open(f)))
         for f in files_analytic:
             s = f.split("/")[-1][:-5].split("__")
             bmodel = s[3]
@@ -30,9 +48,9 @@ def main():
             smodel = s[5]
             if not smodel in alldata["analytic"][pu].keys(): 
                 alldata["analytic"][pu][smodel] = {}
-                alldata["analytic"][pu][smodel][smode] = json.load(open(f))
+                alldata["analytic"][pu][smodel][smode] = skipCategories(json.load(open(f)))
             else:
-                alldata["analytic"][pu][smodel][smode] = json.load(open(f))
+                alldata["analytic"][pu][smodel][smode] = skipCategories(json.load(open(f)))
     print "-"*40
     print alldata
     generate_Table(alldata=alldata)
@@ -57,8 +75,11 @@ def generate_Table(**wargs):
 
 
     import tabulate
-    table = tabulate.tabulate(data, headers="keys", tablefmt="html")
-    print table
+    table_latex = tabulate.tabulate(data, headers="keys", tablefmt="latex", floatfmt=".2f")
+    f = open("test.tex", "w")
+    f.write(table_latex)
+    table_plain = tabulate.tabulate(data, headers="keys", tablefmt="fancy_grid", floatfmt=".2f")
+    print table_plain
 
 if __name__=="__main__":
     main()
