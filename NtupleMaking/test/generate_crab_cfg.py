@@ -24,7 +24,7 @@ mc_datasets = Samples.mcdatasets
 
 #   get the json file to be used if needed
 jsonfiles = Samples.jsonfiles
-jsontag = "2016_Prompt_20100"
+jsontag = "2016_Prompt_26400"
 jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
@@ -32,15 +32,14 @@ datasets = []
 sets_to_consider=mc_datasets
 for k in sets_to_consider:
 #    if sets_to_consider[k].year==2016:
-    if sets_to_consider[k].initial_cmssw=="76X":
+    if sets_to_consider[k].initial_cmssw=="80X":
         datasets.append(sets_to_consider[k])
 samples = []
 
 #   create the Ntuple objects for all of the datasets
-hlttype = "HLT"
 for d in datasets:
-    #globaltag = "76X_dataRun2_v15"
     cmssw = d.initial_cmssw
+#    cmssw = "80X"
     storage = "EOS"
     rootpath = "/store/user/vkhriste/higgs_ntuples"
     if d.isData:
@@ -65,6 +64,10 @@ for s in samples:
     "Generating...."
     print "-"*80
     print s
+    
+    hlttype = "HLT"
+    if "reHLT" in s.name:
+        hlttype = "HLT2"
 
     #   create a config filename
     cfgname = 'dimu_'
