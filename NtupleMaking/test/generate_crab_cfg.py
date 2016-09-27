@@ -37,6 +37,7 @@ for k in sets_to_consider:
 samples = []
 
 #   create the Ntuple objects for all of the datasets
+hlttype = "HLT"
 for d in datasets:
     #globaltag = "76X_dataRun2_v15"
     cmssw = d.initial_cmssw
@@ -79,6 +80,8 @@ for s in samples:
             line = line.replace('s.isData', str(s.isData))
         if 's.globaltag' in line: 
             line = line.replace('s.globaltag', '\"' + s.globaltag + '\"')
+        if 'HLTTYPE' in line:
+            line = line.replace('HLTTYPE', hlttype)
         outfile.write(line)
     
     # close the generated cmssw config file

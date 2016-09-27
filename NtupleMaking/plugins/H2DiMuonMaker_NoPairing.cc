@@ -583,7 +583,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 	}
 	if (!_hTriggerObjects.isValid())
 	{
-		std::cout << "### Trigger Results Product is not found" << std::endl;
+		std::cout << "### Trigger Objects Product is not found" << std::endl;
 		return;
 	}
 	if (_meta._checkTrigger)

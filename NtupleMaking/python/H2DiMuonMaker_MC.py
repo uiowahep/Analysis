@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 pt = 22
 
 name = "H2DiMuonMaker_NoPairing"
+hlt = "HLT"
 
 ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     #   Tags
@@ -10,7 +11,7 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     tagBS = cms.untracked.InputTag("offlineBeamSpot"),
     tagPrunedGenParticles = cms.untracked.InputTag("prunedGenParticles"),
     tagPackedGenParticles = cms.untracked.InputTag("packedGenParticles"),
-    tagTriggerResults = cms.untracked.InputTag("TriggerResults", "", "HLT"),
+    tagTriggerResults = cms.untracked.InputTag("TriggerResults", "", hlt),
     tagTriggerObjects = cms.untracked.InputTag("selectedPatTrigger"),
     tagMET = cms.untracked.InputTag("slimmedMETs"),
     tagPFJets = cms.untracked.InputTag("slimmedJets"),

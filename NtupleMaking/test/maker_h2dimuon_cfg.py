@@ -24,15 +24,21 @@ import NtupleProcessing.python.Samples as Samples
 import NtupleProcessing.python.Dataset as DS
 
 #   example of how to get the dataset
-data_datasets = Samples.datadatasets
+data_datasets = Samples.mcdatasets
 jsonfiles = Samples.jsonfiles
-jsontag = "2016_Prompt_16900"
+jsontag = "2016_Prompt_26400"
 jsonfile = jsonfiles[jsontag]
-dataset = ""
+dataset = None
 for key in data_datasets.keys():
-    if data_datasets[key].label=="SingleMuon.Run2016B-PromptReco-v2.MINIAOD":
+    if "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM"==data_datasets[key].name:
         dataset=data_datasets[key]
         break
+
+if dataset==None:
+    print "-"*40
+    print "dataset is None"
+    print "-"*40
+    sys.exit(1)
 
 ntuple = DS.Ntuple(dataset, 
     json="json/"+jsonfile.filename,
@@ -48,7 +54,7 @@ ntuple = DS.Ntuple(dataset,
 thisIsData = ntuple.isData
 globalTag = ntuple.globaltag
 readFiles = cms.untracked.vstring();
-readFiles.extend(open("sample_file_lists/data/"+ntuple.test_file).read().splitlines());
+readFiles.extend(open(("sample_file_lists/%s/" % ("data" if ntuple.isData else "mc"))+ntuple.test_file).read().splitlines());
 
 #
 #   Differentiate between DATA and MC
@@ -78,7 +84,7 @@ print ""; print ""
 #
 #   Pool Source with proper LSs
 #
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000000) )
 process.source = cms.Source("PoolSource",fileNames = readFiles)
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
@@ -89,3 +95,9 @@ if thisIsData:
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuples"+ntuple.label+".root") )
 process.p = cms.Path(process.ntuplemaker_H2DiMuonMaker)
+
+process.out = cms.OutputModule(
+    "PoolOutputModule",
+    fileName = cms.untracked.string("test.root")
+)
+#process.finalize = cms.EndPath(process.out)

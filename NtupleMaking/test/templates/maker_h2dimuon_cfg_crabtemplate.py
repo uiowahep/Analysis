@@ -18,6 +18,7 @@ globalTag = s.globaltag
 
 if not thisIsData:
     process.load("Analysis.NtupleMaking.H2DiMuonMaker_MC")
+    process.ntuplemaker_H2DiMuonMaker.tagTriggerResults = cms.untracked.InputTag("TriggerResults", "", "HLTTYPE")
 else:
     process.load("Analysis.NtupleMaking.H2DiMuonMaker_Data")
 
