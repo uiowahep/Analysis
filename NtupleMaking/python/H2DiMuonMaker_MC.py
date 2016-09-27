@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 pt = 22
 
-ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer('H2DiMuonMaker',
+name = "H2DiMuonMaker_NoPairing"
+
+ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     #   Tags
     tagMuons = cms.untracked.InputTag("slimmedMuons"),
     tagPV = cms.untracked.InputTag("offlineSlimmedPrimaryVertices"),

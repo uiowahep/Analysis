@@ -41,6 +41,10 @@ datadatasets = {
         year=2015,
         globaltag = "76X_dataRun2_v15"
     ),
+
+    #
+    #   2016 Prompt
+    #
     "/SingleMuon/Run2016B-PromptReco-v2/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2016B-PromptReco-v2/MINIAOD",
         isData=True,
@@ -70,6 +74,12 @@ datadatasets = {
         isData=True,
         year=2016,
         globaltag = "80X_dataRun2_Prompt_v9"
+    ),
+    "/SingleMuon/Run2016G-PromptReco-v1/MINIAOD" : DS.Dataset(
+        name="/SingleMuon/Run2016G-PromptReco-v1/MINIAOD",
+        isData=True,
+        year=2016,
+        globaltag = "80X_dataRun2_Prompt_v9"
     )
 }
 
@@ -95,6 +105,17 @@ mcdatasets = {
         globaltag = "76X_mcRun2_asymptotic_v12",
         cross_section =  43.62*0.00022
     ),
+
+    "/GluGlu_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM" : DS.MCDataset(
+        naem = "/GluGlu_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM",
+        year=2016,
+        isData=False,
+        isSignal=True,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_v14",
+        cross_section = 43.62*0.00022
+    ),
+
     "/VBF_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM" : DS.MCDataset(
         name="/VBF_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
         year=2015,
@@ -114,6 +135,46 @@ mcdatasets = {
         cross_section = 3.727*0.00022
     ),
 
+    " /VBF_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v2/MINIAODSIM" : DS.MCDataset(
+        name = " /VBF_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v2/MINIAODSIM",
+        year = 2016,
+        isData=False,
+        isSignal=True,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_v14",
+        cross_section = 3.727*0.00022
+    ),
+
+    "/WMinusH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/WMinusH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM",
+        year=2016,
+        isData=False,
+        isSignal = True,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_v14",
+        cross_section = 0.1
+    ),
+
+    "/WPlusH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/WPlusH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM",
+        year = 2016,
+        isData=False,
+        isSignal = True,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_v14",
+        cross_section = 0.1
+    ),
+
+    "/ZH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/ZH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM",
+        year = 2016,
+        isData = False,
+        isSignal  = True,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_v14",
+        cross_section = 0.1
+    ),
+
     #
     #   Background Datasets
     #
@@ -129,11 +190,22 @@ mcdatasets = {
         name="/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM",
         year=2015,
         isData=False,
-        isSignal=True,
+        isSignal=False,
         initial_cmssw = "76X",
         globaltag = "76X_mcRun2_asymptotic_v12",
         cross_section = 6025.2
     ),
+
+    "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM",
+        year = 2016,
+        isData = False,
+        isSignal = False,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_v14",
+        cross_section = 6025.2
+    ),
+
     "/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/MINIAODSIM" : DS.MCDataset(
         name="/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/MINIAODSIM",
         year=2015,
@@ -150,6 +222,16 @@ mcdatasets = {
         isSignal=False,
         initial_cmssw="76X",
         globaltag = "76X_mcRun2_asymptotic_v12",
+        cross_section = 831.76
+    ),
+
+    "/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM",
+        year = 2016, 
+        isData = False,
+        isSignal = False,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_v14",
         cross_section = 831.76
     )
 }
@@ -190,6 +272,10 @@ jsonfiles = {
     "2016_Prompt_20100" : DS.JsonFile(
         filename = "Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt",
         intlumi = 20100.
+    ),
+    "2016_Prompt_26400" : DS.JsonFile(
+        filename = "Cert_271036-280385_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt",
+        intlumi = 26400.
     )
 }
 

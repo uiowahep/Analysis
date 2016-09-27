@@ -235,7 +235,7 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 		float deta = p4lead.Eta() - p4sub.Eta();
 		float dijetmass = dijet.M();
 			
-		if (p4lead.Pt()>_leadjetPt && p4sub.Pt()>_subleadJetPt &&
+		if (p4lead.Pt()>_leadJetPt && p4sub.Pt()>_subleadJetPt &&
 			met._pt<_metPt)
 		{
 			isPreSelected = true;
@@ -609,6 +609,24 @@ void sigHandler(int sig)
 	__continueRunning = false;
 }
 
+void printCuts()
+{
+    std::cout << "Cuts:" << std::endl
+        << "_muonMatchedPt = " << _muonMatchedPt << std::endl
+        << "_muonMatchedEta = " << _muonMatchedEta << std::endl
+        << "_muonPt = " << _muonPt << std::endl
+        << "_muonEta = " << _muonEta << std::endl
+        << "_muonIso = " << _muonIso << std::endl
+        << "_leadJetPt = " << _leadJetPt << std::endl
+        << "_subleadJetPt = " << _subleadJetPt << std::endl
+        << "_metPt = " << _metPt << std::endl
+        << "_dijetMass_VBFTight = " << _dijetMass_VBFTight << std::endl
+        << "_dijetdEta_VBFTight = " << _dijetdEta_VBFTight << std::endl
+        << "_dijetMass_ggFTight = " << _dijetMass_ggFTight << std::endl
+        << "_dimuonPt_ggFTight = " << _dimuonPt_ggFTight << std::endl
+        << "_dimuonPt_01JetsTight = " << _dimuonPt_01JetsTight << std::endl;
+}
+
 int main(int argc, char** argv)
 {
 	/*
@@ -644,8 +662,8 @@ int main(int argc, char** argv)
         ("dijetMass_VBFTight", po::value<double>(&_dijetMass_VBFTight)->default_value(_dijetMass_VBFTight), "DiJet Mass VBFTight-Category Cut")
         ("dijetdEta_VBFTight", po::value<double>(&_dijetdEta_VBFTight)->default_value(_dijetdEta_VBFTight), "DiJet deta VBFTight-Category Cut")
         ("dijetMass_ggFTight", po::value<double>(&_dijetMass_ggFTight)->default_value(_dijetMass_ggFTight), "DiJet Mass ggFTight-Category Cut")
-        ("dimounPt_ggFTight", po::value<double>(&_dimuonPt_ggFTight)->default_value(_dimuonPt_ggFTight), "DiMuon Pt ggFTight-Category Cut")
-        ("dimounPt_01JetsTight", po::value<double>(&_dimounPt_01JetsTight)->default_value(_dimounPt_01JetsTight), "DiMuon Pt 01JetsTight-Category Cut")
+        ("dimuonPt_ggFTight", po::value<double>(&_dimuonPt_ggFTight)->default_value(_dimuonPt_ggFTight), "DiMuon Pt ggFTight-Category Cut")
+        ("dimuonPt_01JetsTight", po::value<double>(&_dimuonPt_01JetsTight)->default_value(_dimuonPt_01JetsTight), "DiMuon Pt 01JetsTight-Category Cut")
 	;
 
 	po::variables_map vm;
@@ -665,11 +683,11 @@ int main(int argc, char** argv)
 	__genPUMC = vm["genPUMC"].as<bool>();
 	__puMCfilename = vm["puMC"].as<std::string>();
 	__puDATAfilename = vm["puDATA"].as<std::string>();
-    _muonMatchedPt = vm["mounMatchedPt"].as<double>();
-    _mounMatchedEta = vm["muonMatchedEta"].as<double>();
+    _muonMatchedPt = vm["muonMatchedPt"].as<double>();
+    _muonMatchedEta = vm["muonMatchedEta"].as<double>();
     _muonPt = vm["muonPt"].as<double>();
     _muonEta = vm["muonEta"].as<double>();
-    _mounIso = vm["muonIso"].as<double>();
+    _muonIso = vm["muonIso"].as<double>();
     _leadJetPt = vm["leadJetPt"].as<double>();
     _subleadJetPt = vm["subleadJetPt"].as<double>();
     _metPt = vm["metPt"].as<double>();
@@ -677,7 +695,8 @@ int main(int argc, char** argv)
     _dijetdEta_VBFTight = vm["dijetdEta_VBFTight"].as<double>();
     _dijetMass_ggFTight = vm["dijetMass_ggFTight"].as<double>();
     _dimuonPt_ggFTight = vm["dimuonPt_ggFTight"].as<double>();
-    _dimuonPt_01JetsTight = vm["dimounPt_01JetsTight"].as<double>();
+    _dimuonPt_01JetsTight = vm["dimuonPt_01JetsTight"].as<double>();
+    printCuts();
 
 	//	start processing
 	process();
