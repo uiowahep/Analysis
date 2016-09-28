@@ -25,6 +25,7 @@ def main():
     storage = "EOS"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_12/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
+    executable = os.path.join(dirToUse, "build", "generate_PUMCFiles")
     analysisHome = os.environ["ANALYSISHOME"]
     shouldGenPUMC = 1
     filelistdir = os.path.join(dirToUse, "filelists")
@@ -68,6 +69,11 @@ def main():
         )
         data_ntuples.append(ntuple)
     for k in mc_datasets:
+        #   use only 2016 MC with 80X
+        if mc_datasets[k].initial_cmssw!="80X": continue
+        #   skip DY for now...
+        if "DYJetsToLL" in mc_datasets[k].name: continue
+
         ntuple = DS.Ntuple(mc_datasets[k],
             json = None,
             cmssw = mc_datasets[k].initial_cmssw,
@@ -101,6 +107,12 @@ def main():
             for x in filelist_as_list:
                 f.write("%s\n" % x)
             f.close()
+
+        outFileName = S.buildMCPUfilename(ntuple)
+        os.system("{executable} --input={input} --output={output}".format(
+            executable=executable, input=filelist, 
+            output=os.path.join(pileupdir, outFileName)))
+        s = """
         R.gSystem.Load("../libAnalysisCore%s" % libext)
         R.gSystem.Load("../libAnalysisNtupleProcessing%s" % libext)
         s = R.analysis.processing.Streamer(filelist,
@@ -121,6 +133,7 @@ def main():
             h.Fill(aux._nPU, aux._genWeight)
         out.Write()
         out.Close()
+"""
 
 if __name__=="__main__":
     main()
