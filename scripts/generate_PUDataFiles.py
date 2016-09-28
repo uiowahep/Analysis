@@ -37,9 +37,10 @@ def main():
     print "-"*80
     pileups = S.pileups
     joblist = []
-    cross_section_conversions = {"68" : 68000, "69" : 69000,
+    cross_section_conversions = {"68" : 68000, "69" : 69000, "69p2" : 69200,
         "70" : 70000, "71" : 71000, "72" : 72000, "71p3" : 71300}
     for ipu in pileups:
+        if "Cert_271036-280385_13TeV_PromptReco_Collisions16" not in ipu: continue
         jsonfilepathname = os.path.join(cmsswdir, "NtupleMaking/test/json", 
             pileups[ipu].datajson)
         outputfile=os.path.join(pileupdir, ipu+"mb.root")

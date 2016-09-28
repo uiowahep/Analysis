@@ -25,7 +25,7 @@ def main():
     storage = "EOS"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_12/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
-    executable = os.path.join(dirToUse, "build", "generate_PUMCFiles")
+    executable = os.path.join(dirToUse, "build-1", "generate_PUMCFiles")
     analysisHome = os.environ["ANALYSISHOME"]
     shouldGenPUMC = 1
     filelistdir = os.path.join(dirToUse, "filelists")
@@ -52,7 +52,7 @@ def main():
     data_datasets = S.datadatasets
     mc_datasets = S.mcdatasets
     jsonfiles = S.jsonfiles
-    jsontag = "2016_Prompt_20100"
+    jsontag = "2016_Prompt_26400"
     jsonfile = jsonfiles[jsontag]
     data_ntuples = []
     mc_ntuples = []
@@ -72,7 +72,7 @@ def main():
         #   use only 2016 MC with 80X
         if mc_datasets[k].initial_cmssw!="80X": continue
         #   skip DY for now...
-        if "DYJetsToLL" in mc_datasets[k].name: continue
+#        if "DYJetsToLL" in mc_datasets[k].name: continue
 
         ntuple = DS.Ntuple(mc_datasets[k],
             json = None,
@@ -83,8 +83,6 @@ def main():
             aux=aux
         )
         mc_ntuples.append(ntuple)
-    print data_ntuples
-    print mc_ntuples
     ntuples = []
     ntuples.extend(mc_ntuples)
 
@@ -96,19 +94,21 @@ def main():
     print (" "*40)+"SET UP Result Objects"+(" "*40)
     print "-"*80
     for ntuple in ntuples:
+        print ntuple
         try:
             filelist_as_list = S.discoverFileList(ntuple)
             print filelist_as_list
             filelist = os.path.join(filelistdir,S.buildFileListName(ntuple))
         except Exception as exc:
             continue
+        print "Creating a file list"
         if shouldCreateFileList:
             f = open(filelist, "w")
             for x in filelist_as_list:
                 f.write("%s\n" % x)
             f.close()
 
-        outFileName = S.buildMCPUfilename(ntuple)
+        outFileName = S.buildPUfilename(ntuple)
         os.system("{executable} --input={input} --output={output}".format(
             executable=executable, input=filelist, 
             output=os.path.join(pileupdir, outFileName)))

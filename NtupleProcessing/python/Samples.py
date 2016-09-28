@@ -285,7 +285,7 @@ jsonfiles = {
 pileups = {}
 for k in jsonfiles.keys():
     jfilename = jsonfiles[k].filename
-    for cs in ["68", "69", "70", "71", "72", "71p3"]:
+    for cs in ["68", "69", "69p2", "70", "71", "72", "71p3"]:
         s = "pileup__%s__%s" % (jfilename[:-4], cs)
         pileups[s] = DS.PileUp(
             cross_section=cs, datajson=jfilename
@@ -322,14 +322,21 @@ def isReReco(dataset):
 	else:
 		return False
 
-def buildPUfilenames(result):
+def buildPUfilename(result):
     if result.isData:
-        return ("", "")
-    sdata = "pileup__%s__%smb.root" % (result.pileupdata.datajson[:-4],
-        result.pileupdata.cross_section)
-    smc = "pileup__%s__%s.root" % (result.label.split("__")[0],
-        result.cmssw)
-    return (smc, sdata)
+        sdata = "pileup__%s__%smb.root" % (result.pileupdata.datajson[:-4],
+            result.pileupdata.cross_section)
+        return sdata
+    else:
+        smc = "pileup__%s__%s.root" % (result.label.split("__")[0],
+            result.cmssw)
+        return smc
+
+def eos_system(cmd, args):
+    import subprocess
+    proc = subprocess.Popen([cmd, args], stdout=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return out
 
 def buildTimeStamp(ntuple):
     fullpattern = os.path.join(ntuple.rootpath,
@@ -337,12 +344,13 @@ def buildTimeStamp(ntuple):
         buildDatasetTagName(ntuple), "*")
     print fullpattern
     cmd = "ls" if ntuple.storage=="local" else "eos"
+    print cmd
     if ntuple.storage=="local":
         args = fullpattern
     else:
         args = "ls %s" % os.path.join("/eos/cms", fullpattern)
     print "%s %s" % (cmd, args)
-    x = subprocess.check_output([cmd, args]).split("\n")[0]
+    x = eos_system(cmd, args).split("\n")[0]
     print x
     return x
 
@@ -354,7 +362,7 @@ def discoverFileList(ntuple):
     cmd = "ls" if ntuple.storage=="local" else "eos"
     args = "-d %s" % fullpattern if ntuple.storage=="local" else "ls %s" % (
         os.path.join("/eos/cms", fullpattern))
-    x = subprocess.check_output([cmd, args]).split("\n")[:-1]
+    x = eos_system(cmd, args).split("\n")[:-1]
     if ntuple.storage=="EOS":
         xxx = []
         for f in x:
@@ -398,12 +406,12 @@ def discoverNtuples(ntuple):
         ntuple.timestamp = tstamp
         pathstring = os.path.join(prefix, ntuple.rootpath, ntuple.name.split("/")[0],
             buildDatasetTagName(ntuple), tstamp, "0000")
-        x = subprocess.check_output(["eos", "ls %s/*.root" % pathstring]).split("\n")
+        x = eos_system("eos", "ls %s/*.root" % pathstring).split("\n")
         return pathstring,x
     else:
         pathstring = os.path.join(prefix, ntuple.rootpath, ntuple.name.split("/")[0],
             buildDatasetTagName(ntuple))
-        x = subprocess.check_output(["eos", "ls %s/*.root" % pathstring]).split("\n")
+        x = eos_system("eos", "ls %s/*.root" % pathstring).split("\n")
         return pathstring,x
 
 def getFileList(ntuple):

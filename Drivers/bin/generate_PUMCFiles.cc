@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 
     s._chain->SetBranchAddress("EventAuxiliary", &aux);
     uint32_t n = s._chain->GetEntries();
-    for (uint32_t i=0; i<n; i++)
+    for (uint32_t i=0; i<n && __continue; i++)
     {
         s._chain->GetEntry(i);
         if (i%10000==0)
