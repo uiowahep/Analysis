@@ -16,7 +16,7 @@ def main():
     import NtupleProcessing.python.Dataset as DS
 
     #   set the variables
-    executable = os.path.join(os.environ["ANALYSISHOME"], "process_HiggsAnalysis")
+    executable = os.path.join(os.environ["ANALYSISHOME"], "process_HiggsAnalysis_wCuts_NoPairing")
     batchSubmission = True
     dirToLaunchFrom = os.path.join(os.environ["ANALYSISHOME"], "submission")
     if not os.path.exists(dirToLaunchFrom):
@@ -30,7 +30,7 @@ def main():
     resultsdir = os.path.join(dirToUse, "results")
     pileupdir = os.path.join(dirToUse, "pileup")
     import datetime
-    version = "v0_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    version = "v1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
     resultsdir+= "/"+version
     queue = '1nh'
     rootpath = "/store/user/vkhriste/higgs_ntuples"
@@ -50,7 +50,7 @@ def main():
     data_datasets = S.datadatasets
     mc_datasets = S.mcdatasets
     jsonfiles = S.jsonfiles
-    jsontag = "2016_Prompt_20100"
+    jsontag = "2016_Prompt_26400"
     jsonfile = jsonfiles[jsontag]
     data_ntuples = []
     mc_ntuples = []
@@ -67,6 +67,7 @@ def main():
         )
         data_ntuples.append(ntuple)
     for k in mc_datasets:
+        if mc_datasets[k].initial_cmssw!="80X": continue
         ntuple = DS.Ntuple(mc_datasets[k],
             json = None,
             cmssw = mc_datasets[k].initial_cmssw,
@@ -108,6 +109,7 @@ def main():
             results.append(result)
         else:
             for ipu in S.pileups:
+                if "Cert_271036-280385" not in ipu: continue
                 pu = S.pileups[ipu]
                 result = DS.MCResult(ntuple,
                     filelist=filelist,

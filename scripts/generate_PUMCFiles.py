@@ -23,6 +23,7 @@ def main():
     if not os.path.exists(dirToLaunchFrom):
         os.system("mkdir %s" % dirToLaunchFrom)
     storage = "EOS"
+    cmsswsrcdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_12/src"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_12/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
     executable = os.path.join(dirToUse, "build-1", "generate_PUMCFiles")
@@ -109,9 +110,12 @@ def main():
             f.close()
 
         outFileName = S.buildPUfilename(ntuple)
-        os.system("{executable} --input={input} --output={output}".format(
+#        os.chdir(cmsswsrcdir)
+#        os.system("eval `scramv1 runtime -sh")
+        os.system("cd {directory};eval `scramv1 runtime -sh`;{executable} --input={input} --output={output}".format(
             executable=executable, input=filelist, 
-            output=os.path.join(pileupdir, outFileName)))
+            output=os.path.join(pileupdir, outFileName),
+            directory=cmsswsrcdir))
         s = """
         R.gSystem.Load("../libAnalysisCore%s" % libext)
         R.gSystem.Load("../libAnalysisNtupleProcessing%s" % libext)

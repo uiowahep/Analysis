@@ -322,8 +322,8 @@ def isReReco(dataset):
 	else:
 		return False
 
-def buildPUfilename(result):
-    if result.isData:
+def buildPUfilename(ntuple):
+    if ntuple.isData:
         sdata = "pileup__%s__%smb.root" % (result.pileupdata.datajson[:-4],
             result.pileupdata.cross_section)
         return sdata
@@ -331,6 +331,13 @@ def buildPUfilename(result):
         smc = "pileup__%s__%s.root" % (result.label.split("__")[0],
             result.cmssw)
         return smc
+
+def buildPUfilenames(result):
+    sdata = "pileup__%s__%smb.root" % (result.pileupdata.datajson[:-4],
+        result.pileupdata.cross_section)
+    smc = "pileup__%s__%s.root" % (result.label.split("__")[0],
+        result.cmssw)
+    return (smc, sdata)
 
 def eos_system(cmd, args):
     import subprocess
