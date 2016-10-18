@@ -53,10 +53,11 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
 	maxd0 = cms.untracked.double(999),
 	maxTrackIsoSumPt = cms.untracked.double(999),
 	maxRelCombIso = cms.untracked.double(999),
+    btagNames = cms.untracked.vstring(["pfCombinedInclusiveSecondaryVertexV2BJetTags"]),
 
         #
         #   Some flags
         #
     useElectrons = cms.untracked.bool(True),
-    useTaus = cms.untracked.bool(False)
+    useTaus = cms.untracked.bool(False),
 )

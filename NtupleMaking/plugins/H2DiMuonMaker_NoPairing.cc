@@ -196,6 +196,7 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
         //  some flags
         bool _useElectrons;
         bool _useTaus;
+        std::string _btagName;
 };
 
 H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
@@ -318,6 +319,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 	_meta._maxTrackIsoSumPt = ps.getUntrackedParameter<double>(
 		"maxTrackIsoSumPt");
 	_meta._maxRelCombIso = ps.getUntrackedParameter<double>("maxRelCombIso");
+    _meta._btagNames = ps.getUntrackedParameter<std::vector<std::string> >("btagNames");
     _useElectrons = ps.getUntrackedParameter<bool>("useElectrons");
     _useTaus = ps.getUntrackedParameter<bool>("useTaus");
 
@@ -745,15 +747,12 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 
 			myjet._jecu = -1.;
 			myjet._jecf = jet.jecFactor("Uncorrected");
-			myjet._csv = jet.bDiscriminator(
-				"combinedSecondaryVertexBJetTags");
 			myjet._puid = jet.userFloat("pileupJetId:fullDiscriminant");
 
-            //  tmp
-            std::vector<std::pair<std::string, float> > const& pairs = jet.getPairDiscri();
-            std::cout << std::endl << "3333333333333" << std::endl << std::endl;
-            for (std::vector<std::pair<std::string, float> >::const_iterator jjt=pairs.begin(); jjt!=pairs.end(); ++jjt)
-                std::cout << jjt->first << "  " << jjt->second << std::endl;
+            //  b-tagging information
+            for (std::vector<std::string>::const_iterator btt=_meta._btagNames.begin();
+                btt!=_meta._btagNames.end(); ++btt)
+                myjet._btag.push_back(jet.bDiscriminator(*btt));
 
 			//	matche gen jet
 			const reco::GenJet *genJet = jet.genJet();
@@ -791,26 +790,17 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
         e.getByToken(_tokElectronCutBasedId_medium, hId_medium);
         e.getByToken(_tokElectronCutBasedId_tight, hId_tight);
         edm::Handle<edm::View<pat::Electron> > hElectrons;
-//        edm::Handle<edm::View<reco::GsfElectron> > hElectrons;
         e.getByToken(_tokElectrons, hElectrons);
         for (size_t i = 0; i < hElectrons->size(); ++i)
         {
             auto const ele = hElectrons->ptrAt(i);
-            std::cout << "1111111111" << std::endl;
+
             bool id_veto =  (*hId_veto)[ele];
             bool id_loose =  (*hId_loose)[ele];
             bool id_medium =  (*hId_medium)[ele];
             bool id_tight =  (*hId_tight)[ele];
-            std::cout << id_veto << "  " << id_loose << "  " << id_medium << "  "
-                << id_tight << std::endl;
-            /*
-            std::vector<pat::Electron::IdPair> const& map = it->electronIDs();
-            for (std::vector<pat::Electron::IdPair>::const_iterator mt=map.begin();
-                mt!=map.end(); ++mt)
-            {
-                std::cout << mt->first << "  " << mt->second << std::endl;
-            }
-            */
+
+            
         }
     }
 

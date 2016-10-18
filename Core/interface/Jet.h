@@ -45,7 +45,7 @@ namespace analysis
 					_hfem = 0;
 					_jecf = 0;
 					_jecu = 0;
-					_csv = 0;
+					_btag.clear();
 					_puid = 0;
 
 					_genjet.reset();
@@ -84,7 +84,7 @@ namespace analysis
 				float _hfem;
 				float _jecf;
 				float _jecu;
-				float _csv;
+                std::vector<float> _btag;
 				float _puid;
 
 				//	
