@@ -18,6 +18,12 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     tagMET = cms.untracked.InputTag("slimmedMETs"),
     tagPFJets = cms.untracked.InputTag("slimmedJets"),
     tagGenJets = cms.untracked.InputTag("slimmedGenJets"),
+    
+    #   for electron id
+    tagElectronCutBasedId_veto = cms.untracked.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto"),
+    tagElectronCutBasedId_loose = cms.untracked.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-loose"),
+    tagElectronCutBasedId_medium = cms.untracked.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-medium"),
+    tagElectronCutBasedId_tight = cms.untracked.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-tight"),
 
 	#
 	#	Meta Data
@@ -52,5 +58,5 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
         #   Some flags
         #
     useElectrons = cms.untracked.bool(True),
-    useTaus = cms.untracked.bool(True)
+    useTaus = cms.untracked.bool(False)
 )

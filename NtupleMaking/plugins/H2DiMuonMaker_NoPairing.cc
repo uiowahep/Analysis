@@ -161,6 +161,10 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
 		edm::InputTag _tagMET;
 		edm::InputTag _tagPFJets;
 		edm::InputTag _tagGenJets;
+        edm::InputTag _tagElectronCutBasedId_veto;
+        edm::InputTag _tagElectronCutBasedId_loose;
+        edm::InputTag _tagElectronCutBasedId_medium;
+        edm::InputTag _tagElectronCutBasedId_tight;
 
 		edm::EDGetTokenT<GenEventInfoProduct> _tokGenInfo;
 		edm::EDGetTokenT<edm::TriggerResults> _tokTriggerResults;
@@ -176,10 +180,15 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
 		edm::EDGetTokenT<std::vector<pat::Jet> > _tokJets;
 		edm::EDGetTokenT<reco::GenJetCollection> _tokGenJets;
 		edm::EDGetTokenT<pat::MuonCollection> _tokMuons;
-        edm::EDGetTokenT<pat::ElectronCollection> _tokElectrons;
+//        edm::EDGetTokenT<edm::View<reco::GsfElectron> > _tokElectrons;
+        edm::EDGetTokenT<edm::View<pat::Electron> > _tokElectrons;
         edm::EDGetTokenT<pat::TauCollection> _tokTaus;
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdFloat;
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdInt;
+        edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_veto;
+        edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_loose;
+        edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_medium;
+        edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_tight;
 
 		edm::Handle<edm::TriggerResults> _hTriggerResults;
 		edm::Handle<pat::TriggerObjectStandAloneCollection> _hTriggerObjects;
@@ -235,6 +244,14 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 		"tagPFJets");
 	_tagGenJets = ps.getUntrackedParameter<edm::InputTag>(
 		"tagGenJets");
+    _tagElectronCutBasedId_veto = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronCutBasedId_veto");
+    _tagElectronCutBasedId_loose = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronCutBasedId_loose");
+    _tagElectronCutBasedId_medium = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronCutBasedId_medium");
+    _tagElectronCutBasedId_tight = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronCutBasedId_tight");
 
 	_tokGenInfo = consumes<GenEventInfoProduct>(
 		edm::InputTag("generator"));
@@ -260,10 +277,20 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 		_tagGenJets);
 	_tokMuons = consumes<pat::MuonCollection>(
 		_tagMuons);
-    _tokElectrons = consumes<pat::ElectronCollection>(
+//    _tokElectrons = mayConsume<edm::View<reco::GsfElectron> >(
+//        _tagElectrons);
+    _tokElectrons = mayConsume<edm::View<pat::Electron> >(
         _tagElectrons);
     _tokTaus = consumes<pat::TauCollection>(
         _tagTaus);
+    _tokElectronCutBasedId_veto = consumes<edm::ValueMap<bool> >(
+        _tagElectronCutBasedId_veto);
+    _tokElectronCutBasedId_loose = consumes<edm::ValueMap<bool> >(
+        _tagElectronCutBasedId_loose);
+    _tokElectronCutBasedId_medium = consumes<edm::ValueMap<bool> >(
+        _tagElectronCutBasedId_medium);
+    _tokElectronCutBasedId_tight = consumes<edm::ValueMap<bool> >(
+        _tagElectronCutBasedId_tight);
 
 	_meta._isMC = ps.getUntrackedParameter<bool>("isMC");
 	_meta._triggerNames = ps.getUntrackedParameter<std::vector<std::string> >(
@@ -722,6 +749,12 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 				"combinedSecondaryVertexBJetTags");
 			myjet._puid = jet.userFloat("pileupJetId:fullDiscriminant");
 
+            //  tmp
+            std::vector<std::pair<std::string, float> > const& pairs = jet.getPairDiscri();
+            std::cout << std::endl << "3333333333333" << std::endl << std::endl;
+            for (std::vector<std::pair<std::string, float> >::const_iterator jjt=pairs.begin(); jjt!=pairs.end(); ++jjt)
+                std::cout << jjt->first << "  " << jjt->second << std::endl;
+
 			//	matche gen jet
 			const reco::GenJet *genJet = jet.genJet();
 			if (genJet!=NULL)
@@ -752,18 +785,32 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
     //
     if (_useElectrons)
     {
-        edm::Handle<pat::ElectronCollection> hElectrons;
+        edm::Handle<edm::ValueMap<bool> > hId_veto, hId_loose, hId_medium, hId_tight;
+        e.getByToken(_tokElectronCutBasedId_veto, hId_veto);
+        e.getByToken(_tokElectronCutBasedId_loose, hId_loose);
+        e.getByToken(_tokElectronCutBasedId_medium, hId_medium);
+        e.getByToken(_tokElectronCutBasedId_tight, hId_tight);
+        edm::Handle<edm::View<pat::Electron> > hElectrons;
+//        edm::Handle<edm::View<reco::GsfElectron> > hElectrons;
         e.getByToken(_tokElectrons, hElectrons);
-        for (pat::ElectronCollection::const_iterator it=hElectrons->begin();
-            it!=hElectrons->end(); ++it)
+        for (size_t i = 0; i < hElectrons->size(); ++i)
         {
+            auto const ele = hElectrons->ptrAt(i);
             std::cout << "1111111111" << std::endl;
+            bool id_veto =  (*hId_veto)[ele];
+            bool id_loose =  (*hId_loose)[ele];
+            bool id_medium =  (*hId_medium)[ele];
+            bool id_tight =  (*hId_tight)[ele];
+            std::cout << id_veto << "  " << id_loose << "  " << id_medium << "  "
+                << id_tight << std::endl;
+            /*
             std::vector<pat::Electron::IdPair> const& map = it->electronIDs();
             for (std::vector<pat::Electron::IdPair>::const_iterator mt=map.begin();
                 mt!=map.end(); ++mt)
             {
                 std::cout << mt->first << "  " << mt->second << std::endl;
             }
+            */
         }
     }
 
