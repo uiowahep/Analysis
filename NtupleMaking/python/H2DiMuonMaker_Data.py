@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-pt = 22
+pt = 24
 
 #   to switch between modules
 name = "H2DiMuonMaker_NoPairing"
@@ -7,6 +7,8 @@ name = "H2DiMuonMaker_NoPairing"
 ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     #   Tags
     tagMuons = cms.untracked.InputTag("slimmedMuons"),
+    tagElectrons = cms.untracked.InputTag("slimmedElectrons"),
+    tagTaus = cms.untracked.InputTag("slimmedTaus"),
     tagPV = cms.untracked.InputTag("offlineSlimmedPrimaryVertices"),
     tagBS = cms.untracked.InputTag("offlineBeamSpot"),
     tagPrunedGenParticles = cms.untracked.InputTag("prunedGenParticles"),
@@ -45,4 +47,10 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
 	maxd0 = cms.untracked.double(999),
 	maxTrackIsoSumPt = cms.untracked.double(999),
 	maxRelCombIso = cms.untracked.double(999),
+
+        #
+        #   Some flags
+        #
+    useElectrons = cms.untracked.bool(True),
+    useTaus = cms.untracked.bool(True)
 )

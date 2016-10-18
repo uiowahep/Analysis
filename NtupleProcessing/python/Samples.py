@@ -45,6 +45,12 @@ datadatasets = {
     #
     #   2016 Prompt
     #
+#    "/SingleMuon/Run2016B-PromptReco-v1/MINIAOD" : DS.Dataset(
+#        name="/SingleMuon/Run2016B-PromptReco-v1/MINIAOD",
+#        isData=True,
+#        year=2016,
+#        globaltag = "80X_dataRun2_Prompt_v9"
+#    ),
     "/SingleMuon/Run2016B-PromptReco-v2/MINIAOD" : DS.Dataset(
         name="/SingleMuon/Run2016B-PromptReco-v2/MINIAOD",
         isData=True,
@@ -79,6 +85,18 @@ datadatasets = {
         name="/SingleMuon/Run2016G-PromptReco-v1/MINIAOD",
         isData=True,
         year=2016,
+        globaltag = "80X_dataRun2_Prompt_v9"
+    ),
+    "/SingleMuon/Run2016H-PromptReco-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016H-PromptReco-v1/MINIAOD",
+        isData = True,
+        year=2016,
+        globaltag = "80X_dataRun2_Prompt_v9"
+    ),
+    "/SingleMuon/Run2016H-PromptReco-v2/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016H-PromptReco-v2/MINIAOD",
+        isData = True,
+        year = 2016,
         globaltag = "80X_dataRun2_Prompt_v9"
     )
 }

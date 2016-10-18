@@ -150,6 +150,8 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
 
 		//	Input Tags/Tokens
 		edm::InputTag _tagMuons;
+		edm::InputTag _tagElectrons;
+		edm::InputTag _tagTaus;
 		edm::InputTag _tagBS;
 		edm::InputTag _tagPrunedGenParticles;
 		edm::InputTag _tagPackedGenParticles;
@@ -174,11 +176,17 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
 		edm::EDGetTokenT<std::vector<pat::Jet> > _tokJets;
 		edm::EDGetTokenT<reco::GenJetCollection> _tokGenJets;
 		edm::EDGetTokenT<pat::MuonCollection> _tokMuons;
+        edm::EDGetTokenT<pat::ElectronCollection> _tokElectrons;
+        edm::EDGetTokenT<pat::TauCollection> _tokTaus;
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdFloat;
 		edm::EDGetTokenT<edm::ValueMap<float> > _tokPUJetIdInt;
 
 		edm::Handle<edm::TriggerResults> _hTriggerResults;
 		edm::Handle<pat::TriggerObjectStandAloneCollection> _hTriggerObjects;
+
+        //  some flags
+        bool _useElectrons;
+        bool _useTaus;
 };
 
 H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
@@ -205,6 +213,10 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 	//
 	_tagMuons = ps.getUntrackedParameter<edm::InputTag>(
 		"tagMuons");
+	_tagElectrons = ps.getUntrackedParameter<edm::InputTag>(
+		"tagElectrons");
+	_tagTaus = ps.getUntrackedParameter<edm::InputTag>(
+		"tagTaus");
 	_tagBS = ps.getUntrackedParameter<edm::InputTag>(
 		"tagBS");
 	_tagPrunedGenParticles = ps.getUntrackedParameter<edm::InputTag>(
@@ -248,6 +260,10 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 		_tagGenJets);
 	_tokMuons = consumes<pat::MuonCollection>(
 		_tagMuons);
+    _tokElectrons = consumes<pat::ElectronCollection>(
+        _tagElectrons);
+    _tokTaus = consumes<pat::TauCollection>(
+        _tagTaus);
 
 	_meta._isMC = ps.getUntrackedParameter<bool>("isMC");
 	_meta._triggerNames = ps.getUntrackedParameter<std::vector<std::string> >(
@@ -275,6 +291,8 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 	_meta._maxTrackIsoSumPt = ps.getUntrackedParameter<double>(
 		"maxTrackIsoSumPt");
 	_meta._maxRelCombIso = ps.getUntrackedParameter<double>("maxRelCombIso");
+    _useElectrons = ps.getUntrackedParameter<bool>("useElectrons");
+    _useTaus = ps.getUntrackedParamter<bool>("useTaus");
 
 	//	additional branching for MC
 	if (_meta._isMC)
@@ -728,6 +746,34 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 			n++;
 		}
 	}
+
+    //
+    //  Electrons
+    //
+    if (_useElectrons)
+    {
+        edm::Handle<pat::ElectronCollection> hElectrons;
+        e.getByToken(_tokElectrons, hElectrons);
+        for (pat::ElectronCollection::const_iterator it=hElectrons->begin();
+            it!=hElectrons->end(); ++it)
+        {
+            std::cout << "1111111111" << std::endl;
+        }
+    }
+
+    //
+    //  Taus
+    //
+    if (_useTaus)
+    {
+        edm::Handle<pat::TauCollection> hTaus;
+        e.getByToken(_tokTaus, hTaus);
+        for (pat::TauCollection::const_iterator it=hTaus->begin();
+            it!=hTaus->end(); ++it)
+        {
+            std::cout << "2222222222" << std::endl;
+        }
+    }
 
 	//
 	//	Muons
