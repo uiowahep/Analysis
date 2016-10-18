@@ -276,6 +276,10 @@ jsonfiles = {
     "2016_Prompt_26400" : DS.JsonFile(
         filename = "Cert_271036-280385_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt",
         intlumi = 26400.
+    ),
+    "2016_Prompt_29530" : DS.JsonFile(
+        filename = "Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt",
+        intlumi = 29530.
     )
 }
 
