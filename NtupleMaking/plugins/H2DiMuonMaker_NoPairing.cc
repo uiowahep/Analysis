@@ -758,6 +758,12 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             it!=hElectrons->end(); ++it)
         {
             std::cout << "1111111111" << std::endl;
+            std::vector<pat::Electron::IdPair> const& map = it->electonIDs();
+            for (std::vector<pat::Electron::IdPair>::const_iterator mt=map.begin();
+                mt!=map.end(); ++mt)
+            {
+                std::cout << mt->first << "  " << mt->second << std::endl;
+            }
         }
     }
 
@@ -772,6 +778,12 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             it!=hTaus->end(); ++it)
         {
             std::cout << "2222222222" << std::endl;
+            std::vector<pat::Tau::IdPair> const& map = it->tauIDs();
+            for (std::vector<pat::Electron::IdPair>::const_iterator mt=map.begin();
+                mt!=map.end(); ++mt)
+            {
+                std::cout << mt->first << "  " << mt->second << std::endl;
+            }
         }
     }
 
