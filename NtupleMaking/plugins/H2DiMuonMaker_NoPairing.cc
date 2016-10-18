@@ -292,7 +292,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 		"maxTrackIsoSumPt");
 	_meta._maxRelCombIso = ps.getUntrackedParameter<double>("maxRelCombIso");
     _useElectrons = ps.getUntrackedParameter<bool>("useElectrons");
-    _useTaus = ps.getUntrackedParamter<bool>("useTaus");
+    _useTaus = ps.getUntrackedParameter<bool>("useTaus");
 
 	//	additional branching for MC
 	if (_meta._isMC)
