@@ -758,7 +758,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             it!=hElectrons->end(); ++it)
         {
             std::cout << "1111111111" << std::endl;
-            std::vector<pat::Electron::IdPair> const& map = it->electonIDs();
+            std::vector<pat::Electron::IdPair> const& map = it->electronIDs();
             for (std::vector<pat::Electron::IdPair>::const_iterator mt=map.begin();
                 mt!=map.end(); ++mt)
             {
