@@ -22,9 +22,11 @@ import NtupleProcessing.python.Dataset as DS
 data_datasets = Samples.datadatasets
 mc_datasets = Samples.mcdatasets
 
+config_filename = "maker_h2dimuon_wElesTaus_cfg_crabtemplate.py"
+
 #   get the json file to be used if needed
 jsonfiles = Samples.jsonfiles
-jsontag = "2016_Prompt_26400"
+jsontag = "2016_Prompt_29530"
 jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
@@ -53,7 +55,7 @@ for d in datasets:
         storage = storage,
         rootpath=rootpath,
         timestamp=None,
-        aux="Mu22"
+        aux="Mu24"
     )
     samples.append(s)
 
@@ -77,7 +79,7 @@ for s in samples:
     outfile = open(cfgname, 'w')
     
     #   open the cmssw config template to update
-    file = open('templates/maker_h2dimuon_cfg_crabtemplate.py', 'r')
+    file = open('templates/%s' % config_filename, 'r')
     for line in file:
         if 's.isData' in line: 
             line = line.replace('s.isData', str(s.isData))
