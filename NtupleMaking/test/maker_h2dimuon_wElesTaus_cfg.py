@@ -24,15 +24,18 @@ import NtupleProcessing.python.Samples as Samples
 import NtupleProcessing.python.Dataset as DS
 
 #   example of how to get the dataset
-data_datasets = Samples.datadatasets
+data_datasets = Samples.mcdatasets
 jsonfiles = Samples.jsonfiles
 jsontag = "2016_Prompt_29530"
 jsonfile = jsonfiles[jsontag]
 dataset = None
 for key in data_datasets.keys():
-    if "/SingleMuon/Run2016B-PromptReco-v2/MINIAOD"==data_datasets[key].name:
-        dataset=data_datasets[key]
+    if "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM"==data_datasets[key].name:
+        dataset = data_datasets[key]
         break
+#    if "/SingleMuon/Run2016B-PromptReco-v2/MINIAOD"==data_datasets[key].name:
+#        dataset=data_datasets[key]
+#        break
 
 if dataset==None:
     print "-"*40
