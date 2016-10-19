@@ -104,7 +104,7 @@
 #include "Analysis/Core/interface/Jet.h"
 #include "Analysis/Core/interface/Muon.h"
 #include "Analysis/Core/interface/Vertex.h"
-#include "Analysis/Core/inteface/Electron.h"
+#include "Analysis/Core/interface/Electron.h"
 #include "Analysis/Core/interface/Tau.h"
 
 class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
@@ -220,10 +220,6 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 	using namespace analysis::core;
 	using namespace analysis::dimuon;
 	_tEvents->Branch("Muons", (Muons*)&_muons);
-    if (_useElectrons)
-        _tEvents->Branch("Electrons", (Electrons*)&_electrons);
-    if (_useTaus)
-        _tEvents->Branch("Taus", (Taus*)&_taus);
 	_tEvents->Branch("Jets", (Jets*)&_pfjets);
 	_tEvents->Branch("Vertices", (Vertices*)&_vertices);
 	_tEvents->Branch("Event", (Event*)&_event);
@@ -340,6 +336,12 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
     _meta._tauIDNames = ps.getUntrackedParameter<std::vector<std::string> >("tauIDNames");
     _useElectrons = ps.getUntrackedParameter<bool>("useElectrons");
     _useTaus = ps.getUntrackedParameter<bool>("useTaus");
+    
+    //  additional branching based on flags
+    if (_useElectrons)
+        _tEvents->Branch("Electrons", (Electrons*)&_electrons);
+    if (_useTaus)
+        _tEvents->Branch("Taus", (Taus*)&_taus);
 
 	//	additional branching for MC
 	if (_meta._isMC)
@@ -965,7 +967,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 			if (mu1.isGlobalMuon()) track1 = *(mu1.globalTrack());
 			else if (mu1.isTrackerMuon()) track1 = *(mu1.innerTrack());
 			else
-				return;
+				continue;
 
 			_muon1._charge = mu1.charge();
 			_muon1._pt = mu1.pt();

@@ -703,8 +703,8 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 
 			myjet._jecu = -1.;
 			myjet._jecf = jet.jecFactor("Uncorrected");
-			myjet._csv = jet.bDiscriminator(
-				"combinedSecondaryVertexBJetTags");
+//			myjet._csv = jet.bDiscriminator(
+//				"combinedSecondaryVertexBJetTags");
 			myjet._puid = jet.userFloat("pileupJetId:fullDiscriminant");
 
 			//	matche gen jet

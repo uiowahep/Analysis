@@ -57,12 +57,12 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     btagNames = cms.untracked.vstring(["pfCombinedInclusiveSecondaryVertexV2BJetTags"]),
     tauIDNames = cms.untracked.vstring(["byCombinedIsolationDeltaBetaCorrRaw3Hits",
         "againstElectronLooseMVA6", "againstElectronVLooseMVA6",
-        "decayModeFindingOldDMs", "decayModeFindingNewDMs", 
+        "decayModeFindingNewDMs", 
         "byLooseCombinedIsolationDeltaBetaCorr3Hits", "byMediumCombinedIsolationDeltaBetaCorr3Hits", "byTightCombinedIsolationDeltaBetaCorr3Hits", "againstMuonLoose3", "againstMuonTight3", "againstElectronVTightMVA6", "againstElectronTightMVA6", "againstElectronMediumMVA6"]),
 
         #
         #   Some flags
         #
     useElectrons = cms.untracked.bool(True),
-    useTaus = cms.untracked.bool(False),
+    useTaus = cms.untracked.bool(True),
 )

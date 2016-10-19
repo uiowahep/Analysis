@@ -9,6 +9,8 @@
 #include "Analysis/Core/interface/GenJet.h"
 #include "Analysis/Core/interface/MET.h"
 #include "Analysis/Core/interface/Track.h"
+#include "Analysis/Core/interface/Tau.h"
+#include "Analysis/Core/interface/Electron.h"
 #include "Analysis/Core/interface/MetaHiggs.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -29,5 +31,7 @@ namespace
 		analysis::core::Tracks dumm10;
 		analysis::dimuon::MetaHiggs dumm12;
 		analysis::core::EventAuxiliaries dumm13;
+        analysis::core::Taus dumm14;
+        analysis::core::Electrons dumm15;
 	};
 }

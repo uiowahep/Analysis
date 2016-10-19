@@ -17,5 +17,6 @@
 <use name="SimDataFormats/PileupSummaryInfo" />
 <use name="DataFormats/Luminosity" />
 <use name="SimDataFormats/Vertex"/>
+<use name="RecoEgamma/EgammaTools" />
 
 <flags EDM_PLUGIN="1"/>

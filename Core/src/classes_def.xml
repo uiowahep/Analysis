@@ -46,6 +46,14 @@
 	<class name="analysis::core::Track"/>
 	<class name="std::vector<analysis::core::Track>"/>
 	<class name="edm::Wrapper<std::vector<analysis::core::Track> >"/>
+            
+    <class name="analysis::core::Tau"/>
+	<class name="std::vector<analysis::core::Tau>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Tau> >"/>
+            
+    <class name="analysis::core::Electron"/>
+	<class name="std::vector<analysis::core::Electron>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::Electron> >"/>
 			
 	<class name="analysis::dimuon::MetaHiggs"/>
 </lcgdict>
