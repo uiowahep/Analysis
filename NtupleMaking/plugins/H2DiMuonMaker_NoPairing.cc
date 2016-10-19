@@ -89,6 +89,9 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 //	MY Classes
 #include "Analysis/Core/interface/GenJet.h"
@@ -101,6 +104,8 @@
 #include "Analysis/Core/interface/Jet.h"
 #include "Analysis/Core/interface/Muon.h"
 #include "Analysis/Core/interface/Vertex.h"
+#include "Analysis/Core/inteface/Electron.h"
+#include "Analysis/Core/interface/Tau.h"
 
 class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
 {
@@ -126,6 +131,8 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
 		//	Analysis Objects
 		analysis::dimuon::MetaHiggs		_meta;
 		analysis::core::Muons		_muons; 
+        analysis::core::Electrons   _electrons;
+        analysis::core::Taus        _taus;
 		analysis::core::Jets		_pfjets;
 		analysis::core::Vertices	_vertices;
 		analysis::core::Event		_event;
@@ -165,6 +172,7 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
         edm::InputTag _tagElectronCutBasedId_loose;
         edm::InputTag _tagElectronCutBasedId_medium;
         edm::InputTag _tagElectronCutBasedId_tight;
+        edm::InputTag _tagConversions;
 
 		edm::EDGetTokenT<GenEventInfoProduct> _tokGenInfo;
 		edm::EDGetTokenT<edm::TriggerResults> _tokTriggerResults;
@@ -189,6 +197,7 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
         edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_loose;
         edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_medium;
         edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_tight;
+        edm::EDGetTokenT<reco::ConversionCollection> _tokConversions;
 
 		edm::Handle<edm::TriggerResults> _hTriggerResults;
 		edm::Handle<pat::TriggerObjectStandAloneCollection> _hTriggerObjects;
@@ -211,6 +220,10 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 	using namespace analysis::core;
 	using namespace analysis::dimuon;
 	_tEvents->Branch("Muons", (Muons*)&_muons);
+    if (_useElectrons)
+        _tEvents->Branch("Electrons", (Electrons*)&_electrons);
+    if (_useTaus)
+        _tEvents->Branch("Taus", (Taus*)&_taus);
 	_tEvents->Branch("Jets", (Jets*)&_pfjets);
 	_tEvents->Branch("Vertices", (Vertices*)&_vertices);
 	_tEvents->Branch("Event", (Event*)&_event);
@@ -253,6 +266,8 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
         "tagElectronCutBasedId_medium");
     _tagElectronCutBasedId_tight = ps.getUntrackedParameter<edm::InputTag>(
         "tagElectronCutBasedId_tight");
+    _tagConversions = ps.getUntrackedParameter<edm::InputTag>(
+        "tagConversions");
 
 	_tokGenInfo = consumes<GenEventInfoProduct>(
 		edm::InputTag("generator"));
@@ -292,6 +307,8 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
         _tagElectronCutBasedId_medium);
     _tokElectronCutBasedId_tight = consumes<edm::ValueMap<bool> >(
         _tagElectronCutBasedId_tight);
+    _tokConversions = mayConsume<reco::ConversionCollection>(
+        _tagConversions);
 
 	_meta._isMC = ps.getUntrackedParameter<bool>("isMC");
 	_meta._triggerNames = ps.getUntrackedParameter<std::vector<std::string> >(
@@ -320,6 +337,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 		"maxTrackIsoSumPt");
 	_meta._maxRelCombIso = ps.getUntrackedParameter<double>("maxRelCombIso");
     _meta._btagNames = ps.getUntrackedParameter<std::vector<std::string> >("btagNames");
+    _meta._tauIDNames = ps.getUntrackedParameter<std::vector<std::string> >("tauIDNames");
     _useElectrons = ps.getUntrackedParameter<bool>("useElectrons");
     _useTaus = ps.getUntrackedParameter<bool>("useTaus");
 
@@ -386,6 +404,8 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 	_pfjets.clear();
 	_genjets.clear();
 	_muons.clear();
+    _electrons.clear();
+    _taus.clear();
 	_genjets.clear();
 
 	_genZpreFSR.reset();
@@ -791,16 +811,43 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
         e.getByToken(_tokElectronCutBasedId_tight, hId_tight);
         edm::Handle<edm::View<pat::Electron> > hElectrons;
         e.getByToken(_tokElectrons, hElectrons);
+
+        edm::Handle<reco::ConversionCollection> hConversions;
+        e.getByToken(_tokConversions, hConversions);
+
         for (size_t i = 0; i < hElectrons->size(); ++i)
         {
             auto const ele = hElectrons->ptrAt(i);
+            //  >= 10GeV for electrons
+            if (ele->pt()<10) continue;
+
+            analysis::core::Electron mye;
+            mye._charge = ele->charge();
+            mye._pt = ele->pt();
+            mye._eta = ele->eta();
+            mye._phi = ele->phi();
+//            mye._eta = ele->superCluster()->eta();
+//            mye._phi = ele->superCluster()->phi();
+
+            reco::GsfTrackRef theTrack = ele->gsfTrack();
+            mye._dz = theTrack->dz(hBS->position());
+            mye._trackIso = ele->trackIso();
+            mye._ecalIso = ele->ecalIso();
+            mye._hcalIso = ele->hcalIso();
+            mye._isPF = ele->isPF();
+            mye._convVeto = !ConversionTools::hasMatchedConversion(*ele,
+                hConversions, hBS->position());
 
             bool id_veto =  (*hId_veto)[ele];
+            mye._ids.push_back(id_veto);
             bool id_loose =  (*hId_loose)[ele];
+            mye._ids.push_back(id_loose);
             bool id_medium =  (*hId_medium)[ele];
-            bool id_tight =  (*hId_tight)[ele];
+            mye._ids.push_back(id_medium);
+            bool id_tight =  (*hId_tight)[ele];    
+            mye._ids.push_back(id_tight);
 
-            
+            _electrons.push_back(mye);
         }
     }
 
@@ -814,13 +861,21 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
         for (pat::TauCollection::const_iterator it=hTaus->begin();
             it!=hTaus->end(); ++it)
         {
-            std::cout << "2222222222" << std::endl;
-            std::vector<pat::Tau::IdPair> const& map = it->tauIDs();
-            for (std::vector<pat::Electron::IdPair>::const_iterator mt=map.begin();
-                mt!=map.end(); ++mt)
-            {
-                std::cout << mt->first << "  " << mt->second << std::endl;
-            }
+            //  >=20GeV for Taus only
+            if (it->pt()<20) continue;
+
+            analysis::core::Tau mytau;
+            mytau._pt = it->pt();
+            mytau._eta = it->eta();
+            mytau._phi = it->phi();
+            mytau._isPF = it->isPFTau();
+            mytau._charge = it->charge();
+
+            for (std::vector<std::string>::const_iterator tt=_meta._tauIDNames.begin();
+                tt!=_meta._tauIDNames.end(); ++tt)
+                mytau._ids.push_back(it->tauID(*tt));
+
+            _taus.push_back(mytau);
         }
     }
 

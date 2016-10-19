@@ -18,6 +18,7 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     tagMET = cms.untracked.InputTag("slimmedMETs"),
     tagPFJets = cms.untracked.InputTag("slimmedJets"),
     tagGenJets = cms.untracked.InputTag("slimmedGenJets"),
+    tagConversions = cms.untracked.InputTag("reducedEgamma:reducedConversions"),
     
     #   for electron id
     tagElectronCutBasedId_veto = cms.untracked.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto"),
@@ -54,6 +55,10 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
 	maxTrackIsoSumPt = cms.untracked.double(999),
 	maxRelCombIso = cms.untracked.double(999),
     btagNames = cms.untracked.vstring(["pfCombinedInclusiveSecondaryVertexV2BJetTags"]),
+    tauIDNames = cms.untracked.vstring(["byCombinedIsolationDeltaBetaCorrRaw3Hits",
+        "againstElectronLooseMVA6", "againstElectronVLooseMVA6",
+        "decayModeFindingOldDMs", "decayModeFindingNewDMs", 
+        "byLooseCombinedIsolationDeltaBetaCorr3Hits", "byMediumCombinedIsolationDeltaBetaCorr3Hits", "byTightCombinedIsolationDeltaBetaCorr3Hits", "againstMuonLoose3", "againstMuonTight3", "againstElectronVTightMVA6", "againstElectronTightMVA6", "againstElectronMediumMVA6"]),
 
         #
         #   Some flags

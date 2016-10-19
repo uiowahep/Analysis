@@ -20,15 +20,10 @@ namespace analysis
                 {
                     Track::reset();
                     _ids.clear();
-                    _trackIso = 0;
-                    _ecalIso = 0;
-                    _hcalIso = 0;
-                    _dz = 0;
                     _isPF = false;
                 }
 
-                std::vector<floatt> _ids;
-                bool _isCalo;
+                std::vector<float> _ids;
                 bool _isPF;
 
 #ifdef STANDALONE

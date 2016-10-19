@@ -30,6 +30,7 @@ namespace analysis
 					_isMC = 0;
 					_triggerNames.clear();
                     _btagNames.clear();
+                    _tauIDNames.clear();
 					_nMuons = 0;
 					_checkTrigger = 0;
 	
@@ -60,6 +61,7 @@ namespace analysis
 				bool _isMC;
 				std::vector<std::string> _triggerNames;
                 std::vector<std::string> _btagNames;
+                std::vector<std::string> _tauIDNames;
 				uint32_t _nMuons;
 				bool _checkTrigger;
 	

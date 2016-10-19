@@ -33,6 +33,7 @@ namespace analysis
                 float _hcalIso;
                 double _dz;
                 bool _isPF;
+                bool _convVeto;
 
 #ifdef STANDALONE
                 ClassDef(Electron, 1)
