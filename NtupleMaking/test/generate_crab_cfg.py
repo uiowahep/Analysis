@@ -31,9 +31,9 @@ jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
 datasets = []
-sets_to_consider=data_datasets
+sets_to_consider=mc_datasets
 for k in sets_to_consider:
-    if sets_to_consider[k].year==2016:
+    if sets_to_consider[k].year==2016 and sets_to_consider[k].initial_cmssw=="80X":
 #    if sets_to_consider[k].initial_cmssw=="80X":
         datasets.append(sets_to_consider[k])
 samples = []
