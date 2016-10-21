@@ -98,6 +98,34 @@ datadatasets = {
         isData = True,
         year = 2016,
         globaltag = "80X_dataRun2_Prompt_v9"
+    ),
+
+    #
+    #   2016 Re Reco
+    #
+    "/SingleMuon/Run2016B-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016B-23Sep2016-v1/MINIAOD",
+        isData = True,
+        year=2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v3"
+    ),
+    "/SingleMuon/Run2016C-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016C-23Sep2016-v1/MINIAOD",
+        isData = True,
+        year=2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v3"
+    ),
+    "/SingleMuon/Run2016E-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016E-23Sep2016-v1/MINIAOD",
+        isData = True,
+        year=2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v3"
+    ),
+    "/SingleMuon/Run2016F-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016F-23Sep2016-v1/MINIAOD",
+        isData = True,
+        year=2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v3"
     )
 }
 
