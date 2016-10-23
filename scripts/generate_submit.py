@@ -16,7 +16,7 @@ def main():
     import NtupleProcessing.python.Dataset as DS
 
     #   set the variables
-    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-0"
+    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-1"
     executable = os.path.join(bindir, "process_HiggsAnalysis_wCuts_NoPairing")
     batchSubmission = True
     dirToLaunchFrom = os.path.join(bindir, "submission")
