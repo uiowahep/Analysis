@@ -20,13 +20,11 @@ def main():
     executable = os.path.join(os.environ["ANALYSISHOME"], "process_HiggsAnalysis")
     batchSubmission = True
     dirToLaunchFrom = os.path.join(os.environ["ANALYSISHOME"], "submission")
-    if not os.path.exists(dirToLaunchFrom):
-        os.system("mkdir %s" % dirToLaunchFrom)
     storage = "EOS"
-    cmsswsrcdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_12/src"
-    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_12/src/Analysis"
+    cmsswsrcdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src"
+    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
-    executable = os.path.join(dirToUse, "build-1", "generate_PUMCFiles")
+    executable = os.path.join(dirToUse, "build-3", "generate_PUMCFiles")
     analysisHome = os.environ["ANALYSISHOME"]
     shouldGenPUMC = 1
     filelistdir = os.path.join(dirToUse, "filelists")
@@ -36,13 +34,11 @@ def main():
     resultsdir+= "/"+version
     queue = '1nh'
     rootpath = "/store/user/vkhriste/higgs_ntuples"
-    aux = "Mu22"
+    aux = "Mu24"
     libext = ".so"
     shouldCreateFileList = True
     shouldCreateLaunchers = True
     shouldCreateSubmitter = True
-    if not os.path.exists(resultsdir):
-        os.system("mkdir %s" % resultsdir)
 
     #
     #   generate all the Ntuple objects that are ready to be processed
@@ -53,7 +49,7 @@ def main():
     data_datasets = S.datadatasets
     mc_datasets = S.mcdatasets
     jsonfiles = S.jsonfiles
-    jsontag = "2016_Prompt_26400"
+    jsontag = "2016_Prompt_29530"
     jsonfile = jsonfiles[jsontag]
     data_ntuples = []
     mc_ntuples = []

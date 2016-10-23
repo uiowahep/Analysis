@@ -17,7 +17,7 @@ def main():
     import NtupleProcessing.python.Dataset as DS
 
     #   set the variables
-    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_12/src/Analysis"
+    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src/Analysis"
     analysisHome = os.environ["ANALYSISHOME"]
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
     filelistdir = os.path.join(dirToUse, "filelists")
@@ -25,7 +25,7 @@ def main():
     pileupdir = os.path.join(dirToUse, "pileup")
     import datetime
     rootpath = "/store/user/vkhriste/higgs_ntuples"
-    aux = "Mu22"
+    aux = "Mu24"
     libext = ".so"
     shouldCreateFileList = True
     shouldCreateLaunchers = True
@@ -40,7 +40,7 @@ def main():
     cross_section_conversions = {"68" : 68000, "69" : 69000, "69p2" : 69200,
         "70" : 70000, "71" : 71000, "72" : 72000, "71p3" : 71300}
     for ipu in pileups:
-        if "Cert_271036-280385_13TeV_PromptReco_Collisions16" not in ipu: continue
+        if "Cert_271036-282037_13TeV_PromptReco_Collisions16" not in ipu: continue
         jsonfilepathname = os.path.join(cmsswdir, "NtupleMaking/test/json", 
             pileups[ipu].datajson)
         outputfile=os.path.join(pileupdir, ipu+"mb.root")

@@ -6,6 +6,8 @@
 
 #pragma link C++ class analysis::core::Object+;
 #pragma link C++ class analysis::core::Muon+;
+#pragma link C++ class analysis::core::Tau+;
+#pragma link C++ class analysis::core::Electron+;
 #pragma link C++ class analysis::core::Track+;
 #pragma link C++ class analysis::core::GenJet+;
 #pragma link C++ class analysis::core::Jet+;
@@ -21,6 +23,8 @@
 
 #pragma link C++ class std::vector<analysis::core::Object>+;
 #pragma link C++ class std::vector<analysis::core:Muon>+;
+#pragma link C++ class std::vector<analysis::core:Electron>+;
+#pragma link C++ class std::vector<analysis::core:Tau>+;
 #pragma link C++ class std::vector<analysis::core::Track>+;
 #pragma link C++ class std::vector<analysis::core::GenJet>+;
 #pragma link C++ class std::vector<analysis::core::Jet>+;

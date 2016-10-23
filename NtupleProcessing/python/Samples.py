@@ -374,12 +374,12 @@ def isReReco(dataset):
 
 def buildPUfilename(ntuple):
     if ntuple.isData:
-        sdata = "pileup__%s__%smb.root" % (result.pileupdata.datajson[:-4],
-            result.pileupdata.cross_section)
+        sdata = "pileup__%s__%smb.root" % (ntuple.pileupdata.datajson[:-4],
+            ntuple.pileupdata.cross_section)
         return sdata
     else:
-        smc = "pileup__%s__%s.root" % (result.label.split("__")[0],
-            result.cmssw)
+        smc = "pileup__%s__%s.root" % (ntuple.label.split("__")[0],
+            ntuple.cmssw)
         return smc
 
 def buildPUfilenames(result):
