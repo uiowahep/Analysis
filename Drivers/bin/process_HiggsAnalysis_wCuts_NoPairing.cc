@@ -63,7 +63,7 @@ bool __continueRunning = true;
 /*
  *  Define all the Constants
  */
-double _muonMatchedPt = 22.;
+double _muonMatchedPt = 24.;
 double _muonMatchedEta = 2.4;
 double _muonPt = 10.;
 double _muonEta = 2.4;
