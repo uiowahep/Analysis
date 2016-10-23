@@ -3,16 +3,21 @@ List of Cut variables
 """
 
 cut_ranges = {
-    "muonPt" : [x for x in range(0, 50)],
-    "muonEta" : [float(x)*0.01 for x in range(100, 310, 10)]
+    "leadmuonPt" : [x for x in range(0, 50, 10)],
+    "subleadmuonPt" : [x for x in range(0, 50, 10)],
+#    "leadmuonEta" : [float(x)*0.01 for x in range(100, 310, 10)],
+#    "subleadmuonEta" : [float(x)*0.01 for x in range(100, 310, 10)],
 }
 
 cuts = {
     "muonMatchedPt" : 22.,
     "muonMatchedEta" : 2.4,
-    "muonPt" : 10.,
-    "muonEta" : 2.4,
-    "muonIso" : 0.1,
+    "leadmuonPt" : 10.,
+    "subleadmuonPt" : 10.,
+    "leadmuonEta" : 2.4,
+    "subleadmuonEta" : 2.4,
+    "leadmuonIso" : 0.1,
+    "subleadmuonIso" : 0.1,
     "leadJetPt" : 40.,
     "subleadJetPt" : 30.,
     "metPt" : 40.,
@@ -21,6 +26,41 @@ cuts = {
     "dijetMass_ggFTight" : 250,
     "dimuonPt_ggFTight" : 50,
     "dimuonPt_01JetsTight" : 10,
+}
+
+def generate_cutsets():
+    l = []
+    for leadmuonPt in range(0, 50, 10):
+        for subleadmuonPt in range(0, 50, 10):
+            c = cuts.copy()
+            c["leadmuonPt"] = leadmuonPt
+            c["subleadmuonPt"] = subleadmuonPt
+            l.append(c)  
+    return l
+
+#cuts_shortcuts = {}
+#counter = 0
+#for key in cuts:
+#    cuts_shortcuts[key] = "%dc" % counter
+#    counter+=1
+
+cuts_shortcuts = {
+    "muonMatchedPt" : "mmp",
+    "muonMatchedEta" : "mme",
+    "leadmuonPt" : "lmp",
+    "subleadmuonPt" : "slmp",
+    "leadmuonEta" : "lme",
+    "subleadmuonEta" : "slme",
+    "leadmuonIso" : "lmi",
+    "subleadmuonIso" : "slmi",
+    "leadJetPt" : "ljp",
+    "subleadJetPt" : "sljp",
+    "metPt" : "mp",
+    "dijetMass_VBFTight" : "djmv",
+    "dijetdEta_VBFTight" : "djev",
+    "dijetMass_ggFTight" : "djmg",
+    "dimuonPt_ggFTight" : "dmpg",
+    "dimuonPt_01JetsTight" : "dmp0j"
 }
 
 import copy
@@ -36,11 +76,18 @@ def buildCutValue(cut):
 def buildcmdString(ccuts):
     s = ""
     for k in ccuts.keys():
-        s+="  --{%s}=%.1f" % (k, ccuts[k])
+        s+="  --%s=%.1f" % (k, ccuts[k])
     return s
 
 def buildFolderName(ccuts):
-    name = "muonMatchedPt{muonMatchedPt}__muonMatchedEta{muonMatchedEta}__muonPt{muonPt}__muonEta{muonEta}__muonIso{muonIso}__leadJetPt{leadJetPt}__subleadJetPt{subleadJetPt}__metPt{metPt}__dijetMass_VBFTight{dijetMass_VBFTight}__dijetdEta_VBFTight{dijetdEta_VBFTight}__dijetMass_ggFTight{dijetMass_ggFTight}__dimuonPt_ggFTight{dimuonPt_ggFTight}__dimuonPt_01JetsTight{dimuonPt_01JetsTight}".format(**ccuts)
+    name = ""
+    for key in cuts.keys():
+        if name=="":
+            name += "%s{%s}" % (cuts_shortcuts[key], key)
+        else:
+            name += "__%s{%s}" % (cuts_shortcuts[key], key)
+    return name.format(**cuts)
+#    name = "muonMatchedPt{muonMatchedPt}__muonMatchedEta{muonMatchedEta}__muonPt{muonPt}__muonEta{muonEta}__muonIso{muonIso}__leadJetPt{leadJetPt}__subleadJetPt{subleadJetPt}__metPt{metPt}__dijetMass_VBFTight{dijetMass_VBFTight}__dijetdEta_VBFTight{dijetdEta_VBFTight}__dijetMass_ggFTight{dijetMass_ggFTight}__dimuonPt_ggFTight{dimuonPt_ggFTight}__dimuonPt_01JetsTight{dimuonPt_01JetsTight}".format(**ccuts)
     return name
 
 if __name__=="__main__":
