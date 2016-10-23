@@ -16,13 +16,14 @@ def main():
     import NtupleProcessing.python.Dataset as DS
 
     #   set the variables
-    executable = os.path.join(os.environ["ANALYSISHOME"], "process_HiggsAnalysis_wCuts_NoPairing")
+    bindir = "/Users/vk/software/Analysis/build-7"
+    executable = os.path.join(bindir, "process_HiggsAnalysis_wCuts_NoPairing")
     batchSubmission = True
-    dirToLaunchFrom = os.path.join(os.environ["ANALYSISHOME"], "submission")
+    dirToLaunchFrom = os.path.join(bindir, "submission")
     if not os.path.exists(dirToLaunchFrom):
         os.system("mkdir %s" % dirToLaunchFrom)
     storage = "EOS"
-    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_12/src/Analysis"
+    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
     analysisHome = os.environ["ANALYSISHOME"]
     shouldGenPUMC = 1
@@ -50,13 +51,14 @@ def main():
     data_datasets = S.datadatasets
     mc_datasets = S.mcdatasets
     jsonfiles = S.jsonfiles
-    jsontag = "2016_Prompt_26400"
+    jsontag = "2016_Prompt_29530"
     jsonfile = jsonfiles[jsontag]
     data_ntuples = []
     mc_ntuples = []
     cmssw = "80X"
     for k in data_datasets:
-        if data_datasets[k].year!=2016: continue
+        if data_datasets[k].year!=2016 and "PromptReco" not in data_datasets[k].name: continue
+        if "Run2016H-PromptReco-v1" in data_datasets[k].name: continue
         ntuple = DS.Ntuple(data_datasets[k],
             json = jsonfile.filename,
             cmssw = cmssw,
@@ -109,7 +111,7 @@ def main():
             results.append(result)
         else:
             for ipu in S.pileups:
-                if "Cert_271036-280385" not in ipu: continue
+                if "Cert_271036-282037" not in ipu: continue
                 pu = S.pileups[ipu]
                 result = DS.MCResult(ntuple,
                     filelist=filelist,
