@@ -16,7 +16,7 @@ def main():
     import NtupleProcessing.python.Dataset as DS
 
     #   set the variables
-    bindir = "/Users/vk/software/Analysis/build-7"
+    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-0"
     executable = os.path.join(bindir, "process_HiggsAnalysis_wCuts_NoPairing")
     batchSubmission = True
     dirToLaunchFrom = os.path.join(bindir, "submission")
@@ -35,7 +35,7 @@ def main():
     resultsdir+= "/"+version
     queue = '1nh'
     rootpath = "/store/user/vkhriste/higgs_ntuples"
-    aux = "Mu22"
+    aux = "Mu24"
     shouldCreateFileList = True
     shouldCreateLaunchers = True
     shouldCreateSubmitter = True
@@ -57,7 +57,7 @@ def main():
     mc_ntuples = []
     cmssw = "80X"
     for k in data_datasets:
-        if data_datasets[k].year!=2016 and "PromptReco" not in data_datasets[k].name: continue
+        if data_datasets[k].year!=2016 or "PromptReco" not in data_datasets[k].name: continue
         if "Run2016H-PromptReco-v1" in data_datasets[k].name: continue
         ntuple = DS.Ntuple(data_datasets[k],
             json = jsonfile.filename,
