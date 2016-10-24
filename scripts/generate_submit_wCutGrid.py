@@ -17,8 +17,8 @@ def main():
     import NtupleProcessing.python.Cuts as Cuts
 
     #   set the variables
-    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-1"
-    executable = os.path.join(bindir, "process_HiggsAnalysis_wCuts_NoPairing")
+    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-4"
+    executable = os.path.join(bindir, "process_HiggsAnalysis_wCutsExtended_NoPairing_wNewCats")
     batchSubmission = True
     dirToLaunchFrom = os.path.join(bindir, "submission")
     if not os.path.exists(dirToLaunchFrom):
@@ -32,7 +32,7 @@ def main():
     resultsdir = os.path.join(dirToUse, "results")
     pileupdir = os.path.join(dirToUse, "pileup")
     import datetime
-    version = "v1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    version = "v2_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
     resultsdir+= "/"+version
     queue = '1nh'
     rootpath = "/store/user/vkhriste/higgs_ntuples"
@@ -112,7 +112,7 @@ def main():
             results.append(result)
         else:
             for ipu in S.pileups:
-                if "Cert_271036-282037" not in ipu: continue
+                if "Cert_271036-282037" not in ipu or S.pileups[ipu].cross_section!="69p2": continue
                 pu = S.pileups[ipu]
                 result = DS.MCResult(ntuple,
                     filelist=filelist,
@@ -132,12 +132,12 @@ def main():
         outputfilename = S.buildResultOutputPathName(result)
         print result
 
-        for cut_set in Cuts.generate_cutsets:
+        for cut_set in Cuts.generate_cutsets1():
             cutfolder = Cuts.buildFolderName(cut_set)
             cmdcutstr = Cuts.buildcmdString(cut_set)
             fullpath2cutfolder = os.path.join(resultsdir, cutfolder)
             if not os.path.exists(fullpath2cutfolder):
-                os.system("mkir %s" % fullpath2cutfolder)
+                os.system("mkdir %s" % fullpath2cutfolder)
             output = os.path.join(fullpath2cutfolder, outputfilename)
             if not result.isData:
                 (puMCfilename, puDATAfilename) = S.buildPUfilenames(result)
