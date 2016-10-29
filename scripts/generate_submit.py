@@ -19,9 +19,6 @@ def main():
     bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-1"
     executable = os.path.join(bindir, "process_HiggsAnalysis_wCuts_NoPairing")
     batchSubmission = True
-    dirToLaunchFrom = os.path.join(bindir, "submission")
-    if not os.path.exists(dirToLaunchFrom):
-        os.system("mkdir %s" % dirToLaunchFrom)
     storage = "EOS"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
@@ -32,6 +29,9 @@ def main():
     pileupdir = os.path.join(dirToUse, "pileup")
     import datetime
     version = "v1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    dirToLaunchFrom = os.path.join(bindir, "submission"+"__"+version)
+    if not os.path.exists(dirToLaunchFrom):
+        os.system("mkdir %s" % dirToLaunchFrom)
     resultsdir+= "/"+version
     queue = '1nh'
     rootpath = "/store/user/vkhriste/higgs_ntuples"

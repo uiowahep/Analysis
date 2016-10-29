@@ -9,6 +9,8 @@ namespace analysis
 		double const PDG_MASS_Z = 91.1876;
 		double const PFG_WIDTH_Z = 2.4952;
 		double const PDG_MASS_Mu = 0.105658367;
+        double const PDG_MASS_Ele = 0.0005109989;
+        double const PDG_MASS_Tau = 1.77682;
 
 		//	PDG ID
 		int const PDG_ID_Z = 23;

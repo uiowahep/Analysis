@@ -3,6 +3,8 @@
 #ifdef STANDALONE
 #include "Muon.h"
 #include "Jet.h"
+#include "Electron.h"
+#include "Tau.h"
 #include "Vertex.h"
 #include "Event.h"
 #include "MET.h"
@@ -25,11 +27,11 @@
 
 #define FILL_JETS(set) \
 	set.hDiJetMass->Fill(dijetmass, puweight); \
-	set.hDiJetdeta->Fill(TMath::Abs(deta), puweight); \
+	set.hDiJetdeta->Fill(TMath::Abs(jetsdeta), puweight); \
 	set.hDiMuonpt->Fill(p4dimuon.Pt(), puweight); \
 	set.hDiMuonMass->Fill(p4dimuon.M(), puweight); \
 	set.hDiMuoneta->Fill(p4dimuon.Eta(), puweight); \
-	set.hDiMuondphi->Fill(dphi, puweight); \
+	set.hDiMuondphi->Fill(dimuon_dphi, puweight); \
 	set.hMuonpt->Fill(p4m1.Pt(), puweight); \
 	set.hMuonpt->Fill(p4m2.Pt(), puweight); \
 	set.hMuoneta->Fill(p4m1.Eta(), puweight); \
@@ -41,7 +43,7 @@
 	set.hDiMuonpt->Fill(p4dimuon.Pt(), puweight); \
 	set.hDiMuonMass->Fill(p4dimuon.M(), puweight); \
 	set.hDiMuoneta->Fill(p4dimuon.Eta(), puweight); \
-	set.hDiMuondphi->Fill(dphi, puweight); \
+	set.hDiMuondphi->Fill(dimuon_dphi, puweight); \
 	set.hMuonpt->Fill(p4m1.Pt(), puweight); \
 	set.hMuonpt->Fill(p4m2.Pt(), puweight); \
 	set.hMuoneta->Fill(p4m1.Eta(), puweight); \
@@ -67,22 +69,37 @@ bool __continueRunning = true;
  *  sublead - is 1
  */
 enum MuonType {kLead=0, kSubLead=1};
-double _muonMatchedPt = 24.;
-double _muonMatchedEta = 2.4;
-double _leadmuonPt = 10.;
-double _subleadmuonPt = 10.;
-double _leadmuonEta = 2.4;
-double _subleadmuonEta = 2.4;
-double _leadmuonIso = 0.1;
-double _subleadmuonIso = 0.1;
-double _leadJetPt = 40.;
-double _subleadJetPt = 30.;
-double _metPt = 40.;
-double _dijetMass_VBFTight = 650;
-double _dijetdEta_VBFTight = 3.5;
-double _dijetMass_ggFTight = 250.;
-double _dimuonPt_ggFTight = 50.;
-double _dimuonPt_01JetsTight = 10.;
+double __cutmuonHLTMatchedPt = 24.;
+double __cutmuonHLTMatchedEta = 2.4;
+
+double __cutleadmuonPt = 10.;
+double __cutsubleadmuonPt = 10.;
+double __cutleadmuonEta = 2.4;
+double __cutsubleadmuonEta = 2.4;
+double __cutleadmuonIso = 0.1;
+double __cutsubleadmuonIso = 0.1;
+
+double __cutextramuonPt = 10.;
+double __cutextramuonEta = 2.4;
+double __cutextramuonIso = 0.1;
+
+double __cutleadJetPt = 40.;
+double __cutsubleadJetPt = 30.;
+
+double __cutdijetMass_VBFTight = 500;
+double __cutjetBTagMediumDiscr = 0.8;
+
+double __cutjetsdeta_VBFTight = 2.5;
+double __cutdijetMass_VBFLoose = 250.;
+double __cutjetsdeta_VBFLoose = 2.5;
+double __cutlowdijetMassVhadH = 60.;
+double __cuthighdijetMassVhadH = 110.;
+double __cutMETPtZinvH = 40.;
+double __cutdimuonPtggFTight = 25.;
+
+double __cutElePt = 10.;
+double __cutTauPt = 20.;
+double __cutmaxExtraLeptons = 4;
 
 std::string const NTUPLEMAKER_NAME =  "ntuplemaker_H2DiMuonMaker";
 
@@ -93,10 +110,77 @@ using namespace analysis::processing;
 
 TH1D *hEventWeights = NULL;
 DimuonSet setNoCats("NoCats");
+
+DimuonSet set2Mu1bjets("2Mu1bjets");
+DimuonSet set2Mu1bjets0l("2Mu1bjets0l");
+
+DimuonSet set2Mu1bjets2l("2Mu1bjets2l");
+DimuonSet set2Mu1bjets2l2e("2Mu1bjets2l2e");
+DimuonSet set2Mu1bjets2l1e1mu("2Mu1bjets2l1e1mu");
+DimuonSet set2Mu1bjets2l2mu("2Mu1bjets2l2mu");
+DimuonSet set2Mu1bjets2lMissed("2Mu1bjets2lMissed");
+DimuonSet set2Mu1bjetsMissed("2Mu1bjetsMissed");
+DimuonSet set2Mu0bjets("2Mu0bjets");
+DimuonSet set2Mu0bjets0l("2Mu0bjets0l");
+DimuonSet set2Mu0bjets0l2jets("2Mu0bjets0l2jets");
+DimuonSet set2Mu0bjets0l2jetsVBFTight("2Mu0bjets0l2jetsVBFTight");
+DimuonSet set2Mu0bjets0l2jetsVBFLoose("2Mu0bjets0l2jetsVBFLoose");
+DimuonSet set2Mu0bjets0l2jetsVhadH("2Mu0bjets0l2jetsVhadH");
+DimuonSet set2Mu0bjets0l2jetsggF("2Mu0bjets0l2jetsggF");
+DimuonSet set2Mu0bjets0l01jets("2Mu0bjets0l01jets");
+DimuonSet set2Mu0bjets0l01jetsZinvH("2Mu0bjets0l01jetsZinvH");
+DimuonSet set2Mu0bjets0l01jetsggFTight("2Mu0bjets0l01jetsggFTight");
+DimuonSet set2Mu0bjets0l01jetsggFTightBB("2Mu0bjets0l01jetsggFTightBB");
+DimuonSet set2Mu0bjets0l01jetsggFTightBO("2Mu0bjets0l01jetsggFTightBO");
+DimuonSet set2Mu0bjets0l01jetsggFTightBE("2Mu0bjets0l01jetsggFTightBE");
+DimuonSet set2Mu0bjets0l01jetsggFTightOO("2Mu0bjets0l01jetsggFTightOO");
+DimuonSet set2Mu0bjets0l01jetsggFTightOE("2Mu0bjets0l01jetsggFTightOE");
+DimuonSet set2Mu0bjets0l01jetsggFTightEE("2Mu0bjets0l01jetsggFTightEE");
+DimuonSet set2Mu0bjets0l01jetsggFLoose("2Mu0bjets0l01jetsggFLoose");
+DimuonSet set2Mu0bjets0l01jetsggFLooseBB("2Mu0bjets0l01jetsggFLooseBB");
+DimuonSet set2Mu0bjets0l01jetsggFLooseBO("2Mu0bjets0l01jetsggFLooseBO");
+DimuonSet set2Mu0bjets0l01jetsggFLooseBE("2Mu0bjets0l01jetsggFLooseBE");
+DimuonSet set2Mu0bjets0l01jetsggFLooseOO("2Mu0bjets0l01jetsggFLooseOO");
+DimuonSet set2Mu0bjets0l01jetsggFLooseOE("2Mu0bjets0l01jetsggFLooseOE");
+DimuonSet set2Mu0bjets0l01jetsggFLooseEE("2Mu0bjets0l01jetsggFLooseEE");
+DimuonSet set2Mu0bjets12l("2Mu0bjets12l");
+DimuonSet set2Mu0bjets12l1e("2Mu0bjets12l1e");
+DimuonSet set2Mu0bjets12l1mu("2Mu0bjets12l1mu");
+DimuonSet set2Mu0bjets12l1mu1e("2Mu0bjets12l1mu1e");
+DimuonSet set2Mu0bjets12l2e("2Mu0bjets12l2e");
+DimuonSet set2Mu0bjets12l2mu("2Mu0bjets12l2mu");
+
+/*
+DimuonSet set2Mu1bJets2e("2Mu1bJets2e");
+DimuonSet set2Mu1bJets2Mu("2Mu1bJets2Mu");
+DimuonSet set2Mu1bJets0e("2Mu1bJets0e");
+
+DimuonSet set2Mu0bJets("2Mu0bJets");
+DimuonSet set2Mu0bJets1e("2Mu0bJets1e");
+DimuonSet set2Mu0bJets2e("2Mu0bJets2e");
+DimuonSet set2Mu0bJets1Mu("2Mu0bJets1Mu");
+DimuonSet set2Mu0bJets1e1Mu("2Mu0bJets1e1Mu");
+DimuonSet set2Mu0bJets2Mu("2Mu0bJets2Mu");
+DimuonSet set2Mu0bJets0e("2Mu0bJets0e");
+
+DimuonSet set2Mu0bJets1e1Tau("2Mu0bJets1e1Tau");
+DimuonSet set2Mu0bJets1e0Tau("2Mu0bJets1e0Tau");
+
+DimuonSet set2Mu0bJets1Mu1Tau("2Mu0bJets1Mu1Tau");
+DimuonSet set2Mu0bJets1Mu0Tau("2Mu0bJets1Mu0Tau");
+
+DimuonSet set2Mu0bJets0e2Tau("2Mu0bJets0e2Tau");
+DimuonSet set2Mu0bJets0e1Tau("2Mu0bJets0e1Tau");
+//DimuonSet set2Mu0bJets("2Mu0bJets");
+
 DimuonSet set2Jets("2Jets");
 DimuonSet setVBFTight("VBFTight");
 DimuonSet setggFTight("ggFTight");
 DimuonSet setggFLoose("ggFLoose");
+DimuonSet set2Mu0bJets0e2Jets("2Mu0bJets0e2Jets");
+DimuonSet set2Mu0bJets0e2JetsVBFTight("2Mu0bJets0e2JetsVBFTight");
+DimuonSet set2Mu0bJets0e2JetsggFTight("2Mu0bJets0e2JetsggFTight");
+DimuonSet set2Mu0bJets0e2JetsggFLoose("2Mu0bJets0e2JetsggFLoose");
 
 DimuonSet set01Jets("01Jets");
 DimuonSet set01JetsTight("01JetsTight");
@@ -119,7 +203,24 @@ DimuonSet set01JetsLooseBE("01JetsLooseBE");
 DimuonSet set01JetsLooseOO("01JetsLooseOO");
 DimuonSet set01JetsLooseOE("01JetsLooseOE");
 DimuonSet set01JetsLooseEE("01JetsLooseEE");
+*/
 
+/*
+ *  Declare all the collections that are used in analysis
+ */
+EventAuxiliary *aux = NULL;
+Muons *muons = NULL;
+Electrons *electrons = NULL;
+Taus *taus = NULL;
+Jets *jets = NULL;
+Vertices *vertices = NULL;
+Event *event = NULL;
+MET *met = NULL;
+Muons muons_extra;
+
+/*
+ *  Define all the auxiliary functions
+ */
 bool isBarrel(Muon const& m)
 {
 	return TMath::Abs(m._eta)<0.8;
@@ -157,15 +258,15 @@ bool passMuon(Muon const& m, MuonType id=kLead)
     if (id==kLead)
     {
 	    if (m._isGlobal && m._isTracker &&
-		    m._pt>_leadmuonPt && TMath::Abs(m._eta)<_leadmuonEta &&
-		    m._isTight && (m._trackIsoSumPt/m._pt)<_leadmuonIso)
+		    m._pt>__cutleadmuonPt && TMath::Abs(m._eta)<__cutleadmuonEta &&
+		    m._isTight && (m._trackIsoSumPt/m._pt)<__cutleadmuonIso)
 		    return true;
     }
     else
     {
 	    if (m._isGlobal && m._isTracker &&
-		    m._pt>_subleadmuonPt && TMath::Abs(m._eta)<_subleadmuonEta &&
-		    m._isTight && (m._trackIsoSumPt/m._pt)<_subleadmuonIso)
+		    m._pt>__cutsubleadmuonPt && TMath::Abs(m._eta)<__cutsubleadmuonEta &&
+		    m._isTight && (m._trackIsoSumPt/m._pt)<__cutsubleadmuonIso)
 		    return true;
     }
 	return false;
@@ -174,7 +275,7 @@ bool passMuon(Muon const& m, MuonType id=kLead)
 bool passMuonHLT(Muon const& m)
 {
 	if ((m._isHLTMatched[1] || m._isHLTMatched[0]) &&
-		m._pt>_muonMatchedPt && TMath::Abs(m._eta)<_muonMatchedEta)
+		m._pt>__cutmuonHLTMatchedPt && TMath::Abs(m._eta)<__cutmuonHLTMatchedEta)
 		return true;
 
 	return false;
@@ -186,8 +287,7 @@ bool passMuons(Muon const& m1, Muon const& m2)
     Muon const& subleadmuon = m1._pt<m2._pt ? m1 : m2;
 	if (m1._charge!=m2._charge &&
 		passMuon(leadmuon, kLead) && passMuon(subleadmuon, kSubLead))
-		if (passMuonHLT(m1) || passMuonHLT(m2))
-			return true;
+		return true;
 
 	return false;
 }
@@ -200,276 +300,20 @@ float jetMuondR(float jeta,float jphi, float meta, float mphi)
 	return p4j.DeltaR(p4m);
 }
 
-void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2, 
-	MET const& met, Event const& event, float puweight=1.)
+float getdeta(TLorentzVector const& v1, TLorentzVector v2)
 {
-	TLorentzVector p4m1, p4m2;
-	p4m1.SetPtEtaPhiM(mu1._pt, mu1._eta, 
-		mu1._phi, PDG_MASS_Mu);
-	p4m2.SetPtEtaPhiM(mu2._pt, mu2._eta, 
-		mu2._phi, PDG_MASS_Mu);
-	TLorentzVector p4dimuon = p4m1 + p4m2;
+    return v1.Eta()>v2.Eta() ? v1.Eta()-v2.Eta() : v2.Eta()-v1.Eta();
+}
 
-	//	Fill the No Categorization Set
-	double dphi = p4m1.DeltaPhi(p4m2);
-	setNoCats.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
-	setNoCats.hDiMuonMass->Fill(p4dimuon.M(), puweight);
-	setNoCats.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
-	setNoCats.hDiMuondphi->Fill(dphi, puweight);
-	setNoCats.hMuonpt->Fill(p4m1.Pt(), puweight);
-	setNoCats.hMuonpt->Fill(p4m2.Pt(), puweight);
-	setNoCats.hMuoneta->Fill(p4m1.Eta(), puweight);
-	setNoCats.hMuoneta->Fill(p4m2.Eta(), puweight);
-	setNoCats.hMuonphi->Fill(p4m1.Phi(), puweight);
-	setNoCats.hMuonphi->Fill(p4m2.Phi(), puweight);
-	
-	if (!(p4dimuon.M()>110 && p4dimuon.M()<160 &&
-		mu1._isPF && mu2._isPF))
-		return;
-
-	std::vector<TLorentzVector> p4jets;
-	for (Jets::const_iterator it=jets->begin(); it!=jets->end(); ++it)
-	{
-		if (it->_pt>30 && TMath::Abs(it->_eta)<4.7)
-		{
-			if (!(jetMuondR(it->_eta, it->_phi, mu1._eta, mu1._phi)<0.3) && 
-				!(jetMuondR(it->_eta, it->_phi, mu2._eta, mu2._phi)<0.3))
-			{
-				TLorentzVector p4;
-				p4.SetPtEtaPhiM(it->_pt, it->_eta, it->_phi, it->_mass);
-				p4jets.push_back(p4);
-			}
-		}
-	}
-//	if (p4jets.size()>2)
-//		return;
-
-	bool isPreSelected = false;
-	if (p4jets.size()>=2)
-	{
-		TLorentzVector p4lead = p4jets[0]; 
-		TLorentzVector p4sub = p4jets[1];
-		TLorentzVector dijet = p4lead + p4sub;
-
-		float deta = p4lead.Eta() - p4sub.Eta();
-		float dijetmass = dijet.M();
-			
-		if (p4lead.Pt()>_leadJetPt && p4sub.Pt()>_subleadJetPt &&
-			met._pt<_metPt)
-		{
-			isPreSelected = true;
-
-			set2Jets.hDiJetMass->Fill(dijetmass, puweight);
-			set2Jets.hDiJetdeta->Fill(TMath::Abs(deta), puweight);
-			set2Jets.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
-			set2Jets.hDiMuonMass->Fill(p4dimuon.M(), puweight);
-			set2Jets.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
-			set2Jets.hDiMuondphi->Fill(dphi, puweight);
-			set2Jets.hMuonpt->Fill(p4m1.Pt(), puweight);
-			set2Jets.hMuonpt->Fill(p4m2.Pt(), puweight);
-			set2Jets.hMuoneta->Fill(p4m1.Eta(), puweight);
-			set2Jets.hMuoneta->Fill(p4m2.Eta(), puweight);
-			set2Jets.hMuonphi->Fill(p4m1.Phi(), puweight);
-			set2Jets.hMuonphi->Fill(p4m2.Phi(), puweight);
-
-			//	categorize
-			if (dijetmass>_dijetMass_VBFTight && TMath::Abs(deta)>_dijetdEta_VBFTight)
-			{
-				//	VBF Tight
-				setVBFTight.hDiJetMass->Fill(dijetmass, puweight);
-				setVBFTight.hDiJetdeta->Fill(TMath::Abs(deta), puweight);
-				setVBFTight.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
-				setVBFTight.hDiMuonMass->Fill(p4dimuon.M(), puweight);
-				setVBFTight.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
-				setVBFTight.hDiMuondphi->Fill(dphi, puweight);
-				setVBFTight.hMuonpt->Fill(p4m1.Pt(), puweight);
-				setVBFTight.hMuonpt->Fill(p4m2.Pt(), puweight);
-				setVBFTight.hMuoneta->Fill(p4m1.Eta(), puweight);
-				setVBFTight.hMuoneta->Fill(p4m2.Eta(), puweight);
-				setVBFTight.hMuonphi->Fill(p4m1.Phi(), puweight);
-				setVBFTight.hMuonphi->Fill(p4m2.Phi(), puweight);
-				return;
-			}
-			if (dijetmass>_dijetMass_ggFTight && p4dimuon.Pt()>_dimuonPt_ggFTight)
-			{
-				//	ggF Tight
-				setggFTight.hDiJetMass->Fill(dijetmass, puweight);
-				setggFTight.hDiJetdeta->Fill(TMath::Abs(deta), puweight);
-				setggFTight.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
-				setggFTight.hDiMuonMass->Fill(p4dimuon.M(), puweight);
-				setggFTight.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
-				setggFTight.hDiMuondphi->Fill(dphi, puweight);
-				setggFTight.hMuonpt->Fill(p4m1.Pt(), puweight);
-				setggFTight.hMuonpt->Fill(p4m2.Pt(), puweight);
-				setggFTight.hMuoneta->Fill(p4m1.Eta(), puweight);
-				setggFTight.hMuoneta->Fill(p4m2.Eta(), puweight);
-				setggFTight.hMuonphi->Fill(p4m1.Phi(), puweight);
-				setggFTight.hMuonphi->Fill(p4m2.Phi(), puweight);
-				return;}
-			else
-			{	//	ggF Loose
-				setggFLoose.hDiJetMass->Fill(dijetmass, puweight);
-				setggFLoose.hDiJetdeta->Fill(TMath::Abs(deta), puweight);
-				setggFLoose.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
-				setggFLoose.hDiMuonMass->Fill(p4dimuon.M(), puweight);
-				setggFLoose.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
-				setggFLoose.hDiMuondphi->Fill(dphi, puweight);
-				setggFLoose.hMuonpt->Fill(p4m1.Pt(), puweight);
-				setggFLoose.hMuonpt->Fill(p4m2.Pt(), puweight);
-				setggFLoose.hMuoneta->Fill(p4m1.Eta(), puweight);
-				setggFLoose.hMuoneta->Fill(p4m2.Eta(), puweight);
-				setggFLoose.hMuonphi->Fill(p4m1.Phi(), puweight);
-				setggFLoose.hMuonphi->Fill(p4m2.Phi(), puweight);
-				return;
-			}
-		}
-	}
-	if (!isPreSelected)
-	{
-		set01Jets.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
-		set01Jets.hDiMuonMass->Fill(p4dimuon.M(), puweight);
-		set01Jets.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
-		set01Jets.hDiMuondphi->Fill(dphi, puweight);
-		set01Jets.hMuonpt->Fill(p4m1.Pt(), puweight);
-		set01Jets.hMuonpt->Fill(p4m2.Pt(), puweight);
-		set01Jets.hMuoneta->Fill(p4m1.Eta(), puweight);
-		set01Jets.hMuoneta->Fill(p4m2.Eta(), puweight);
-		set01Jets.hMuonphi->Fill(p4m1.Phi(), puweight);
-		set01Jets.hMuonphi->Fill(p4m2.Phi(), puweight);
-		if (isBarrel(mu1) && isBarrel(mu2))
-		{
-			//	BB
-			FILL_NOJETS(set01JetsBB);
-		}
-		else if ((isBarrel(mu1) && isOverlap(mu2)) ||
-			(isBarrel(mu2) && isOverlap(mu1)))
-		{
-			//	BO
-			FILL_NOJETS(set01JetsBO);
-		}
-		else if ((isBarrel(mu1) & isEndcap(mu2)) || 
-			(isBarrel(mu2) && isEndcap(mu1)))
-		{
-			//	BE
-			FILL_NOJETS(set01JetsBE);
-		}
-		else if (isOverlap(mu1) && isOverlap(mu2))
-		{
-			//	OO
-			FILL_NOJETS(set01JetsOO);
-		}
-		else if ((isOverlap(mu1) && isEndcap(mu2)) ||
-			(isOverlap(mu2) && isEndcap(mu1)))
-		{
-			//	OE
-			FILL_NOJETS(set01JetsOE);
-		}
-		else if (isEndcap(mu1) && isEndcap(mu2))
-		{
-			//	EE
-			FILL_NOJETS(set01JetsEE);
-		}
-
-		//	separate loose vs tight
-		if (p4dimuon.Pt()>=_dimuonPt_01JetsTight)
-		{
-			//	01Jet Tight
-			set01JetsTight.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
-			set01JetsTight.hDiMuonMass->Fill(p4dimuon.M(), puweight);
-			set01JetsTight.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
-			set01JetsTight.hDiMuondphi->Fill(dphi, puweight);
-			set01JetsTight.hMuonpt->Fill(p4m1.Pt(), puweight);
-			set01JetsTight.hMuonpt->Fill(p4m2.Pt(), puweight);
-			set01JetsTight.hMuoneta->Fill(p4m1.Eta(), puweight);
-			set01JetsTight.hMuoneta->Fill(p4m2.Eta(), puweight);
-			set01JetsTight.hMuonphi->Fill(p4m1.Phi(), puweight);
-			set01JetsTight.hMuonphi->Fill(p4m2.Phi(), puweight);
-			if (isBarrel(mu1) && isBarrel(mu2))
-			{
-				//	BB
-				FILL_NOJETS(set01JetsTightBB);
-			}
-			else if ((isBarrel(mu1) && isOverlap(mu2)) ||
-				(isBarrel(mu2) && isOverlap(mu1)))
-			{
-				//	BO
-				FILL_NOJETS(set01JetsTightBO);
-			}
-			else if ((isBarrel(mu1) & isEndcap(mu2)) || 
-				(isBarrel(mu2) && isEndcap(mu1)))
-			{
-				//	BE
-				FILL_NOJETS(set01JetsTightBE);
-			}
-			else if (isOverlap(mu1) && isOverlap(mu2))
-			{
-				//	OO
-				FILL_NOJETS(set01JetsTightOO);
-			}
-			else if ((isOverlap(mu1) && isEndcap(mu2)) ||
-				(isOverlap(mu2) && isEndcap(mu1)))
-			{
-				//	OE
-				FILL_NOJETS(set01JetsTightOE);
-			}
-			else if (isEndcap(mu1) && isEndcap(mu2))
-			{
-				//	EE
-				FILL_NOJETS(set01JetsTightEE);
-			}
-			return;
-		}
-		else
-		{
-			//	01Jet Loose
-			set01JetsLoose.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
-			set01JetsLoose.hDiMuonMass->Fill(p4dimuon.M(), puweight);
-			set01JetsLoose.hDiMuoneta->Fill(p4dimuon.Eta(), puweight);
-			set01JetsLoose.hDiMuondphi->Fill(dphi, puweight);
-			set01JetsLoose.hMuonpt->Fill(p4m1.Pt(), puweight);
-			set01JetsLoose.hMuonpt->Fill(p4m2.Pt(), puweight);
-			set01JetsLoose.hMuoneta->Fill(p4m1.Eta(), puweight);
-			set01JetsLoose.hMuoneta->Fill(p4m2.Eta(), puweight);
-			set01JetsLoose.hMuonphi->Fill(p4m1.Phi(), puweight);
-			set01JetsLoose.hMuonphi->Fill(p4m2.Phi(), puweight);
-			if (isBarrel(mu1) && isBarrel(mu2))
-			{
-				//	BB
-				FILL_NOJETS(set01JetsLooseBB);
-			}
-			else if ((isBarrel(mu1) && isOverlap(mu2)) ||
-				(isBarrel(mu2) && isOverlap(mu1)))
-			{
-				//	BO
-				FILL_NOJETS(set01JetsLooseBO);
-			}
-			else if ((isBarrel(mu1) & isEndcap(mu2)) || 
-				(isBarrel(mu2) && isEndcap(mu1)))
-			{
-				//	BE
-				FILL_NOJETS(set01JetsLooseBE);
-			}
-			else if (isOverlap(mu1) && isOverlap(mu2))
-			{
-				//	OO
-				FILL_NOJETS(set01JetsLooseOO);
-			}
-			else if ((isOverlap(mu1) && isEndcap(mu2)) ||
-				(isOverlap(mu2) && isEndcap(mu1)))
-			{
-				//	OE
-				FILL_NOJETS(set01JetsLooseOE);
-			}
-			else if (isEndcap(mu1) && isEndcap(mu2))
-			{
-				//	EE
-				FILL_NOJETS(set01JetsLooseEE);
-			}
-			return;
-		}
-	}
-	
-	return;
+void copy(Muons* muons, Muons& muons_extra, std::pair<int, int> const& p)
+{
+    int counter = 0;
+    for (Muons::const_iterator it=muons->begin(); it!=muons->end(); ++it)
+    {
+        if (counter!=p.first && counter!=p.second)
+            muons_extra.push_back(*it);
+        counter++;
+    }
 }
 
 float sampleinfo(std::string const& inputname)
@@ -505,7 +349,6 @@ void generatePUMC()
 	Streamer s(__inputfilename, NTUPLEMAKER_NAME+"/Events");
 	s.chainup();
 
-	EventAuxiliary *aux=NULL;
 	s._chain->SetBranchAddress("EventAuxiliary", &aux);
 	int numEvents = s._chain->GetEntries();
 	for (uint32_t i=0; i<numEvents; i++)
@@ -523,6 +366,7 @@ void process()
 	//	out ...
 	TFile *outroot = new TFile(__outputfilename.c_str(), "recreate");
     hEventWeights = new TH1D("eventWeights", "eventWeights", 1, 0, 1);
+    /*
 	setNoCats.init();
 	set2Jets.init();
 	set01Jets.init();
@@ -549,6 +393,46 @@ void process()
 	set01JetsLooseOO.init();
 	set01JetsLooseOE.init();
 	set01JetsLooseEE.init();
+    */
+
+    setNoCats.init();
+    set2Mu1bjets.init();
+    set2Mu1bjets0l.init();
+    set2Mu1bjets2l.init();
+    set2Mu1bjets2l2e.init();
+    set2Mu1bjets2l1e1mu.init();
+    set2Mu1bjets2l2mu.init();
+    set2Mu1bjets2lMissed.init();
+    set2Mu1bjetsMissed.init();
+    set2Mu0bjets.init();
+    set2Mu0bjets0l.init();
+    set2Mu0bjets0l2jets.init();
+    set2Mu0bjets0l2jetsVBFTight.init();
+    set2Mu0bjets0l2jetsVBFLoose.init();
+    set2Mu0bjets0l2jetsVhadH.init();
+    set2Mu0bjets0l2jetsggF.init();
+    set2Mu0bjets0l01jets.init();
+    set2Mu0bjets0l01jetsZinvH.init();
+    set2Mu0bjets0l01jetsggFTight.init();
+    set2Mu0bjets0l01jetsggFTightBB.init();
+    set2Mu0bjets0l01jetsggFTightBO.init();
+    set2Mu0bjets0l01jetsggFTightBE.init();
+    set2Mu0bjets0l01jetsggFTightOO.init();
+    set2Mu0bjets0l01jetsggFTightOE.init();
+    set2Mu0bjets0l01jetsggFTightEE.init();
+    set2Mu0bjets0l01jetsggFLoose.init();
+    set2Mu0bjets0l01jetsggFLooseBB.init();
+    set2Mu0bjets0l01jetsggFLooseBO.init();
+    set2Mu0bjets0l01jetsggFLooseBE.init();
+    set2Mu0bjets0l01jetsggFLooseOO.init();
+    set2Mu0bjets0l01jetsggFLooseOE.init();
+    set2Mu0bjets0l01jetsggFLooseEE.init();
+    set2Mu0bjets12l.init();
+    set2Mu0bjets12l1e.init();
+    set2Mu0bjets12l1mu.init();
+    set2Mu0bjets12l1mu1e.init();
+    set2Mu0bjets12l2e.init();
+    set2Mu0bjets12l2mu.init();
 
 	//	get the total events, etc...
 	long long int numEventsWeighted = sampleinfo(__inputfilename);
@@ -561,15 +445,18 @@ void process()
 	Streamer streamer(__inputfilename, NTUPLEMAKER_NAME+"/Events");
 	streamer.chainup();
 
-    Muons *muons=NULL;
-	Muons muons1;
-	Muons muons2;
-	Jets *jets=NULL;
-	Vertices *vertices=NULL;
-	Event *event=NULL;
-	EventAuxiliary *aux=NULL;
-	MET *met=NULL;
+    //  branch
+    muons = NULL;
+    electrons = NULL;
+    taus = NULL;
+    jets = NULL;
+    vertices = NULL;
+    event = NULL;
+    aux = NULL;
+    met = NULL;
 	streamer._chain->SetBranchAddress("Muons", &muons);
+    streamer._chain->SetBranchAddress("Electrons", &electrons);
+    streamer._chain->SetBranchAddress("Taus", &taus);
 	streamer._chain->SetBranchAddress("Jets", &jets);
 	streamer._chain->SetBranchAddress("Vertices", &vertices);
 	streamer._chain->SetBranchAddress("Event", &event);
@@ -588,42 +475,427 @@ void process()
 		mc_pileupfile.Data(), data_pileupfile.Data(), "pileup", "pileup");
 	}
 
-	//	Main Loop
+	//	Event Loop
 	uint32_t numEntries = streamer._chain->GetEntries();
 	for (uint32_t i=0; i<numEntries && __continueRunning; i++)
 	{
-        muons1.clear(); muons2.clear();
+        //  
+        //  clean the vectors/variables used for event processing
+        //
+        muons_extra.clear();
+        Muon mu1, mu2;
+
+        //
+        //  start the event processsing
+        //
 		streamer._chain->GetEntry(i);
 		if (i%1000==0)
 			std::cout << "### Event " << i << " / " << numEntries
 				<< std::endl;
 
+        //  pu wieght
 		float puweight = __isMC ? weighter->weight(aux->_nPU)*aux->_genWeight :
 			1.;
 
 		//
-		//	Selections
+		//	Event Selections:
+        //	- Primary Vertex Cuts
+        //	- HLT Path fired
 		//
 		if (!passVertex(vertices))
 			continue;
 		if (!(aux->_hasHLTFired[0] || aux->_hasHLTFired[1]))
 			continue;
 
-        //  prepare the pairs of muons
-        for (analysis::core::Muons::const_iterator it=muons->begin();
-            it!=muons->end(); ++it)
-            for (analysis::core::Muons::const_iterator jt=(it+1);
+        //  
+        //  1. Find the 2 Muons to be considered as Higgs Candidate
+        //  Separate them from the rest of muons.
+        //  Skeep the event if there are no such candidates
+        //  actual dimuon_higgscandidate is actually set inside of the function
+        //
+        //  2. Check if there is at least 1 muon that matches HLT and pt>cut
+        //  
+        std::vector<std::pair<int ,int> > vgoodmus;
+        bool matchedHLTMuon = false;
+        int icounter = 0;
+        int numGoodMus = 0;
+        for (Muons::const_iterator it=muons->begin(); it!=muons->end();
+            ++it)
+        {
+            //  HLT matching check
+            if (passMuonHLT(*it))
+                matchedHLTMuon=true;
+
+            //  
+            int jcounter = icounter+1;
+            for (Muons::const_iterator jt=(it+1);
                 jt!=muons->end(); ++jt)
             {
-                muons1.push_back(*it); muons2.push_back(*jt);
+                if (passMuons(*it, *jt))
+                    vgoodmus.push_back(std::make_pair(icounter, jcounter));
+                jcounter++;
             }
-		for (uint32_t im=0; im<muons1.size(); im++)
-		{
-			if (!passMuons(muons1.at(im), muons2.at(im)))
-				continue;
-			categorize(jets, muons1.at(im), muons2.at(im), *met, *event,
-				puweight);
-		}
+
+            icounter++;
+            if (passMuon(*it))
+                numGoodMus++;
+        }
+
+        //  
+        //  check that we do have a Higgs Candidate Pair, otherwise next event
+        //
+        if (vgoodmus.size()==0) continue;
+        else if (vgoodmus.size()==1)
+        {
+            mu1 = muons->at(vgoodmus[0].first);
+            mu2 = muons->at(vgoodmus[0].second);
+            copy(muons, muons_extra, vgoodmus[0]);
+        }
+        else // more than 1 pair of Higgs Candidate
+        {
+            if (numGoodMus==4 && vgoodmus.size()==3)
+            {
+                continue;
+            }
+            else if (numGoodMus==4 && vgoodmus.size()==2)
+            {
+                // 2 different pairs
+                std::pair<int, int> p1 = vgoodmus[0];
+                std::pair<int, int> p2 = vgoodmus[1];
+                TLorentzVector p411, p412, p421, p422, p41, p42;
+                p411.SetPtEtaPhiM(muons->at(p1.first)._pt, 
+                    muons->at(p1.first)._eta, muons->at(p1.first)._phi,
+                    PDG_MASS_Mu);
+                p412.SetPtEtaPhiM(muons->at(p1.second)._pt, 
+                    muons->at(p1.second)._eta, muons->at(p1.second)._phi,
+                    PDG_MASS_Mu);
+                p421.SetPtEtaPhiM(muons->at(p2.first)._pt, 
+                    muons->at(p2.first)._eta, muons->at(p2.first)._phi,
+                    PDG_MASS_Mu);
+                p422.SetPtEtaPhiM(muons->at(p2.second)._pt, 
+                    muons->at(p2.second)._eta, muons->at(p2.second)._phi,
+                    PDG_MASS_Mu);
+                p41 = p411 + p412;
+                p42 = p421 + p422;
+                if (TMath::Abs(p41.M()-PDG_MASS_Z) < TMath::Abs(p42.M() - PDG_MASS_Z))
+                {
+                    mu1 = muons->at(p2.first);
+                    mu2 = muons->at(p2.second);
+                    copy(muons, muons_extra, p2);
+                }
+                else
+                {
+                    mu1 = muons->at(p1.first);
+                    mu2 = muons->at(p1.second);
+                    copy(muons, muons_extra, p1);
+                }
+            }
+            else if (numGoodMus==3)
+            {
+                std::pair<int, int> p1 = vgoodmus[0];
+                std::pair<int, int> p2 = vgoodmus[1];
+                TLorentzVector p411, p412, p421, p422, p41, p42;
+                p411.SetPtEtaPhiM(muons->at(p1.first)._pt, 
+                    muons->at(p1.first)._eta, muons->at(p1.first)._phi,
+                    PDG_MASS_Mu);
+                p412.SetPtEtaPhiM(muons->at(p1.second)._pt, 
+                    muons->at(p1.second)._eta, muons->at(p1.second)._phi,
+                    PDG_MASS_Mu);
+                p421.SetPtEtaPhiM(muons->at(p2.first)._pt, 
+                    muons->at(p2.first)._eta, muons->at(p2.first)._phi,
+                    PDG_MASS_Mu);
+                p422.SetPtEtaPhiM(muons->at(p2.second)._pt, 
+                    muons->at(p2.second)._eta, muons->at(p2.second)._phi,
+                    PDG_MASS_Mu);
+                p41 = p411 + p412;
+                p42 = p421 + p422;
+                if (p41.Pt()>p42.Pt()) // take with the largest Pt
+                {
+                    mu1 = muons->at(p1.first);
+                    mu2 = muons->at(p1.second);
+                    copy(muons, muons_extra, p1);
+                }
+                else
+                {
+                    mu1 = muons->at(p2.first);
+                    mu2 = muons->at(p2.second);
+                    copy(muons, muons_extra, p2);
+                }
+            }
+            else continue;
+        }
+
+        //
+        //  HLT matching check
+        //
+        if (!matchedHLTMuon) continue;
+
+        //  
+        //  create the dimuons 4vector
+        //
+        TLorentzVector p4m1, p4m2, p4dimuon;
+        p4m1.SetPtEtaPhiM(mu1._pt, mu1._eta, mu1._phi, PDG_MASS_Mu);
+        p4m2.SetPtEtaPhiM(mu2._pt, mu2._eta, mu2._phi, PDG_MASS_Mu);
+        p4dimuon = p4m1+p4m2;
+        double dimuon_dphi = p4m1.DeltaPhi(p4m2);
+
+        //  
+        //  Deal with electrons
+        //
+
+        //  
+        //  Deal with Taus
+        //
+
+        //  
+        //  Determine the number of extra leptons and make sure the number is less than
+        //  max
+        //
+        int numElectrons = electrons->size();
+        int numTaus = taus->size();
+        int numExtraMuons = muons->size()-2;
+        int numExtraLeptons = numElectrons + numTaus + numExtraMuons;
+        if (!(numExtraLeptons<=__cutmaxExtraLeptons)) continue;
+
+        //  
+        //  separate jets into 2 vectors:
+        //  - bjets
+        //  - not bjets
+        //
+        std::vector<TLorentzVector> p4bjets, p40bjets;
+        for (Jets::const_iterator it=jets->begin(); it!=jets->end(); ++it)
+        {
+            if (it->_pt>30 && TMath::Abs(it->_eta)<2.7 && 
+                it->_btag[0]>__cutjetBTagMediumDiscr)
+            {
+                TLorentzVector p4;
+                p4.SetPtEtaPhiM(it->_pt, it->_eta, it->_phi, it->_mass);
+                p4bjets.push_back(p4);
+            }
+            if (it->_pt>30 && TMath::Abs(it->_eta)<4.7)
+            {
+                TLorentzVector p4;
+                p4.SetPtEtaPhiM(it->_pt, it->_eta, it->_phi, it->_mass);
+                p40bjets.push_back(p4);
+            }
+        }
+
+        //
+        //  We basically select this event and categorize it now =>
+        //  this category is noCats
+        //  Start categorization
+        //
+        FILL_NOJETS(setNoCats);
+
+        if (p4bjets.size()>=1)
+        {
+            FILL_NOJETS(set2Mu1bjets);
+            if (numExtraLeptons==0)
+            {
+                FILL_NOJETS(set2Mu1bjets0l);
+            }
+            else if (numExtraLeptons==2)
+            {
+                FILL_NOJETS(set2Mu1bjets2l);
+                if (numElectrons==2 && numExtraMuons==0)
+                {
+                    if (electrons->at(0)._pt>__cutElePt &&
+                        electrons->at(1)._pt>__cutElePt)
+                    {
+                        FILL_NOJETS(set2Mu1bjets2l2e);
+                    }
+                }
+                else if (numElectrons==1 && numExtraMuons==1)
+                {
+                    if (electrons->at(0)._pt>__cutElePt &&
+                        muons_extra[0]._pt>__cutextramuonPt &&
+                        muons_extra[0]._trackIsoSumPt/muons_extra[0]._pt<__cutextramuonIso)
+                    {
+                        FILL_NOJETS(set2Mu1bjets2l1e1mu);
+                    }
+                }
+                else if (numExtraMuons==2 && numElectrons==0)
+                {
+                    if (muons_extra[0]._pt>__cutextramuonPt &&
+                        muons_extra[1]._pt>__cutextramuonPt &&
+                        muons_extra[0]._trackIsoSumPt/muons_extra[0]._pt<__cutextramuonIso
+                        &&
+                        muons_extra[1]._trackIsoSumPt/muons_extra[1]._pt<__cutextramuonIso)
+                    {
+                        FILL_NOJETS(set2Mu1bjets2l2mu);
+                    }
+                }
+                else
+                {
+                    FILL_NOJETS(set2Mu1bjets2lMissed);
+                }
+            }
+            else 
+            {
+                FILL_NOJETS(set2Mu1bjetsMissed);
+            }
+        }
+        else // no bjets
+        {
+            FILL_NOJETS(set2Mu0bjets);
+            if (numExtraLeptons==0)
+            {
+                FILL_NOJETS(set2Mu0bjets0l);
+                if (p40bjets.size()>=2)
+                {
+                    //
+                    //  2 and more jets
+                    //
+                    TLorentzVector p4lead = p40bjets[0];
+                    TLorentzVector p4sub = p40bjets[1];
+                    TLorentzVector p4dijet = p4lead + p4sub;
+                    float jetsdeta = getdeta(p4lead, p4sub);
+                    float dijetmass = p4dijet.M();
+                    float dijetdimuondeta = getdeta(p4dijet, p4dimuon);
+                    FILL_JETS(set2Mu0bjets0l2jets);
+                    if (dijetmass>__cutdijetMass_VBFTight &&
+                        jetsdeta>__cutjetsdeta_VBFTight)
+                    {
+                        FILL_JETS(set2Mu0bjets0l2jetsVBFTight);
+                    }
+                    else if (dijetmass>__cutdijetMass_VBFLoose &&
+                        jetsdeta>__cutjetsdeta_VBFLoose)
+                    {
+                        FILL_JETS(set2Mu0bjets0l2jetsVBFLoose);
+                    }
+                    else if (dijetmass>__cutlowdijetMassVhadH &&
+                        dijetmass<__cuthighdijetMassVhadH &&
+                        dijetdimuondeta<1.5)
+                    {
+                        FILL_JETS(set2Mu0bjets0l2jetsVhadH);
+                    }
+                    else
+                    {
+                        FILL_JETS(set2Mu0bjets0l2jetsggF);
+                    }
+                }
+                else // 0 leptons 0/1 jets
+                {
+                    FILL_NOJETS(set2Mu0bjets0l01jets)
+                    if (met->_pt>__cutMETPtZinvH)
+                    {
+                        FILL_NOJETS(set2Mu0bjets0l01jetsZinvH);
+                    }
+                    else if (met->_pt<=__cutMETPtZinvH && 
+                        p4dimuon.Pt()>=__cutdimuonPtggFTight)
+                    {
+                        FILL_NOJETS(set2Mu0bjets0l01jetsggFTight);
+                        if (isBarrel(mu1) && isBarrel(mu2))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFTightBB);
+                        }
+                        else if ((isBarrel(mu1) && isOverlap(mu2)) ||
+                            (isBarrel(mu2) && isOverlap(mu1)))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFTightBO);
+                        }
+                        else if ((isBarrel(mu1) & isEndcap(mu2)) ||
+                            (isBarrel(mu2) && isEndcap(mu1)))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFTightBE);
+                        }
+                        else if (isOverlap(mu1) && isOverlap(mu2))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFTightOO);
+                        }
+                        else if ((isOverlap(mu1) && isEndcap(mu2)) ||
+                            (isOverlap(mu2) && isEndcap(mu1)))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFTightOE);
+                        }
+                        else if (isEndcap(mu1) && isEndcap(mu2))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFTightEE);
+                        }
+                    }
+                    else // 01jets ggFLoose
+                    {
+                        FILL_NOJETS(set2Mu0bjets0l01jetsggFLoose);
+                        if (isBarrel(mu1) && isBarrel(mu2))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFLooseBB);
+                        }
+                        else if ((isBarrel(mu1) && isOverlap(mu2)) ||
+                            (isBarrel(mu2) && isOverlap(mu1)))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFLooseBO);
+                        }
+                        else if ((isBarrel(mu1) & isEndcap(mu2)) ||
+                            (isBarrel(mu2) && isEndcap(mu1)))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFLooseBE);
+                        }
+                        else if (isOverlap(mu1) && isOverlap(mu2))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFLooseOO);
+                        }
+                        else if ((isOverlap(mu1) && isEndcap(mu2)) ||
+                            (isOverlap(mu2) && isEndcap(mu1)))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFLooseOE);
+                        }
+                        else if (isEndcap(mu1) && isEndcap(mu2))
+                        {
+                            FILL_NOJETS(set2Mu0bjets0l01jetsggFLooseEE);
+                        }
+                    }
+                }
+            }
+            else if ((numExtraMuons+numElectrons)==1 ||
+                (numExtraMuons+numElectrons)==2)
+            {
+                FILL_NOJETS(set2Mu0bjets12l);
+                if (numElectrons==1 && numExtraMuons==0)
+                {
+                    if (electrons->at(0)._pt>__cutElePt)
+                    {
+                        FILL_NOJETS(set2Mu0bjets12l1e);
+                    }
+                }
+                else if (numElectrons==0 && numExtraMuons==1)
+                {
+                    if (muons_extra[0]._pt>__cutextramuonPt &&
+                        muons_extra[0]._trackIsoSumPt/muons_extra[0]._pt<__cutextramuonIso)
+                    {
+                        FILL_NOJETS(set2Mu0bjets12l1mu);
+                    }
+                }
+                else if (numElectrons==1 && numExtraMuons==1)
+                {
+                    if (electrons->at(0)._pt>__cutElePt &&
+                        muons_extra[0]._pt>__cutextramuonPt &&
+                        muons_extra[0]._trackIsoSumPt/muons_extra[0]._pt<__cutextramuonIso)
+                    {
+                        FILL_NOJETS(set2Mu0bjets12l1mu1e);
+                    }
+                }
+                else if (numElectrons==2 && numExtraMuons==0)
+                {
+                    if (electrons->at(0)._pt>__cutElePt &&
+                        electrons->at(1)._pt>__cutElePt)
+                    {
+                        FILL_NOJETS(set2Mu0bjets12l2e);
+                    }
+                }
+                else if (numElectrons==0 && numExtraMuons==2)
+                {
+                    if (muons_extra[0]._pt>__cutextramuonPt &&
+                        muons_extra[1]._pt>__cutextramuonPt &&
+                        muons_extra[0]._trackIsoSumPt/muons_extra[0]._pt<__cutextramuonIso
+                        &&
+                        muons_extra[1]._trackIsoSumPt/muons_extra[1]._pt<__cutextramuonIso)
+                    {
+                        FILL_NOJETS(set2Mu0bjets12l2mu);
+                    }
+                }
+                else continue;
+            }
+        }
 	}
 
 	outroot->Write();
@@ -641,24 +913,32 @@ void sigHandler(int sig)
 void printCuts()
 {
     std::cout << "Cuts:" << std::endl
-        << "_muonMatchedPt = " << _muonMatchedPt << std::endl
-        << "_muonMatchedEta = " << _muonMatchedEta << std::endl
-        << "_leadmuonPt = " << _leadmuonPt << std::endl
-        << "_subleadmuonPt = " << _subleadmuonPt << std::endl
-        << "_leadmuonEta = " << _leadmuonEta << std::endl
-        << "_subleadmuonEta = " << _subleadmuonEta << std::endl
-        << "_leadmuonIso = " << _leadmuonIso << std::endl
-        << "_subleadmuonIso = " << _subleadmuonIso << std::endl
-        << "_leadJetPt = " << _leadJetPt << std::endl
-        << "_subleadJetPt = " << _subleadJetPt << std::endl
-        << "_metPt = " << _metPt << std::endl
-        << "_dijetMass_VBFTight = " << _dijetMass_VBFTight << std::endl
-        << "_dijetdEta_VBFTight = " << _dijetdEta_VBFTight << std::endl
-        << "_dijetMass_ggFTight = " << _dijetMass_ggFTight << std::endl
-        << "_dimuonPt_ggFTight = " << _dimuonPt_ggFTight << std::endl
-        << "_dimuonPt_01JetsTight = " << _dimuonPt_01JetsTight << std::endl;
+        << "__cutmuonHLTMatchedPt = " << __cutmuonHLTMatchedPt << std::endl
+        << "__cutmuonHLTMatchedEta = " << __cutmuonHLTMatchedEta << std::endl
+        << "__cutleadmuonPt = " << __cutleadmuonPt << std::endl
+        << "__cutsubleadmuonPt = " << __cutsubleadmuonPt << std::endl
+        << "__cutleadmuonEta = " << __cutleadmuonEta << std::endl
+        << "__cutsubleadmuonEta = " << __cutsubleadmuonEta << std::endl
+        << "__cutleadmuonIso = " << __cutleadmuonIso << std::endl
+        << "__cutsubleadmuonIso = " << __cutsubleadmuonIso << std::endl
+        << "__cutextramuonPt = " <<__cutextramuonPt  << std::endl
+        << "__cutextramuonEta = " << __cutextramuonEta << std::endl
+        << "__cutextramuonIso = " << __cutextramuonIso << std::endl
+        << "__cutleadJetPt = " << __cutleadJetPt << std::endl
+        << "__cutsubleadJetPt = " << __cutsubleadJetPt << std::endl
+        << "__cutdijetMass_VBFTight = " << __cutdijetMass_VBFTight << std::endl
+        << "__cutjetBTagMediumDiscr = " << __cutjetBTagMediumDiscr << std::endl
+        << "__cutjetsdeta_VBFTight = " << __cutjetsdeta_VBFTight << std::endl
+        << "__cutdijetMass_VBFLoose = " << __cutdijetMass_VBFLoose << std::endl
+        << "__cutjetsdeta_VBFLoose = " << __cutjetsdeta_VBFLoose << std::endl
+        << "__cutlowdijetMassVhadH = " << __cutlowdijetMassVhadH << std::endl
+        << "__cuthighdijetMassVhadH = " << __cuthighdijetMassVhadH << std::endl
+        << "__cutMETPtZinvH = " << __cutMETPtZinvH << std::endl
+        << "__cutdimuonPtggFTight = " << __cutdimuonPtggFTight << std::endl
+        << "__cutElePt = " << __cutElePt << std::endl
+        << "__cutTauPt = " << __cutTauPt << std::endl
+        << "__cutmaxExtraLeptons = " << __cutmaxExtraLeptons << std::endl;
 }
-
 int main(int argc, char** argv)
 {
 	/*
@@ -683,22 +963,36 @@ int main(int argc, char** argv)
 		("genPUMC", po::value<bool>(&genPUMC)->default_value(false), "true if should generate the MC PU file")
 		("puMC", po::value<std::string>(&none)->default_value("None"), "MC PU Reweight file")
 		("puDATA", po::value<std::string>(&none)->default_value("None"), "DATA PU Reweight file")
-        ("muonMatchedPt", po::value<double>(&_muonMatchedPt)->default_value(_muonMatchedPt), "Muon Matched Pt Cut")
-        ("muonMatchedEta", po::value<double>(&_muonMatchedEta)->default_value(_muonMatchedEta), "Muon Matched Eta Cut")
-        ("leadmuonPt", po::value<double>(&_leadmuonPt)->default_value(_leadmuonPt), "Muon Pt Cut")
-        ("subleadmuonPt", po::value<double>(&_subleadmuonPt)->default_value(_subleadmuonPt), "Muon Pt Cut")
-        ("leadmuonEta", po::value<double>(&_leadmuonEta)->default_value(_leadmuonEta), "Muon Eta Cut")
-        ("subleadmuonEta", po::value<double>(&_subleadmuonEta)->default_value(_subleadmuonEta), "Muon Eta Cut")
-        ("leadmuonIso", po::value<double>(&_leadmuonIso)->default_value(_leadmuonIso), "Muon Isolation Cut")
-        ("subleadmuonIso", po::value<double>(&_subleadmuonIso)->default_value(_subleadmuonIso), "Muon Isolation Cut")
-        ("leadJetPt", po::value<double>(&_leadJetPt)->default_value(_leadJetPt), "Lead Jet Pt Cut")
-        ("subleadJetPt", po::value<double>(&_subleadJetPt)->default_value(_subleadJetPt), "SubLeading Jet Pt Cut")
-        ("metPt", po::value<double>(&_metPt)->default_value(_metPt), "MET Pt Cut")
-        ("dijetMass_VBFTight", po::value<double>(&_dijetMass_VBFTight)->default_value(_dijetMass_VBFTight), "DiJet Mass VBFTight-Category Cut")
-        ("dijetdEta_VBFTight", po::value<double>(&_dijetdEta_VBFTight)->default_value(_dijetdEta_VBFTight), "DiJet deta VBFTight-Category Cut")
-        ("dijetMass_ggFTight", po::value<double>(&_dijetMass_ggFTight)->default_value(_dijetMass_ggFTight), "DiJet Mass ggFTight-Category Cut")
-        ("dimuonPt_ggFTight", po::value<double>(&_dimuonPt_ggFTight)->default_value(_dimuonPt_ggFTight), "DiMuon Pt ggFTight-Category Cut")
-        ("dimuonPt_01JetsTight", po::value<double>(&_dimuonPt_01JetsTight)->default_value(_dimuonPt_01JetsTight), "DiMuon Pt 01JetsTight-Category Cut")
+        ("cutmuonHLTMatchedPt", po::value<double>(&__cutmuonHLTMatchedPt)->default_value(__cutmuonHLTMatchedPt), "Muon Matched Pt Cut")
+        ("cutmuonHLTMatchedEta", po::value<double>(&__cutmuonHLTMatchedEta)->default_value(__cutmuonHLTMatchedEta), "Muon Matched Eta Cut")
+        ("cutleadmuonPt", po::value<double>(&__cutleadmuonPt)->default_value(__cutleadmuonPt), "Muon Pt Cut")
+        ("cutsubleadmuonPt", po::value<double>(&__cutsubleadmuonPt)->default_value(__cutsubleadmuonPt), "Muon Pt Cut")
+        ("cutleadmuonEta", po::value<double>(&__cutleadmuonEta)->default_value(__cutleadmuonEta), "Muon Eta Cut")
+        ("cutsubleadmuonEta", po::value<double>(&__cutsubleadmuonEta)->default_value(__cutsubleadmuonEta), "Muon Eta Cut")
+        ("cutleadmuonIso", po::value<double>(&__cutleadmuonIso)->default_value(__cutleadmuonIso), "Muon Isolation Cut")
+        ("cutsubleadmuonIso", po::value<double>(&__cutsubleadmuonIso)->default_value(__cutsubleadmuonIso), "Muon Isolation Cut")
+
+        ("cutextramuonPt", po::value<double>(&__cutextramuonPt)->default_value(__cutextramuonPt), "Pt Cut on Extra Muons")
+        ("cutextramuonEta", po::value<double>(&__cutextramuonEta)->default_value(__cutextramuonEta), "Eta cut on Extra Muons")
+        ("cutextramuonIso", po::value<double>(&__cutextramuonIso)->default_value(__cutextramuonIso), "Isolation cut on extra muons")
+
+        ("cutleadJetPt", po::value<double>(&__cutleadJetPt)->default_value(__cutleadJetPt), "Lead Jet Pt Cut")
+        ("cutsubleadJetPt", po::value<double>(&__cutsubleadJetPt)->default_value(__cutsubleadJetPt), "SubLeading Jet Pt Cut")
+
+        ("cutdijetMass_VBFTight", po::value<double>(&__cutdijetMass_VBFTight)->default_value(__cutdijetMass_VBFTight), "DiJet Mass VBFTight-Category Cut")
+        ("cutjetBTagMediumDiscr", po::value<double>(&__cutjetBTagMediumDiscr)->default_value(__cutjetBTagMediumDiscr), "Btag discriminator")
+
+        ("cutjetsdeta_VBFTight", po::value<double>(&__cutjetsdeta_VBFTight)->default_value(__cutjetsdeta_VBFTight), "deta between Jets Cut VBFTight")
+        ("cutdijetMass_VBFLoose", po::value<double>(&__cutdijetMass_VBFLoose)->default_value(__cutdijetMass_VBFLoose), "dijet Mass VBFLoose")
+        ("cutjetsdeta_VBFLoose", po::value<double>(&__cutjetsdeta_VBFLoose)->default_value(__cutjetsdeta_VBFLoose), "deta between Jets VBFLoose")
+        ("cutlowdijetMassVhadH", po::value<double>(&__cutlowdijetMassVhadH)->default_value(__cutlowdijetMassVhadH), "Low dijet Mass VHad H")
+        ("cuthighdijetMassVhadH", po::value<double>(&__cuthighdijetMassVhadH)->default_value(__cuthighdijetMassVhadH), "High dijet Mass VHad H")
+        ("cutMETPtZinvH", po::value<double>(&__cutMETPtZinvH)->default_value(__cutMETPtZinvH), "MET Pt Zinv H")
+        ("cutdimuonPtggFTight", po::value<double>(&__cutdimuonPtggFTight)->default_value(__cutdimuonPtggFTight), "dimuon Pt for ggFTight")
+        ("cutElePt", po::value<double>(&__cutElePt)->default_value(__cutElePt), "electron Pt")
+        ("cutTauPt", po::value<double>(&__cutTauPt)->default_value(__cutTauPt),
+         "Tau Pt")
+        ("cutmaxExtraLeptons", po::value<double>(&__cutmaxExtraLeptons)->default_value(__cutmaxExtraLeptons), "Max Number of Extra Leptons")
 	;
 
 	po::variables_map vm;
@@ -718,22 +1012,37 @@ int main(int argc, char** argv)
 	__genPUMC = vm["genPUMC"].as<bool>();
 	__puMCfilename = vm["puMC"].as<std::string>();
 	__puDATAfilename = vm["puDATA"].as<std::string>();
-    _muonMatchedPt = vm["muonMatchedPt"].as<double>();
-    _muonMatchedEta = vm["muonMatchedEta"].as<double>();
-    _leadmuonPt = vm["leadmuonPt"].as<double>();
-    _subleadmuonPt = vm["subleadmuonPt"].as<double>();
-    _leadmuonEta = vm["leadmuonEta"].as<double>();
-    _subleadmuonEta = vm["subleadmuonEta"].as<double>();
-    _leadmuonIso = vm["leadmuonIso"].as<double>();
-    _subleadmuonIso = vm["subleadmuonIso"].as<double>();
-    _leadJetPt = vm["leadJetPt"].as<double>();
-    _subleadJetPt = vm["subleadJetPt"].as<double>();
-    _metPt = vm["metPt"].as<double>();
-    _dijetMass_VBFTight = vm["dijetMass_VBFTight"].as<double>();
-    _dijetdEta_VBFTight = vm["dijetdEta_VBFTight"].as<double>();
-    _dijetMass_ggFTight = vm["dijetMass_ggFTight"].as<double>();
-    _dimuonPt_ggFTight = vm["dimuonPt_ggFTight"].as<double>();
-    _dimuonPt_01JetsTight = vm["dimuonPt_01JetsTight"].as<double>();
+
+    __cutmuonHLTMatchedPt = vm["cutmuonHLTMatchedPt"].as<double>();
+    __cutmuonHLTMatchedEta = vm["cutmuonHLTMatchedEta"].as<double>();
+
+    __cutleadmuonPt = vm["cutleadmuonPt"].as<double>();
+    __cutsubleadmuonPt = vm["cutsubleadmuonPt"].as<double>();
+    __cutleadmuonEta = vm["cutleadmuonEta"].as<double>();
+    __cutsubleadmuonEta = vm["cutsubleadmuonEta"].as<double>();
+    __cutleadmuonIso = vm["cutleadmuonIso"].as<double>();
+    __cutsubleadmuonIso = vm["cutsubleadmuonIso"].as<double>();
+
+    __cutextramuonPt = vm["cutextramuonPt"].as<double>();
+    __cutextramuonEta = vm["cutextramuonEta"].as<double>();
+    __cutextramuonIso = vm["cutextramuonIso"].as<double>();
+
+    __cutleadJetPt = vm["cutleadJetPt"].as<double>();
+    __cutsubleadJetPt = vm["cutsubleadJetPt"].as<double>();
+    __cutdijetMass_VBFTight = vm["cutdijetMass_VBFTight"].as<double>();
+    __cutjetBTagMediumDiscr = vm["cutjetBTagMediumDiscr"].as<double>();
+    __cutjetsdeta_VBFTight = vm["cutjetsdeta_VBFTight"].as<double>();
+    __cutdijetMass_VBFLoose = vm["cutdijetMass_VBFLoose"].as<double>();
+    __cutjetsdeta_VBFLoose = vm["cutjetsdeta_VBFLoose"].as<double>();
+    __cutlowdijetMassVhadH = vm["cutlowdijetMassVhadH"].as<double>();
+    __cuthighdijetMassVhadH = vm["cuthighdijetMassVhadH"].as<double>();
+    __cutMETPtZinvH = vm["cutMETPtZinvH"].as<double>();
+    __cutdimuonPtggFTight = vm["cutdimuonPtggFTight"].as<double>();
+
+    __cutElePt = vm["cutElePt"].as<double>();
+    __cutTauPt = vm["cutTauPt"].as<double>();
+    __cutmaxExtraLeptons = vm["cutmaxExtraLeptons"].as<double>();
+
     printCuts();
 
 	//	start processing

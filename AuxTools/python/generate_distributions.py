@@ -18,17 +18,12 @@ import NtupleProcessing.python.Dataset as DS
 #
 #   List all the constants and some initializations
 #
-treepathname = "ntuplemaker_H2DiMuonMaker/Meta"
-libdir="/Users/vk/software/Analysis/build-4"
-resultsdir = "/Users/vk/software/Analysis/files/results/v0_20160824_1100"
+resultsdir = "/Users/vk/software/Analysis/files/results/v1_20161023_2231"
 picpath = "/Users/vk/software/Analysis/files/distributions"
 picpath = os.path.join(picpath, os.path.split(resultsdir)[1])
 mkdir(picpath)
 default = -0.999
-R.gSystem.Load(libdir+"/libAnalysisNtupleProcessing.dylib")
-R.gSystem.Load(libdir+"/libAnalysisCore.dylib")
-limitsfile = open(resultsdir+"blind.limits", "w")
-aux = "Mu22"
+aux = "Mu24"
 
 def getEventWeights(resultpathname):
     print resultpathname
@@ -119,7 +114,7 @@ def plot(variables, (data, mcbg, mcsig), pre_options=None, post_options=None):
                         for i in range(hdata.GetNbinsX()):
                             if hdata.GetBinCenter(i+1)>120 and hdata.GetBinCenter(i+1)<130:
                                 hdata.SetBinContent(i+1, 0)
-        leg = R.TLegend(0.65, 0.7, 0.9, 0.9)
+        leg = R.TLegend(0.65, 0.6, 0.9, 0.9)
         leg.SetHeader("Samples")
         leg.AddEntry(hdata, data["label"])
 
@@ -357,7 +352,7 @@ if __name__=="__main__":
     #
     #   Choose the Data Results to use
     #
-    datajson = "Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
+    datajson = "Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
     jsons = S.jsonfiles
     intlumi = -1
     for k in jsons:
@@ -372,16 +367,20 @@ if __name__=="__main__":
     #
     #   Choose the MC Samples to be used Signal and Background
     #
-    cmssws = ['74X', '76X']
+    cmssws = ["80X"]
     signals = [
         'GluGlu_HToMuMu_M125_13TeV_powheg_pythia8',
-        'VBF_HToMuMu_M125_13TeV_powheg_pythia8'
+        'VBF_HToMuMu_M125_13TeV_powheg_pythia8',
+        "WMinusH_HToMuMu_M125_13TeV_powheg_pythia8",
+        "WPlusH_HToMuMu_M125_13TeV_powheg_pythia8",
+        "ZH_HToMuMu_M125_13TeV_powheg_pythia8"
     ]
     backgrounds = {
             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
             'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
-    pus = ["68", "69", "70", "71", "72", "71p3"]
+#    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
+    pus = ["68", "69", "71", "72"]
     mcsignals = {}
     mcbkgs = {}
     for cmssw in cmssws:
@@ -432,7 +431,7 @@ if __name__=="__main__":
     #
     print "Produce Plots for variables: %s" % str(varNames)
     for q in [True, False]:
-        for cmssw in ["76X"]:
+        for cmssw in ["80X"]:
             for pu in pus:
                 for isb in [True, False]:
                     plot(variables, (data2016_M22, 
