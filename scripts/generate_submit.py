@@ -16,8 +16,8 @@ def main():
     import NtupleProcessing.python.Dataset as DS
 
     #   set the variables
-    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-1"
-    executable = os.path.join(bindir, "process_HiggsAnalysis_wCuts_NoPairing")
+    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-4"
+    executable = os.path.join(bindir, "process_HiggsAnalysis_wCutsExtended_NoPairing_wNewCats")
     batchSubmission = True
     storage = "EOS"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src/Analysis"
@@ -28,7 +28,7 @@ def main():
     resultsdir = os.path.join(dirToUse, "results")
     pileupdir = os.path.join(dirToUse, "pileup")
     import datetime
-    version = "v1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    version = "v3_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
     dirToLaunchFrom = os.path.join(bindir, "submission"+"__"+version)
     if not os.path.exists(dirToLaunchFrom):
         os.system("mkdir %s" % dirToLaunchFrom)
@@ -58,7 +58,6 @@ def main():
     cmssw = "80X"
     for k in data_datasets:
         if data_datasets[k].year!=2016 or "PromptReco" not in data_datasets[k].name: continue
-        if "Run2016H-PromptReco-v1" in data_datasets[k].name: continue
         ntuple = DS.Ntuple(data_datasets[k],
             json = jsonfile.filename,
             cmssw = cmssw,
