@@ -3,7 +3,7 @@
 #
 
 # min version for cmake
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1.0)
 
 #	project name
 project (Analysis)
@@ -77,7 +77,7 @@ ROOT_GENERATE_DICTIONARY(G__Core
 	${PROJECT_SOURCE_DIR}/Core/interface/MET.h
 	${PROJECT_SOURCE_DIR}/Core/interface/Vertex.h
 	${PROJECT_SOURCE_DIR}/Core/interface/Event.h
-	${PROJECT_SOURCE_DIR}/Core/interface/HFFrame.h
+    ${PROJECT_SOURCE_DIR}/Core/interface/QIE8Frame.h
 	${PROJECT_SOURCE_DIR}/Core/interface/MetaHiggs.h
 	${PROJECT_SOURCE_DIR}/Core/interface/QIE10Frame.h
     ${PROJECT_SOURCE_DIR}/Core/interface/Electron.h

@@ -16,7 +16,7 @@
 
 #include "Streamer.h"
 #include "QIE10Frame.h"
-#include "HFFrame.h"
+#include "QIE8Frame.h"
 
 // NEEDS UPDATING
 double adc2fC_QIE10[256]={
@@ -277,16 +277,16 @@ void analyze(std::string const& inputname)
 				{
 					for (int k=0; k<4; k++)
 					{
-						df342._adc[k]=it->_adc[k];
-						df342._ltdc[k]=it->_ltdc[k];
+						df342._adc.push_back(it->_adc[k]);
+						df342._ltdc.push_back(it->_ltdc[k]);
 					}
 				}
 				else if (it->_depth==4)
 				{
 					for (int k=0; k<4; k++)
 					{
-						df344._adc[k]=it->_adc[k];
-						df344._ltdc[k]=it->_ltdc[k];
+						df344._adc.push_back(it->_adc[k]);
+						df344._ltdc.push_back(it->_ltdc[k]);
 					}
 				}
 			}
@@ -296,8 +296,8 @@ void analyze(std::string const& inputname)
 				{
 					for (int k=0; k<4; k++)
 					{
-						df302._adc[k]=it->_adc[k];
-						df302._ltdc[k]=it->_ltdc[k];
+						df302._adc.push_back(it->_adc[k]);
+						df302._ltdc.push_back(it->_ltdc[k]);
 					}
 				}
 				else if (it->_depth==4)

@@ -8,7 +8,7 @@
 #include "TH2D.h"
 
 #include "QIE10Frame.h"
-#include "HFFrame.h"
+#include "QIE8Frame.h"
 
 #define NUMBER_FRAMES 4
 
@@ -138,9 +138,9 @@ void test_qie10()
 
 	using namespace analysis::core;
 	QIE10Digis *qie10s = NULL;
-	HFDigis *qie8s = NULL;
+	QIE8Digis *qie8s = NULL;
 	chain->SetBranchAddress("QIE10Digis", &qie10s);
-	chain->SetBranchAddress("HFDigis", &qie8s);
+	chain->SetBranchAddress("QIE8Digis", &qie8s);
 	
 	int n=0;
 	for (int i=0; i<chain->GetEntries(); i++)
@@ -155,7 +155,7 @@ void test_qie10()
 			for (int k=0; k<NUMBER_FRAMES; k++)
 				hTDC->Fill(it->_ltdc[k]);
 
-			for (HFDigis::const_iterator jt=qie8s->begin();
+			for (QIE8Digis::const_iterator jt=qie8s->begin();
 				jt!=qie8s->end(); ++jt)
 			{
 				if (it->_iphi==jt->_iphi && it->_ieta==jt->_ieta &&

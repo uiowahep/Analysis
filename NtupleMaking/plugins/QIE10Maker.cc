@@ -10,7 +10,7 @@
 // user include files
 #include "Analysis/NtupleMaking/interface/CommonHeaders.h"
 #include "Analysis/Core/interface/QIE10Frame.h"
-#include "Analysis/Core/interface/HFFrame.h"
+#include "Analysis/Core/interface/QIE8Frame.h"
 
 //	ROOT includes
 #include "TTree.h"
@@ -43,7 +43,9 @@ class QIE10Maker : public edm::EDAnalyzer {
 	  TTree										*_tree;
 	  int										_verbosity;
 	  QIE10Digis								_qie10digis;
-	  HFDigis									_hfdigis;
+	  QIE8Digis									_hfdigis;
+      QIE8Digis                                 _hedigis;
+      QIE8Digis                                 _hbdigis;
 	  edm::EDGetTokenT<QIE10DigiCollection>		_tokQIE10;
 	  edm::EDGetTokenT<HFDigiCollection>		_tokHF;
 };
@@ -65,7 +67,9 @@ QIE10Maker::QIE10Maker(const edm::ParameterSet& ps)
 	edm::Service<TFileService> fs;
 	_tree =fs->make<TTree>("Events", "Events");
 	_tree->Branch("QIE10Digis", "QIE10Digis", (QIE10Digis*)&_qie10digis);
-	_tree->Branch("HFDigis", "HFDigis", (HFDigis*)&_hfdigis);
+	_tree->Branch("HFDigis", "HFDigis", (QIE8Digis*)&_hfdigis);
+	_tree->Branch("HBDigis", "HBDigis", (QIE8Digis*)&_hbdigis);
+	_tree->Branch("HEDigis", "HEDigis", (QIE8Digis*)&_hedigis);
 
 	//	init some plugin parameters
 	_verbosity = ps.getUntrackedParameter<int>("verbosity");
@@ -115,31 +119,51 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 	}
 
 	//	HF Digis
-	//	need only 1 PMT robox for iphi 39
 	for (HFDigiCollection::const_iterator it=chf->begin(); it!=chf->end();
 		++it)
 	{
 		HcalDetId did(it->id());
-		if (!(did.ieta()>0 && did.iphi()==39))
-			continue;
+		QIE8Frame df;
 
-		HFFrame df;
 		df._iphi = did.iphi();
 		df._ieta = did.ieta();
 		df._depth = did.depth();
 		for (int i=0; i<it->size(); i++)
 		{
-			df._adc[i] = it->sample(i).adc();
-			df._nominal_fC[i] = it->sample(i).nominal_fC();
+			df._adc.push_back(it->sample(i).adc());
+			df._nominal_fC.push_back(it->sample(i).nominal_fC());
 		}
 
 		_hfdigis.push_back(df);
+	}
+
+	for (HBHEDigiCollection::const_iterator it=chf->begin(); it!=chf->end();
+		++it)
+	{
+		HcalDetId did(it->id());
+		QIE8Frame df;
+
+		df._iphi = did.iphi();
+		df._ieta = did.ieta();
+		df._depth = did.depth();
+		for (int i=0; i<it->size(); i++)
+		{
+			df._adc.push_back(it->sample(i).adc());
+			df._nominal_fC.push_back(it->sample(i).nominal_fC());
+		}
+
+        if (did.subdet()==1)
+		    _hbdigis.push_back(df);
+        else
+            _hedigis.push_back(df);
 	}
 
 	//	fill and clear
 	_tree->Fill();
 	_qie10digis.clear();
 	_hfdigis.clear();
+	_hbdigis.clear();
+	_hedigis.clear();
 }
 
 

@@ -1,6 +1,6 @@
 #include "Analysis/Core/interface/Object.h"
 #include "Analysis/Core/interface/QIE10Frame.h"
-#include "Analysis/Core/interface/HFFrame.h"
+#include "Analysis/Core/interface/QIE8Frame.h"
 #include "Analysis/Core/interface/Event.h"
 #include "Analysis/Core/interface/GenParticle.h"
 #include "Analysis/Core/interface/Jet.h"
@@ -20,7 +20,7 @@ namespace
 	{
 		analysis::core::Objects dumm0;
 		analysis::core::QIE10Digis dumm1;
-		analysis::core::HFDigis dumm2;
+		analysis::core::QIE8Digis dumm2;
 		analysis::core::Events dumm3;
 		analysis::core::GenParticles dumm4;
 		analysis::core::Jets dumm5;

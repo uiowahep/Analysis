@@ -16,7 +16,7 @@
 #pragma link C++ class analysis::core::Vertex+;
 #pragma link C++ class analysis::core::Event+;
 #pragma link C++ class analysis::core::EventAuxiliary+;
-#pragma link C++ class analysis::core::HFFrame+;
+#pragma link C++ class analysis::core::QIE8Frame+;
 #pragma link C++ class analysis::core::QIE10Frame+;
 #pragma link C++ class analysis::dimuon::MetaHiggs+;
 #pragma link C++ class analysis::processing::Streamer+;
@@ -30,7 +30,7 @@
 #pragma link C++ class std::vector<analysis::core::Jet>+;
 #pragma link C++ class std::vector<analysis::core::GenParticle>+;
 #pragma link C++ class std::vector<analysis::core::Vertex>+;
-#pragma link C++ class std::vector<analysis::core::HFFrame>+;
+#pragma link C++ class std::vector<analysis::core::QIE8Frame>+;
 #pragma link C++ class std::vector<analysis::core::QIE10Frame>+;
 
 #endif
