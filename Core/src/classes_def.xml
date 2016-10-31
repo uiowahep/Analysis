@@ -7,9 +7,9 @@
 	<class name="std::vector<analysis::core::QIE10Frame>"/>
 	<class name="edm::Wrapper<std::vector<analysis::core::QIE10Frame> >"/>
 			
-	<class name="analysis::core::HFFrame"/>
-	<class name="std::vector<analysis::core::HFFrame>"/>
-	<class name="edm::Wrapper<std::vector<analysis::core::HFFrame> >"/>
+	<class name="analysis::core::QIE8Frame"/>
+	<class name="std::vector<analysis::core::QIE8Frame>"/>
+	<class name="edm::Wrapper<std::vector<analysis::core::QIE8Frame> >"/>
 	
 	<class name="analysis::core::Event"/>
 	<class name="std::vector<analysis::core::Event>"/>

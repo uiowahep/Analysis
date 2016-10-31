@@ -48,6 +48,7 @@ class QIE10Maker : public edm::EDAnalyzer {
       QIE8Digis                                 _hbdigis;
 	  edm::EDGetTokenT<QIE10DigiCollection>		_tokQIE10;
 	  edm::EDGetTokenT<HFDigiCollection>		_tokHF;
+	  edm::EDGetTokenT<HBHEDigiCollection>		_tokHBHE;
 };
 
 //
@@ -77,6 +78,7 @@ QIE10Maker::QIE10Maker(const edm::ParameterSet& ps)
 	//	consume the token
 	_tokQIE10 = consumes<QIE10DigiCollection>(edm::InputTag("hcalDigis"));
 	_tokHF = consumes<HFDigiCollection>(edm::InputTag("hcalDigis"));
+    _tokHBHE = consumes<HBHEDigiCollection>(edm::InputTag("hcalDigis"));
 }
 
 QIE10Maker::~QIE10Maker()
@@ -96,10 +98,13 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 
 	edm::Handle<QIE10DigiCollection> cqie10;
 	edm::Handle<HFDigiCollection> chf;
+	edm::Handle<HBHEDigiCollection> chbhe;
 	if (!e.getByToken(_tokQIE10, cqie10))
 		return;
 	if (!e.getByToken(_tokHF, chf))
 		return;
+    if (!e.getByToken(_tokHBHE, chbhe))
+        return;
 
 	//	QIE10
 	for (uint32_t i=0; i<cqie10->size(); i++)
@@ -112,8 +117,8 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 		df._depth = did.depth();
 		for (int j=0; j<frame.samples(); j++)
 		{
-			df._adc[j] = frame[j].adc();
-			df._ltdc[j] = frame[j].le_tdc();
+			df._adc.push_back(frame[j].adc());
+			df._ltdc.push_back(frame[j].le_tdc());
 		}
 		_qie10digis.push_back(df);
 	}
@@ -137,7 +142,7 @@ QIE10Maker::analyze(const edm::Event& e, const edm::EventSetup& es)
 		_hfdigis.push_back(df);
 	}
 
-	for (HBHEDigiCollection::const_iterator it=chf->begin(); it!=chf->end();
+	for (HBHEDigiCollection::const_iterator it=chbhe->begin(); it!=chbhe->end();
 		++it)
 	{
 		HcalDetId did(it->id());
