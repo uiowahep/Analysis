@@ -1,5 +1,5 @@
-#ifndef Analysis_Core_QIE10Frame_h
-#define Analysis_Core_QIE10Frame_h
+#ifndef Analysis_Core_QIE8Frame_h
+#define Analysis_Core_QIE8Frame_h
 
 #ifndef STANDALONE
 #include "Analysis/Core/interface/Object.h"
@@ -13,39 +13,39 @@ namespace analysis
 {
 	namespace core
 	{
-		class QIE10Frame : public Object
+		class QIE8Frame : public Object
 		{
 			public:
-				QIE10Frame() : Object() {this->reset();}
+				QIE8Frame() : Object() {this->reset();}
 
-				virtual void reset()
+				virtual void reset()				
 				{
                     _adc.clear();
-                    _ltdc.clear();
+                    _nominal_fC.clear();
 					_iphi = 0;
 					_ieta = 0;
 					_depth = 0;
 				}
-				virtual ~QIE10Frame() {}
+				virtual ~QIE8Frame() {}
 
 				//	public members
 				int			_iphi;
 				int			_ieta;
 				int			_depth;
                 std::vector<int>			_adc;
-                std::vector<int>			_ltdc;
-		
+                std::vector<double>		_nominal_fC;
+
 #ifdef STANDALONE
-				ClassDef(QIE10Frame, 1)
+				ClassDef(QIE8Frame, 1)
 #endif
 		};
 
-		typedef std::vector<analysis::core::QIE10Frame> QIE10Digis;
+		typedef std::vector<analysis::core::QIE8Frame> QIE8Digis;
 	}
 }
 
 #ifdef STANDALONE
-ClassImpUnique(analysis::core::QIE10Frame, QIE10Frame)
+ClassImpUnique(analysis::core::QIE8Frame, QIE8Frame)
 #endif
 
 #endif
