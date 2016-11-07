@@ -26,15 +26,16 @@ config_filename = "maker_h2dimuon_wElesTaus_cfg_crabtemplate.py"
 
 #   get the json file to be used if needed
 jsonfiles = Samples.jsonfiles
-jsontag = "2016_Prompt_29530"
+jsontag = "2016_Prompt_36150"
 jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
 datasets = []
 sets_to_consider=data_datasets
 for k in sets_to_consider:
-#    if sets_to_consider[k].year==2016 and sets_to_consider[k].initial_cmssw=="80X":
-    if "23Sep2016" in sets_to_consider[k].name:
+    if sets_to_consider[k].year==2016 and \
+        "PromptReco" in sets_to_consider[k].name:
+#    if "23Sep2016" in sets_to_consider[k].name:
         datasets.append(sets_to_consider[k])
 samples = []
 

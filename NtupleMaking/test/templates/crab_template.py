@@ -9,6 +9,8 @@ config.General.transferLogs = False
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'cfgname'
 config.JobType.allowUndistributedCMSSW=True
+config.JobType.maxMemoryMB = 2500
+config.JobType.maxJobRuntimeMin = 1500
 #config.JobType.outputFiles = ['outputfile.root']
 
 config.Data.inputDataset = 's.name'
