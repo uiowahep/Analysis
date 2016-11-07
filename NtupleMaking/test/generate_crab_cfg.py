@@ -31,10 +31,11 @@ jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
 datasets = []
-sets_to_consider=data_datasets
+#sets_to_consider=data_datasets
+sets_to_consider = mc_datasets
 for k in sets_to_consider:
-    if sets_to_consider[k].year==2016 and \
-        "PromptReco" in sets_to_consider[k].name:
+    if sets_to_consider[k].year==2016 and sets_to_consider[k].initial_cmssw=="80X":
+#        "PromptReco" in sets_to_consider[k].name:
 #    if "23Sep2016" in sets_to_consider[k].name:
         datasets.append(sets_to_consider[k])
 samples = []
@@ -48,7 +49,7 @@ for d in datasets:
     if d.isData:
         rootpath+="/data"
     else:
-        rootpath+="/mc"
+        rootpath+="/mc1"
     s = DS.Ntuple(d, 
         json = jsonfile.filename,
 #        json = None,
