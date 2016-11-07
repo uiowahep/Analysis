@@ -222,8 +222,6 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			}
 		}
 	}
-//	if (p4jets.size()>2)
-//		return;
 
 	bool isPreSelected = false;
 	if (p4jets.size()>=2)

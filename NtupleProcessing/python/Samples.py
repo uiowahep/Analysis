@@ -99,6 +99,12 @@ datadatasets = {
         year = 2016,
         globaltag = "80X_dataRun2_Prompt_v9"
     ),
+    "/SingleMuon/Run2016H-PromptReco-v3/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016H-PromptReco-v3/MINIAOD",
+        isData = True,
+        year = 2016,
+        globaltag = "80X_dataRun2_Prompt_v9"
+    ),
 
     #
     #   2016 Re Reco
@@ -326,6 +332,10 @@ jsonfiles = {
     "2016_Prompt_29530" : DS.JsonFile(
         filename = "Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt",
         intlumi = 29530.
+    ),
+    "2016_Prompt_36150" : DS.JsonFile(
+        filename = "Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt",
+        intlumi = 36150.
     )
 }
 

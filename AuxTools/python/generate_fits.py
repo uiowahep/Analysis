@@ -2,8 +2,10 @@ from ROOT import *
 import sys
 import generate_preFitsDataCards as models
 
-version_data = "v0_20160824_1100"
-version_fits = "v0p5_20160824_1100"
+#version_data = "v0_20160824_1100"
+version_data = "v1_20161023_2231"
+#version_fits = "v0p5_20160824_1100"
+version_fits = "v1_20161023_2231"
 
 gROOT.SetBatch(kTRUE)
 
@@ -217,14 +219,14 @@ def blindData(hdata):
 #            print hdata.GetBinContent(ibin+1)
 
 def main():
-    pus = ["68", "69", "70", "71", "71p3", "72"]
+    pus = ["68", "69", "71","72"]
     for pu in pus:
         generateFits(pu)
 
 def generateFits(pu):
-    dataworkspace_path = "/Users/vk/software/Analysis/files/fits_and_datacards/%s/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22/%s" % (
+    dataworkspace_path = "/Users/vk/software/Analysis/files/fits_and_datacards/%s/80X__Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu24/%s" % (
         version_data, pu)
-    fitsworkspace_path = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22/%s" % (
+    fitsworkspace_path = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/80X__Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu24/%s" % (
     version_fits, pu)
     type_setting = "analytic"
     mass = "125"

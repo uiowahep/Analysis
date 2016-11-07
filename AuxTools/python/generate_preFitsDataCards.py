@@ -20,14 +20,14 @@ import NtupleProcessing.python.Dataset as DS
 #   List all the constants and some initializations
 #
 libdir="/Users/vk/software/Analysis/build-4"
-resultsdir = "/Users/vk/software/Analysis/files/results/v1_20160928_1414"
+resultsdir = "/Users/vk/software/Analysis/files/results/v1_20161023_2231"
 limitspath= "/Users/vk/software/Analysis/files/fits_and_datacards"
 limitspath = os.path.join(limitspath, os.path.split(resultsdir)[1])
 mkdir(limitspath)
 default = -0.999
 R.gSystem.Load(libdir+"/libAnalysisNtupleProcessing.dylib")
 R.gSystem.Load(libdir+"/libAnalysisCore.dylib")
-aux = "Mu22"
+aux = "Mu24"
 
 #
 #   Build Specific Models and associated variables
@@ -656,7 +656,7 @@ if __name__=="__main__":
     #
     #   Choose the Data Results to use
     #
-    datajson = "Cert_271036-280385_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
+    datajson = "Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
     jsons = S.jsonfiles
     intlumi = -1
     for k in jsons:
@@ -683,7 +683,8 @@ if __name__=="__main__":
             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
             'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
-    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
+#    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
+    pus = ["68", "69","71", "72",]
     mcsignals = {}
     mcbkgs = {}
     for cmssw in cmssws:
@@ -734,7 +735,7 @@ if __name__=="__main__":
     #
     smodels = ["SingleGaus", "DoubleGaus"]
     smodes = ["Separate", "Combined"]
-    analytic = False
+    analytic = True
     if analytic:
         for smodel in smodels:
             for smode in smodes:

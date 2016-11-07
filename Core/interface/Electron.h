@@ -28,9 +28,11 @@ namespace analysis
                 }
 
                 std::vector<bool> _ids;
-                float _trackIso;
-                float _ecalIso;
-                float _hcalIso;
+                float _sumChargedHadronPt;
+                float _sumNeutralHadronEt;
+                float _sumPhotonEt;
+                float _sumPUPt;
+                float _sumChargedParticlePt;
                 double _dz;
                 bool _isPF;
                 bool _convVeto;
