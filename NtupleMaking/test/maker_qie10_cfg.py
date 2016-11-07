@@ -88,6 +88,11 @@ process.p = cms.Path(
 	*process.maker
 )
 
+process.out = cms.OutputModule(
+    "PoolOutputModule",
+    filename = cms.untracked.string("test_cmssw.root")
+)
+
 process.options = cms.untracked.PSet(
 	Rethrow = cms.untracked.vstring(
 		'ProductNotFound',

@@ -22,7 +22,7 @@ namespace analysis
                     _ids.clear();
                     _sumChargedHadronPt = 0;
                     _sumNeutralHadronEt = 0;
-                    _sumPhotonPt = 0;
+                    _sumPhotonEt = 0;
                     _sumPUPt = 0;
                     _sumChargedParticlePt = 0;
                     _dz = 0;

@@ -84,7 +84,7 @@ print ""; print ""
 #
 #   Pool Source with proper LSs
 #
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.source = cms.Source("PoolSource",fileNames = readFiles)
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
@@ -100,4 +100,4 @@ process.out = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string("test.root")
 )
-#process.finalize = cms.EndPath(process.out)
+process.finalize = cms.EndPath(process.out)
