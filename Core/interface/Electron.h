@@ -20,11 +20,14 @@ namespace analysis
                 {
                     Track::reset();
                     _ids.clear();
-                    _trackIso = 0;
-                    _ecalIso = 0;
-                    _hcalIso = 0;
+                    _sumChargedHadronPt = 0;
+                    _sumNeutralHadronEt = 0;
+                    _sumPhotonPt = 0;
+                    _sumPUPt = 0;
+                    _sumChargedParticlePt = 0;
                     _dz = 0;
                     _isPF = false;
+                    _convVeto = false;
                 }
 
                 std::vector<bool> _ids;

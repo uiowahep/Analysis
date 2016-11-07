@@ -833,9 +833,11 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 
             reco::GsfTrackRef theTrack = ele->gsfTrack();
             mye._dz = theTrack->dz(hBS->position());
-            mye._trackIso = ele->trackIso();
-            mye._ecalIso = ele->ecalIso();
-            mye._hcalIso = ele->hcalIso();
+            mye._sumChargedHadronPt = ele->pfIsolationVariables().sumChargedHadronPt;
+            mye._sumNeutralHadronEt = ele->pfIsolationVariables().sumNeutralHadronEt;
+            mye._sumPhotonPt = ele->pfIsolationVariables().sumPhotont;
+            mye._sumPUPt = ele->pfIsolationVariables().sumPUPt;
+            mye._sumChargedParticlePt = ele->pfIsolationVariables().sumChargedParticlesPt;
             mye._isPF = ele->isPF();
             mye._convVeto = !ConversionTools::hasMatchedConversion(*ele,
                 hConversions, hBS->position());
