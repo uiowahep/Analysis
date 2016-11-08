@@ -594,9 +594,6 @@ void process()
             for (analysis::core::Muons::const_iterator jt=(it+1);
                 jt!=muons->end(); ++jt)
             {
-                muons1.push_back(*it); muons2.push_back(*jt);
-			    if (!passMuons(muons1.at(im), muons2.at(im)))
-				    continue;
                 if (!passMuons(*it, *jt)) continue;
 			    categorize(jets, *it, *jt, *met, *event, puweight);
 		    }
