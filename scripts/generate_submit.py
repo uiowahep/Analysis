@@ -16,19 +16,18 @@ def main():
     import NtupleProcessing.python.Dataset as DS
 
     #   set the variables
-    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-4"
-    executable = os.path.join(bindir, "process_HiggsAnalysis_wCutsExtended_NoPairing_wNewCats")
+    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-6"
+    executable = os.path.join(bindir, "process_HiggsAnalysis_Run1Categorization")
     batchSubmission = True
     storage = "EOS"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
     analysisHome = os.environ["ANALYSISHOME"]
-    shouldGenPUMC = 1
     filelistdir = os.path.join(dirToUse, "filelists")
     resultsdir = os.path.join(dirToUse, "results")
     pileupdir = os.path.join(dirToUse, "pileup")
     import datetime
-    version = "v3_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    version = "vR1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
     dirToLaunchFrom = os.path.join(bindir, "submission"+"__"+version)
     if not os.path.exists(dirToLaunchFrom):
         os.system("mkdir %s" % dirToLaunchFrom)
@@ -73,6 +72,7 @@ def main():
             json = None,
             cmssw = mc_datasets[k].initial_cmssw,
             storage=storage,
+            #   note that we went to mc1 era
             rootpath = os.path.join(rootpath, "mc"),
             timestamp=None,
             aux=aux
@@ -158,7 +158,7 @@ def main():
                 launcher.write("%s\n" % cmd)
                 launcher.close()
                 os.system("chmod 755 %s" % os.path.join(dirToLaunchFrom, launchername))
-            joblist.append("bsub -q {queue} -o {logfile} -e {errorfile} {launcherscript}".format(queue=queue, logfile=os.path.join(dirToLaunchFrom, "log_%d.log" % (
+            joblist.append("bsub -q {queue} -o {logfile} -e {errorfile} {launcherscript}".format(queue=queue if "DYJetsToLL" not in result.name else "8nh", logfile=os.path.join(dirToLaunchFrom, "log_%d.log" % (
         jobid)), errorfile=os.path.join(dirToLaunchFrom, "error_%d.log" % (
         jobid)), launcherscript=os.path.join(dirToLaunchFrom, "launcher_%d.sh" % jobid)))
         jobid+=1
