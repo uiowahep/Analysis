@@ -735,7 +735,7 @@ if __name__=="__main__":
     #
     smodels = ["SingleGaus", "DoubleGaus"]
     smodes = ["Separate", "Combined"]
-    analytic = True
+    analytic = False
     if analytic:
         for smodel in smodels:
             for smode in smodes:
