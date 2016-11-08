@@ -204,7 +204,7 @@ mcdatasets = {
         isSignal = True,
         initial_cmssw = "80X",
         globaltag = "80X_mcRun2_asymptotic_v14",
-        cross_section = 0.1
+        cross_section = 1.373*0.00022
     ),
 
     "/WPlusH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM" : DS.MCDataset(
@@ -214,7 +214,7 @@ mcdatasets = {
         isSignal = True,
         initial_cmssw = "80X",
         globaltag = "80X_mcRun2_asymptotic_v14",
-        cross_section = 0.1
+        cross_section = 1.373*0.00022
     ),
 
     "/ZH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM" : DS.MCDataset(
@@ -224,7 +224,7 @@ mcdatasets = {
         isSignal  = True,
         initial_cmssw = "80X",
         globaltag = "80X_mcRun2_asymptotic_v14",
-        cross_section = 0.1
+        cross_section = 8.839*0.00022
     ),
 
     #
