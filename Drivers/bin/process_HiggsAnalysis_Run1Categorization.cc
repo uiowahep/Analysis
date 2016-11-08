@@ -9,8 +9,6 @@
 #include "Constants.h"
 #include "Streamer.h"
 #include "MetaHiggs.h"
-#include "Electron.h"
-#include "Tau.h"
 
 //	ROOT headers
 #include "TFile.h"
@@ -22,10 +20,8 @@
 #include "LumiReweightingStandAlone.h"
 #include "HistogramSets.h"
 
-#include <map>
 #include "boost/program_options.hpp"
 #include <signal.h>
-#include <string>
 
 #define FILL_JETS(set) \
 	set.hDiJetMass->Fill(dijetmass, puweight); \
@@ -63,13 +59,25 @@ bool __genPUMC;
 std::string __puMCfilename;
 std::string __puDATAfilename;
 bool __continueRunning = true;
-std::string const NTUPLEMAKER_NAME =  "ntuplemaker_H2DiMuonMaker";
 
 /*
  *  Define all the Constants
  */
-enum MuonType {kLead=0, kSubLead=1};
-std::map<std::string, double> __cuts;
+double _muonMatchedPt = 24.;
+double _muonMatchedEta = 2.4;
+double _muonPt = 10.;
+double _muonEta = 2.4;
+double _muonIso = 0.1;
+double _leadJetPt = 40.;
+double _subleadJetPt = 30.;
+double _metPt = 40.;
+double _dijetMass_VBFTight = 650;
+double _dijetdEta_VBFTight = 3.5;
+double _dijetMass_ggFTight = 250.;
+double _dimuonPt_ggFTight = 50.;
+double _dimuonPt_01JetsTight = 10.;
+
+std::string const NTUPLEMAKER_NAME =  "ntuplemaker_H2DiMuonMaker";
 
 namespace po = boost::program_options;
 using namespace analysis::core;
@@ -137,42 +145,19 @@ bool passVertex(Vertices* v)
 	return false;
 }
 
-bool passMuon(Muon const& m, MuonType id=kLead)
+bool passMuon(Muon const& m)
 {
-    std::cout << "222222222" << std::endl;
-    if (id==kLead)
-    {
-        std::cout << "6666666666" << std::endl;
-        if (m._isGlobal && m._isTracker &&
-            m._pt>__cuts["leadmuonPt"] && TMath::Abs(m._eta)<__cuts["leadmuonEta"] &&
-            m._isTight && (m._trackIsoSumPt/m._pt)<__cuts["leadmounIso"])
-        {
-            std::cout << "3333333333333" << std::endl;
-            return true;
-        }
-    }
-    else
-    {
-        std::cout << "77777777777" << std::endl;
-        if (m._isGlobal && m._isTracker &&
-            m._pt>__cuts["subleadmuonPt"] && 
-            TMath::Abs(m._eta)<__cuts["subleadmuonEta"] &&
-            m._isTight && (m._trackIsoSumPt/m._pt)<__cuts["subleadmounIso"])
-        {
-            std::cout << "444444444444" << std::endl;
-            return true;
-        }
-    }
-    std::cout << "55555555555555" << std::endl;
-
+	if (m._isGlobal && m._isTracker &&
+		m._pt>_muonPt && TMath::Abs(m._eta)<_muonEta &&
+		m._isTight && (m._trackIsoSumPt/m._pt)<_muonIso)
+		return true;
 	return false;
 }
 
 bool passMuonHLT(Muon const& m)
 {
 	if ((m._isHLTMatched[1] || m._isHLTMatched[0]) &&
-		m._pt>__cuts["muonHLTMatchedPt"] && 
-        TMath::Abs(m._eta)<__cuts["muonHLTMatchedEta"])
+		m._pt>_muonMatchedPt && TMath::Abs(m._eta)<_muonMatchedEta)
 		return true;
 
 	return false;
@@ -180,19 +165,10 @@ bool passMuonHLT(Muon const& m)
 
 bool passMuons(Muon const& m1, Muon const& m2)
 {
-    Muon const& leadmuon = m1._pt>m2._pt ? m1 : m2;
-    Muon const& subleadmuon = m1._pt < m2._pt ? m1 : m2;
-    std::cout << leadmuon._pt << "  " << subleadmuon._pt << std::endl;
 	if (m1._charge!=m2._charge &&
-		passMuon(leadmuon, kLead) && passMuon(subleadmuon, kSubLead))
-    {
-        std::cout << "00000000000" << std::endl;
+		passMuon(m1) && passMuon(m2))
 		if (passMuonHLT(m1) || passMuonHLT(m2))
-        {
-            std::cout << "11111111" << std::endl;
 			return true;
-        }
-    }
 
 	return false;
 }
@@ -228,6 +204,10 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 	setNoCats.hMuonphi->Fill(p4m1.Phi(), puweight);
 	setNoCats.hMuonphi->Fill(p4m2.Phi(), puweight);
 	
+	if (!(p4dimuon.M()>110 && p4dimuon.M()<160 &&
+		mu1._isPF && mu2._isPF))
+		return;
+
 	std::vector<TLorentzVector> p4jets;
 	for (Jets::const_iterator it=jets->begin(); it!=jets->end(); ++it)
 	{
@@ -253,8 +233,8 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 		float deta = p4lead.Eta() - p4sub.Eta();
 		float dijetmass = dijet.M();
 			
-		if (p4lead.Pt()>__cuts["leadJetPt"] && p4sub.Pt()>__cuts["subleadJetPt"] &&
-			met._pt<__cuts["METPt"])
+		if (p4lead.Pt()>_leadJetPt && p4sub.Pt()>_subleadJetPt &&
+			met._pt<_metPt)
 		{
 			isPreSelected = true;
 
@@ -272,8 +252,7 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 			set2Jets.hMuonphi->Fill(p4m2.Phi(), puweight);
 
 			//	categorize
-			if (dijetmass>__cuts["diJetMass_VBFTight"] && 
-                TMath::Abs(deta)>__cuts["diJetdeta_VBFTight"])
+			if (dijetmass>_dijetMass_VBFTight && TMath::Abs(deta)>_dijetdEta_VBFTight)
 			{
 				//	VBF Tight
 				setVBFTight.hDiJetMass->Fill(dijetmass, puweight);
@@ -290,10 +269,9 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 				setVBFTight.hMuonphi->Fill(p4m2.Phi(), puweight);
 				return;
 			}
-			if (dijetmass>__cuts["diJetMass_VBFLoose"] 
-                && p4dimuon.Pt()>__cuts["dimuonPt_VBFLoose"])
+			if (dijetmass>_dijetMass_ggFTight && p4dimuon.Pt()>_dimuonPt_ggFTight)
 			{
-				//	VBF Loose
+				//	ggF Tight
 				setggFTight.hDiJetMass->Fill(dijetmass, puweight);
 				setggFTight.hDiJetdeta->Fill(TMath::Abs(deta), puweight);
 				setggFTight.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
@@ -372,7 +350,7 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 		}
 
 		//	separate loose vs tight
-		if (p4dimuon.Pt()>=__cuts["dimuonPt_01JetsggFTight"])
+		if (p4dimuon.Pt()>=_dimuonPt_01JetsTight)
 		{
 			//	01Jet Tight
 			set01JetsTight.hDiMuonpt->Fill(p4dimuon.Pt(), puweight);
@@ -563,16 +541,14 @@ void process()
 	streamer.chainup();
 
     Muons *muons=NULL;
-//    Electrons *electrons = NULL;
-//    Taus *taus = NULL;
+	Muons muons1;
+	Muons muons2;
 	Jets *jets=NULL;
 	Vertices *vertices=NULL;
 	Event *event=NULL;
 	EventAuxiliary *aux=NULL;
 	MET *met=NULL;
 	streamer._chain->SetBranchAddress("Muons", &muons);
-//    streamer._chain->SetBranchAddress("Electrons", &electrons);
-//    streamer._chain->SetBranchAddress("Taus", &taus);
 	streamer._chain->SetBranchAddress("Jets", &jets);
 	streamer._chain->SetBranchAddress("Vertices", &vertices);
 	streamer._chain->SetBranchAddress("Event", &event);
@@ -587,14 +563,15 @@ void process()
 			<< __puDATAfilename << std::endl;
 		TString mc_pileupfile = __puMCfilename.c_str();
 		TString data_pileupfile = __puDATAfilename.c_str();
-		weighter = new reweight::LumiReWeighting(
-		mc_pileupfile.Data(), data_pileupfile.Data(), "pileup", "pileup");
+		weighter = new reweight::LumiReWeighting(mc_pileupfile.Data(), 
+            data_pileupfile.Data(), "pileup", "pileup");
 	}
 
 	//	Main Loop
 	uint32_t numEntries = streamer._chain->GetEntries();
 	for (uint32_t i=0; i<numEntries && __continueRunning; i++)
 	{
+        muons1.clear(); muons2.clear();
 		streamer._chain->GetEntry(i);
 		if (i%1000==0)
 			std::cout << "### Event " << i << " / " << numEntries
@@ -605,47 +582,24 @@ void process()
 
 		//
 		//	Selections
-        //	1. Vertex Selection
-        //	2. HLT Fired/Pass
 		//
 		if (!passVertex(vertices))
 			continue;
 		if (!(aux->_hasHLTFired[0] || aux->_hasHLTFired[1]))
 			continue;
 
-        //
-        //  select the 2 muons that should be used downstream as Higgs Dimuon Cand.
-        //
-        TLorentzVector v4tmp1, v4tmp2, v4tmp;
-        v4tmp = v4tmp1 + v4tmp2;
-        Muon const *pm1, *pm2;
-        bool pairExists = false;
-        for (Muons::const_iterator it=muons->begin(); it!=muons->end(); ++it)
-            for (Muons::const_iterator jt=(it+1); jt!=muons->end(); ++jt)
+        //  prepare the pairs of muons
+        for (analysis::core::Muons::const_iterator it=muons->begin();
+            it!=muons->end(); ++it)
+            for (analysis::core::Muons::const_iterator jt=(it+1);
+                jt!=muons->end(); ++jt)
             {
-                if (passMuons(*it, *jt))
-                {
-                    std::cout << it->_pt << "  " << jt->_pt << std::endl;
-                    TLorentzVector v4m1, v4m2, v4di;
-                    v4m1.SetPtEtaPhiM(it->_pt, it->_eta, it->_phi, PDG_MASS_Mu);
-                    v4m2.SetPtEtaPhiM(jt->_pt, jt->_eta, jt->_phi, PDG_MASS_Mu);
-                    v4di = v4m1 + v4m2;
-                    if (v4di.Pt()>v4tmp.Pt())
-                    {
-                        v4tmp = v4di;
-                        pm1 = &(*it);
-                        pm2 = &(*jt);
-                        pairExists = true;
-                    }
-                }
-            }
-        if (!pairExists) continue;
-
-        //  
-        //  Start the Categorization
-        //
-        std::cout << "111111111" << std::endl;
-		categorize(jets, *pm1, *pm2, *met, *event,puweight);
+                muons1.push_back(*it); muons2.push_back(*jt);
+			    if (!passMuons(muons1.at(im), muons2.at(im)))
+				    continue;
+                if (!passMuons(*it, *jt)) continue;
+			    categorize(jets, *it, *jt, *met, *event, puweight);
+		    }
 	}
 
 	outroot->Write();
@@ -662,23 +616,21 @@ void sigHandler(int sig)
 
 void printCuts()
 {
-    std::cout << "------------------------" << std::endl;
-    std::cout << "Cuts:" << std::endl;
-    std::cout << "------------------------" << std::endl;
-    for (std::map<std::string, double>::const_iterator it=__cuts.begin();
-        it!=__cuts.end(); ++it)
-        std::cout << it->first << " = " << it->second << std::endl;
+    std::cout << "Cuts:" << std::endl
+        << "_muonMatchedPt = " << _muonMatchedPt << std::endl
+        << "_muonMatchedEta = " << _muonMatchedEta << std::endl
+        << "_muonPt = " << _muonPt << std::endl
+        << "_muonEta = " << _muonEta << std::endl
+        << "_muonIso = " << _muonIso << std::endl
+        << "_leadJetPt = " << _leadJetPt << std::endl
+        << "_subleadJetPt = " << _subleadJetPt << std::endl
+        << "_metPt = " << _metPt << std::endl
+        << "_dijetMass_VBFTight = " << _dijetMass_VBFTight << std::endl
+        << "_dijetdEta_VBFTight = " << _dijetdEta_VBFTight << std::endl
+        << "_dijetMass_ggFTight = " << _dijetMass_ggFTight << std::endl
+        << "_dimuonPt_ggFTight = " << _dimuonPt_ggFTight << std::endl
+        << "_dimuonPt_01JetsTight = " << _dimuonPt_01JetsTight << std::endl;
 }
-
-void fillCuts(po::variables_map& vm)
-{
-    for (std::map<std::string, double>::iterator it=__cuts.begin();
-        it!=__cuts.end(); ++it)
-        it->second = vm[it->first].as<double>();
-}
-
-#define CUTOPTION(cuts, name, desc) \
-    (name, po::value<double>(&(cuts[name]))->default_value(cuts[name]), desc)
 
 int main(int argc, char** argv)
 {
@@ -692,24 +644,6 @@ int main(int argc, char** argv)
 	std::string none;
 	bool genPUMC = false;
 
-    //  cuts
-    __cuts.insert(std::pair<std::string, double>("muonHLTMatchedPt", 24.));
-    __cuts.insert(std::pair<std::string, double>("muonHLTMatchedEta", 2.4));
-    __cuts.insert(std::pair<std::string, double>("leadmuonPt", 10.));
-    __cuts.insert(std::pair<std::string, double>("subleadmuonPt", 10.));
-    __cuts.insert(std::pair<std::string, double>("leadmuonEta", 2.4));
-    __cuts.insert(std::pair<std::string, double>("subleadmuonEta", 2.4));
-    __cuts.insert(std::pair<std::string, double>("leadmuonIso", 0.1));
-    __cuts.insert(std::pair<std::string, double>("subleadmuonIso", 0.1));
-    __cuts.insert(std::pair<std::string, double>("leadJetPt", 40.));
-    __cuts.insert(std::pair<std::string, double>("subleadJetPt", 30.));
-    __cuts.insert(std::pair<std::string, double>("METPt", 40));
-    __cuts.insert(std::pair<std::string, double>("dimuonPt_01JetsggFTight", 10.));
-    __cuts.insert(std::pair<std::string, double>("diJetMass_VBFTight", 650.));
-    __cuts.insert(std::pair<std::string, double>("diJetdeta_VBFTight", 3.5));
-    __cuts.insert(std::pair<std::string, double>("diJetMass_VBFLoose", 250.));
-    __cuts.insert(std::pair<std::string, double>("dimuonPt_VBFLoose", 50.));
-
 	/*
 	 *	Pare Options
 	 */
@@ -722,22 +656,19 @@ int main(int argc, char** argv)
 		("genPUMC", po::value<bool>(&genPUMC)->default_value(false), "true if should generate the MC PU file")
 		("puMC", po::value<std::string>(&none)->default_value("None"), "MC PU Reweight file")
 		("puDATA", po::value<std::string>(&none)->default_value("None"), "DATA PU Reweight file")
-        CUTOPTION(__cuts, "muonHLTMatchedPt", "HLT Matching Muon Pt")
-        CUTOPTION(__cuts, "muonHLTMatchedEta", "HLT Matching Muon Eta")
-        CUTOPTION(__cuts, "leadmuonPt", "Lead Muon Pt")
-        CUTOPTION(__cuts, "leadmuonEta", "Lead Muon Eta")
-        CUTOPTION(__cuts, "subleadmuonPt", "Sub Lead Muon Pt")
-        CUTOPTION(__cuts, "subleadmuonEta", "Sub Lead Muon Eta")
-        CUTOPTION(__cuts, "leadmuonIso", "Lead Muon Isolation")
-        CUTOPTION(__cuts, "subleadmuonIso", "Sub Lead Muon Isolation")
-        CUTOPTION(__cuts, "leadJetPt", "Lead Jet Pt")
-        CUTOPTION(__cuts, "subleadJetPt", "Sub Lead Jet Pt")
-        CUTOPTION(__cuts, "METPt", "MET Pt")
-        CUTOPTION(__cuts, "dimuonPt_01JetsggFTight", "dimuon Pt for 01JetsggFTight Category")
-        CUTOPTION(__cuts, "diJetMass_VBFTight", "diJet Mass for VBFTight Category")
-        CUTOPTION(__cuts, "diJetdeta_VBFTight", "diJet deta for VBFTight Category")
-        CUTOPTION(__cuts, "diJetMass_VBFLoose", "diJet MAss for VBFLoose Category")
-        CUTOPTION(__cuts, "dimuonPt_VBFLoose", "dimoun Pt for VBFLoose Category")
+        ("muonMatchedPt", po::value<double>(&_muonMatchedPt)->default_value(_muonMatchedPt), "Muon Matched Pt Cut")
+        ("muonMatchedEta", po::value<double>(&_muonMatchedEta)->default_value(_muonMatchedEta), "Muon Matched Eta Cut")
+        ("muonPt", po::value<double>(&_muonPt)->default_value(_muonPt), "Muon Pt Cut")
+        ("muonEta", po::value<double>(&_muonEta)->default_value(_muonEta), "Muon Eta Cut")
+        ("muonIso", po::value<double>(&_muonIso)->default_value(_muonIso), "Muon Isolation Cut")
+        ("leadJetPt", po::value<double>(&_leadJetPt)->default_value(_leadJetPt), "Lead Jet Pt Cut")
+        ("subleadJetPt", po::value<double>(&_subleadJetPt)->default_value(_subleadJetPt), "SubLeading Jet Pt Cut")
+        ("metPt", po::value<double>(&_metPt)->default_value(_metPt), "MET Pt Cut")
+        ("dijetMass_VBFTight", po::value<double>(&_dijetMass_VBFTight)->default_value(_dijetMass_VBFTight), "DiJet Mass VBFTight-Category Cut")
+        ("dijetdEta_VBFTight", po::value<double>(&_dijetdEta_VBFTight)->default_value(_dijetdEta_VBFTight), "DiJet deta VBFTight-Category Cut")
+        ("dijetMass_ggFTight", po::value<double>(&_dijetMass_ggFTight)->default_value(_dijetMass_ggFTight), "DiJet Mass ggFTight-Category Cut")
+        ("dimuonPt_ggFTight", po::value<double>(&_dimuonPt_ggFTight)->default_value(_dimuonPt_ggFTight), "DiMuon Pt ggFTight-Category Cut")
+        ("dimuonPt_01JetsTight", po::value<double>(&_dimuonPt_01JetsTight)->default_value(_dimuonPt_01JetsTight), "DiMuon Pt 01JetsTight-Category Cut")
 	;
 
 	po::variables_map vm;
@@ -757,9 +688,19 @@ int main(int argc, char** argv)
 	__genPUMC = vm["genPUMC"].as<bool>();
 	__puMCfilename = vm["puMC"].as<std::string>();
 	__puDATAfilename = vm["puDATA"].as<std::string>();
-
-    //  Assign Cuts and Print the Cut Set
-    fillCuts(vm);
+    _muonMatchedPt = vm["muonMatchedPt"].as<double>();
+    _muonMatchedEta = vm["muonMatchedEta"].as<double>();
+    _muonPt = vm["muonPt"].as<double>();
+    _muonEta = vm["muonEta"].as<double>();
+    _muonIso = vm["muonIso"].as<double>();
+    _leadJetPt = vm["leadJetPt"].as<double>();
+    _subleadJetPt = vm["subleadJetPt"].as<double>();
+    _metPt = vm["metPt"].as<double>();
+    _dijetMass_VBFTight = vm["dijetMass_VBFTight"].as<double>();
+    _dijetdEta_VBFTight = vm["dijetdEta_VBFTight"].as<double>();
+    _dijetMass_ggFTight = vm["dijetMass_ggFTight"].as<double>();
+    _dimuonPt_ggFTight = vm["dimuonPt_ggFTight"].as<double>();
+    _dimuonPt_01JetsTight = vm["dimuonPt_01JetsTight"].as<double>();
     printCuts();
 
 	//	start processing
