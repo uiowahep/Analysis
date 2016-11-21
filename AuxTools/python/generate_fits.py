@@ -3,9 +3,9 @@ import sys
 import generate_preFitsDataCards as models
 
 #version_data = "v0_20160824_1100"
-version_data = "v1_20161023_2231"
+version_data = "vR2_20161108_2222"
 #version_fits = "v0p5_20160824_1100"
-version_fits = "v1_20161023_2231"
+version_fits = "vR2_20161108_2222"
 
 gROOT.SetBatch(kTRUE)
 
@@ -13,7 +13,10 @@ categories = ["VBFTight", "ggFLoose", "ggFTight",
     "01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
     "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO",
     "01JetsTightBB", "01JetsTightBE", "01JetsTightBO",
-    "01JetsTightEE", "01JetsTightOE", "01JetsTightOO"
+    "01JetsTightEE", "01JetsTightOE", "01JetsTightOO",
+    "1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
+    "1bJets3l", "1bJets2l",
+    "0bJets4l2Mu1e", "0bJets4l3Mu1e", "0bJets4l2Mu2e"
 ]
 combinations = {
     "2JetCombination" : ["VBFTight", "ggFLoose", "ggFTight"],
@@ -23,8 +26,13 @@ combinations = {
         "01JetsTightEE", "01JetsTightOE", "01JetsTightOO"],
     "TotalCombination" : categories,
     "2JetCombinationNoVBFTight" : ["ggFLoose", "ggFTight"],
+    "0bJets4lCombination" : ["0bJets4l2Mu1e", "0bJets4l3Mu1e",
+         "0bJets4l2Mu2e"],
+    "1bJetsCombination" : ["1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
+        "1bJets3l", "1bJets2l"]
 }
-combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"]
+combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"]+ combinations["0bJets4lCombination"] + combinations["1bJetsCombination"]
+combinations["012JetCombination"] = combinations["2JetCombination"]+combinations["01JetCombination"]
 
 tail = "MaxLikelihoodFit.mH125.root"
 head = "higgsCombine"
@@ -219,7 +227,7 @@ def blindData(hdata):
 #            print hdata.GetBinContent(ibin+1)
 
 def main():
-    pus = ["68", "69", "71","72"]
+    pus = ["68", "69", "71","72", "70", "71p3", "69p2"]
     for pu in pus:
         generateFits(pu)
 

@@ -33,4 +33,8 @@
 #pragma link C++ class std::vector<analysis::core::QIE8Frame>+;
 #pragma link C++ class std::vector<analysis::core::QIE10Frame>+;
 
+#pragma link C++ class std::vector<std::vector<int> >+;
+#pragma link C++ class std::vector<std::vector<double> >+;
+#pragma link C++ class std::vector<std::vector<analysis::core::Muon> >+;
+
 #endif

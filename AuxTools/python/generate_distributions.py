@@ -18,7 +18,7 @@ import NtupleProcessing.python.Dataset as DS
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/results/v1_20161023_2231"
+resultsdir = "/Users/vk/software/Analysis/files/results/vR2_20161108_2222"
 picpath = "/Users/vk/software/Analysis/files/distributions"
 picpath = os.path.join(picpath, os.path.split(resultsdir)[1])
 mkdir(picpath)
@@ -96,6 +96,9 @@ def plot(variables, (data, mcbg, mcsig), pre_options=None, post_options=None):
     number_signals = 0
     number_backgrounds = 0
     for variable in variables:
+        print "*"*80
+        print variable["fullpath"]
+        print "*"*80
         pad1.cd()
         savemodifier = ""
         fdata = R.TFile(data["result"])
@@ -329,6 +332,78 @@ if __name__=="__main__":
         "max": -0.999 if x!="DiMuonMass" else 160,
         "category":category, "fullpath":"%s%s/%s"%(marker,
         category, x)} for x in varNames]
+
+    # new categories
+    category = "1bJets"
+    var1bJets = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "1bJets4l" 
+    var1bJets4l = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "1bJets4l2Mu2e" 
+    var1bJets4l2Mu2e = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "1bJets4l3Mu1e" 
+    var1bJets4l3Mu1e = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "1bJets4l4Mu" 
+    var1bJets4l4Mu = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "1bJets3l" 
+    var1bJets3l = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "1bJets2l" 
+    var1bJets2l = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "0bJets" 
+    var0bJets = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "0bJets4l" 
+    var0bJets4l = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "0bJets4l2Mu1e" 
+    var0bJets4l2Mu1e = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "0bJets4l3Mu0e" 
+    var0bJets4l3Mu0e = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "0bJets4l3Mu1e" 
+    var0bJets4l3Mu1e = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "0bJets4l4Mu0e" 
+    var0bJets4l4Mu0e = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
+    category = "0bJets4l2Mu2e" 
+    var0bJets4l2Mu2e = [{"name":x, "min":-0.999 if x!="DiMuonMass" else 110, 
+        "max": -0.999 if x!="DiMuonMass" else 160,
+        "category":category, "fullpath":"%s%s/%s"%(marker,
+        category, x)} for x in varNames]
     variables.extend(var2jets)
     variables.extend(var01jets)
     variables.extend(varVBFTight)
@@ -348,6 +423,21 @@ if __name__=="__main__":
     variables.extend(var01JetsLooseOO)
     variables.extend(var01JetsLooseOE)
     variables.extend(var01JetsLooseEE)
+    # new categories
+    variables.extend(var1bJets)
+    variables.extend(var1bJets4l)
+    variables.extend(var1bJets4l2Mu2e)
+    variables.extend(var1bJets4l3Mu1e)
+    variables.extend(var1bJets4l4Mu)
+    variables.extend(var1bJets3l)
+    variables.extend(var1bJets2l)
+    variables.extend(var0bJets)
+    variables.extend(var0bJets4l)
+    variables.extend(var0bJets4l2Mu1e)
+    variables.extend(var0bJets4l3Mu0e)
+    variables.extend(var0bJets4l3Mu1e)
+    variables.extend(var0bJets4l4Mu0e)
+    variables.extend(var0bJets4l2Mu2e)
 
     #
     #   Choose the Data Results to use
@@ -380,7 +470,7 @@ if __name__=="__main__":
             'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
 #    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
-    pus = ["68", "69", "71", "72"]
+    pus = ["68", "69", "71", "72", "70", "69p2", "71p3"]
     mcsignals = {}
     mcbkgs = {}
     for cmssw in cmssws:

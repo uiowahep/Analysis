@@ -3,13 +3,13 @@ import os, sys, subprocess, glob
 
 R.gROOT.SetBatch(R.kTRUE)
 
-version = "v1_20161023_2231"
+version = "vR2_20161108_2222"
 #limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22/%s" % (version, pu)
 #pus = ["68", "69", "70", "71", "71p3", "72"]
-pus = ["68", "69", "71", "72"]
+pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
 smodels = ["SingleGaus", "DoubleGaus"]
 smodes = ["Combined", "Separate"]
-type_modifier = "analytic"
+type_modifier = "templates"
 bmodel = "ExpGaus"
 mass = "125"
 quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
@@ -209,11 +209,11 @@ def generateLimit(filelist, **wargs):
         title = titles[i]
         expLimit = expectedstr[i]
         if type_modifier=="analytic":
-            titleIndex = -10
-            expLimitIndex = -10
+            titleIndex = -20
+            expLimitIndex = -20
         else:
-            titleIndex = -5
-            expLimitIndex=-5
+            titleIndex = -20
+            expLimitIndex=-20
         latex.DrawLatex(titleIndex, n- i - 0.55, title)
         latex2.DrawLatex(expLimitIndex, n - i - 0.92, expLimit)
 

@@ -29,6 +29,24 @@ R.gSystem.Load(libdir+"/libAnalysisNtupleProcessing.dylib")
 R.gSystem.Load(libdir+"/libAnalysisCore.dylib")
 aux = "Mu24"
 
+import threading
+class MyThread(threading.Thread):
+    def __init__(self, threadId, name, f, params):
+        threading.Thread.__init__(self)
+        self.threadId = threadId
+        self.name = name
+        self.f = f
+        self.params = params
+    def run(self):
+        print "*"*80
+        print "Thread-%s-%d started" % (self.name, self.threadId)
+        print "*"*80
+        self.f(**self.params)
+        print "*"*80
+        print "Thread-%s-%d finished" % (self.name, self.threadId)
+        print "*"*80
+
+
 #
 #   Build Specific Models and associated variables
 #
@@ -285,7 +303,7 @@ def buildDatacard_analytic_Separate(**wargs):
     fout.write(ratestr)
     fout.close()
 
-def generate(variables, (data, mcbg, mcsig), **wargs):
+def generate(**wargs):
     """
     variable is the dictionary of the form
     {
@@ -316,6 +334,11 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             "color" : <int>
         }
     """
+
+    variables = wargs["variables"]
+    data = wargs["data"]
+    mcbg = wargs["mcbg"]
+    mcsig = wargs["mcsig"]
 
     print "-"*40
     print data
@@ -360,7 +383,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             mchsig[imcsig["name"]].Scale(data["luminosity"]*imcsig["xsection"]/imcsig["eweight"])
 
         #   generate the proper root files with
-        if wargs["analytic"]==0:
+        if wargs["analytic"]==False:
             #   with templates as histos
             generateTemplate(fulllimitspath, variable, hdata, mch, mchsig, **wargs)
         else:
@@ -704,6 +727,7 @@ if __name__=="__main__":
         "max": -0.999 if x!="DiMuonMass" else 160,
         "category":category, "fullpath":"%s%s/%s"%(marker,
         category, x)} for x in varNames]
+
     variables.extend(var2jets)
     variables.extend(var01jets)
     variables.extend(varVBFTight)
@@ -769,8 +793,8 @@ if __name__=="__main__":
             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
             'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
-    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
-#    pus = ["68", "69","71", "72",]
+#    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
+    pus = ["68", "69","71", "72", "70", "69p2", "71p3"]
     mcsignals = {}
     mcbkgs = {}
     for cmssw in cmssws:
@@ -815,25 +839,44 @@ if __name__=="__main__":
             mcbkgs["%s__%s" % (cmssw, pu)] = list_backgrounds
 
 
-
     #
     #   Generate all the distributions
     #
     smodels = ["SingleGaus", "DoubleGaus"]
     smodes = ["Separate", "Combined"]
-    analytic = False
+    analytic = True
+    lThreads = []
+    def hello(x): print x
     if analytic:
         for smodel in smodels:
             for smode in smodes:
                 for cmssw in ["80X"]:
                     for pu in pus:
-                        generate(variables, (data2016_M22,
-                            mcbkgs["%s__%s" % (cmssw, pu)],
-                            mcsignals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135)
+                        t = MyThread(1, smodel+smode+cmssw+pu,
+                            generate, {"variables":variables, 
+                                "data" : data2016_M22,
+                                "mcbg" : mcbkgs["%s__%s" % (cmssw, pu)], 
+                                "mcsig" : mcsignals["%s__%s" % (cmssw, pu)], 
+                            "analytic":analytic, 
+                            "smodel":smodel, 
+                            "bmodel":"ExpGaus", 
+                            "smode":smode, "mass":125, "massmin":110, 
+                            "massmax":160, "fitmin":115, "fitmax":135})
+                        lThreads.append(t)
+#                        generate(variables, (data2016_M22,
+#                            mcbkgs["%s__%s" % (cmssw, pu)],
+#                            mcsignals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135)
     else:
         for cmssw in ["80X"]:
             for pu in pus:
-                generate(variables, (data2016_M22,
-                    mcbkgs["%s__%s" % (cmssw, pu)],
-                    mcsignals["%s__%s" % (cmssw, pu)]), analytic=0, mass=125,
-                    massmin=110, massmax=160)
+                t = MyThread(1,cmssw+pu, hello, "Hello")
+                lThreads.append(t)
+ #               generate(variables, (data2016_M22,
+ #                   mcbkgs["%s__%s" % (cmssw, pu)],
+ #                   mcsignals["%s__%s" % (cmssw, pu)]), analytic=0, mass=125,
+ #                   massmin=110, massmax=160)
+    for t in lThreads:
+        t.start()
+    print "*"*80
+    print "Main Thread Finishing"
+    print "*"*80
