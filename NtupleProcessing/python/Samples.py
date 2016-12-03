@@ -361,6 +361,7 @@ def buildDatasetTagName(ntuple):
         s = "%s" % (ntuple.cmssw)
     if ntuple.aux!=None and ntuple.aux!="":
         s+="__%s" % ntuple.aux
+    print "22222222222222"
     return s
 
 def buildRequestName(ntuple, *kargs):
@@ -401,6 +402,8 @@ def buildPUfilenames(result):
 
 def eos_system(cmd, args):
     import subprocess
+    if cmd=="eos":
+        cmd = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select"
     proc = subprocess.Popen([cmd, args], stdout=subprocess.PIPE)
     (out, err) = proc.communicate()
     return out
@@ -417,18 +420,23 @@ def buildTimeStamp(ntuple):
     else:
         args = "ls %s" % os.path.join("/eos/cms", fullpattern)
     print "%s %s" % (cmd, args)
+    print "4444444"
     x = eos_system(cmd, args).split("\n")[0]
     print x
     return x
 
 def discoverFileList(ntuple):
+    print "-1-1-1-1-1-1-1-"
     fullpath= os.path.join(ntuple.rootpath,
         ntuple.label.split("__")[0],
         buildDatasetTagName(ntuple), buildTimeStamp(ntuple), "0000")
+    print "1111111111"
+    print fullpath
     fullpattern = os.path.join(fullpath, "*.root")
     cmd = "ls" if ntuple.storage=="local" else "eos"
     args = "-d %s" % fullpattern if ntuple.storage=="local" else "ls %s" % (
         os.path.join("/eos/cms", fullpattern))
+    print (cmd,args)
     x = eos_system(cmd, args).split("\n")[:-1]
     if ntuple.storage=="EOS":
         xxx = []

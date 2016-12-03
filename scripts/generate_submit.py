@@ -26,24 +26,12 @@ def main():
     filelistdir = os.path.join(dirToUse, "filelists")
     resultsdir = os.path.join(dirToUse, "results")
     pileupdir = os.path.join(dirToUse, "pileup")
-    mceta = "mc1"
+    mcera = "mc1"
     import datetime
     version = "vR1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
     dirToLaunchFrom = os.path.join(bindir, "submission"+"__"+version)
     if not os.path.exists(dirToLaunchFrom):
         os.system("mkdir %s" % dirToLaunchFrom)
-
-    descFile = open(os.path.join(dirToLaunchFrom, "description.desc"), "w")
-    desc = """
-    Submitting Run 1 like Categorization/Analysis.
-    1) For 36fb^-1
-    2) {mcera} is the mcera being used
-    3) {executable} is the executable used
-    4) No systematics - just analysis and categorization
-    5) Ouput version is {version}
-    """.format(mcera=mcera, executable=executable, version=version)
-    descFile.write(desc)
-    descFile.close()
 
     resultsdir+= "/"+version
     queue = '1nh'
@@ -61,7 +49,7 @@ def main():
     datasetsToSkip = ["/SingleMuon/Run2016H-PromptReco-v1/MINIAOD"]
 
     #
-    #   generate all the Ntuple objects that are ready to be processed
+    # select the json to use
     #
     print "-"*80
     print (" "*40)+"SET UP Ntuples"+(" "*40)
@@ -69,11 +57,30 @@ def main():
     data_datasets = S.datadatasets
     mc_datasets = S.mcdatasets
     jsonfiles = S.jsonfiles
-    jsontag = "2016_Prompt_29530"
+    jsontag = "2016_Prompt_36150"
     jsonfile = jsonfiles[jsontag]
     data_ntuples = []
     mc_ntuples = []
     cmssw = "80X"
+
+    #
+    # generate the description of what is being done
+    #
+    descFile = open(os.path.join(dirToLaunchFrom, "description.desc"), "w")
+    desc = """
+    Submitting Run 1 like Categorization/Analysis.
+    1) For 36fb^-1 for json file {jsonfile}
+    2) {mcera} is the mcera being used
+    3) {executable} is the executable used
+    4) No systematics - just analysis and categorization
+    5) Ouput version is {version}
+    """.format(jsonfile=jsonfile, mcera=mcera, executable=executable, version=version)
+    descFile.write(desc)
+    descFile.close()
+
+    #
+    # select the ntuples to be processed
+    #
     for k in data_datasets:
         if data_datasets[k].year!=2016 or "PromptReco" not in data_datasets[k].name: continue
         shouldGenerate = True
@@ -135,7 +142,7 @@ def main():
             results.append(result)
         else:
             for ipu in S.pileups:
-                if "Cert_271036-282037" not in ipu: continue
+                if "Cert_271036-284044" not in ipu: continue
                 pu = S.pileups[ipu]
                 result = DS.MCResult(ntuple,
                     filelist=filelist,

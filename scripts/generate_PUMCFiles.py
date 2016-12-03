@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import os, sys, time, pickle, datetime, optparse
-import ROOT as R
 
 def main():
     print "-"*80
@@ -19,12 +18,11 @@ def main():
     #   set the variables
     executable = os.path.join(os.environ["ANALYSISHOME"], "process_HiggsAnalysis")
     batchSubmission = True
-    dirToLaunchFrom = os.path.join(os.environ["ANALYSISHOME"], "submission")
     storage = "EOS"
     cmsswsrcdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
-    executable = os.path.join(dirToUse, "build-3", "generate_PUMCFiles")
+    executable = os.path.join(dirToUse, "bin/build-6", "generate_PUMCFiles")
     analysisHome = os.environ["ANALYSISHOME"]
     shouldGenPUMC = 1
     filelistdir = os.path.join(dirToUse, "filelists")
@@ -39,6 +37,7 @@ def main():
     shouldCreateFileList = True
     shouldCreateLaunchers = True
     shouldCreateSubmitter = True
+    mcera = "mc1"
 
     #
     #   generate all the Ntuple objects that are ready to be processed
@@ -49,7 +48,7 @@ def main():
     data_datasets = S.datadatasets
     mc_datasets = S.mcdatasets
     jsonfiles = S.jsonfiles
-    jsontag = "2016_Prompt_29530"
+    jsontag = "2016_Prompt_36150"
     jsonfile = jsonfiles[jsontag]
     data_ntuples = []
     mc_ntuples = []
@@ -75,7 +74,7 @@ def main():
             json = None,
             cmssw = mc_datasets[k].initial_cmssw,
             storage=storage,
-            rootpath = os.path.join(rootpath, "mc"),
+            rootpath = os.path.join(rootpath, mcera),
             timestamp=None,
             aux=aux
         )
@@ -93,10 +92,12 @@ def main():
     for ntuple in ntuples:
         print ntuple
         try:
+            print "00000000000000"
             filelist_as_list = S.discoverFileList(ntuple)
             print filelist_as_list
             filelist = os.path.join(filelistdir,S.buildFileListName(ntuple))
         except Exception as exc:
+            print exc
             continue
         print "Creating a file list"
         if shouldCreateFileList:
@@ -108,7 +109,7 @@ def main():
         outFileName = S.buildPUfilename(ntuple)
 #        os.chdir(cmsswsrcdir)
 #        os.system("eval `scramv1 runtime -sh")
-        os.system("cd {directory};eval `scramv1 runtime -sh`;{executable} --input={input} --output={output}".format(
+        os.system("{executable} --input={input} --output={output}".format(
             executable=executable, input=filelist, 
             output=os.path.join(pileupdir, outFileName),
             directory=cmsswsrcdir))
