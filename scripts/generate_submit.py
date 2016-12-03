@@ -26,11 +26,25 @@ def main():
     filelistdir = os.path.join(dirToUse, "filelists")
     resultsdir = os.path.join(dirToUse, "results")
     pileupdir = os.path.join(dirToUse, "pileup")
+    mceta = "mc1"
     import datetime
     version = "vR1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
     dirToLaunchFrom = os.path.join(bindir, "submission"+"__"+version)
     if not os.path.exists(dirToLaunchFrom):
         os.system("mkdir %s" % dirToLaunchFrom)
+
+    descFile = open(os.path.join(dirToLaunchFrom, "description.desc"), "w")
+    desc = """
+    Submitting Run 1 like Categorization/Analysis.
+    1) For 36fb^-1
+    2) {mcera} is the mcera being used
+    3) {executable} is the executable used
+    4) No systematics - just analysis and categorization
+    5) Ouput version is {version}
+    """.format(mcera=mcera, executable=executable, version=version)
+    descFile.write(desc)
+    descFile.close()
+
     resultsdir+= "/"+version
     queue = '1nh'
     rootpath = "/store/user/vkhriste/higgs_ntuples"
@@ -40,6 +54,11 @@ def main():
     shouldCreateSubmitter = True
     if not os.path.exists(resultsdir):
         os.system("mkdir %s" % resultsdir)
+
+    #
+    # specify which datasets to skip - not to process
+    #
+    datasetsToSkip = ["/SingleMuon/Run2016H-PromptReco-v1/MINIAOD"]
 
     #
     #   generate all the Ntuple objects that are ready to be processed
@@ -57,6 +76,12 @@ def main():
     cmssw = "80X"
     for k in data_datasets:
         if data_datasets[k].year!=2016 or "PromptReco" not in data_datasets[k].name: continue
+        shouldGenerate = True
+        for ddd in datasetsToSkip:
+            if ddd==data_datasets[k].name: 
+                shouldGenerate=False
+                break
+        if not shouldGenerate: continue
         ntuple = DS.Ntuple(data_datasets[k],
             json = jsonfile.filename,
             cmssw = cmssw,
@@ -73,7 +98,7 @@ def main():
             cmssw = mc_datasets[k].initial_cmssw,
             storage=storage,
             #   note that we went to mc1 era
-            rootpath = os.path.join(rootpath, "mc"),
+            rootpath = os.path.join(rootpath, mcera),
             timestamp=None,
             aux=aux
         )

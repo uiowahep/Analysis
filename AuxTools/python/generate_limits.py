@@ -3,13 +3,14 @@ import os, sys, subprocess, glob
 
 R.gROOT.SetBatch(R.kTRUE)
 
-version = "vR2_20161108_2222"
+version = "v1_20161023_2231"
 #limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22/%s" % (version, pu)
 #pus = ["68", "69", "70", "71", "71p3", "72"]
-pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
+#pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
+pus = ["68", "69", "71", "72"]
 smodels = ["SingleGaus", "DoubleGaus"]
 smodes = ["Combined", "Separate"]
-type_modifier = "templates"
+type_modifier = "analytic"
 bmodel = "ExpGaus"
 mass = "125"
 quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
@@ -229,12 +230,12 @@ def generateLimit(filelist, **wargs):
     line.DrawLine(-180, 5, 350, 5)
     import json
     if type_modifier=="analytic":
-        canvas.SaveAs(limitsdir+"/limits__%s__%s__%s__%s__%s.pdf" % (
+        canvas.SaveAs(limitsdir+"/limits__%s__%s__%s__%s__%s.png" % (
             type_modifier, mass, bmodel, smode, smodel))
         json.dump(map_explimits, open(limitsdir+"/explimits__%s__%s__%s__%s__%s.json" % (
             type_modifier, mass, bmodel, smode, smodel), "w"))
     else:
-        canvas.SaveAs(limitsdir+"/limits__%s__%s.pdf" % (
+        canvas.SaveAs(limitsdir+"/limits__%s__%s.png" % (
             type_modifier, mass))
         json.dump(map_explimits, open(limitsdir+"/explimits__%s__%s.json" % (
             type_modifier, mass), "w"))
