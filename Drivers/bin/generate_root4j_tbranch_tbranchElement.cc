@@ -107,9 +107,9 @@ int main(int argc, char** argv)
     vectorOfVectorOfInt vOfVOfInt;
     vectorOfVectorOfDouble vOfVOfDouble;
     vectorOfVectorOfFloat vOfVOfFloat;
-    tree->Branch("vInt", (vectorOfInt*)&vInt);
-    tree->Branch("vDouble", (vectorOfDouble*)&vDouble);
-    tree->Branch("vFloat", (vectorOfFloat*)&vFloat);
+//    tree->Branch("vInt", (vectorOfInt*)&vInt);
+//    tree->Branch("vDouble", (vectorOfDouble*)&vDouble);
+//    tree->Branch("vFloat", (vectorOfFloat*)&vFloat);
     tree->Branch("vOfVOfInt", (vectorOfVectorOfInt*)&vOfVOfInt);
     tree->Branch("vOfVOfDouble", (vectorOfVectorOfDouble*)&vOfVOfDouble);
     tree->Branch("vOfVOfFloat", (vectorOfVectorOfFloat*)&vOfVOfFloat);
@@ -138,8 +138,8 @@ int main(int argc, char** argv)
 
     // testing the collection of composite
     std::vector<analysis::core::TestClass2> vTestClass2Splitted;
-//    tree->Branch("vTestClass2Splitted", (std::vector<analysis::core::TestClass2>*)
-//        &vTestClass2Splitted);
+    tree->Branch("vTestClass2UnSplitted", (std::vector<analysis::core::TestClass2>*)
+        &vTestClass2Splitted, 32000, 0);
 
     for (int i=0; i<100; i++)
     {
