@@ -82,6 +82,8 @@ ROOT_GENERATE_DICTIONARY(G__Core
 	${PROJECT_SOURCE_DIR}/Core/interface/QIE10Frame.h
     ${PROJECT_SOURCE_DIR}/Core/interface/Electron.h
     ${PROJECT_SOURCE_DIR}/Core/interface/Tau.h
+    ${PROJECT_SOURCE_DIR}/Core/interface/TestClass1.h
+    ${PROJECT_SOURCE_DIR}/Core/interface/TestClass2.h
 	LINKDEF ${PROJECT_SOURCE_DIR}/config/LinkDef.h
 	OPTIONS -DSTANDALONE=1
 )

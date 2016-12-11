@@ -20,7 +20,7 @@ import NtupleProcessing.python.Dataset as DS
 #   List all the constants and some initializations
 #
 libdir="/Users/vk/software/Analysis/build-4"
-resultsdir = "/Users/vk/software/Analysis/files/results/vR2_20161108_2222"
+resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20161203_1539"
 limitspath= "/Users/vk/software/Analysis/files/fits_and_datacards"
 limitspath = os.path.join(limitspath, os.path.split(resultsdir)[1])
 mkdir(limitspath)
@@ -33,38 +33,48 @@ aux = "Mu24"
 #   Build Specific Models and associated variables
 #
 def buildModel_SingleGaus(ws, *kargs, **wargs):
-    imc = wargs["imc"]
+    processName = wargs["processName"]
     category=wargs["category"]
-    ws.factory("Gaussian::smodel{imc}(x, m{imc}_mass_{category}, m{imc}_width_{category})".format(imc=imc, category=category))
-    return ws.pdf("smodel%d" % imc)
+    ws.factory("Gaussian::smodel{processName}(x, m{processName}_mass_{category}, m{processName}_width_{category})".format(processName=processName, category=category))
+    return ws.pdf("smodel%s" % processName)
 
 def createVariables_SingleGaus(ws, *kargs, **wargs):
-    imc = wargs["imc"]
+    processName = wargs["processName"]
     category=wargs["category"]
-    ws.factory("m{imc}_mass_{category}[125, {massmin}, {massmax}]".format(
-        imc=imc, category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
-    ws.factory("m{imc}_width_{category}[1.0, 0.1, 10]".format(imc=imc, category=category))
+    ws.factory("m{processName}_mass_{category}[125, {massmin}, {massmax}]".format(
+        processName=processName, 
+        category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
+    ws.factory("m{processName}_width_{category}[1.0, 0.1, 10]".format(
+        processName=processName, category=category))
 
 def buildModel_DoubleGaus(ws, *kargs, **wargs):
-    imc = wargs["imc"]
+    processName = wargs["processName"]
     category=wargs["category"]
-    ws.factory("Gaussian::smodel{imc}_g1_{category}(x, m{imc}_g1_mass_{category}, m{imc}_g1_width_{category})".format(imc=imc, category=category))
-    ws.factory("Gaussian::smodel{imc}_g2_{category}(x, m{imc}_g2_mass_{category}, m{imc}_g2_width_{category})".format(imc=imc, category=category))
-    ws.factory("SUM::smodel{imc}(smodel{imc}_coef_{category}*smodel{imc}_g1_{category}, smodel{imc}_g2_{category})".format(imc=imc, category=category))
-    return ws.pdf("smodel%d" % imc)
+    ws.factory("Gaussian::smodel{processName}_g1_{category}(x, m{processName}_g1_mass_{category}, m{processName}_g1_width_{category})".format(
+        processName=processName, category=category))
+    ws.factory("Gaussian::smodel{processName}_g2_{category}(x, m{processName}_g2_mass_{category}, m{processName}_g2_width_{category})".format(
+        processName=processName, category=category))
+    ws.factory("SUM::smodel{processName}(smodel{processName}_coef_{category}*smodel{processName}_g1_{category}, smodel{processName}_g2_{category})".format(
+        processName=processName, category=category))
+    return ws.pdf("smodel%s" % processName)
 
 def createVariables_DoubleGaus(ws, *kargs, **wargs):
-    imc = wargs["imc"]
+    processName = wargs["processName"]
     category=wargs["category"]
-    ws.factory("m{imc}_g1_mass_{category}[125, {massmin}, {massmax}]".format(imc=imc,
+    ws.factory("m{processName}_g1_mass_{category}[125, {massmin}, {massmax}]".format(
+        processName=processName,
         category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
-    ws.factory("m{imc}_g2_mass_{category}[125, {massmin}, {massmax}]".format(imc=imc,
+    ws.factory("m{processName}_g2_mass_{category}[125, {massmin}, {massmax}]".format(
+        processName=processName,
         category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
-    ws.factory("m{imc}_g1_width_{category}[1.0, 0.1, 10]".format(imc=imc,
+    ws.factory("m{processName}_g1_width_{category}[1.0, 0.1, 10]".format(
+        processName=processName,
         category=category))
-    ws.factory("m{imc}_g2_width_{category}[1.0, 0.1, 10]".format(imc=imc,
+    ws.factory("m{processName}_g2_width_{category}[1.0, 0.1, 10]".format(
+        processName=processName,
         category=category))
-    ws.factory("smodel{imc}_coef_{category}[0.1, 0.0001, 1.0]".format(imc=imc,
+    ws.factory("smodel{processName}_coef_{category}[0.1, 0.0001, 1.0]".format(
+        processName=processName,
         category=category))
 
 def buildModel_ExpGaus(ws, *kargs, **wargs):
@@ -84,25 +94,25 @@ def createVariables_ExpGaus(ws, *kargs, **wargs):
 #   Set/Fix Parameters for specific models
 #
 def setParameters_SingleGaus(ws, *kargs, **wargs):
-    imc = wargs["imc"]
+    processName = wargs["processName"]
     norm = wargs["norm"]
     category=wargs["category"]
-    ws.factory("smodel%d_norm[%f, 0.0, 1000]" % (imc, norm))
-    ws.var("smodel%d_norm" % imc).setConstant(kTRUE)
-    ws.var("m%d_mass_%s" % (imc, category)).setConstant(kTRUE)
-    ws.var("m%d_width_%s" % (imc, category)).setConstant(kTRUE)
+    ws.factory("smodel%s_norm[%f, 0.0, 1000]" % (processName, norm))
+    ws.var("smodel%s_norm" % processName).setConstant(kTRUE)
+    ws.var("m%s_mass_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("m%s_width_%s" % (processName, category)).setConstant(kTRUE)
 
 def setParameters_DoubleGaus(ws, *kargs, **wargs):
-    imc = wargs["imc"]
+    processName = wargs["processName"]
     norm = wargs["norm"]
     category=wargs["category"]
-    ws.factory("smodel%d_norm[%f, 0.0, 1000]" % (imc, norm))
-    ws.var("smodel%d_norm" % imc).setConstant(kTRUE)
-    ws.var("m%d_g1_mass_%s" % (imc, category)).setConstant(kTRUE)
-    ws.var("m%d_g2_mass_%s" % (imc, category)).setConstant(kTRUE)
-    ws.var("m%d_g1_width_%s" % (imc, category)).setConstant(kTRUE)
-    ws.var("m%d_g2_width_%s" % (imc, category)).setConstant(kTRUE)
-    ws.var("smodel%d_coef_%s" % (imc, category)).setConstant(kTRUE)
+    ws.factory("smodel%s_norm[%f, 0.0, 1000]" % (processName, norm))
+    ws.var("smodel%s_norm" % processName).setConstant(kTRUE)
+    ws.var("m%s_g1_mass_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("m%s_g2_mass_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("m%s_g1_width_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("m%s_g2_width_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("smodel%s_coef_%s" % (processName, category)).setConstant(kTRUE)
 
 def getEventWeights(resultpathname):
     print resultpathname
@@ -157,19 +167,20 @@ def prepareSignalModel(ws, signals, **wargs):
         xframe.SetTitle(category)
         print "-"*40
         print roo_hist.GetName(), roo_hist.sumEntries()
+        processName = "AllSignals"
         if wargs["smodel"]=="DoubleGaus":
-            createVariables_DoubleGaus(ws, imc=imc, **wargs)
-            smodel = buildModel_DoubleGaus(ws, imc=imc, **wargs)
+            createVariables_DoubleGaus(ws, processName=processName, **wargs)
+            smodel = buildModel_DoubleGaus(ws, processName=processName, **wargs)
             r = smodel.fitTo(roo_hist, RooFit.Save(), RooFit.Range(wargs["fitmin"],
                 wargs["fitmax"]))
-            setParameters_DoubleGaus(ws, imc=imc, norm=roo_hist.sumEntries(),
+            setParameters_DoubleGaus(ws, processName=processName, norm=roo_hist.sumEntries(),
                 **wargs)
         elif wargs["smodel"]=="SingleGaus":
-            createVariables_SingleGaus(ws, imc=imc, **wargs)
-            smodel = buildModel_SingleGaus(ws, imc=imc, **wargs)
+            createVariables_SingleGaus(ws, processName=processName, **wargs)
+            smodel = buildModel_SingleGaus(ws, processName=processName, **wargs)
             r = smodel.fitTo(roo_hist, RooFit.Save(), RooFit.Range(wargs["fitmin"],
                 wargs["fitmax"]))
-            setParameters_SingleGaus(ws, imc=imc, norm=roo_hist.sumEntries(),
+            setParameters_SingleGaus(ws, processName=processName, norm=roo_hist.sumEntries(),
                 **wargs)
         r.Print("v")
         roo_hist.plotOn(xframe)
@@ -177,7 +188,7 @@ def prepareSignalModel(ws, signals, **wargs):
         smodel.paramOn(xframe)
         xframe.Draw()
         c.SaveAs(fulllimitspath+"/%s__%s__%s__%s__%s__%s.png" % (
-            "Signal", category, wargs["mass"], wargs["bmodel"], wargs["smode"],
+            processName, category, wargs["mass"], wargs["bmodel"], wargs["smode"],
             wargs["smodel"]))
     elif smode=="Separate":
         lsignals = []
@@ -200,20 +211,21 @@ def prepareSignalModel(ws, signals, **wargs):
             xframe.SetTitle(category)
             print "-"*40
             print s.GetName(), s.sumEntries()
+            processName = s.GetName()
 
             if wargs["smodel"]=="DoubleGaus":
-                createVariables_DoubleGaus(ws, imc=imc, **wargs)
-                smodel = buildModel_DoubleGaus(ws, imc=imc, **wargs)
+                createVariables_DoubleGaus(ws, processName=processName, **wargs)
+                smodel = buildModel_DoubleGaus(ws, processName=processName, **wargs)
                 r = smodel.fitTo(s, RooFit.Save(), RooFit.Range(wargs["fitmin"],
                     wargs["fitmax"]))
-                setParameters_DoubleGaus(ws, imc=imc, norm=s.sumEntries(),
+                setParameters_DoubleGaus(ws, processName=processName, norm=s.sumEntries(),
                     **wargs)
             elif wargs["smodel"]=="SingleGaus":
-                createVariables_SingleGaus(ws, imc=imc, **wargs)
-                smodel = buildModel_SingleGaus(ws, imc=imc, **wargs)
+                createVariables_SingleGaus(ws, processName=processName, **wargs)
+                smodel = buildModel_SingleGaus(ws, processName=processName, **wargs)
                 r = smodel.fitTo(s, RooFit.Save(), RooFit.Range(wargs["fitmin"],
                     wargs["fitmax"]))
-                setParameters_SingleGaus(ws, imc=imc, norm=s.sumEntries(),
+                setParameters_SingleGaus(ws, processName=processName, norm=s.sumEntries(),
                     **wargs)
 
             r.Print("v")
@@ -248,7 +260,7 @@ def buildDatacard_analytic_Combined(**wargs):
     fout.write("observation -1\n")
     fout.write(("-"*40)+"\n")
     binstr = "bin  %s  %s\n" % (category, category)
-    p1str = "process  %s  %s\n" % ("smodel1", "bmodel")
+    p1str = "process  %s  %s\n" % ("smodelAllSignals", "bmodel")
     p2str = "process  0  1\n"
     ratestr = "rate  1  1\n"
     fout.write(binstr)
@@ -263,11 +275,12 @@ def buildDatacard_analytic_Separate(**wargs):
     bmodel = wargs["bmodel"]
     smodel = wargs["smodel"]
     smode = wargs["smode"]
+    lsignals = wargs["signals"]
     fulllimitspath=wargs["fulllimitspath"]
     fout = open(fulllimitspath+"/datacard__analytic__%s__%s__%s__%s__%s.txt" % (category,
         mass, bmodel, smode, smodel), "w")
     fout.write("imax 1\n")
-    fout.write("jmax 2\n")
+    fout.write("jmax %d\n" % len(lsignals))
     fout.write("kmax *\n")
     fout.write(("-"*40) + "\n")
     fout.write("shapes * * %s higgs:$PROCESS\n" % ("shape__analytic__%s__%s__%s__%s__%s.root" % (category, mass, bmodel, smode, smodel)))
@@ -275,10 +288,26 @@ def buildDatacard_analytic_Separate(**wargs):
     fout.write("bin %s\n" % category)
     fout.write("observation -1\n")
     fout.write(("-"*40)+"\n")
-    binstr = "bin  %s  %s  %s\n" % (category, category, category)
-    p1str = "process  %s  %s  %s\n" % ("smodel1", "smodel2", "bmodel")
-    p2str = "process  -1  0  1\n"
-    ratestr = "rate  1  1  1\n"
+    binstr = "bin "
+    p1str = "process "
+    p2str = "process "
+    ratestr = "rate "
+    isig = 1
+    for signalName in lsignals:
+        processName = signalName.split("_")[0]
+        binstr+="category "
+        p1str+="smodel%s " % processName
+        p2str+= "%d " % (-len(lsignals)+isig)
+        ratestr+= "1 "
+        isig+=1
+    binstr+="category\n"
+    p1str+="bmodel\n"
+    p2str+="1\n"
+    ratestr+="1\n"
+#    binstr = "bin  %s  %s  %s\n" % (category, category, category)
+#    p1str = "process  %s  %s  %s\n" % ("smodel1", "smodel2", "bmodel")
+#    p2str = "process  -1  0  1\n"
+#    ratestr = "rate  1  1  1\n"
     fout.write(binstr)
     fout.write(p1str)
     fout.write(p2str)
@@ -441,8 +470,8 @@ def generateAnalytic(fulllimitspath, variable, hdata, backgrounds, signals, **wa
         buildDatacard_analytic_Combined(category=category, fulllimitspath=fulllimitspath,
             **wargs)
     elif smode=="Separate":
-        buildDatacard_analytic_Separate(category=category, fulllimitspath=fulllimitspath,
-            **wargs)
+        buildDatacard_analytic_Separate(category=category, signals=signals, 
+            fulllimitspath=fulllimitspath, **wargs)
 
 #
 #   Template Datacard Preparation
@@ -724,6 +753,7 @@ if __name__=="__main__":
     variables.extend(var01JetsLooseOE)
     variables.extend(var01JetsLooseEE)
     # new categories
+    s = """
     variables.extend(var1bJets)
     variables.extend(var1bJets4l)
     variables.extend(var1bJets4l2Mu2e)
@@ -738,11 +768,12 @@ if __name__=="__main__":
     variables.extend(var0bJets4l3Mu1e)
     variables.extend(var0bJets4l4Mu0e)
     variables.extend(var0bJets4l2Mu2e)
+    """
 
     #
     #   Choose the Data Results to use
     #
-    datajson = "Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
+    datajson = "Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
     jsons = S.jsonfiles
     intlumi = -1
     for k in jsons:
@@ -821,7 +852,7 @@ if __name__=="__main__":
     #
     smodels = ["SingleGaus", "DoubleGaus"]
     smodes = ["Separate", "Combined"]
-    analytic = False
+    analytic = True
     if analytic:
         for smodel in smodels:
             for smode in smodes:

@@ -25,29 +25,18 @@ struct mystruct
     bool arr5[2][2][2];
 };
 
-typedef std::vector<int> myintvector;
-typedef std::vector<std::vector<int> > myvectorofintvector;
-typedef std::vector<std::vector<double> > myvectorofDoublevector;
-typedef std::vector<std::vector<analysis::core::Muon> > MyMuons;
 int main(int argc, char** argv)
 {
 
-    TFile *test_file = new TFile("test_root4j.root", "recreate");
+    TFile *test_file = new TFile("test_root4j_tbranch.root", "recreate");
     TTree *tree = new TTree("TestTree", "TestTree");
 
-    myintvector vec;
-    myvectorofintvector vec1;
-    myvectorofDoublevector vecDouble;
-    static mystruct someStruct;
-    MyMuons muons;
-    analysis::core::Muons mymuons;
+    mystruct someStruct;
     someStruct.v1 = 1.;
     someStruct.v2 = 1.;
     someStruct.v3 = 1;
     someStruct.v4 = 'x';
     someStruct.v5 = false;
-
-    analysis::core::Muon muon;
 
     int a = 0;
     double b = 5.;
@@ -56,18 +45,13 @@ int main(int argc, char** argv)
     bool f = false;
     char *str = (char*)std::string("abc").c_str();
 
-    int arr1[100];
-    double arr2[100];
-    float arr3[100];
-    char arr4[100];
-    bool arr5[100];
+    Int_t arr1[100];
+    Double_t arr2[100];
+    Float_t arr3[100];
+    Char_t arr4[100];
+    Bool_t arr5[100];
 
     int const dims=2;
-    //int ***multi1 = new int**[dims];
-   // double ***multi2 = new double**[dims];
-   // float ***multi3 = new float**[dims];
-   // char ***multi4 = new char**[dims];
-   // bool ***multi5 = new bool**[dims];
     int multi1[dims][dims][dims];
     double multi2[dims][dims][dims];
     float multi3[dims][dims][dims];
@@ -78,32 +62,6 @@ int main(int argc, char** argv)
     int varr1[1000];
     double varr2[1000];
 
-    /*
-    for (int i=0; i<dims; i++)
-    {
-        multi1[i] = new int*[dims];
-        multi2[i] = new double*[dims];
-        multi3[i] = new float*[dims];
-        multi4[i] = new char*[dims];
-        multi5[i] = new bool*[dims];
-        for (int j=0; j<dims; j++)
-        {
-            multi1[i][j] = new int[dims];
-            multi2[i][j] = new double[dims];
-            multi3[i][j] = new float[dims];
-            multi4[i][j] = new char[dims];
-            multi5[i][j] = new bool[dims];
-        }
-    }
-    */
-
-    //  simple fixed size types
-    tree->Branch("myintvector", "myintvector", (myintvector*)&vec);
-    tree->Branch("myvector2", "myvector2", (myvectorofintvector*)&vec1);
-    tree->Branch("vofvofDouble", "vofvofDouble", (myvectorofDoublevector*)&vecDouble);
-    tree->Branch("muon", "muon", (analysis::core::Muon*)&muon);
-    tree->Branch("Muons", "Muons", (MyMuons*)&muons);
-    tree->Branch("MyMuons", "MyMuons", (analysis::core::Muons*)&mymuons);
     tree->Branch("a", &a);
     tree->Branch("b", &b);
     tree->Branch("c", &c);
@@ -148,7 +106,6 @@ int main(int argc, char** argv)
         {
             varr1[k] = k;
             varr2[k] = (double)k;
-            vec.push_back(k);
         }
 
         for (int j=0; j<2; j++)
@@ -162,10 +119,8 @@ int main(int argc, char** argv)
         
         for (int j=0; j<dims; j++)
         {
-            std::vector<int> tmp;
             for (int m=0; m<dims; m++)
             {
-                tmp.push_back(m);
                 for (int n=0; n<dims; n++)
                 {
                     multi1[j][m][n] = j*m*n;
@@ -181,7 +136,6 @@ int main(int argc, char** argv)
                     someStruct.arr5[j][m][n] = j*m*n % 2;
 
                 }
-                vec1.push_back(tmp);
             }
         }
 
@@ -189,31 +143,6 @@ int main(int argc, char** argv)
     }
     test_file->Write();
     test_file->Close();
-
-    //  deallocate
-    /*
-    for (int i=0; i<dims; i++)
-    {
-        for (int j=0; j<dims; j++)
-        {
-            delete[] multi1[i][j];
-            delete[] multi2[i][j];
-            delete[] multi3[i][j];
-            delete[] multi4[i][j];
-            delete[] multi5[i][j];
-        }
-        delete[] multi1[i];
-        delete[] multi2[i];
-        delete[] multi3[i];
-        delete[] multi4[i];
-        delete[] multi5[i];
-    }
-    delete[] multi1;
-    delete[] multi2;
-    delete[] multi3;
-    delete[] multi4;
-    delete[] multi5;
-    */
 
     return 0;
 }

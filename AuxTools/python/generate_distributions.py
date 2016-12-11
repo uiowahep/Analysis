@@ -18,7 +18,7 @@ import NtupleProcessing.python.Dataset as DS
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/results/vR2_20161108_2222"
+resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20161203_1539"
 picpath = "/Users/vk/software/Analysis/files/distributions"
 picpath = os.path.join(picpath, os.path.split(resultsdir)[1])
 mkdir(picpath)
@@ -424,6 +424,7 @@ if __name__=="__main__":
     variables.extend(var01JetsLooseOE)
     variables.extend(var01JetsLooseEE)
     # new categories
+    s = """
     variables.extend(var1bJets)
     variables.extend(var1bJets4l)
     variables.extend(var1bJets4l2Mu2e)
@@ -438,11 +439,12 @@ if __name__=="__main__":
     variables.extend(var0bJets4l3Mu1e)
     variables.extend(var0bJets4l4Mu0e)
     variables.extend(var0bJets4l2Mu2e)
+    """
 
     #
     #   Choose the Data Results to use
     #
-    datajson = "Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
+    datajson = "Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
     jsons = S.jsonfiles
     intlumi = -1
     for k in jsons:

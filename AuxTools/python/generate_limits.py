@@ -3,14 +3,14 @@ import os, sys, subprocess, glob
 
 R.gROOT.SetBatch(R.kTRUE)
 
-version = "v1_20161023_2231"
+version = "vR1_20161203_1539"
 #limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22/%s" % (version, pu)
 #pus = ["68", "69", "70", "71", "71p3", "72"]
-#pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
-pus = ["68", "69", "71", "72"]
+pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
+#pus = ["68", "69", "71", "72"]
 smodels = ["SingleGaus", "DoubleGaus"]
 smodes = ["Combined", "Separate"]
-type_modifier = "analytic"
+type_modifier = "templates"
 bmodel = "ExpGaus"
 mass = "125"
 quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
@@ -41,7 +41,8 @@ def createLegend(n):
 
 def main():
     for pu in pus:
-        limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/80X__Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu24/%s" % (version, pu)
+        folder = "80X__Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu24"
+        limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/%s/%s" % (version, folder, pu)
         if type_modifier == "analytic":
             for smodel in smodels:
                 for smode in smodes:

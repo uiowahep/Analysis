@@ -3,9 +3,9 @@ import sys
 import generate_preFitsDataCards as models
 
 #version_data = "v0_20160824_1100"
-version_data = "vR2_20161108_2222"
+version_data = "vR1_20161203_1539"
 #version_fits = "v0p5_20160824_1100"
-version_fits = "vR2_20161108_2222"
+version_fits = "vR1_20161203_1539"
 
 gROOT.SetBatch(kTRUE)
 
@@ -14,9 +14,9 @@ categories = ["VBFTight", "ggFLoose", "ggFTight",
     "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO",
     "01JetsTightBB", "01JetsTightBE", "01JetsTightBO",
     "01JetsTightEE", "01JetsTightOE", "01JetsTightOO",
-    "1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
-    "1bJets3l", "1bJets2l",
-    "0bJets4l2Mu1e", "0bJets4l3Mu1e", "0bJets4l2Mu2e"
+#    "1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
+#    "1bJets3l", "1bJets2l",
+#    "0bJets4l2Mu1e", "0bJets4l3Mu1e", "0bJets4l2Mu2e"
 ]
 combinations = {
     "2JetCombination" : ["VBFTight", "ggFLoose", "ggFTight"],
@@ -26,13 +26,14 @@ combinations = {
         "01JetsTightEE", "01JetsTightOE", "01JetsTightOO"],
     "TotalCombination" : categories,
     "2JetCombinationNoVBFTight" : ["ggFLoose", "ggFTight"],
-    "0bJets4lCombination" : ["0bJets4l2Mu1e", "0bJets4l3Mu1e",
-         "0bJets4l2Mu2e"],
-    "1bJetsCombination" : ["1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
-        "1bJets3l", "1bJets2l"]
+ #   "0bJets4lCombination" : ["0bJets4l2Mu1e", "0bJets4l3Mu1e",
+ #        "0bJets4l2Mu2e"],
+ #   "1bJetsCombination" : ["1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
+ #       "1bJets3l", "1bJets2l"]
 }
-combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"]+ combinations["0bJets4lCombination"] + combinations["1bJetsCombination"]
-combinations["012JetCombination"] = combinations["2JetCombination"]+combinations["01JetCombination"]
+combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"]
+#combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"]+ combinations["0bJets4lCombination"] + combinations["1bJetsCombination"]
+#combinations["012JetCombination"] = combinations["2JetCombination"]+combinations["01JetCombination"]
 
 tail = "MaxLikelihoodFit.mH125.root"
 head = "higgsCombine"
@@ -232,10 +233,11 @@ def main():
         generateFits(pu)
 
 def generateFits(pu):
-    dataworkspace_path = "/Users/vk/software/Analysis/files/fits_and_datacards/%s/80X__Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu24/%s" % (
-        version_data, pu)
-    fitsworkspace_path = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/80X__Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu24/%s" % (
-    version_fits, pu)
+    folder = "80X__Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu24"
+    dataworkspace_path = "/Users/vk/software/Analysis/files/fits_and_datacards/%s/%s/%s" % (
+        version_data, folder, pu)
+    fitsworkspace_path = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/%s/%s" % (
+    version_fits, folder, pu)
     type_setting = "analytic"
     mass = "125"
     import glob

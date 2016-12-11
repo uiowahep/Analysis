@@ -54,6 +54,7 @@ namespace analysis
 					Track::reset();
 					_track.reset();
 					_isHLTMatched.clear();
+
 					_segmentCompatibility = 0;
 					_combinedQChi2LocalPosition = 0;
 					_combinedQTrkKink = 0;
@@ -121,6 +122,7 @@ namespace analysis
 				float _sumNeutralHadronEtR04;
 				float _sumPhotonEtR04;
 				float _sumPUPtR04;
+
 
 #ifdef STANDALONE
 				ClassDef(Muon, 1)

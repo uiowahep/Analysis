@@ -20,6 +20,8 @@
 #pragma link C++ class analysis::core::QIE10Frame+;
 #pragma link C++ class analysis::dimuon::MetaHiggs+;
 #pragma link C++ class analysis::processing::Streamer+;
+#pragma link C++ class analysis::core::TestClass1+;
+#pragma link C++ class analysis::core::TestClass2+;
 
 #pragma link C++ class std::vector<analysis::core::Object>+;
 #pragma link C++ class std::vector<analysis::core:Muon>+;
@@ -32,9 +34,14 @@
 #pragma link C++ class std::vector<analysis::core::Vertex>+;
 #pragma link C++ class std::vector<analysis::core::QIE8Frame>+;
 #pragma link C++ class std::vector<analysis::core::QIE10Frame>+;
+#pragma link C++ class std::vector<analysis::core::TestClass1>+;
+#pragma link C++ class std::vector<analysis::core::TestClass2>+;
 
 #pragma link C++ class std::vector<std::vector<int> >+;
+#pragma link C++ class std::vector<std::vector<float> >+;
 #pragma link C++ class std::vector<std::vector<double> >+;
 #pragma link C++ class std::vector<std::vector<analysis::core::Muon> >+;
+
+#pragma link C++ class std::vector<TLorentzVector>+;
 
 #endif
