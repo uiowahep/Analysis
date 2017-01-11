@@ -11,6 +11,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
+#include <set>
+#include <array>
+#include <map>
 
 using namespace std;
 

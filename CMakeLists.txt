@@ -84,6 +84,8 @@ ROOT_GENERATE_DICTIONARY(G__Core
     ${PROJECT_SOURCE_DIR}/Core/interface/Tau.h
     ${PROJECT_SOURCE_DIR}/Core/interface/TestClass1.h
     ${PROJECT_SOURCE_DIR}/Core/interface/TestClass2.h
+    ${PROJECT_SOURCE_DIR}/Core/interface/TestClass3.h
+    ${PROJECT_SOURCE_DIR}/Core/interface/Root4jTestSet.h
 	LINKDEF ${PROJECT_SOURCE_DIR}/config/LinkDef.h
 	OPTIONS -DSTANDALONE=1
 )

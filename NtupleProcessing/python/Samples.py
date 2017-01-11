@@ -135,6 +135,65 @@ datadatasets = {
     )
 }
 
+rerecoSep232016_datasets = {
+    # Run2016B-v1 doesnt' have runs in the Golden Json
+#    "/SingleMuon/Run2016B-23Sep2016-v1/MINIAOD" : DS.Dataset(
+#        name = "/SingleMuon/Run2016B-23Sep2016-v1/MINIAOD",
+#        isData = True,
+#        year = 2016,
+#        globaltag = "80X_dataRun2_2016SeptRepro_v5"
+#    ),
+    "/SingleMuon/Run2016B-23Sep2016-v3/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016B-23Sep2016-v3/MINIAOD",
+        isData = True,
+        year = 2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v5"
+    ),
+    "/SingleMuon/Run2016C-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016C-23Sep2016-v1/MINIAOD",
+        isData = True,
+        year = 2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v5"
+    ),
+    "/SingleMuon/Run2016D-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016D-23Sep2016-v1/MINIAOD",
+        isData = True,
+        year = 2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v5"
+    ),
+    "/SingleMuon/Run2016E-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016E-23Sep2016-v1/MINIAOD",
+        isData = True,
+        year = 2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v5"
+    ),
+    "/SingleMuon/Run2016F-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016F-23Sep2016-v1/MINIAOD",
+        isData = True,
+        year = 2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v5"
+    ),
+    " /SingleMuon/Run2016G-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = " /SingleMuon/Run2016G-23Sep2016-v1/MINIAOD",
+        isData = True,
+        year = 2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v5"
+    ),
+    # Run2016H was collected with the same conditions as the 23Sep rereco
+    "/SingleMuon/Run2016H-PromptReco-v2/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016H-PromptReco-v2/MINIAOD",
+        isData = True,
+        year = 2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v5"
+    ),
+    "/SingleMuon/Run2016H-PromptReco-v3/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016H-PromptReco-v3/MINIAOD",
+        isData = True,
+        year = 2016,
+        globaltag = "80X_dataRun2_2016SeptRepro_v5"
+    ),
+}
+
 mcdatasets = {
         #
         #   Signal Datasets
@@ -336,6 +395,10 @@ jsonfiles = {
     "2016_Prompt_36150" : DS.JsonFile(
         filename = "Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt",
         intlumi = 36150.
+    ),
+    "2016_ReReco_36460" : DS.JsonFile(
+        filename = "Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",
+        intlumi = 36460.
     )
 }
 

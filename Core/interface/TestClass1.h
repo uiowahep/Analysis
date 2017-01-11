@@ -7,6 +7,7 @@
 #else
 #include "Object.h"
 #include "TestClass2.h"
+#include "TLorentzVector.h"
 #endif
 
 namespace analysis
@@ -42,17 +43,26 @@ namespace analysis
                     _vc.clear();
                     _vd.clear();
 
+                    _test2.reset();
+
                     _vTest2.clear();
- /*                   
+                    
                     _vva.clear();
                     _vvb.clear();
                     _vvc.clear();
                     _vvd.clear();
-                    */
+
+                    _ma.clear();
+                    _mb.clear();
+                    _mc.clear();
+                    _md.clear();
+                    
 				}
 				virtual ~TestClass1() {}
                     
                 int _a;
+                analysis::core::TestClass2 _test2;
+                std::vector<analysis::core::TestClass2> _vTest2;
                 float _b;
                 double _c;
                 char _d;
@@ -70,13 +80,20 @@ namespace analysis
                 std::vector<double> _vc;
                 std::vector<char> _vd;
 
-                std::vector<analysis::core::TestClass2> _vTest2;
-/*
+
+//                std::pair<int, int> _something;
+
+
                 std::vector<std::vector<int> > _vva;
                 std::vector<std::vector<float> > _vvb;
                 std::vector<std::vector<double> > _vvc;
                 std::vector<std::vector<char> > _vvd;
-*/
+
+                std::map<int, int> _ma;
+                std::map<int, float> _mb;
+                std::map<int, double> _mc;
+                std::map<int, char> _md;
+
 #ifdef STANDALONE
 				ClassDef(TestClass1, 1)
 #endif

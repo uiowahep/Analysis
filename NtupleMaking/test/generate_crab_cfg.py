@@ -21,23 +21,24 @@ import NtupleProcessing.python.Dataset as DS
 #   get the datasets to be processed
 data_datasets = Samples.datadatasets
 mc_datasets = Samples.mcdatasets
+rereco_datasets = Samples.rerecoSep232016_datasets
 
 config_filename = "maker_h2dimuon_wElesTaus_cfg_crabtemplate.py"
 
 #   get the json file to be used if needed
 jsonfiles = Samples.jsonfiles
-jsontag = "2016_Prompt_36150"
+jsontag = "2016_ReReco_36460"
 jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
 datasets = []
 #sets_to_consider=data_datasets
-sets_to_consider = mc_datasets
+sets_to_consider = rereco_datasets
 for k in sets_to_consider:
-    if sets_to_consider[k].year==2016 and sets_to_consider[k].initial_cmssw=="80X":
+#    if sets_to_consider[k].year==2016 and sets_to_consider[k].initial_cmssw=="80X":
 #        "PromptReco" in sets_to_consider[k].name:
 #    if "23Sep2016" in sets_to_consider[k].name:
-        datasets.append(sets_to_consider[k])
+    datasets.append(sets_to_consider[k])
 samples = []
 
 #   create the Ntuple objects for all of the datasets

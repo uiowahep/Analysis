@@ -4,6 +4,7 @@
 #include "TChain.h"
 #include "TTree.h"
 #include "TString.h"
+#include "TLorentzVector.h"
 
 #include "Muon.h"
 #include "TestClass1.h"
@@ -12,6 +13,15 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <map>
+#include <list>
+#include <deque>
+#include <set>
+#include <forward_list>
+#include <unordered_set>
+#include <unordered_map>
+#include <string>
+#include <array>
 
 struct mystruct 
 {
@@ -98,6 +108,7 @@ int main(int argc, char** argv)
     typedef std::vector<double> vectorOfDouble;
     typedef std::vector<float> vectorOfFloat;
     typedef std::vector<std::vector<int> > vectorOfVectorOfInt;
+    typedef std::vector<std::vector<std::vector<int> > > vectorOfVectorOfVectorOfInt;
     typedef std::vector<std::vector<double> > vectorOfVectorOfDouble;
     typedef std::vector<std::vector<float> > vectorOfVectorOfFloat;
     typedef std::vector<std::vector<analysis::core::Muon> > vOfvOfMuons;
@@ -107,12 +118,111 @@ int main(int argc, char** argv)
     vectorOfVectorOfInt vOfVOfInt;
     vectorOfVectorOfDouble vOfVOfDouble;
     vectorOfVectorOfFloat vOfVOfFloat;
+    vectorOfVectorOfVectorOfInt vOfVectorOfVectorOfInt;
 //    tree->Branch("vInt", (vectorOfInt*)&vInt);
 //    tree->Branch("vDouble", (vectorOfDouble*)&vDouble);
 //    tree->Branch("vFloat", (vectorOfFloat*)&vFloat);
-    tree->Branch("vOfVOfInt", (vectorOfVectorOfInt*)&vOfVOfInt);
-    tree->Branch("vOfVOfDouble", (vectorOfVectorOfDouble*)&vOfVOfDouble);
-    tree->Branch("vOfVOfFloat", (vectorOfVectorOfFloat*)&vOfVOfFloat);
+//    tree->Branch("vOfVOfInt", (vectorOfVectorOfInt*)&vOfVOfInt);
+//    tree->Branch("vOfVOfDouble", (vectorOfVectorOfDouble*)&vOfVOfDouble);
+//    tree->Branch("vOfVOfFloat", (vectorOfVectorOfFloat*)&vOfVOfFloat);
+   // tree->Branch("vectorOfVectorOfVectorOfInt", (vectorOfVectorOfVectorOfInt*)&vOfVectorOfVectorOfInt);
+
+    // std::pair
+    typedef std::vector<std::pair<int, int> > vectorOfPairOfIntInt;
+    typedef std::vector<std::vector<std::pair<int, int> > > vectorOfVectorOfPairOfIntInt;
+    typedef std::map<int, std::pair<int, int> > mapInt2PairOfIntInt;
+    vectorOfPairOfIntInt vPairIntInt;
+    mapInt2PairOfIntInt mInt2PairOfIntInt;
+    vectorOfVectorOfPairOfIntInt vOfVectorOfPairOfIntInt;
+//    tree->Branch("vPairIntInt", (vectorOfPairOfIntInt*)&vPairIntInt, 32000, 0);
+//    tree->Branch("vOfVectorOfPairOfIntInt", (vectorOfVectorOfPairOfIntInt*)&vOfVectorOfPairOfIntInt);
+//    tree->Branch("mInt2PairOfIntInt", (mapInt2PairOfIntInt*)&mInt2PairOfIntInt);
+    std::pair<int,int> myIntIntPair;
+//    tree->Branch("myIntIntPair", (std::pair<int, int>*)&myIntIntPair, 32000, 0);
+
+    // std::map
+    typedef std::map<int, int> mapInt2Int;
+    typedef std::map<int, float> mapInt2Float;
+    typedef std::map<int, double> mapInt2Double;
+    typedef std::map<int, std::map<int, int> > mapInt2MapInt2Int;
+    typedef std::map<int, std::map<int, float> > mapInt2MapInt2Float;
+    typedef std::map<int, std::map<int, double> > mapInt2MapInt2Double;
+    typedef std::map<int, std::map<int, std::map<int, int> > > mapInt2MapInt2MapInt2Int;
+    typedef std::map<int, std::map<int, analysis::core::Muon> > mapMuons;
+
+    typedef std::vector<std::map<int, int> > vectorOfMapInt2Int;
+    vectorOfMapInt2Int vOfMapInt2Int;
+//    tree->Branch("vOfMapInt2Int", (vectorOfMapInt2Int*)&vOfMapInt2Int);
+
+    mapInt2Int mInt2Int;
+    mapInt2Float mInt2Float;
+    mapInt2Double mInt2Double;
+    mapInt2MapInt2Int mInt2MapInt2Int;
+    mapInt2MapInt2Float mInt2MapInt2Float;
+    mapInt2MapInt2Double mInt2MapInt2Double;
+    mapMuons mMuons;
+    mapInt2MapInt2MapInt2Int mInt2MapInt2MapInt2Int;
+//    tree->Branch("mInt2Int", (mapInt2Int*)&mInt2Int);
+//    tree->Branch("mInt2Float", (mapInt2Float*)&mInt2Float);
+//    tree->Branch("mInt2Double", (mapInt2Double*)&mInt2Double);
+//    tree->Branch("mInt2MapInt2Int", (mapInt2MapInt2Int*)&mInt2MapInt2Int);
+//    tree->Branch("mInt2MapInt2Float", (mapInt2MapInt2Float*)&mInt2MapInt2Float);
+//    tree->Branch("mInt2MapInt2Double", (mapInt2MapInt2Double*)&mInt2MapInt2Double);
+//    tree->Branch("mapInt2MapInt2MapInt2Int", (mapInt2MapInt2MapInt2Int*)&mInt2MapInt2MapInt2Int);
+    //tree->Branch("mMuons", (mapMuons*)&mMuons);
+    
+    // cross-nesting
+    typedef std::vector<std::map<int, std::vector<int> > > vectorOfMapInt2VectorOfInt;
+    vectorOfMapInt2VectorOfInt vOfMapInt2VectorOfInt;
+//        tree->Branch("vectorOfMapInt2VectorOfInt", (vectorOfMapInt2VectorOfInt*)&vOfMapInt2VectorOfInt);
+    
+
+    // std::string
+    std::string myString;
+//    tree->Branch("myString", (std::string*)&myString);
+
+    // std::array
+    typedef std::array<int, 10> arrOfInt;
+    typedef std::array<float, 10> arrOfFloat;
+    typedef std::array<double, 10> arrOfDouble;
+    typedef std::array<std::array<int, 10>, 10> arrOfArrOfInt;
+    typedef std::array<std::array<float, 10>, 10> arrOfArrOfFloat;
+    typedef std::array<std::array<double, 10>, 10> arrOfArrOfDouble;
+    arrOfInt aOfInt;
+    arrOfFloat aOfFloat;
+    arrOfDouble aOfDouble;
+    arrOfArrOfInt aOfArrOfInt;
+    arrOfArrOfFloat aOfArrOfFloat;
+    arrOfArrOfDouble aOfArrOfDouble;
+    /*
+    tree->Branch("aOfInt", (arrOfInt*)&aOfInt);
+    tree->Branch("aOfFloat", (arrOfFloat*)&aOfFloat);
+    tree->Branch("aOfDouble", (arrOfDouble*)&aOfDouble);
+    tree->Branch("aOfArrOfInt", (arrOfArrOfInt*)&aOfArrOfInt);
+    tree->Branch("aOfArrOfFloat", (arrOfArrOfFloat*)&aOfArrOfFloat);
+    tree->Branch("aOfArrOfDouble", (arrOfArrOfDouble*)&aOfArrOfDouble);
+    */
+
+    // std::list
+    typedef std::list<int> listOfInt;
+    typedef std::list<float> listOfFloat;
+    typedef std::list<double> listOfDouble;
+    typedef std::list<std::list<int> > listOfListOfInt;
+    typedef std::list<std::list<float> > listOfListOfFloat;
+    typedef std::list<std::list<double> > listOfListOfDouble;
+    arrOfInt lOfInt;
+    arrOfFloat lOfFloat;
+    arrOfDouble lOfDouble;
+    arrOfArrOfInt lOfListOfInt;
+    arrOfArrOfFloat lOfListOfFloat;
+    arrOfArrOfDouble lOfListOfDouble;
+/*    tree->Branch("lOfInt", (listOfInt*)&lOfInt);
+    tree->Branch("lOfFloat", (listOfFloat*)&lOfFloat);
+    tree->Branch("lOfDouble", (listOfDouble*)&lOfDouble);
+    tree->Branch("lOfListOfInt", (listOfListOfInt*)&lOfListOfInt);
+    tree->Branch("lOfListOfFloat", (listOfListOfFloat*)&lOfListOfFloat);
+    tree->Branch("lOfListOfDouble", (listOfListOfDouble*)&lOfListOfDouble);
+    */
 
     // test composite
     analysis::core::TestClass1 testClass1Splitted;
@@ -124,6 +234,8 @@ int main(int argc, char** argv)
     analysis::core::Track myTrackUnSplitted;
     analysis::core::Muon myMuonNonSplit;
     vOfvOfMuons vvMuons;
+    std::map<int, analysis::core::Muon> mmmMuons;
+//    tree->Branch("mMuons", (std::map<int, analysis::core::Muon>*)&mmmMuons);
 //    tree->Branch("Muons", (analysis::core::Muons*)&muons);
 //    tree->Branch("Muon", (analysis::core::Muon*)&myMuon);
     
@@ -132,14 +244,17 @@ int main(int argc, char** argv)
     
 //    tree->Branch("myTrackUnSplitted", (analysis::core::Track*)&myTrackUnSplitted, 32000, 0);
 //    tree->Branch("myTrackSplitted", (analysis::core::Track*)&myTrackUnSplitted);
-//    tree->Branch("testClass1Splitted", (analysis::core::TestClass1*)&testClass1Splitted);
+    tree->Branch("testClass1Splitted", (analysis::core::TestClass1*)&testClass1Splitted);
     tree->Branch("testClass1UnSplitted", 
       (analysis::core::TestClass1*)&testClass1UnSplitted, 32000, 0);
 
     // testing the collection of composite
     std::vector<analysis::core::TestClass2> vTestClass2Splitted;
-    tree->Branch("vTestClass2UnSplitted", (std::vector<analysis::core::TestClass2>*)
-        &vTestClass2Splitted, 32000, 0);
+//    tree->Branch("vTestClass2Splitted", (std::vector<analysis::core::TestClass2>*)
+//        &vTestClass2Splitted);
+
+    std::vector<TLorentzVector> vLorentz;
+  //  tree->Branch("vLorentz", (std::vector<TLorentzVector>*)&vLorentz);
 
     for (int i=0; i<100; i++)
     {
@@ -153,6 +268,20 @@ int main(int argc, char** argv)
         testClass1Splitted.reset();
         testClass1UnSplitted.reset();
         vTestClass2Splitted.clear();
+        mInt2Int.clear();
+        mInt2Float.clear();
+        mInt2Double.clear();
+        vPairIntInt.clear();
+        mmmMuons.clear();
+        mInt2MapInt2Int.clear();
+        mInt2MapInt2Float.clear();
+        mInt2MapInt2Double.clear();
+        vOfMapInt2Int.clear();
+        mInt2PairOfIntInt.clear();
+        vOfVectorOfPairOfIntInt.clear();
+        vLorentz.clear();
+
+        vLorentz.push_back(TLorentzVector(1,2,3,4));
 
         // simple values
         a = i;
@@ -185,7 +314,8 @@ int main(int argc, char** argv)
         }
 
         //  1d arrays
-        for (int j=0; j<100; j++)
+        /*
+        for (int j=0; j<i+2; j++)
         {
             arr1[j] = j;
             arr2[j] = (double)j;
@@ -193,23 +323,53 @@ int main(int argc, char** argv)
             arr4[j] = (char)j;
             arr5[j] = j%2;
 
+            analysis::core::Muon mmm;
+            mmm._pt = 10;
+            mmm._eta = 2.1;
+            mmm._phi = 1.6;
+            mmm._charge = -1;
+            mmm._normChi2 = 0.94;
+            mmmMuons[j] = mmm;
+
             vInt.push_back(j);
             vDouble.push_back((double)j);
             vFloat.push_back((float)j);
 
+            mInt2Int[j] = j;
+            mInt2Float[j] = (float)j;
+            mInt2Double[j] = (double)j;
+
             std::vector<int> tmpInt;
             std::vector<double> tmpDouble;
             std::vector<float> tmpFloat;
+
+            std::map<int, int> tmpMapInt2Int;
+            std::map<int, float> tmpMapInt2Float;
+            std::map<int, double> tmpMapInt2Double;
             for (int k=0; k<20; k++)
             {
                 tmpInt.push_back(k);
                 tmpDouble.push_back((double)k);
                 tmpFloat.push_back((float)k);
+
+                tmpMapInt2Int[k] = k;
+                tmpMapInt2Float[k] = (float)k;
+                tmpMapInt2Double[k] = (double)k;
             }
                 vOfVOfInt.push_back(tmpInt);
                 vOfVOfDouble.push_back(tmpDouble);
                 vOfVOfFloat.push_back(tmpFloat);
+                mInt2MapInt2Int[j] = tmpMapInt2Int;
+                mInt2MapInt2Float[j] = tmpMapInt2Float;
+                mInt2MapInt2Double[j] = tmpMapInt2Double;
+
+                vOfMapInt2Int.push_back(tmpMapInt2Int);
+            vPairIntInt.push_back(std::make_pair(j, j));
+            mInt2PairOfIntInt[j] = std::make_pair(j,j);
         }
+        vOfVectorOfPairOfIntInt.push_back(vPairIntInt);
+        myIntIntPair.first = i;
+        myIntIntPair.second = i;
         
         for (int j=0; j<dims; j++)
         {
@@ -232,8 +392,9 @@ int main(int argc, char** argv)
                 }
             }
         }
+    */
 
-        // fill Muons
+ /*       // fill Muons
         int nMuons = 5;
         myMuon._pt = 10;
         myMuon._eta = 2.1;
@@ -272,6 +433,7 @@ int main(int argc, char** argv)
             }
             vvMuons.push_back(tmpMuons);
         }
+        */
 
         // test composite
         testClass1Splitted._a = i;
@@ -331,7 +493,7 @@ int main(int argc, char** argv)
         }
 
         // testing vector of composite
-        for (int ii=0; ii<20; ii++)
+/*        for (int ii=0; ii<20; ii++)
         {
             analysis::core::TestClass2 tmp2;
             tmp2._a = ii;
@@ -340,8 +502,9 @@ int main(int argc, char** argv)
             tmp2._d = ii;
             tmp2._e = ii%2==0;
             vTestClass2Splitted.push_back(tmp2);
+//            testClass1UnSplitted._vTest2.push_back(tmp2);
         }
-
+*/
         tree->Fill();
     }
     test_file->Write();

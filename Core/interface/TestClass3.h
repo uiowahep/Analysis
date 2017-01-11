@@ -1,31 +1,28 @@
-#ifndef Analysis_Core_TestClass2_h
-#define Analysis_Core_TestClass2_h
+#ifndef Analysis_Core_TestClass3_h
+#define Analysis_Core_TestClass3_h
 
 #ifndef STANDALONE
 #include "Analysis/Core/interface/Object.h"
-#include "Analysis/Core/interface/TestClass3.h"
 #else
 #include "Object.h"
-#include "TestClass3.h"
 #endif
 
 namespace analysis
 {
 	namespace core
 	{
-		class TestClass2 : public Object
+		class TestClass3 : public Object
 		{
 			public:
-				TestClass2() : Object() {this->reset();}
+				TestClass3() : Object() {this->reset();}
 
 				virtual void reset()
                 {
-                    _a = 0;
-                    _b = 0.;
-                    _c = 0.;
-                    _d = 'x';
-                    _e = false;
-//                    _test3.reset();
+                    _a3 = 0;
+                    _b3 = 0.;
+                    _c3 = 0.;
+                    _d3 = 'x';
+                    _e3 = false;
 /*
                     for (int ii=0; ii<10; ii++)
                         for (int jj=0; jj<10; jj++)
@@ -48,15 +45,13 @@ namespace analysis
                     _vvd.clear();
                     */
 				}
-				virtual ~TestClass2() {}
+				virtual ~TestClass3() {}
                     
-  //              TestClass3 _test3;
-                int _a;
-                float _b;
-                double _c;
-                char _d;
-                bool _e;
-
+                int _a3;
+                float _b3;
+                double _c3;
+                char _d3;
+                bool _e3;
 
                 /*
                 int _aa[10][10];
@@ -77,11 +72,11 @@ namespace analysis
                 std::vector<std::vector<char> > _vvd;
 */
 #ifdef STANDALONE
-				ClassDef(TestClass2, 1)
+				ClassDef(TestClass3, 1)
 #endif
 		};
 
-		typedef std::vector<analysis::core::TestClass2> TestClass2s;
+		typedef std::vector<analysis::core::TestClass3> TestClass3s;
 	}
 }
 
@@ -90,7 +85,7 @@ namespace analysis
 //	and since we are in a global namespace....
 //
 #ifdef STANDALONE
-ClassImpUnique(analysis::core::TestClass2, TestClass2)
+ClassImpUnique(analysis::core::TestClass3, TestClass3)
 #endif
 
 #endif

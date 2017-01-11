@@ -73,6 +73,7 @@ namespace analysis
 				virtual ~Muon() {}
 
 				bool _isTracker;
+				Track _track;
 				bool _isStandAlone;
 				bool _isGlobal;
 				bool _isTight;
@@ -105,7 +106,6 @@ namespace analysis
 				float _hIso;
 				float _eIso;
 				float _relCombIso;
-				Track _track;
 
 				float _segmentCompatibility;
 				float _combinedQChi2LocalPosition;
