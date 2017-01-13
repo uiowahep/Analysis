@@ -24,18 +24,12 @@ import NtupleProcessing.python.Samples as Samples
 import NtupleProcessing.python.Dataset as DS
 
 #   example of how to get the dataset
-data_datasets = Samples.mcdatasets
+data_datasets = Samples.rerecoSep232016_datasets
 jsonfiles = Samples.jsonfiles
-jsontag = "2016_Prompt_29530"
+jsontag = "2016_ReReco_36460"
 jsonfile = jsonfiles[jsontag]
 dataset = None
-for key in data_datasets.keys():
-    if "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM"==data_datasets[key].name:
-        dataset = data_datasets[key]
-        break
-#    if "/SingleMuon/Run2016B-PromptReco-v2/MINIAOD"==data_datasets[key].name:
-#        dataset=data_datasets[key]
-#        break
+dataset = data_datasets["/SingleMuon/Run2016B-23Sep2016-v3/MINIAOD"]
 
 if dataset==None:
     print "-"*40
@@ -101,8 +95,10 @@ from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 my_id_modules = [
-#    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronHLTPreselecition_Summer16_V1_cff',
-    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff'
+    # cut based id
+    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
+    # mva based id
+    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff'
 ]
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)

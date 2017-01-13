@@ -1,10 +1,23 @@
 # Analysis Framework compliant with CMSSW.
 
-## Branches
-- master - main branch
-- 80X - to be used with CMSSW80X
-- 74X - to be used with CMSSW74X
-- 76X - to be used with CMSSW76X
+## CMSSW Branches and Repos to merge in
+```
+1) for cut/mva based electron id
+git cms-merge-topic ikrav:egm_id_80X_v2 
+
+2) data files for mva based electron id
+cd $CMSSW_BASE/external
+cd slc6_amd64_gcc530/
+git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
+cd data/RecoEgamma/ElectronIdentification/data
+git checkout egm_id_80X_v1
+cd $CMSSW_BASE/src
+
+3) Kalman muon corrections
+git clone -o Analysis https://github.com/bachtis/analysis.git -b KaMuCa_V4 KaMuCa
+
+4) 
+```
 
 ## Instructions
 ### With CMSSW
