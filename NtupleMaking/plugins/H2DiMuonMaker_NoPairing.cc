@@ -220,8 +220,6 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
         JetCorrectionUncertainty *m_jecuAK5;
         JetCorrectionUncertainty *m_jecuAK4;
 
-        edm::Handle
-
         //  some flags
         bool _useElectrons;
         bool _useTaus;
