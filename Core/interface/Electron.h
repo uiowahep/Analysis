@@ -55,8 +55,8 @@ namespace analysis
                 bool _mvagpid_tight;
 
                 float _mvahzz_value;
-                int _mvahgzz_category;
-                bool _mvahgzzid_loose;
+                int _mvahzz_category;
+                bool _mvahzzid_loose;
 
 #ifdef STANDALONE
                 ClassDef(Electron, 1)
