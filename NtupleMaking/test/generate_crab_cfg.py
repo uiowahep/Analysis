@@ -50,7 +50,7 @@ for d in datasets:
     if d.isData:
         rootpath+="/data"
     else:
-        rootpath+="/mc1"
+        rootpath+="/mc"
     s = DS.Ntuple(d, 
         json = jsonfile.filename,
 #        json = None,
@@ -128,7 +128,7 @@ for s in samples:
             line = line.replace("ROOTPATH", s.rootpath)
         if "JOBUNITS" in line:
             if s.isData:
-                line = line.replace("JOBUNITS", "100")
+                line = line.replace("JOBUNITS", "200")
             else:
                 line = line.replace("JOBUNITS", "40")
         outfile.write(line)

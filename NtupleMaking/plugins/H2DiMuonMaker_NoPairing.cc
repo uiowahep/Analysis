@@ -174,7 +174,7 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
         edm::InputTag _tagElectronCutBasedId_tight;
         edm::InputTag _tagElectronMVAGPId_medium;
         edm::InputTag _tagElectronMVAGPId_tight;
-        edm::Inputtag _tagElectronMVAGP_values;
+        edm::InputTag _tagElectronMVAGP_values;
         edm::InputTag _tagElectronMVAGP_categories;
         edm::InputTag _tagElectronMVAHZZId_loose;
         edm::InputTag _tagElectronMVAHZZ_values;
@@ -276,7 +276,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
         "tagElectronCutBasedId_medium");
     _tagElectronCutBasedId_tight = ps.getUntrackedParameter<edm::InputTag>(
         "tagElectronCutBasedId_tight");
-    _tagElectornMVAGPId_medium = ps.getUntrackedParameter<edm::InputTag>(
+    _tagElectronMVAGPId_medium = ps.getUntrackedParameter<edm::InputTag>(
         "tagElectornMVAGPId_medium");
     _tagElectronMVAGPId_tight = ps.getUntrackedParameter<edm::InputTag>(
         "tagElectronMVAGPId_tight");
@@ -331,8 +331,8 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
         _tagElectronCutBasedId_medium);
     _tokElectronCutBasedId_tight = consumes<edm::ValueMap<bool> >(
         _tagElectronCutBasedId_tight);
-    _tokElectornMVAGPId_medium = consumes<edm::ValueMap<bool> >(
-        _tagElectornMVAGPId_medium);
+    _tokElectronMVAGPId_medium = consumes<edm::ValueMap<bool> >(
+        _tagElectronMVAGPId_medium);
     _tokElectronMVAGPId_tight = consumes<edm::ValueMap<bool> >(
         _tagElectronMVAGPId_tight);
     _tokElectronMVAGP_values = consumes<edm::ValueMap<float> >(
@@ -831,7 +831,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 
             // energy correction uncertainty
             jecuAK5->setJetEta(jet.eta());
-            jecuAK4->setJetEta(jet.eta().);
+            jecuAK4->setJetEta(jet.eta());
             jecuAK5->setJetPt(jet.pt());
             jecuAK4->setJetPt(jet.pt());
 
@@ -947,7 +947,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             mye._mvagpid_tight = mvagpid_tight;
 
             // mva hzz id
-            bool mvahzzid_loose (*hMVAHZZId_loose)[ele];
+            bool mvahzzid_loose  = (*hMVAHZZId_loose)[ele];
             float mvahzz_value = (*hMVAHZZ_values)[ele];
             int mvahzz_category = (*hMVAHZZ_categories)[ele];
 

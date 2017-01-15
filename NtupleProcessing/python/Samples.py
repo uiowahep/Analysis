@@ -173,8 +173,8 @@ rerecoSep232016_datasets = {
         year = 2016,
         globaltag = "80X_dataRun2_2016SeptRepro_v5"
     ),
-    " /SingleMuon/Run2016G-23Sep2016-v1/MINIAOD" : DS.Dataset(
-        name = " /SingleMuon/Run2016G-23Sep2016-v1/MINIAOD",
+    "/SingleMuon/Run2016G-23Sep2016-v1/MINIAOD" : DS.Dataset(
+        name = "/SingleMuon/Run2016G-23Sep2016-v1/MINIAOD",
         isData = True,
         year = 2016,
         globaltag = "80X_dataRun2_2016SeptRepro_v5"

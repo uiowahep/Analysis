@@ -18,5 +18,8 @@
 <use name="DataFormats/Luminosity" />
 <use name="SimDataFormats/Vertex"/>
 <use name="RecoEgamma/EgammaTools" />
+<use name="CondFormats/JetMETObjects" />
+<use name="JetMETCorrections/Objects" />
+<use name="DataFormats/JetReco" />
 
 <flags EDM_PLUGIN="1"/>
