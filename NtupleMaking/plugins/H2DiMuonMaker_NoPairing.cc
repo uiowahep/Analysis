@@ -215,6 +215,12 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
 
 		edm::Handle<edm::TriggerResults> _hTriggerResults;
 		edm::Handle<pat::TriggerObjectStandAloneCollection> _hTriggerObjects;
+        edm::ESHandle<JetCorrectorParametersCollection> m_hJetCParametersAK5, 
+            m_hJetCParametersAK4;
+        JetCorrectionUncertainty *m_jecuAK5;
+        JetCorrectionUncertainty *m_jecuAK4;
+
+        edm::Handle
 
         //  some flags
         bool _useElectrons;
@@ -414,6 +420,10 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 		_tEvents->Branch("Track1HpostFSR", (Track*)&_track1HpostFSR);
 		_tEvents->Branch("Track2HpostFSR", (Track*)&_track2HpostFSR);
 	}
+
+    // some setups
+    m_jecuAK5 = NULL;
+    m_jecuAK4 = NULL;
 }
 
 void H2DiMuonMaker_NoPairing::beginJob()
@@ -476,16 +486,18 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
     //
     // get the Jet Enetry Corrections
     //
-    edm::ESHandle<JetCorrectorParametersCollection> hJetCParametersAK5, 
-        hJetCParametersAK4;
-    esetup.get<JetCorrectionsRecord>().get("AK5PF", hJetCParametersAK5);
-    esetup.get<JetCorrectionsRecord>().get("AK4PF", hJetCParametersAK4);
+    esetup.get<JetCorrectionsRecord>().get("AK5PF", m_hJetCParametersAK5);
+    esetup.get<JetCorrectionsRecord>().get("AK4PF", m_hJetCParametersAK4);
     JetCorrectorParameters const& jetParametersAK5 = 
-        (*hJetCParametersAK5)["Uncertainty"];
+        (*m_hJetCParametersAK5)["Uncertainty"];
     JetCorrectorParameters const& jetParametersAK4 = 
-        (*hJetCParametersAK4)["Uncertainty"];
-    JetCorrectionUncertainty *jecuAK5 = new JetCorrectionUncertainty(jetParametersAK5);
-    JetCorrectionUncertainty *jecuAK4 = new JetCorrectionUncertainty(jetParametersAK4);
+        (*m_hJetCParametersAK4)["Uncertainty"];
+
+    // release the memory. Otherwise we run out...
+    if (m_jecuAK5 != NULL) delete m_jecuAK5;
+    if (m_jecuAK4 != NULL) delete m_jecuAK4;
+    m_jecuAK5 = new JetCorrectionUncertainty(jetParametersAK5);
+    m_jecuAK4 = new JetCorrectionUncertainty(jetParametersAK4);
 
 	//
 	//	For MC
@@ -833,13 +845,13 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
                 myjet._btag.push_back(jet.bDiscriminator(*btt));
 
             // energy correction uncertainty
-            jecuAK5->setJetEta(jet.eta());
-            jecuAK4->setJetEta(jet.eta());
-            jecuAK5->setJetPt(jet.pt());
-            jecuAK4->setJetPt(jet.pt());
+            m_jecuAK5->setJetEta(jet.eta());
+            m_jecuAK4->setJetEta(jet.eta());
+            m_jecuAK5->setJetPt(jet.pt());
+            m_jecuAK4->setJetPt(jet.pt());
 
-            double uncAK5 = jecuAK5->getUncertainty(true);
-            double uncAK4 = jecuAK4->getUncertainty(true);
+            double uncAK5 = m_jecuAK5->getUncertainty(true);
+            double uncAK4 = m_jecuAK4->getUncertainty(true);
 
             double pt_upAK5 = jet.pt()*(1 + uncAK5);
             double pt_downAK5 = jet.pt()*(1 - uncAK5);
@@ -883,15 +895,15 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
     if (_useElectrons)
     {
         edm::Handle<edm::ValueMap<bool> > hId_veto, hId_loose, hId_medium, hId_tight;
-//        edm::Handle<edm::ValueMap<bool> > hMVAGPId_medium, hMVAGPId_tight, 
-//            hMVAHZZId_loose;
-//        edm::Handle<edm::ValueMap<float> > hMVAGP_values, hMVAHZZ_values;
-//        edm::Handle<edm::ValueMap<int> > hMVAGP_categories, hMVAHZZ_categories;
+        edm::Handle<edm::ValueMap<bool> > hMVAGPId_medium, hMVAGPId_tight, 
+            hMVAHZZId_loose;
+        edm::Handle<edm::ValueMap<float> > hMVAGP_values, hMVAHZZ_values;
+        edm::Handle<edm::ValueMap<int> > hMVAGP_categories, hMVAHZZ_categories;
         e.getByToken(_tokElectronCutBasedId_veto, hId_veto);
         e.getByToken(_tokElectronCutBasedId_loose, hId_loose);
         e.getByToken(_tokElectronCutBasedId_medium, hId_medium);
         e.getByToken(_tokElectronCutBasedId_tight, hId_tight);
-        /*
+        
         e.getByToken(_tokElectronMVAGPId_medium, hMVAGPId_medium);
         e.getByToken(_tokElectronMVAGPId_tight, hMVAGPId_tight);
         e.getByToken(_tokElectronMVAGP_values, hMVAGP_values);
@@ -899,7 +911,6 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
         e.getByToken(_tokElectronMVAHZZId_loose, hMVAHZZId_loose);
         e.getByToken(_tokElectronMVAHZZ_values, hMVAHZZ_values);
         e.getByToken(_tokElectronMVAHZZ_categories, hMVAHZZ_categories);
-        */
 
         edm::Handle<edm::View<pat::Electron> > hElectrons;
         e.getByToken(_tokElectrons, hElectrons);
@@ -940,7 +951,6 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             bool id_tight =  (*hId_tight)[ele];    
             mye._ids.push_back(id_tight);
 
-            /*
             // mva gp ids
             bool mvagpid_medium = (*hMVAGPId_medium)[ele];
             bool mvagpid_tight = (*hMVAGPId_tight)[ele];
@@ -960,7 +970,6 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             mye._mvahzz_value = mvahzz_value;
             mye._mvahzz_category = mvahzz_category;
             mye._mvahzzid_loose = mvahzzid_loose;
-            */
 
             _electrons.push_back(mye);
         }
