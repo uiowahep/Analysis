@@ -28,6 +28,15 @@ namespace analysis
                     _dz = 0;
                     _isPF = false;
                     _convVeto = false;
+
+                    _mvagp_value = 0;
+                    _mvagp_category = 0;
+                    _mvagpid_medium = false;
+                    _mvagpid_tight = false;
+
+                    _mvahzz_value = 0;
+                    _mvahzz_category = 0;
+                    _mvahzzid_loose = false;
                 }
 
                 std::vector<bool> _ids;
@@ -39,6 +48,15 @@ namespace analysis
                 double _dz;
                 bool _isPF;
                 bool _convVeto;
+
+                float _mvagp_value;
+                int _mvagp_category;
+                bool _mvagpid_medium;
+                bool _mvagpid_tight;
+
+                float _mvahzz_value;
+                int _mvahgzz_category;
+                bool _mvahgzzid_loose;
 
 #ifdef STANDALONE
                 ClassDef(Electron, 1)

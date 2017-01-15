@@ -172,6 +172,13 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
         edm::InputTag _tagElectronCutBasedId_loose;
         edm::InputTag _tagElectronCutBasedId_medium;
         edm::InputTag _tagElectronCutBasedId_tight;
+        edm::InputTag _tagElectronMVAGPId_medium;
+        edm::InputTag _tagElectronMVAGPId_tight;
+        edm::Inputtag _tagElectronMVAGP_values;
+        edm::InputTag _tagElectronMVAGP_categories;
+        edm::InputTag _tagElectronMVAHZZId_loose;
+        edm::InputTag _tagElectronMVAHZZ_values;
+        edm::InputTag _tagElectronMVAHZZ_categories;
         edm::InputTag _tagConversions;
 
 		edm::EDGetTokenT<GenEventInfoProduct> _tokGenInfo;
@@ -197,6 +204,13 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
         edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_loose;
         edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_medium;
         edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronCutBasedId_tight;
+        edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronMVAGPId_medium;
+        edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronMVAGPId_tight;
+        edm::EDGetTokenT<edm::ValueMap<float> > _tokElectronMVAGP_values;
+        edm::EDGetTokenT<edm::ValueMap<int> > _tokElectronMVAGP_categories;
+        edm::EDGetTokenT<edm::ValueMap<bool> > _tokElectronMVAHZZId_loose;
+        edm::EDGetTokenT<edm::ValueMap<float> > _tokElectronMVAHZZ_values;
+        edm::EDGetTokenT<edm::ValueMap<int> > _tokElectronMVAHZZ_categories;
         edm::EDGetTokenT<reco::ConversionCollection> _tokConversions;
 
 		edm::Handle<edm::TriggerResults> _hTriggerResults;
@@ -262,6 +276,20 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
         "tagElectronCutBasedId_medium");
     _tagElectronCutBasedId_tight = ps.getUntrackedParameter<edm::InputTag>(
         "tagElectronCutBasedId_tight");
+    _tagElectornMVAGPId_medium = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectornMVAGPId_medium");
+    _tagElectronMVAGPId_tight = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronMVAGPId_tight");
+    _tagElectronMVAGP_values = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronMVAGP_values");
+    _tagElectronMVAGP_categories = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronMVAGP_categories");
+    _tagElectronMVAHZZId_loose = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronMVAHZZId_loose");
+    _tagElectronMVAHZZ_values = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronMVAHZZ_values");
+    _tagElectronMVAHZZ_categories = ps.getUntrackedParameter<edm::InputTag>(
+        "tagElectronMVAHZZ_categories");
     _tagConversions = ps.getUntrackedParameter<edm::InputTag>(
         "tagConversions");
 
@@ -303,6 +331,20 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
         _tagElectronCutBasedId_medium);
     _tokElectronCutBasedId_tight = consumes<edm::ValueMap<bool> >(
         _tagElectronCutBasedId_tight);
+    _tokElectornMVAGPId_medium = consumes<edm::ValueMap<bool> >(
+        _tagElectornMVAGPId_medium);
+    _tokElectronMVAGPId_tight = consumes<edm::ValueMap<bool> >(
+        _tagElectronMVAGPId_tight);
+    _tokElectronMVAGP_values = consumes<edm::ValueMap<float> >(
+        _tagElectronMVAGP_values);
+    _tokElectronMVAGP_categories = consumes<edm::ValueMap<int> >(
+        _tagElectronMVAGP_categories);
+    _tokElectronMVAHZZId_loose = consumes<edm::ValueMap<bool> >(
+        _tagElectronMVAHZZId_loose);
+    _tokElectronMVAHZZ_values = consumes<edm::ValueMap<float> >(
+        _tagElectronMVAHZZ_values);
+    _tokElectronMVAHZZ_categories = consumes<edm::ValueMap<int> >(
+        _tagElectronMVAHZZ_categories);
     _tokConversions = mayConsume<reco::ConversionCollection>(
         _tagConversions);
 
@@ -390,7 +432,7 @@ void H2DiMuonMaker_NoPairing::endJob()
 //		3.
 //	- accumulate meta information
 //
-void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const&)
+void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const& esetup)
 {
 	// count total
 	_meta._nEventsProcessed++;
@@ -430,6 +472,20 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 	_genHpostFSR.reset();
 	_track1HpostFSR.reset();
 	_track2HpostFSR.reset();
+
+    //
+    // get the Jet Enetry Corrections
+    //
+    edm::ESHandle<JetCorrectorParametersCollection> hJetCParametersAK5, 
+        hJetCParametersAK4;
+    esetup.get<JetCorrectionsRecord>().get("AK5PF", hJetCParametersAK5);
+    esetup.get<JetCorrectionsRecord>().get("AK4PF", hJetCParametersAK4);
+    JetCorrectorParameters const& jetParametersAK5 = 
+        (*hJetCParametersAK5)["Uncertainty"];
+    JetCorrectorParameters const& jetParametersAK4 = 
+        (*hJetCParametersAK4)["Uncertainty"];
+    JetCorrectionUncertainty *jecuAK5 = new JetCorrectionUncertainty(jetParametersAK5);
+    JetCorrectionUncertainty *jecuAK4 = new JetCorrectionUncertainty(jetParametersAK4);
 
 	//
 	//	For MC
@@ -734,11 +790,8 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 		std::cout << "Jet Product is not found" << std::endl;
 	}
 	{
-		int n =0;
 		for (uint32_t i=0; i<hJets->size(); i++)
 		{
-			if (n==10)
-				break;
 			const pat::Jet &jet = hJets->at(i);
 			analysis::core::Jet myjet;
 			myjet._px = jet.px();
@@ -776,6 +829,27 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
                 btt!=_meta._btagNames.end(); ++btt)
                 myjet._btag.push_back(jet.bDiscriminator(*btt));
 
+            // energy correction uncertainty
+            jecuAK5->setJetEta(jet.eta());
+            jecuAK4->setJetEta(jet.eta().);
+            jecuAK5->setJetPt(jet.pt());
+            jecuAK4->setJetPt(jet.pt());
+
+            double uncAK5 = jecuAK5->getUncertainty(true);
+            double uncAK4 = jecuAK4->getUncertainty(true);
+
+            double pt_upAK5 = jet.pt()*(1 + uncAK5);
+            double pt_downAK5 = jet.pt()*(1 - uncAK5);
+            double pt_upAK4 = jet.pt()*(1 + uncAK4);
+            double pt_downAK4 = jet.pt()*(1 - uncAK4);
+
+            myjet._uncAK5 = uncAK5;
+            myjet._uncAK4 = uncAK4;
+            myjet._pt_upAK5 = pt_upAK5;
+            myjet._pt_upAK4 = pt_upAK4;
+            myjet._pt_downAK5 = pt_downAK5;
+            myjet._pt_downAK4 = pt_downAK4;
+
 			//	matche gen jet
 			const reco::GenJet *genJet = jet.genJet();
 			if (genJet!=NULL)
@@ -797,7 +871,6 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 				myjet._genMatched=false;
 
 			_pfjets.push_back(myjet);
-			n++;
 		}
 	}
 
@@ -807,10 +880,22 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
     if (_useElectrons)
     {
         edm::Handle<edm::ValueMap<bool> > hId_veto, hId_loose, hId_medium, hId_tight;
+        edm::Handle<edm::ValueMap<bool> > hMVAGPId_medium, hMVAGPId_tight, 
+            hMVAHZZId_loose;
+        edm::Handle<edm::ValueMap<float> > hMVAGP_values, hMVAHZZ_values;
+        edm::Handle<edm::ValueMap<int> > hMVAGP_categories, hMVAHZZ_categories;
         e.getByToken(_tokElectronCutBasedId_veto, hId_veto);
         e.getByToken(_tokElectronCutBasedId_loose, hId_loose);
         e.getByToken(_tokElectronCutBasedId_medium, hId_medium);
         e.getByToken(_tokElectronCutBasedId_tight, hId_tight);
+        e.getByToken(_tokElectronMVAGPId_medium, hMVAGPId_medium);
+        e.getByToken(_tokElectronMVAGPId_tight, hMVAGPId_tight);
+        e.getByToken(_tokElectronMVAGP_values, hMVAGP_values);
+        e.getByToken(_tokElectronMVAGP_categories, hMVAGP_categories);
+        e.getByToken(_tokElectronMVAHZZId_loose, hMVAHZZId_loose);
+        e.getByToken(_tokElectronMVAHZZ_values, hMVAHZZ_values);
+        e.getByToken(_tokElectronMVAHZZ_categories, hMVAHZZ_categories);
+
         edm::Handle<edm::View<pat::Electron> > hElectrons;
         e.getByToken(_tokElectrons, hElectrons);
 
@@ -828,8 +913,6 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             mye._pt = ele->pt();
             mye._eta = ele->eta();
             mye._phi = ele->phi();
-//            mye._eta = ele->superCluster()->eta();
-//            mye._phi = ele->superCluster()->phi();
 
             reco::GsfTrackRef theTrack = ele->gsfTrack();
             mye._dz = theTrack->dz(hBS->position());
@@ -842,6 +925,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             mye._convVeto = !ConversionTools::hasMatchedConversion(*ele,
                 hConversions, hBS->position());
 
+            // cut based id
             bool id_veto =  (*hId_veto)[ele];
             mye._ids.push_back(id_veto);
             bool id_loose =  (*hId_loose)[ele];
@@ -850,6 +934,26 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             mye._ids.push_back(id_medium);
             bool id_tight =  (*hId_tight)[ele];    
             mye._ids.push_back(id_tight);
+
+            // mva gp ids
+            bool mvagpid_medium = (*hMVAGPId_medium)[ele];
+            bool mvagpid_tight = (*hMVAGPId_tight)[ele];
+            float mvagp_value = (*hMVAGP_values)[ele];
+            int mvagp_category = (*hMVAGP_categories)[ele];
+
+            mye._mvagp_value = mvagp_value;
+            mye._mvagp_category = mvagp_category;
+            mye._mvagpid_medium = mvagpid_medium;
+            mye._mvagpid_tight = mvagpid_tight;
+
+            // mva hzz id
+            bool mvahzzid_loose (*hMVAHZZId_loose)[ele];
+            float mvahzz_value = (*hMVAHZZ_values)[ele];
+            int mvahzz_category = (*hMVAHZZ_categories)[ele];
+
+            mye._mvahzz_value = mvahzz_value;
+            mye._mvahzz_category = mvahzz_category;
+            mye._mvahzzid_loose = mvahzzid_loose;
 
             _electrons.push_back(mye);
         }

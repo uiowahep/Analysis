@@ -19,12 +19,24 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     tagPFJets = cms.untracked.InputTag("slimmedJets"),
     tagGenJets = cms.untracked.InputTag("slimmedGenJets"),
     tagConversions = cms.untracked.InputTag("reducedEgamma:reducedConversions"),
-    
-    #   for electron id
+
+    # electron cut based id
     tagElectronCutBasedId_veto = cms.untracked.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto"),
     tagElectronCutBasedId_loose = cms.untracked.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-loose"),
     tagElectronCutBasedId_medium = cms.untracked.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-medium"),
     tagElectronCutBasedId_tight = cms.untracked.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-tight"),
+
+    # mva based id
+    tagElectornMVAGPId_medium = cms.untracked.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90"),
+    tagElectronMVAGPId_tight = cms.untracked.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80"),
+
+    tagElectronMVAGP_values = cms.untracked.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
+    tagElectronMVAGP_categories = cms.untracked.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Categories"),
+
+    # mva HZZ based id
+    tagElectronMVAHZZId_loose = cms.untracked.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-HZZ-V1-wpLoose"),
+    tagElectronMVAHZZ_values = cms.untracked.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
+    tagElectronMVAHZZ_categories = cms.untracked.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Categories"),
 
 	#
 	#	Meta Data
@@ -57,7 +69,7 @@ ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     btagNames = cms.untracked.vstring(["pfCombinedInclusiveSecondaryVertexV2BJetTags"]),
     tauIDNames = cms.untracked.vstring(["byCombinedIsolationDeltaBetaCorrRaw3Hits",
         "againstElectronLooseMVA6", "againstElectronVLooseMVA6",
-        "decayModeFindingNewDMs", 
+        "decayModeFindingNewDMs",
         "byLooseCombinedIsolationDeltaBetaCorr3Hits", "byMediumCombinedIsolationDeltaBetaCorr3Hits", "byTightCombinedIsolationDeltaBetaCorr3Hits", "againstMuonLoose3", "againstMuonTight3", "againstElectronVTightMVA6", "againstElectronTightMVA6", "againstElectronMediumMVA6"]),
 
         #

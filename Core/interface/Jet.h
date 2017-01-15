@@ -48,6 +48,13 @@ namespace analysis
 					_btag.clear();
 					_puid = 0;
 
+                    _uncAK5 = 0;
+                    _uncAK4 = 0;
+                    _pt_upAK5 = 0;
+                    _pt_upAK4 = 0;
+                    _pt_downAK5 = 0;
+                    _pt_downAK4 = 0;
+
 					_genjet.reset();
 					_genMatched = 0;
 					_genemf = 0;
@@ -86,6 +93,13 @@ namespace analysis
 				float _jecu;
                 std::vector<float> _btag;
 				float _puid;
+
+                double _uncAK5;
+                double _uncAK4;
+                double _pt_upAK5;
+                double _pt_upAK4;
+                double _pt_downAK5;
+                double _pt_downAK4;
 
 				//	
 				GenJet _genjet;
