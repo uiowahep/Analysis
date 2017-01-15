@@ -283,6 +283,53 @@ mcMoriond2017datasets = {
         initial_cmssw = "80X",
         globaltag = "80X_mcRun2_asymptotic_v14",
         cross_section = 831.76
+    ),
+    "/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        year = 2016,
+        isData = False,
+        isSignal = False,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_2016_TrancheIV_v6",
+        cross_section = 831.76 * 1.0
+    ),
+
+    # don't know much about these
+    "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        year = 2016,
+        isData = False,
+        isSignal = False,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_2016_TrancheIV_v6",
+        cross_section = 61526.7 * 1.0
+    ),
+    "/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        year = 2016,
+        isData = False,
+        isSignal = False,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_2016_TrancheIV_v6",
+        cross_section = 61526.7
+    ),
+    "/WWTo2L2Nu_13TeV-powheg-herwigpp/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/WWTo2L2Nu_13TeV-powheg-herwigpp/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        year = 2016,
+        isData = False,
+        isSignal = False,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_2016_TrancheIV_v6",
+        cross_section = 10.481
+    ),
+    "/WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
+        name = "/WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        year = 2016,
+        isData = False,
+        isSignal = False,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_2016_TrancheIV_v6",
+        cross_section = 4.712
     )
 }
 

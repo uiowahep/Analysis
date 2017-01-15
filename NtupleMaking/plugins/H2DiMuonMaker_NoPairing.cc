@@ -515,7 +515,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 
 		//	
 		//	Pruned Gen Particles
-		//
+		/*
 		edm::Handle<reco::GenParticleCollection> hPrunedGenParticles;
 		e.getByToken(_tokPrunedGenParticles, hPrunedGenParticles);
 		reco::GenParticleCollection hardProcessMuons;
@@ -659,7 +659,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 			_track2HpostFSR._eta = finalStateGenMuons[1].eta();
 			_track2HpostFSR._phi = finalStateGenMuons[1].phi();
 			_track2HpostFSR._charge = finalStateGenMuons[1].charge();
-		}
+		}*/
 
 		//
 		//	Gen Jet
@@ -793,6 +793,8 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 	{
 		for (uint32_t i=0; i<hJets->size(); i++)
 		{
+            if (i == 10) break;
+
 			const pat::Jet &jet = hJets->at(i);
 			analysis::core::Jet myjet;
 			myjet._px = jet.px();
