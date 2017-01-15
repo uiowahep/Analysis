@@ -789,6 +789,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 	{
 		std::cout << "Jet Product is not found" << std::endl;
 	}
+    else
 	{
 		for (uint32_t i=0; i<hJets->size(); i++)
 		{
@@ -880,14 +881,15 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
     if (_useElectrons)
     {
         edm::Handle<edm::ValueMap<bool> > hId_veto, hId_loose, hId_medium, hId_tight;
-        edm::Handle<edm::ValueMap<bool> > hMVAGPId_medium, hMVAGPId_tight, 
-            hMVAHZZId_loose;
-        edm::Handle<edm::ValueMap<float> > hMVAGP_values, hMVAHZZ_values;
-        edm::Handle<edm::ValueMap<int> > hMVAGP_categories, hMVAHZZ_categories;
+//        edm::Handle<edm::ValueMap<bool> > hMVAGPId_medium, hMVAGPId_tight, 
+//            hMVAHZZId_loose;
+//        edm::Handle<edm::ValueMap<float> > hMVAGP_values, hMVAHZZ_values;
+//        edm::Handle<edm::ValueMap<int> > hMVAGP_categories, hMVAHZZ_categories;
         e.getByToken(_tokElectronCutBasedId_veto, hId_veto);
         e.getByToken(_tokElectronCutBasedId_loose, hId_loose);
         e.getByToken(_tokElectronCutBasedId_medium, hId_medium);
         e.getByToken(_tokElectronCutBasedId_tight, hId_tight);
+        /*
         e.getByToken(_tokElectronMVAGPId_medium, hMVAGPId_medium);
         e.getByToken(_tokElectronMVAGPId_tight, hMVAGPId_tight);
         e.getByToken(_tokElectronMVAGP_values, hMVAGP_values);
@@ -895,6 +897,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
         e.getByToken(_tokElectronMVAHZZId_loose, hMVAHZZId_loose);
         e.getByToken(_tokElectronMVAHZZ_values, hMVAHZZ_values);
         e.getByToken(_tokElectronMVAHZZ_categories, hMVAHZZ_categories);
+        */
 
         edm::Handle<edm::View<pat::Electron> > hElectrons;
         e.getByToken(_tokElectrons, hElectrons);
@@ -935,6 +938,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             bool id_tight =  (*hId_tight)[ele];    
             mye._ids.push_back(id_tight);
 
+            /*
             // mva gp ids
             bool mvagpid_medium = (*hMVAGPId_medium)[ele];
             bool mvagpid_tight = (*hMVAGPId_tight)[ele];
@@ -954,6 +958,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
             mye._mvahzz_value = mvahzz_value;
             mye._mvahzz_category = mvahzz_category;
             mye._mvahzzid_loose = mvahzzid_loose;
+            */
 
             _electrons.push_back(mye);
         }
