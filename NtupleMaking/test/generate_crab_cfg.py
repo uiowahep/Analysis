@@ -33,7 +33,8 @@ jsonfile = jsonfiles[jsontag]
 #   select the datasets to be submitted for grid processing
 datasets = []
 #sets_to_consider=data_datasets
-sets_to_consider = rereco_datasets
+#sets_to_consider = rereco_datasets
+sets_to_consider = Samples.mcMoriond2017datasets
 for k in sets_to_consider:
 #    if sets_to_consider[k].year==2016 and sets_to_consider[k].initial_cmssw=="80X":
 #        "PromptReco" in sets_to_consider[k].name:

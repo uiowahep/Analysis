@@ -25,11 +25,13 @@ import NtupleProcessing.python.Dataset as DS
 
 #   example of how to get the dataset
 data_datasets = Samples.rerecoSep232016_datasets
+mc_datasets = Samples.mcMoriond2017datasets
 jsonfiles = Samples.jsonfiles
 jsontag = "2016_ReReco_36460"
 jsonfile = jsonfiles[jsontag]
 dataset = None
-dataset = data_datasets["/SingleMuon/Run2016B-23Sep2016-v3/MINIAOD"]
+#dataset = data_datasets["/SingleMuon/Run2016B-23Sep2016-v3/MINIAOD"]
+dataset = mc_datasets["/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
 
 if dataset==None:
     print "-"*40
