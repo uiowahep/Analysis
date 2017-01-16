@@ -24,6 +24,7 @@ mc_datasets = Samples.mcdatasets
 rereco_datasets = Samples.rerecoSep232016_datasets
 
 config_filename = "maker_h2dimuon_wElesTaus_cfg_crabtemplate.py"
+mcEOSFolder = "/mcMoriond2017"
 
 #   get the json file to be used if needed
 jsonfiles = Samples.jsonfiles
@@ -51,7 +52,7 @@ for d in datasets:
     if d.isData:
         rootpath+="/data"
     else:
-        rootpath+="/mc"
+        rootpath+=mcEOSFolder
     s = DS.Ntuple(d, 
         json = jsonfile.filename,
 #        json = None,

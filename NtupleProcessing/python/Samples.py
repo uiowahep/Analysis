@@ -558,7 +558,7 @@ for k in jsonfiles.keys():
 #
 def buildDatasetTagName(ntuple):
     if ntuple.isData:
-	s = "%s__%s" % (ntuple.label.split("__")[1],ntuple.json[:-4])
+	    s = "%s__%s" % (ntuple.label.split("__")[1],ntuple.json[:-4])
     else:
         s = "%s" % (ntuple.cmssw)
     if ntuple.aux!=None and ntuple.aux!="":
@@ -571,7 +571,11 @@ def buildRequestName(ntuple, *kargs):
         s = ntuple.label.split("__")[1]
         s += "__%s"%kargs[0]
     else:
-        s = ntuple.label.split("__")[0].split("-")[0]+"__%s" % ntuple.initial_cmssw
+        if ntuple.isSignal:
+            s = ntuple.label.split("__")[0] + "__%s" % ntuple.initial_cmssw
+        else:
+#            s = ntuple.label.split("__")[0].split("-")[0]+"__%s" % ntuple.initial_cmssw
+            s = ntuple.label.split("__")[0]+"__%s" % ntuple.initial_cmssw
     if ntuple.aux!=None and ntuple.aux!="":
         s+="__%s" % ntuple.aux
     return s
