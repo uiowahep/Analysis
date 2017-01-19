@@ -194,6 +194,18 @@ rerecoSep232016_datasets = {
     ),
 }
 
+quick_mcMoriond2017 = {
+    "/TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_backup_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
+        "/TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_backup_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        isData = False,
+        year = 2016,
+        isSignal = True,
+        initial_cmssw = "80X",
+        globaltag = "80X_mcRun2_asymptotic_2016_TrancheIV_v6",
+        cross_section = 1.0
+    )
+}
+
 mcMoriond2017datasets = {
     #
     # Signals
