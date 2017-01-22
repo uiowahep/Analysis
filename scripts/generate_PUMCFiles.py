@@ -19,15 +19,15 @@ def main():
     executable = os.path.join(os.environ["ANALYSISHOME"], "process_HiggsAnalysis")
     batchSubmission = True
     storage = "EOS"
-    cmsswsrcdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src"
-    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src/Analysis"
+    cmsswsrcdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src"
+    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
-    executable = os.path.join(dirToUse, "bin/build-6", "generate_PUMCFiles")
+    executable = os.path.join(dirToUse, "bin/build-8", "generate_PUMCFiles")
     analysisHome = os.environ["ANALYSISHOME"]
     shouldGenPUMC = 1
     filelistdir = os.path.join(dirToUse, "filelists")
     resultsdir = os.path.join(dirToUse, "results")
-    pileupdir = os.path.join(dirToUse, "pileup")
+    pileupdir = os.path.join(dirToUse, "pileup_moriond2017")
     version = "v0"
     resultsdir+= "/"+version
     queue = '1nh'
@@ -37,7 +37,8 @@ def main():
     shouldCreateFileList = True
     shouldCreateLaunchers = True
     shouldCreateSubmitter = True
-    mcera = "mc1"
+    mcera = "mcMoriond2017"
+    nbins = 80
 
     #
     #   generate all the Ntuple objects that are ready to be processed
@@ -45,28 +46,12 @@ def main():
     print "-"*80
     print (" "*40)+"SET UP Ntuples"+(" "*40)
     print "-"*80
-    data_datasets = S.datadatasets
-    mc_datasets = S.mcdatasets
-    jsonfiles = S.jsonfiles
-    jsontag = "2016_Prompt_36150"
-    jsonfile = jsonfiles[jsontag]
-    data_ntuples = []
+    mc_datasets = S.mcMoriond2017datasets
     mc_ntuples = []
     cmssw = "80X"
-    for k in data_datasets:
-        if data_datasets[k].year!=2016: continue
-        ntuple = DS.Ntuple(data_datasets[k],
-            json = jsonfile.filename,
-            cmssw = cmssw,
-            storage = storage,
-            rootpath = os.path.join(rootpath, "data"),
-            timestamp = None,
-            aux = aux
-        )
-        data_ntuples.append(ntuple)
     for k in mc_datasets:
         #   use only 2016 MC with 80X
-        if mc_datasets[k].initial_cmssw!="80X": continue
+    #    if mc_datasets[k].initial_cmssw!="80X": continue
         #   skip DY for now...
 #        if "DYJetsToLL" in mc_datasets[k].name: continue
 
@@ -109,10 +94,10 @@ def main():
         outFileName = S.buildPUfilename(ntuple)
 #        os.chdir(cmsswsrcdir)
 #        os.system("eval `scramv1 runtime -sh")
-        os.system("{executable} --input={input} --output={output}".format(
+        os.system("{executable} --input={input} --output={output} --bins={bins}".format(
             executable=executable, input=filelist, 
             output=os.path.join(pileupdir, outFileName),
-            directory=cmsswsrcdir))
+            directory=cmsswsrcdir, bins=nbins))
         s = """
         R.gSystem.Load("../libAnalysisCore%s" % libext)
         R.gSystem.Load("../libAnalysisNtupleProcessing%s" % libext)

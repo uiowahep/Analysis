@@ -16,17 +16,17 @@ def main():
     import NtupleProcessing.python.Dataset as DS
 
     #   set the variables
-    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-6"
+    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-8"
     executable = os.path.join(bindir, "process_HiggsAnalysis_Run1Categorization")
     batchSubmission = True
     storage = "EOS"
-    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_20/src/Analysis"
+    cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
     analysisHome = os.environ["ANALYSISHOME"]
     filelistdir = os.path.join(dirToUse, "filelists")
     resultsdir = os.path.join(dirToUse, "results")
-    pileupdir = os.path.join(dirToUse, "pileup")
-    mcera = "mc1"
+    pileupdir = os.path.join(dirToUse, "pileup_moriond2017")
+    mcera = "mcMoriond2017"
     import datetime
     version = "vR1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
     dirToLaunchFrom = os.path.join(bindir, "submission"+"__"+version)
@@ -34,7 +34,7 @@ def main():
         os.system("mkdir %s" % dirToLaunchFrom)
 
     resultsdir+= "/"+version
-    queue = '1nh'
+    queue = '8nh'
     rootpath = "/store/user/vkhriste/higgs_ntuples"
     aux = "Mu24"
     shouldCreateFileList = True
@@ -46,7 +46,8 @@ def main():
     #
     # specify which datasets to skip - not to process
     #
-    datasetsToSkip = ["/SingleMuon/Run2016H-PromptReco-v1/MINIAOD"]
+    #datasetsToSkip = ["/SingleMuon/Run2016H-PromptReco-v1/MINIAOD"]
+    datasetsToSkip = ["/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_HCALDebug_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
 
     #
     # select the json to use
@@ -54,10 +55,10 @@ def main():
     print "-"*80
     print (" "*40)+"SET UP Ntuples"+(" "*40)
     print "-"*80
-    data_datasets = S.datadatasets
-    mc_datasets = S.mcdatasets
+    data_datasets = S.rerecoSep232016_datasets
+    mc_datasets = S.mcMoriond2017datasets
     jsonfiles = S.jsonfiles
-    jsontag = "2016_Prompt_36150"
+    jsontag = "2016_ReReco_36460"
     jsonfile = jsonfiles[jsontag]
     data_ntuples = []
     mc_ntuples = []
@@ -69,7 +70,7 @@ def main():
     descFile = open(os.path.join(dirToLaunchFrom, "description.desc"), "w")
     desc = """
     Submitting Run 1 like Categorization/Analysis.
-    1) For 36fb^-1 for json file {jsonfile}
+    1) For 36fb^-1 for json file {jsonfile} ReReco
     2) {mcera} is the mcera being used
     3) {executable} is the executable used
     4) No systematics - just analysis and categorization
@@ -82,7 +83,7 @@ def main():
     # select the ntuples to be processed
     #
     for k in data_datasets:
-        if data_datasets[k].year!=2016 or "PromptReco" not in data_datasets[k].name: continue
+        #if data_datasets[k].year!=2016 or "PromptReco" not in data_datasets[k].name: continue
         shouldGenerate = True
         for ddd in datasetsToSkip:
             if ddd==data_datasets[k].name: 
@@ -99,12 +100,11 @@ def main():
         )
         data_ntuples.append(ntuple)
     for k in mc_datasets:
-        if mc_datasets[k].initial_cmssw!="80X": continue
+        #if mc_datasets[k].initial_cmssw!="80X": continue
         ntuple = DS.Ntuple(mc_datasets[k],
             json = None,
             cmssw = mc_datasets[k].initial_cmssw,
             storage=storage,
-            #   note that we went to mc1 era
             rootpath = os.path.join(rootpath, mcera),
             timestamp=None,
             aux=aux
@@ -114,7 +114,7 @@ def main():
     print mc_ntuples
     ntuples = []
     ntuples.extend(data_ntuples)
-    ntuples.extend(mc_ntuples)
+#    ntuples.extend(mc_ntuples)
 
     #
     #   Generate all the Results objects that are to be produced
@@ -142,7 +142,7 @@ def main():
             results.append(result)
         else:
             for ipu in S.pileups:
-                if "Cert_271036-284044" not in ipu: continue
+                if "Cert_271036-284044_13TeV_23Sep2016ReReco" not in ipu: continue
                 pu = S.pileups[ipu]
                 result = DS.MCResult(ntuple,
                     filelist=filelist,
@@ -190,7 +190,7 @@ def main():
                 launcher.write("%s\n" % cmd)
                 launcher.close()
                 os.system("chmod 755 %s" % os.path.join(dirToLaunchFrom, launchername))
-            joblist.append("bsub -q {queue} -o {logfile} -e {errorfile} {launcherscript}".format(queue=queue if "DYJetsToLL" not in result.name else "8nh", logfile=os.path.join(dirToLaunchFrom, "log_%d.log" % (
+            joblist.append("bsub -q {queue} -o {logfile} -e {errorfile} {launcherscript}".format(queue=queue, logfile=os.path.join(dirToLaunchFrom, "log_%d.log" % (
         jobid)), errorfile=os.path.join(dirToLaunchFrom, "error_%d.log" % (
         jobid)), launcherscript=os.path.join(dirToLaunchFrom, "launcher_%d.sh" % jobid)))
         jobid+=1

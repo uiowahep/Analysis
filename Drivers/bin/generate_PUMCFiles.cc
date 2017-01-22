@@ -15,6 +15,7 @@
 bool                        __continue = true;
 std::string                 __input;
 std::string                 __output;
+int                         __bins;
 std::string const           NTUPLEMAKER_NAME = "ntuplemaker_H2DiMuonMaker";
 
 namespace po = boost::program_options;
@@ -47,6 +48,7 @@ int main(int argc, char** argv)
         ("help", "produce help messages")
         ("input", po::value<std::string>(), "a file specifying all the ROOT files to process")
         ("output", po::value<std::string>(), "an output ROOT file")
+        ("bins", po::value<int>(), "number of bins")
     ;
 
     po::variables_map vm;
@@ -61,6 +63,7 @@ int main(int argc, char** argv)
 
     __input = vm["input"].as<std::string>();
     __output = vm["output"].as<std::string>();
+    __bins = vm["bins"].as<int>();
 
     printcmd();
 
@@ -70,7 +73,7 @@ int main(int argc, char** argv)
     EventAuxiliary *aux = NULL;
 
     TFile *out = new TFile(__output.c_str(), "recreate");
-    TH1D *h = new TH1D("pileup", "pileup", 50, 0, 50);
+    TH1D *h = new TH1D("pileup", "pileup", __bins, 0, __bins);
 
     s._chain->SetBranchAddress("EventAuxiliary", &aux);
     uint32_t n = s._chain->GetEntries();
