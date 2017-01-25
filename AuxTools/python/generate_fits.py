@@ -3,9 +3,9 @@ import sys
 import generate_preFitsDataCards as models
 
 #version_data = "v0_20160824_1100"
-version_data = "vR1_20161203_1539"
+version_data = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 #version_fits = "v0p5_20160824_1100"
-version_fits = "vR1_20161203_1539"
+version_fits = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 
 gROOT.SetBatch(kTRUE)
 
@@ -228,12 +228,13 @@ def blindData(hdata):
 #            print hdata.GetBinContent(ibin+1)
 
 def main():
-    pus = ["68", "69", "71","72", "70", "71p3", "69p2"]
+#    pus = ["68", "69", "71","72", "70", "71p3", "69p2"]
+    pus = ["69"]
     for pu in pus:
         generateFits(pu)
 
 def generateFits(pu):
-    folder = "80X__Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu24"
+    folder = "80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24"
     dataworkspace_path = "/Users/vk/software/Analysis/files/fits_and_datacards/%s/%s/%s" % (
         version_data, folder, pu)
     fitsworkspace_path = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/%s/%s" % (

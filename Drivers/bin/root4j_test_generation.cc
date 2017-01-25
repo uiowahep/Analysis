@@ -118,8 +118,19 @@ int main(int argc, char** argv)
     std::vector<std::vector<int> > vOfIntOfInt;
     std::map<int, std::map<int, int> > mOfInt2MapOfInt2Int;
 
+    std::vector<std::string> vShortStrings, vLongStrings, vEmptyStrings;
+    tree->Branch("vShortStrings", (std::vector<std::string>*)&vShortStrings);
+    tree->Branch("vLongStrings", (std::vector<std::string>*)&vLongStrings);
+    tree->Branch("vEmptyStrings", (std::vector<std::string>*)&vEmptyStrings);
+
+    std::string shortString, longString, emptyString;
+    tree->Branch("shortString", (std::string*)&shortString);
+    tree->Branch("longString", (std::string*)&longString);
+    tree->Branch("emptyString", (std::string*)&emptyString);
+
     tree->Branch("vInt", (std::vector<int>*)&vInt);
     tree->Branch("mInt2Int", (std::map<int, int>*)&mInt2Int);
+
     tree->Branch("vBool", (std::vector<bool>*)&vBool);
     tree->Branch("mBool", (std::map<int, bool>*) &mBool);
     tree->Branch("vOfIntOfInt", (std::vector<std::vector<int> >*)&vOfIntOfInt);
@@ -138,6 +149,28 @@ int main(int argc, char** argv)
     {
         aaa.reset();
         vBBB.clear();
+        vShortStrings.clear();
+        vLongStrings.clear();
+        vEmptyStrings.clear();
+
+        shortString = "";
+        longString = "";
+        emptyString = "";
+
+        std::string ls, ss, es;
+        for (int ii=0; ii<193; ii++)
+        {
+            ss += ii%2==0 ? 'a' : 'b';
+            shortString += ii%2==0 ? 'a' : 'b';
+        }
+        vShortStrings.push_back(ss);
+        for (int ii=0; ii<1000; ii++)
+        {
+            ls += ii%2==0 ? 'a' : 'b';
+            longString += ii%2==0 ? 'a' : 'b';
+        }
+        vLongStrings.push_back(ls);
+        vEmptyStrings.push_back(es);
 
         for (int jj=0; jj<10; jj++)
         {

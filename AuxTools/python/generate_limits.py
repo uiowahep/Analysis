@@ -3,14 +3,15 @@ import os, sys, subprocess, glob
 
 R.gROOT.SetBatch(R.kTRUE)
 
-version = "vR1_20161203_1539"
+version = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 #limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22/%s" % (version, pu)
 #pus = ["68", "69", "70", "71", "71p3", "72"]
-pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
+#pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
+pus = ["69"]
 #pus = ["68", "69", "71", "72"]
 smodels = ["SingleGaus", "DoubleGaus"]
 smodes = ["Combined", "Separate"]
-type_modifier = "templates"
+type_modifier = "analytic"
 bmodel = "ExpGaus"
 mass = "125"
 quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
@@ -41,7 +42,7 @@ def createLegend(n):
 
 def main():
     for pu in pus:
-        folder = "80X__Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu24"
+        folder = "80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24"
         limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/%s/%s" % (version, folder, pu)
         if type_modifier == "analytic":
             for smodel in smodels:
@@ -151,12 +152,13 @@ def generateLimit(filelist, **wargs):
     ryh = array("f", yh)
     rzero = array("f", zero)
 
-#for i in range(counter):
-#    print; print;
-#    print titles[i]
-#    print rexpected[i]
-#    print rexpectedm1s[i], rexpectedp1s[i]
-#    print rexpectedm2s[i], rexpectedp2s[i]
+    print counter
+    for i in range(counter):
+        print; print;
+        print titles[i]
+        print rexpected[i]
+        print rexpectedm1s[i], rexpectedp1s[i]
+        print rexpectedm2s[i], rexpectedp2s[i]
 
     R.gStyle.SetOptStat(0)
     xmin = 0

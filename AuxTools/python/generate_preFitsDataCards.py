@@ -20,7 +20,7 @@ import NtupleProcessing.python.Dataset as DS
 #   List all the constants and some initializations
 #
 libdir="/Users/vk/software/Analysis/build-4"
-resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20161203_1539"
+resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170122_1326"
 limitspath= "/Users/vk/software/Analysis/files/fits_and_datacards"
 limitspath = os.path.join(limitspath, os.path.split(resultsdir)[1])
 mkdir(limitspath)
@@ -295,12 +295,12 @@ def buildDatacard_analytic_Separate(**wargs):
     isig = 1
     for signalName in lsignals:
         processName = signalName.split("_")[0]
-        binstr+="category "
+        binstr+="%s " % category
         p1str+="smodel%s " % processName
         p2str+= "%d " % (-len(lsignals)+isig)
         ratestr+= "1 "
         isig+=1
-    binstr+="category\n"
+    binstr+="%s\n" % category
     p1str+="bmodel\n"
     p2str+="1\n"
     ratestr+="1\n"
@@ -773,7 +773,7 @@ if __name__=="__main__":
     #
     #   Choose the Data Results to use
     #
-    datajson = "Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
+    datajson = "Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
     jsons = S.jsonfiles
     intlumi = -1
     for k in jsons:
@@ -781,7 +781,7 @@ if __name__=="__main__":
             intlumi = jsons[k].intlumi
     resultpathname = os.path.join(resultsdir,
         "result__merged__%s__%s.root" % (datajson[:-4], aux))
-    data2016_M22 = {"name" : "2016_Prompt", "label" : "2016 Prompt %.1f/fb" % (intlumi/1000),
+    data2016_M22 = {"name" : "2016_ReReco", "label" : "2016 ReReco %.1f/fb" % (intlumi/1000),
         "result" : resultpathname,  "luminosity":intlumi,
         "json" : datajson}
 
@@ -798,7 +798,9 @@ if __name__=="__main__":
     ]
     backgrounds = {
             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
-            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
+#            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen
+            'TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8' : R.kGreen
+#            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
     pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
 #    pus = ["68", "69","71", "72",]
