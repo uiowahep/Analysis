@@ -22,7 +22,11 @@ import NtupleProcessing.python.Dataset as DS
 libdir="/Users/vk/software/Analysis/build-4"
 resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170122_1326"
 limitspath= "/Users/vk/software/Analysis/files/fits_and_datacards"
-limitspath = os.path.join(limitspath, os.path.split(resultsdir)[1])
+limitspath_modifier = "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"
+#limitspath_modifier = "TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8"
+#limitspath_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+limitspath = os.path.join(limitspath, os.path.split(resultsdir)[1] + "__" + 
+    limitspath_modifier)
 mkdir(limitspath)
 default = -0.999
 R.gSystem.Load(libdir+"/libAnalysisNtupleProcessing.dylib")
@@ -799,8 +803,8 @@ if __name__=="__main__":
     backgrounds = {
             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
 #            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen
-            'TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8' : R.kGreen
-#            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
+#            'TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8' : R.kGreen
+            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
     pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
 #    pus = ["68", "69","71", "72",]

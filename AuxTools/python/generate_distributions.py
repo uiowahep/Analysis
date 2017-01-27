@@ -20,7 +20,10 @@ import NtupleProcessing.python.Dataset as DS
 #
 resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170122_1326"
 picpath = "/Users/vk/software/Analysis/files/distributions"
-picpath = os.path.join(picpath, os.path.split(resultsdir)[1])
+picpath_modifier = "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"
+#picpath_modifier = "TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8"
+#picpath_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+picpath = os.path.join(picpath, os.path.split(resultsdir)[1]  +"__"+ picpath_modifier)
 mkdir(picpath)
 default = -0.999
 aux = "Mu24"
@@ -469,9 +472,9 @@ if __name__=="__main__":
     ]
     backgrounds = {
             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
-            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen
+#            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen
 #            'TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8' : R.kGreen
-#            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
+            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
 #    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
     pus = ["68", "69", "71", "72", "70", "69p2", "71p3"]
