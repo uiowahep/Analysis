@@ -45,10 +45,13 @@ limitsdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/limits/"
 cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_7_4_9/src"
 limitsdir+="/%s" % version
 mkdir(limitsdir)
+limitsdir = os.path.join(limitsdir, datacardsdir.split("/")[-1])
+mkdir(limitsdir)
+
 typesetting = "analytic"
 #typesetting = "templates"
 #smode = "Combined"
-smode = "Separate"
+smode = "Combined"
 mass = 125
 joblist = []
 
