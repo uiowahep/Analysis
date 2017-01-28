@@ -17,7 +17,7 @@ def main():
 
     #   set the variables
     bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-8"
-    executable = os.path.join(bindir, "process_HiggsAnalysis_Run1Categorization")
+    executable = os.path.join(bindir, "process_HiggsAnalysis_Run2Categorization")
     batchSubmission = True
     storage = "EOS"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis"
@@ -28,7 +28,7 @@ def main():
     pileupdir = os.path.join(dirToUse, "pileup_moriond2017")
     mcera = "mcMoriond2017"
     import datetime
-    version = "vR1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    version = "vR2_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
     dirToLaunchFrom = os.path.join(bindir, "submission"+"__"+version)
     if not os.path.exists(dirToLaunchFrom):
         os.system("mkdir %s" % dirToLaunchFrom)
@@ -47,7 +47,8 @@ def main():
     # specify which datasets to skip - not to process
     #
     #datasetsToSkip = ["/SingleMuon/Run2016H-PromptReco-v1/MINIAOD"]
-    datasetsToSkip = ["/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_HCALDebug_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
+    #datasetsToSkip = ["/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_HCALDebug_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
+    datasetsToSkip = []
 
     #
     # select the json to use
@@ -69,7 +70,7 @@ def main():
     #
     descFile = open(os.path.join(dirToLaunchFrom, "description.desc"), "w")
     desc = """
-    Submitting Run 1 like Categorization/Analysis.
+    Submitting Run 2 like Categorization/Analysis.
     1) For 36fb^-1 for json file {jsonfile} ReReco
     2) {mcera} is the mcera being used
     3) {executable} is the executable used
@@ -101,6 +102,12 @@ def main():
         data_ntuples.append(ntuple)
     for k in mc_datasets:
         #if mc_datasets[k].initial_cmssw!="80X": continue
+        shouldGenerate = True
+        for ddd in datasetsToSkip:
+            if ddd==mc_datasets[k].name:
+                shouldGenerate = False
+                break
+        if not shouldGenerate: continue
         ntuple = DS.Ntuple(mc_datasets[k],
             json = None,
             cmssw = mc_datasets[k].initial_cmssw,
@@ -114,7 +121,7 @@ def main():
     print mc_ntuples
     ntuples = []
     ntuples.extend(data_ntuples)
-#    ntuples.extend(mc_ntuples)
+    ntuples.extend(mc_ntuples)
 
     #
     #   Generate all the Results objects that are to be produced

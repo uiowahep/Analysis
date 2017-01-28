@@ -29,8 +29,8 @@ combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFT
 #combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"] + combinations["0bJets4lCombination"] + combinations["1bJetsCombination"]
 #combinations["012JetCombination"] = combinations["2JetCombination"]+combinations["01JetCombination"]
 
-#cross_sections = ["68", "69", "71","72", "69p2", "70", "71p3"]
-cross_sections = ["69"]
+cross_sections = ["68", "69", "71","72", "69p2", "70", "71p3"]
+#cross_sections = ["69"]
 version = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 datacardsdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/datacards/%s/80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24" % version
 
@@ -45,12 +45,10 @@ limitsdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/limits/"
 cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_7_4_9/src"
 limitsdir+="/%s" % version
 mkdir(limitsdir)
-limitsdir+="/%s" % cmsswdir
-mkdir(limitsdir)
 typesetting = "analytic"
 #typesetting = "templates"
 #smode = "Combined"
-smode = "Combined"
+smode = "Separate"
 mass = 125
 joblist = []
 
@@ -119,14 +117,16 @@ def generate_template():
 def generate_analytic():
     bmodel = "ExpGaus"
     smodels = ["SingleGaus", "DoubleGaus"]
+
     generate_combination=True
     generate_separate=True
+    jobid = 0
     for smodel in smodels:
         for pu in cross_sections:
             path_to_limits = limitsdir + "/%s" % pu
             mkdir(path_to_limits)
-            os.chdir(path_to_limits)
-            print os.environ["PWD"]
+#            os.chdir(path_to_limits)
+#            print os.environ["PWD"]
             print path_to_limits
             #   separate limits + fits
 
@@ -134,6 +134,7 @@ def generate_analytic():
             launcher = open(os.path.join(dirToLaunchFrom, launcherName), "w")
             launcher.write("cd %s\n" %cmsswdir)
             launcher.write("eval `scramv1 runtime -sh`\n")
+            launcher.write("cd %s\n" % path_to_limits)
             if generate_separate:
                 for c in categories:
                     path_to_datacard = "%s/%s/datacard__%s__%s__%s__%s__%s__%s.txt" % (datacardsdir,
@@ -146,12 +147,15 @@ def generate_analytic():
                         outname_modifier, path_to_datacard)
                     launcher.write("%s\n%s\n" % (cmd1, cmd2))
             joblist.append("bsub -q 1nh -o {logfile} -e {errorfile} {launcherscript}".format(logfile=os.path.join(dirToLaunchFrom, "log_%d.log" % jobid), errorfile=os.path.join(dirToLaunchFrom, "error_%d.log" % jobid), launcherscript=os.path.join(dirToLaunchFrom, "launcher_%d.sh" % jobid)))
+            os.system("chmod 755 %s" % os.path.join(dirToLaunchFrom, launcherName))
+            launcher.close()
             jobid+=1
 
             launcherName = "launcher_%d.sh" % jobid
             launcher = open(os.path.join(dirToLaunchFrom, launcherName), "w")
             launcher.write("cd %s\n" %cmsswdir)
             launcher.write("eval `scramv1 runtime -sh`\n")
+            launcher.write("cd %s\n" % path_to_limits)
         #   combination
             if not generate_combination: continue
             for comb in combinations:
@@ -177,6 +181,8 @@ def generate_analytic():
                     outname_modifier, combdatacardname)
                 launcher.write("%s\n%s\n%s\n" % (cmd1, cmd2, cmd3))
             joblist.append("bsub -q 1nh -o {logfile} -e {errorfile} {launcherscript}".format(logfile=os.path.join(dirToLaunchFrom, "log_%d.log" % jobid), errorfile=os.path.join(dirToLaunchFrom, "error_%d.log" % jobid), launcherscript=os.path.join(dirToLaunchFrom, "launcher_%d.sh" % jobid)))
+            os.system("chmod 755 %s" % os.path.join(dirToLaunchFrom, launcherName))
+            launcher.close()
             jobid+=1
     submitterName = "submit.sh"
     sub = open(os.path.join(dirToLaunchFrom, submitterName), "w")
