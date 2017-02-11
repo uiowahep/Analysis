@@ -18,11 +18,11 @@ import NtupleProcessing.python.Dataset as DS
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170122_1326"
+resultsdir = "/Users/vk/software/Analysis/files/results/vR2_20170125_1204"
 picpath = "/Users/vk/software/Analysis/files/distributions"
-picpath_modifier = "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"
+#picpath_modifier = "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__allBkgs"
 #picpath_modifier = "TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8"
-#picpath_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+picpath_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkgs"
 picpath = os.path.join(picpath, os.path.split(resultsdir)[1]  +"__"+ picpath_modifier)
 mkdir(picpath)
 default = -0.999
@@ -426,8 +426,9 @@ if __name__=="__main__":
     variables.extend(var01JetsLooseOO)
     variables.extend(var01JetsLooseOE)
     variables.extend(var01JetsLooseEE)
+
     # new categories
-    s = """
+    #s = """
     variables.extend(var1bJets)
     variables.extend(var1bJets4l)
     variables.extend(var1bJets4l2Mu2e)
@@ -442,7 +443,7 @@ if __name__=="__main__":
     variables.extend(var0bJets4l3Mu1e)
     variables.extend(var0bJets4l4Mu0e)
     variables.extend(var0bJets4l2Mu2e)
-    """
+    #"""
 
     #
     #   Choose the Data Results to use
@@ -472,9 +473,12 @@ if __name__=="__main__":
     ]
     backgrounds = {
             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
-#            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen
+            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen,
+            "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8" : R.kYellow,
+            "WWTo2L2Nu_13TeV-powheg-herwigpp" : R.kGray,
+            "WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8" : R.kViolet
 #            'TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8' : R.kGreen
-            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
+#            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
 #    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
     pus = ["68", "69", "71", "72", "70", "69p2", "71p3"]

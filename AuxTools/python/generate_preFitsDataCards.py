@@ -21,10 +21,11 @@ import NtupleProcessing.python.Dataset as DS
 #
 libdir="/Users/vk/software/Analysis/build-4"
 resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170122_1326"
+#resultsdir = "/Users/vk/software/Analysis/files/results/vR2_20170125_1204"
 limitspath= "/Users/vk/software/Analysis/files/fits_and_datacards"
-limitspath_modifier = "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"
+#limitspath_modifier = "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"
 #limitspath_modifier = "TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8"
-#limitspath_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+limitspath_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 limitspath = os.path.join(limitspath, os.path.split(resultsdir)[1] + "__" + 
     limitspath_modifier)
 mkdir(limitspath)
@@ -304,6 +305,30 @@ def buildDatacard_analytic_Separate(**wargs):
         p2str+= "%d " % (-len(lsignals)+isig)
         ratestr+= "1 "
         isig+=1
+
+    # make sure to import the right uncertainties
+    from NtupleProcessing.python.Uncertainty import *
+    uncertainties = uncertainties_vR2
+    uncStrings = []
+    for unc in uncertainties:
+        uncstr = unc.name + " " + unc.uncType
+        # do the signal
+        for sName in lsignals:
+            processName = sName.split("_")[0]
+            if processName in unc.valuesMap:
+                uncstr += " %f" % unc.valuesMap[processName]
+            else:
+                uncstr += " -"
+
+        #now do the backgrou
+        if "bmodel" in unc.valuesMap:
+            uncstr += " %f" % unc.valuesMap["bmodel"]
+        else:
+            uncstr += " -"
+
+        # append
+        uncStrings.append(uncstr)
+
     binstr+="%s\n" % category
     p1str+="bmodel\n"
     p2str+="1\n"
@@ -316,6 +341,9 @@ def buildDatacard_analytic_Separate(**wargs):
     fout.write(p1str)
     fout.write(p2str)
     fout.write(ratestr)
+    fout.write(("-"*40) + "\n")
+    for x in uncStrings:
+        fout.write("%s\n" % x)
     fout.close()
 
 def generate(variables, (data, mcbg, mcsig), **wargs):
@@ -757,7 +785,7 @@ if __name__=="__main__":
     variables.extend(var01JetsLooseOE)
     variables.extend(var01JetsLooseEE)
     # new categories
-    s = """
+    #s = """
     variables.extend(var1bJets)
     variables.extend(var1bJets4l)
     variables.extend(var1bJets4l2Mu2e)
@@ -772,7 +800,7 @@ if __name__=="__main__":
     variables.extend(var0bJets4l3Mu1e)
     variables.extend(var0bJets4l4Mu0e)
     variables.extend(var0bJets4l2Mu2e)
-    """
+    #"""
 
     #
     #   Choose the Data Results to use
@@ -802,9 +830,12 @@ if __name__=="__main__":
     ]
     backgrounds = {
             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
-#            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen
+            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen,
+            "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8" : R.kYellow,
+            "WWTo2L2Nu_13TeV-powheg-herwigpp" : R.kGray,
+            "WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8" : R.kViolet
 #            'TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8' : R.kGreen
-            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
+#            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
     pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
 #    pus = ["68", "69","71", "72",]

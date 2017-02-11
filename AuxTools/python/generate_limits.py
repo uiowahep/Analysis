@@ -3,14 +3,17 @@ import os, sys, subprocess, glob
 
 R.gROOT.SetBatch(R.kTRUE)
 
-version = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+#version = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+#version = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+version = "vR2_20170125_1204__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkgs"
 #limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22/%s" % (version, pu)
 #pus = ["68", "69", "70", "71", "71p3", "72"]
-#pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
-pus = ["69"]
+pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
+#pus = ["69"]
 #pus = ["68", "69", "71", "72"]
 smodels = ["SingleGaus", "DoubleGaus"]
-smodes = ["Combined", "Separate"]
+#smodes = ["Combined", "Separate"]
+smodes = ["Separate"]
 type_modifier = "analytic"
 bmodel = "ExpGaus"
 mass = "125"

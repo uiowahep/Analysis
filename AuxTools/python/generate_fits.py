@@ -3,9 +3,14 @@ import sys
 import generate_preFitsDataCards as models
 
 #version_data = "v0_20160824_1100"
-version_data = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+#version_data = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+#version_data = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+version_data = "vR2_20170125_1204__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkgs"
 #version_fits = "v0p5_20160824_1100"
-version_fits = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+#version_fits = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+#version_fits = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
+#version_fits = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__wUnc"
+version_fits = "vR2_20170125_1204__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkgs"
 
 gROOT.SetBatch(kTRUE)
 
@@ -14,9 +19,9 @@ categories = ["VBFTight", "ggFLoose", "ggFTight",
     "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO",
     "01JetsTightBB", "01JetsTightBE", "01JetsTightBO",
     "01JetsTightEE", "01JetsTightOE", "01JetsTightOO",
-#    "1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
-#    "1bJets3l", "1bJets2l",
-#    "0bJets4l2Mu1e", "0bJets4l3Mu1e", "0bJets4l2Mu2e"
+    "1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
+    "1bJets3l", "1bJets2l",
+    "0bJets4l2Mu1e", "0bJets4l3Mu0e", "0bJets4l3Mu1e", "0bJets4l4Mu0e", "0bJets4l2Mu2e", 
 ]
 combinations = {
     "2JetCombination" : ["VBFTight", "ggFLoose", "ggFTight"],
@@ -26,14 +31,14 @@ combinations = {
         "01JetsTightEE", "01JetsTightOE", "01JetsTightOO"],
     "TotalCombination" : categories,
     "2JetCombinationNoVBFTight" : ["ggFLoose", "ggFTight"],
- #   "0bJets4lCombination" : ["0bJets4l2Mu1e", "0bJets4l3Mu1e",
- #        "0bJets4l2Mu2e"],
- #   "1bJetsCombination" : ["1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
- #       "1bJets3l", "1bJets2l"]
+    "0bJets4lCombination" : ["0bJets4l2Mu1e", "0bJets4l3Mu1e",
+         "0bJets4l2Mu2e", "0bJets4l3Mu0e", "0bJets4l4Mu0e"],
+    "1bJetsCombination" : ["1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
+        "1bJets3l", "1bJets2l"]
 }
-combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"]
+#combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"]
 #combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"]+ combinations["0bJets4lCombination"] + combinations["1bJetsCombination"]
-#combinations["012JetCombination"] = combinations["2JetCombination"]+combinations["01JetCombination"]
+combinations["012JetCombination"] = combinations["2JetCombination"]+combinations["01JetCombination"]
 
 tail = "MaxLikelihoodFit.mH125.root"
 head = "higgsCombine"
@@ -69,20 +74,30 @@ def extractParameters_Background_ExpGaus(ws, fit, *kargs, **wargs):
     const_pars = fit.constPars()
     float_pars = fit.floatParsFinal()
     for c in list_const_pars:
+        print "import %s" % c
         getattr(ws, "import")(const_pars.find(c))
     for fl in list_float_pars:
+        print "import %s" % fl
         getattr(ws, "import")(float_pars.find(fl))
 
 def extractParameters_Signal_DoubleGaus(ws, fit, *kargs, **wargs):
     category=wargs["category"]
     modifier=wargs["modifier"]
-    imc = wargs["imc"]
-    list_const_pars = ["m{imc}_g1_mass_{category}".format(imc=imc, category=category), 
-        "m{imc}_g1_width_{category}".format(category=category, imc=imc), 
-        "m{imc}_g2_mass_{category}".format(category=category, imc=imc), 
-        "m{imc}_g2_width_{category}".format(category=category, imc=imc),
-        "shapeSig_smodel{imc}_{modifier}{category}__norm".format(modifier=modifier, category=category, imc=imc), 
-        "smodel{imc}_coef_{category}".format(category=category, imc=imc)]
+    processName = wargs["processName"]
+#    imc = wargs["imc"]
+    list_const_pars = [
+        "m{processName}_g1_mass_{category}".format(
+            processName=processName, category=category), 
+        "m{processName}_g1_width_{category}".format(
+            category=category, processName = processName), 
+        "m{processName}_g2_mass_{category}".format(
+            category=category, processName = processName), 
+        "m{processName}_g2_width_{category}".format(
+            category=category, processName = processName),
+        "shapeSig_smodel{processName}_{modifier}{category}__norm".format(
+            modifier=modifier, category=category, processName=processName), 
+        "smodel{processName}_coef_{category}".format(
+            category=category, processName = processName)]
     list_float_pars = []
     const_pars = fit.constPars()
     float_pars = fit.floatParsFinal()
@@ -95,10 +110,15 @@ def extractParameters_Signal_DoubleGaus(ws, fit, *kargs, **wargs):
 def extractParameters_Signal_SingleGaus(ws, fit, *kargs, **wargs):
     category=wargs["category"]
     modifier=wargs["modifier"]
-    imc = wargs["imc"]
-    list_const_pars = ["m{imc}_mass_{category}".format(category=category, imc=imc), 
-        "m{imc}_width_{category}".format(category=category, imc=imc), 
-        "shapeSig_smodel{imc}_{modifier}{category}__norm".format(modifier=modifier, category=category, imc=imc)]
+#    imc = wargs["imc"]
+    processName = wargs["processName"]
+    list_const_pars = [
+        "m{processName}_mass_{category}".format(
+            category=category, processName = processName), 
+        "m{processName}_width_{category}".format(
+            category=category, processName = processName), 
+        "shapeSig_smodel{processName}_{modifier}{category}__norm".format(
+            modifier=modifier, category=category, processName=processName)]
     list_float_pars = []
     const_pars = fit.constPars()
     float_pars = fit.floatParsFinal()
@@ -116,6 +136,7 @@ def generate_1Fit(data, fit, *kargs, **wargs):
     bmodel_name = wargs["bmodel"]
     fitsworkspace_path = wargs["fitspath"]
     mass = wargs["mass"]
+    signalNames = wargs["signalNames"]
     print category
     print smode
     print smodel_name
@@ -149,66 +170,68 @@ def generate_1Fit(data, fit, *kargs, **wargs):
     print "Building Signal Model"
     if smode=="Separate":
         if smodel_name=="SingleGaus":
-            extractParameters_Signal_SingleGaus(ws, fit, category=category,
-                modifier=modifier, imc=1)
-            extractParameters_Signal_SingleGaus(ws, fit, category=category,
-                modifier=modifier, imc=2)
-            smodel1 = models.buildModel_SingleGaus(ws, imc=1, category=category)
-            snorm1 = ws.var("shapeSig_smodel1_%s%s__norm" % (modifier, category)).getVal()*20
-            smodel1.plotOn(xframe, 
-                RooFit.Normalization(snorm1, 0), RooFit.LineColor(kRed),
-                RooFit.Name("smodel1"))
-            snorm2 = ws.var("shapeSig_smodel2_%s%s__norm"% (modifier, category)).getVal()*20
-            smodel2 = models.buildModel_SingleGaus(ws, imc=2, category=category)
-            smodel2.plotOn(xframe, 
-                RooFit.Normalization(snorm2, 0), RooFit.LineColor(kRed),
-                RooFit.Name("smodel2"))
-            leg.AddEntry(xframe.FindObject("smodel1"), "M1 SM Higgs x 20", "l")
-            leg.AddEntry(xframe.FindObject("smodel2"), "M2 SM Higgs x 20", "l")
+            for x in signalNames:
+                processName = x.split("_")[0]
+                extractParameters_Signal_SingleGaus(ws, fit, category=category,
+                    modifier=modifier, processName=processName)
+                smodel = models.buildModel_SingleGaus(ws, processName=processName,
+                    category=category)
+                snorm = ws.var("shapeSig_smodel%s_%s%s__norm" % 
+                    (processName, modifier, category)).getVal()*20
+                smodel.plotOn(xframe, 
+                    RooFit.Normalization(snorm, 0), RooFit.LineColor(kRed),
+                    RooFit.Name("smodel%s" % processName))
+                leg.AddEntry(xframe.FindObject("smodel%s" % processName ), 
+                    "%s SM Higgs x 20" % processName, "l")
         elif smodel_name=="DoubleGaus":
-            extractParameters_Signal_DoubleGaus(ws, fit, category=category,
-                modifier=modifier, imc=1)
-            extractParameters_Signal_DoubleGaus(ws, fit, category=category,
-                modifier=modifier, imc=2)
-            smodel1 = models.buildModel_DoubleGaus(ws, imc=1, category=category)
-            smodel2 = models.buildModel_DoubleGaus(ws, imc=2, category=category)
-            snorm1 = ws.var("shapeSig_smodel1_%s%s__norm" % (modifier, category)).getVal()*20
-            snorm2 = ws.var("shapeSig_smodel2_%s%s__norm"% (modifier, category)).getVal()*20
-            smodel1.plotOn(xframe, 
-                RooFit.Normalization(snorm1, 0), RooFit.LineColor(kRed),
-                RooFit.Name("smodel1"))
-            smodel2.plotOn(xframe, 
-                RooFit.Normalization(snorm2, 0), RooFit.LineColor(kRed),
-                RooFit.Name("smodel2"))
-            leg.AddEntry(xframe.FindObject("smodel1"), "M1 SM Higgs x 20", "l")
-            leg.AddEntry(xframe.FindObject("smodel2"), "M2 SM Higgs x 20", "l")
+            for x in signalNames:
+                processName = x.split("_")[0]
+                extractParameters_Signal_DoubleGaus(ws, fit, category=category,
+                    modifier=modifier, processName=processName)
+                smodel = models.buildModel_DoubleGaus(ws, processName=processName,
+                    category=category)
+                snorm = ws.var("shapeSig_smodel%s_%s%s__norm" % 
+                    (processName, modifier, category)).getVal()*20
+                smodel.plotOn(xframe, 
+                    RooFit.Normalization(snorm, 0), RooFit.LineColor(kRed),
+                    RooFit.Name("smodel%s" % processName))
+                leg.AddEntry(xframe.FindObject("smodel%s" % processName ), 
+                    "%s SM Higgs x 20" % processName, "l")
     elif smode=="Combined":
         if smodel_name=="SingleGaus":
+            processName = "AllSignals"
             extractParameters_Signal_SingleGaus(ws, fit, category=category,
-                modifier=modifier, imc=1)
-            smodel1 = models.buildModel_SingleGaus(ws, imc=1, category=category)
-            snorm1 = ws.var("shapeSig_smodel1_%s%s__norm" % (modifier, category)).getVal()*20
+                modifier=modifier, processName = processName)
+            smodel1 = models.buildModel_SingleGaus(ws, processName=processName, 
+                category=category)
+            snorm1 = ws.var("shapeSig_smodel%s_%s%s__norm" % 
+                (processName, modifier, category)).getVal()*20
             smodel1.plotOn(xframe, 
                 RooFit.Normalization(snorm1, 0), RooFit.LineColor(kRed),
-                RooFit.Name("smodel1"))
-            leg.AddEntry(xframe.FindObject("smodel1"), "SM Higgs x 20", "l")
+                RooFit.Name("smodel%s" % processName))
+            leg.AddEntry(xframe.FindObject("smodel%s" % processName), 
+                "SM Higgs x 20", "l")
         elif smodel_name=="DoubleGaus":
             print "-"*40
             print "Extract Parameters"
+            processName = "AllSignals"
             extractParameters_Signal_DoubleGaus(ws, fit, category=category,
-                modifier=modifier, imc=1)
+                modifier=modifier, processName = processName)
             print "-"*40
             print "Obtain the Model"
-            smodel1 = models.buildModel_DoubleGaus(ws, imc=1, category=category)
+            smodel1 = models.buildModel_DoubleGaus(ws, 
+                processName = processName, category=category)
             print "-"*40
             print "Get the Norm Factor"
-            snorm1 = ws.var("shapeSig_smodel1_%s%s__norm" % (modifier, category)).getVal()*20
+            snorm1 = ws.var("shapeSig_smodel%s_%s%s__norm" % 
+                (processName, modifier, category)).getVal()*20
             print "-"*40
             print "Plot"
             smodel1.plotOn(xframe, 
                 RooFit.Normalization(snorm1, 0), RooFit.LineColor(kRed),
-                RooFit.Name("smodel1"))
-            leg.AddEntry(xframe.FindObject("smodel1") , "SM Higgs x 20", "l")
+                RooFit.Name("smodel%s" % processName))
+            leg.AddEntry(xframe.FindObject("smodel%s" % processName) , 
+                "SM Higgs x 20", "l")
     print "-"*40
     xframe.Draw()
     leg.Draw()
@@ -249,6 +272,13 @@ def generateFits(pu):
     generate_Single = True
     generate_Combined = True
     generate_Single_test = False
+    signals = [
+        'GluGlu_HToMuMu_M125_13TeV_powheg_pythia8',
+        'VBF_HToMuMu_M125_13TeV_powheg_pythia8',
+        "WMinusH_HToMuMu_M125_13TeV_powheg_pythia8",
+        "WPlusH_HToMuMu_M125_13TeV_powheg_pythia8",
+        "ZH_HToMuMu_M125_13TeV_powheg_pythia8"
+    ]
 
     #   this will do only separate fitting
     for f in filelist:
@@ -257,7 +287,8 @@ def generateFits(pu):
                 if not generate_Combined: continue
                 generate_1FitCombined(pathfile=f,
                     datapath=dataworkspace_path, fitspath=fitsworkspace_path,
-                    mass=mass, type_setting=type_setting)
+                    mass=mass, type_setting=type_setting, 
+                    signalNames=signals)
                 continue
             if not generate_Single: continue
             if generate_Single_test and ccc>0:
@@ -268,7 +299,8 @@ def generateFits(pu):
             print "category = %s" % category
             print "fit filename = %s" % f
             modifier = ""
-            if "01Jet" in category: modifier="bin"
+            ints = ['%d' % x for x in range(10)]
+            if category[0] in ints: modifier="bin"
 
             fdata = TFile(findData(category=category, 
                 mass=mass, bmodel=bmodel, smode=smode, smodel=smodel,
@@ -289,7 +321,7 @@ def generateFits(pu):
             print "-"*40
             generate_1Fit(ds, fit, category=category, modifier=modifier,
                 bmodel=bmodel, smode = smode, smodel=smodel, fitspath=fitsworkspace_path,
-                combtype=combtype, mass=mass)
+                combtype=combtype, mass=mass, signalNames=signals)
             print "-"*40
         except Exception as exc:
             print exc.args
@@ -302,6 +334,7 @@ def generate_1FitCombined(**wargs):
     fitspath = wargs["fitspath"]
     mass = wargs["mass"]
     type_setting = wargs["type_setting"]
+    signalNames = wargs["signalNames"]
     try:
         print "-"*40
         print pathfile
@@ -334,7 +367,8 @@ def generate_1FitCombined(**wargs):
             print "-"*40
             generate_1Fit(ds, fit, category=category, modifier=modifier,
                 bmodel=bmodel, smode=smode, smodel=smodel,
-                fitspath=fitspath, combtype=combtype, mass=mass)
+                fitspath=fitspath, combtype=combtype, mass=mass,
+                signalNames=signalNames)
             print "-"*40 
     except Exception as exc:
         print exc.args
