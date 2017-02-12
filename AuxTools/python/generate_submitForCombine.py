@@ -31,7 +31,7 @@ combinations = {
 #    "1bJetsCombination" : ["1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
 #        "1bJets3l", "1bJets2l"]
 }
-combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"]
+combinations["TotalCombinationNoVBFTight"] = combinations["2JetsggF"] + combinations["01JetCombination"]
 #combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"] + combinations["0bJets4lCombination"] + combinations["1bJetsCombination"]
 #combinations["012JetCombination"] = combinations["2JetCombination"]+combinations["01JetCombination"]
 
