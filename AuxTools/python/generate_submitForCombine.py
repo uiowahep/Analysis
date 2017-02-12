@@ -7,9 +7,10 @@ categories = ["VBFTight", "ggFLoose", "ggFTight",
     "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO",
     "01JetsTightBB", "01JetsTightBE", "01JetsTightBO",
     "01JetsTightEE", "01JetsTightOE", "01JetsTightOO",
-#    "1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu", 
-#    "1bJets3l", "1bJets2l", 
-#    "0bJets4l2Mu1e", "0bJets4l3Mu1e", "0bJets4l2Mu2e"
+
+#    "1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
+#    "1bJets3l", "1bJets2l",
+#    "0bJets4l2Mu1e", "0bJets4l3Mu0e", "0bJets4l3Mu1e", "0bJets4l4Mu0e", "0bJets4l2Mu2e"
 ]
 
 combinations = {
@@ -19,9 +20,14 @@ combinations = {
         "01JetsTightBB", "01JetsTightBE", "01JetsTightBO",
         "01JetsTightEE", "01JetsTightOE", "01JetsTightOO"],
     "TotalCombination" : categories,
-    "2JetCombinationNoVBFTight" : ["ggFLoose", "ggFTight"],
+    "2JetsggF" : ["ggFLoose", "ggFTight"],
+    "01JetsTightBarrel" : ["01JetsTightBB", "01JetsTightBO", "01JetsTightBE"],
+    "01JetsTightOther" : ["01JetsTightOO", "01JetsTightOE", "01JetsTightEE"],
+    "01JetsLoose" : ["01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
+        "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO"],
+
 #    "0bJets4lCombination" : ["0bJets4l2Mu1e", "0bJets4l3Mu1e",
-#        "0bJets4l2Mu2e"],
+#        "0bJets4l2Mu2e", "0bJets4l3Mu0e", "0bJets4l4Mu0e"],
 #    "1bJetsCombination" : ["1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
 #        "1bJets3l", "1bJets2l"]
 }
@@ -51,7 +57,7 @@ mkdir(limitsdir)
 typesetting = "analytic"
 #typesetting = "templates"
 #smode = "Combined"
-smode = "Combined"
+smode = "Separate"
 mass = 125
 joblist = []
 
