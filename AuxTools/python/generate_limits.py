@@ -5,7 +5,8 @@ R.gROOT.SetBatch(R.kTRUE)
 
 #version = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 #version = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
-version = "vR2_20170125_1204__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkgs"
+#version = "vR2_20170125_1204__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkgs"
+version = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__AndrewRequests1"
 #limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22/%s" % (version, pu)
 #pus = ["68", "69", "70", "71", "71p3", "72"]
 pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
@@ -21,6 +22,9 @@ quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
 
 tail = "Asymptotic.mH%s.root" % mass
 head = "higgsCombine"
+
+categoriesToInclude = ["2JetsggF", "01JetsTightBarrel", "01JetsTightOther",
+    "01JetsLoose", "VBFTight", "TotalCombination"]
 
 def extractCategory(s):
     s = s.split("/")
@@ -68,6 +72,8 @@ def generateLimit(filelist, **wargs):
     limitMap = {}
     for s in filelist:
         category = extractCategory(s)
+        if category not in categoriesToInclude:
+            continue
         print category
 
         try:
@@ -207,21 +213,23 @@ def generateLimit(filelist, **wargs):
     mg.GetYaxis().SetNdivisions(n*100)
 
     latex = R.TLatex()
-    latex.SetTextSize(0.020)
+    latex.SetTextSize(0.05)
     latex.SetTextAlign(31)
     latex2 = R.TLatex()
-    latex2.SetTextSize(0.012)
+    latex2.SetTextSize(0.05)
     latex2.SetTextAlign(31)
     for i in range(n):
         title = titles[i]
         expLimit = expectedstr[i]
         if type_modifier=="analytic":
-            titleIndex = -20
-            expLimitIndex = -20
+            titleIndex = 0
+            expLimitIndex = 0
+#            titleIndex = -20
+#            expLimitIndex = -20
         else:
             titleIndex = -20
             expLimitIndex=-20
-        latex.DrawLatex(titleIndex, n- i - 0.55, title)
+        latex.DrawLatex(titleIndex, n - i - 0.55, title)
         latex2.DrawLatex(expLimitIndex, n - i - 0.92, expLimit)
 
     legend = createLegend(3)
