@@ -6,7 +6,7 @@ R.gROOT.SetBatch(R.kTRUE)
 #version = "vR1_20170122_1326_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 #version = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 #version = "vR2_20170125_1204__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkgs"
-version = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__AndrewRequests1"
+version = "vR1_20170122_1326__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__AndrewRequests2"
 #limitsdir = "/Users/vk/software/Analysis/files/limits_higsscombined_results/%s/76X__Cert_271036-278808_13TeV_PromptReco_Collisions16_JSON_NoL1T__Mu22/%s" % (version, pu)
 #pus = ["68", "69", "70", "71", "71p3", "72"]
 pus = ["68", "69", "71", "72", "70", "71p3", "69p2"]
@@ -23,7 +23,7 @@ quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
 tail = "Asymptotic.mH%s.root" % mass
 head = "higgsCombine"
 
-categoriesToInclude = ["2JetsggF", "01JetsTightBarrel", "01JetsTightOther",
+categoriesToInclude = ["2JetsggF", "01JetsTightNoEndcap", "01JetsTightEndcap",
     "01JetsLoose", "VBFTight", "TotalCombination"]
 
 def extractCategory(s):
@@ -196,6 +196,7 @@ def generateLimit(filelist, **wargs):
     mg.Add(gr)
     #mg.Add(grobs)
     mg.Draw("AP2")
+    mg.GetXaxis().SetRangeUser(0, 15)
 
     if type_modifier=="analytic":
         mg.SetTitle("mH%s %s %s" % (mass, smodel, smode))
@@ -213,10 +214,10 @@ def generateLimit(filelist, **wargs):
     mg.GetYaxis().SetNdivisions(n*100)
 
     latex = R.TLatex()
-    latex.SetTextSize(0.05)
+    latex.SetTextSize(0.04)
     latex.SetTextAlign(31)
     latex2 = R.TLatex()
-    latex2.SetTextSize(0.05)
+    latex2.SetTextSize(0.04)
     latex2.SetTextAlign(31)
     for i in range(n):
         title = titles[i]
