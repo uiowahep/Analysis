@@ -17,7 +17,7 @@ cd $CMSSW_BASE/src
 
 ## Instructions
 ### With CMSSW or Against CMSSW
-To build a shared lib to be include with CMSSW release do the following 
+To build a shared lib to be included with CMSSW release do the following 
 commands. 
 
 > Note, that is only neccessary to do for **ntuplemaking** stage.
