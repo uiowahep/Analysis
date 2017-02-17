@@ -24,22 +24,31 @@ namespace analysis
 				gDirectory->cd(_postfix);
 				hDiJetMass = new TH1D("DiJetMass", "DiJetMass",
 					20, 0, 1000);
+                hDiJetMass->Sumw2();
 				hDiJetdeta = new TH1D("DiJetdeta", "DiJetdeta",
 					14, 0, 7);
+                hDiJetdeta->Sumw2();
 				hDiMuonpt = new TH1D("DiMuonpt", "DiMuonpt", 
 					100, 0, 200);
+                hDiMuonpt->Sumw2();
 				hDiMuonMass = new TH1D("DiMuonMass", 
 					"DiMuonMass", 110, 50, 160);
+                hDiMuonMass->Sumw2();
 				hDiMuoneta = new TH1D("DiMuoneta", "DiMuoneta",
 					50, -2.5, 2.5);
+                hDiMuoneta->Sumw2();
 				hDiMuondphi = new TH1D("DiMuondphi", 
 					"DiMoundphi", 18, -3.6, 3.6);
+                hDiMuondphi->Sumw2();
 				hMuonpt = new TH1D("Muonpt", "Muonpt", 
 					50, 0, 100);
+                hMuonpt->Sumw2();
 				hMuoneta = new TH1D("Muoneta", "Muoneta", 
 					50, -2.5, 2.5);
+                hMuoneta->Sumw2();
 				hMuonphi = new TH1D("Muonphi", "Muonphi", 
 					36, -3.6, 3.6);
+                hMuonphi->Sumw2();
 				gDirectory->cd("../");
 			}
 			~DimuonSet() {}
