@@ -33,9 +33,9 @@ def buildModel_ExpGaus(ws, *kargs, **wargs):
 
 
 #
-# Create the Variables for Models
+# Create the Parameters for Models
 #
-def createVariables_SingleGaus(ws, *kargs, **wargs):
+def createParameters_SingleGaus(ws, *kargs, **wargs):
     processName = wargs["processName"]
     category=wargs["category"]
     ws.factory("m{processName}_mass_{category}[125, {massmin}, {massmax}]".format(
@@ -44,7 +44,7 @@ def createVariables_SingleGaus(ws, *kargs, **wargs):
     ws.factory("m{processName}_width_{category}[1.0, 0.1, 10]".format(
         processName=processName, category=category))
 
-def createVariables_DoubleGaus(ws, *kargs, **wargs):
+def createParameters_DoubleGaus(ws, *kargs, **wargs):
     processName = wargs["processName"]
     category=wargs["category"]
     ws.factory("m{processName}_g1_mass_{category}[125, {massmin}, {massmax}]".format(
@@ -63,7 +63,7 @@ def createVariables_DoubleGaus(ws, *kargs, **wargs):
         processName=processName,
         category=category))
 
-def createVariables_ExpGaus(ws, *kargs, **wargs):
+def createParameters_ExpGaus(ws, *kargs, **wargs):
     ndata = wargs["ndata"]
     category=wargs["category"]
     ws.factory('a1_%s[ 5.0, -1000, 1000]' % category)
@@ -95,3 +95,12 @@ def setParameters_DoubleGaus(ws, *kargs, **wargs):
     ws.var("m%s_g2_width_%s" % (processName, category)).setConstant(kTRUE)
     ws.var("smodel%s_coef_%s" % (processName, category)).setConstant(kTRUE)
 
+#
+# Initialize the Mass Variable
+#
+def createVariables_Mass(ws, *kargs, **wargs):
+    massmin = wargs["massmin"]
+    massmax = wargs["massmax"]
+    ws.factory("x[125.0, %f, %f]" % (massmin, massmax))
+    ws.var("x").SetTitle("m_{#mu#mu}")
+    ws.var("x").setUnit("GeV")
