@@ -12,5 +12,6 @@ def sliceHistogram(h, **wargs):
     for ibin in range(h.GetNbinsX()):
         if h.GetBinCenter(ibin+1)>massmin and h.GetBinCenter(ibin+1)<massmax:
             newHist.SetBinContent(newibin+1, h.GetBinContent(ibin+1))
+            newHist.SetBinError(newibin+1, h.GetBinError(ibin+1))
             newibin += 1
     return newHist

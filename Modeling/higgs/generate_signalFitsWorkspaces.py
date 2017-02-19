@@ -23,12 +23,12 @@ from models import *
 #   List all the constants and some initializations
 #
 libdir="/Users/vk/software/Analysis/build-4"
-resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170122_1326"
+resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170217_1742"
 #resultsdir = "/Users/vk/software/Analysis/files/results/vR2_20170125_1204"
 signalWorkspacesDir = "/Users/vk/software/Analysis/files/signal_workspaces_fits"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
-path = os.path.join(signalWorkspacesDir, os.path.split(resultsdir)[1] + "__" + 
-    path_modifier)
+signalWorkspacesDir = os.path.join(
+    signalWorkspacesDir, os.path.split(resultsdir)[1] + "__" + path_modifier)
 mkdir(signalWorkspacesDir)
 default = -0.999
 R.gSystem.Load(libdir+"/libAnalysisNtupleProcessing.dylib")
@@ -89,6 +89,13 @@ def prepareSignalModel(ws, signals, **wargs):
                 wargs["fitmax"]))
             setParameters_SingleGaus(ws, processName=processName, norm=roo_hist.sumEntries(),
                 **wargs)
+        elif wargs["smodel"]=="TripleGaus":
+            createParameters_TripleGaus(ws, processName=processName, **wargs)
+            smodel = buildModel_TripleGaus(ws, processName=processName, **wargs)
+            r = smodel.fitTo(roo_hist, RooFit.Save(), RooFit.Range(wargs["fitmin"],
+                wargs["fitmax"]))
+            setParameters_TripleGaus(ws, 
+                processName=processName, norm=roo_hist.sumEntries(),**wargs)
         r.Print("v")
         roo_hist.plotOn(xframe)
         smodel.plotOn(xframe, RooFit.Color(kRed))
@@ -134,15 +141,50 @@ def prepareSignalModel(ws, signals, **wargs):
                     wargs["fitmax"]))
                 setParameters_SingleGaus(ws, processName=processName, norm=s.sumEntries(),
                     **wargs)
+            elif wargs["smodel"]=="TripleGaus":
+                createParameters_TripleGaus(ws, processName=processName, **wargs)
+                smodel = buildModel_TripleGaus(ws, processName=processName, **wargs)
+                r = smodel.fitTo(s, RooFit.Save(), RooFit.Range(wargs["fitmin"],
+                    wargs["fitmax"]))
+                setParameters_TripleGaus(ws, processName=processName, norm=s.sumEntries(),
+                    **wargs)
 
             r.Print("v")
+            #s.plotOn(xframe, RooFit.DataError(RooAbsData.SumW2))
             s.plotOn(xframe)
             smodel.plotOn(xframe, RooFit.Color(kRed))
-            smodel.paramOn(xframe)
+            smodel.paramOn(xframe, RooFit.Format("NELU", RooFit.AutoPrecision(2)), RooFit.Layout(0.6, 0.99, 0.9), RooFit.ShowConstants(True))
+            xframe.getAttText().SetTextSize(0.02)
+            chiSquare = xframe.chiSquare()
+            #txt = R.TText(2, 100, "#chi^{2} = %f" % chiSquare)
+            ttt = R.TPaveLabel(0.1,0.7,0.3,0.78, Form("#chi^{2} = %f" % chiSquare),
+                "brNDC");
+            ttt.Draw()
+            xframe.addObject(ttt)
             xframe.Draw()
+            #latex.DrawLatex(0.4, 0.9, "#chi^{2} = %f" % chiSquare)
             c.SaveAs(fullSignalWorkspacesDir+"/%s__%s__%s__%s__%s__%s.png" % (
                 s.GetName(), category, wargs["mass"], wargs["bmodel"], wargs["smode"],
                 wargs["smodel"]))
+
+            xframe2 = ws.var("x").frame()
+            xframe2.addObject(xframe.pullHist())
+            xframe2.SetMinimum(-5)
+            xframe2.SetMaximum(5)
+            xframe2.Draw()
+            c.SaveAs(fullSignalWorkspacesDir+"/pull__%s__%s__%s__%s__%s__%s.png" % (
+                s.GetName(), category, wargs["mass"], wargs["bmodel"], wargs["smode"],
+                wargs["smodel"]))
+            
+            xframe3 = ws.var("x").frame()
+            xframe3.addObject(xframe.residHist())
+            xframe3.SetMinimum(-5)
+            xframe3.SetMaximum(5)
+            xframe3.Draw()
+            c.SaveAs(fullSignalWorkspacesDir+"/resid__%s__%s__%s__%s__%s__%s.png" % (
+                s.GetName(), category, wargs["mass"], wargs["bmodel"], wargs["smode"],
+                wargs["smodel"]))
+
             imc+=1
 
 def generate(variables, (data, mcbg, mcsig), **wargs):
@@ -272,8 +314,9 @@ if __name__=="__main__":
 #            'TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8' : R.kGreen
 #            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
-    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
+#    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
 #    pus = ["68", "69","71", "72",]
+    pus = ["69"]
     mcsignals = {}
     mcbkgs = {}
     for cmssw in cmssws:
@@ -322,8 +365,10 @@ if __name__=="__main__":
     #
     #   Generate all the distributions
     #
-    smodels = ["SingleGaus", "DoubleGaus"]
-    smodes = ["Separate", "Combined"]
+#    smodels = ["SingleGaus", "DoubleGaus", "TripleGaus"]
+    smodels = ["TripleGaus"]
+#    smodes = ["Separate", "Combined"]
+    smodes = ["Separate"]
     analytic = True
     if analytic:
         for smodel in smodels:

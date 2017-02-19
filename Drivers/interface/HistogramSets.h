@@ -24,31 +24,31 @@ namespace analysis
 				gDirectory->cd(_postfix);
 				hDiJetMass = new TH1D("DiJetMass", "DiJetMass",
 					20, 0, 1000);
-                hDiJetMass->Sumw2();
+                hDiJetMass->Sumw2(kTRUE);
 				hDiJetdeta = new TH1D("DiJetdeta", "DiJetdeta",
 					14, 0, 7);
-                hDiJetdeta->Sumw2();
+                hDiJetdeta->Sumw2(kTRUE);
 				hDiMuonpt = new TH1D("DiMuonpt", "DiMuonpt", 
 					100, 0, 200);
-                hDiMuonpt->Sumw2();
+                hDiMuonpt->Sumw2(kTRUE);
 				hDiMuonMass = new TH1D("DiMuonMass", 
 					"DiMuonMass", 110, 50, 160);
-                hDiMuonMass->Sumw2();
+                hDiMuonMass->Sumw2(kTRUE);
 				hDiMuoneta = new TH1D("DiMuoneta", "DiMuoneta",
 					50, -2.5, 2.5);
-                hDiMuoneta->Sumw2();
+                hDiMuoneta->Sumw2(kTRUE);
 				hDiMuondphi = new TH1D("DiMuondphi", 
 					"DiMoundphi", 18, -3.6, 3.6);
-                hDiMuondphi->Sumw2();
+                hDiMuondphi->Sumw2(kTRUE);
 				hMuonpt = new TH1D("Muonpt", "Muonpt", 
 					50, 0, 100);
-                hMuonpt->Sumw2();
+                hMuonpt->Sumw2(kTRUE);
 				hMuoneta = new TH1D("Muoneta", "Muoneta", 
 					50, -2.5, 2.5);
-                hMuoneta->Sumw2();
+                hMuoneta->Sumw2(kTRUE);
 				hMuonphi = new TH1D("Muonphi", "Muonphi", 
 					36, -3.6, 3.6);
-                hMuonphi->Sumw2();
+                hMuonphi->Sumw2(kTRUE);
 				gDirectory->cd("../");
 			}
 			~DimuonSet() {}

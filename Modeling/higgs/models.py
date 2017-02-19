@@ -25,6 +25,19 @@ def buildModel_DoubleGaus(ws, *kargs, **wargs):
         processName=processName, category=category))
     return ws.pdf("smodel%s" % processName)
 
+def buildModel_TripleGaus(ws, *kargs, **wargs):
+    processName = wargs["processName"]
+    category=wargs["category"]
+    ws.factory("Gaussian::smodel{processName}_g1_{category}(x, m{processName}_g1_mass_{category}, m{processName}_g1_width_{category})".format(
+        processName=processName, category=category))
+    ws.factory("Gaussian::smodel{processName}_g2_{category}(x, m{processName}_g2_mass_{category}, m{processName}_g2_width_{category})".format(
+        processName=processName, category=category))
+    ws.factory("Gaussian::smodel{processName}_g3_{category}(x, m{processName}_g3_mass_{category}, m{processName}_g3_width_{category})".format(
+        processName=processName, category=category))
+    ws.factory("SUM::smodel{processName}(smodel{processName}_coef1_{category}*smodel{processName}_g1_{category}, smodel{processName}_coef2_{category}*smodel{processName}_g2_{category}, smodel{processName}_g3_{category})".format(
+        processName=processName, category=category))
+    return ws.pdf("smodel%s" % processName)
+
 def buildModel_ExpGaus(ws, *kargs, **wargs):
     category = wargs["category"]
     ws.factory('expr::f("-(a1_{category}*(x/100)+a2_{category}*(x/100)^2)",a1_{category},a2_{category},x)'.format(category=category))
@@ -43,6 +56,11 @@ def createParameters_SingleGaus(ws, *kargs, **wargs):
         category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
     ws.factory("m{processName}_width_{category}[1.0, 0.1, 10]".format(
         processName=processName, category=category))
+    ws.var("m{processName}_mass_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
+    ws.var("m{processName}_width_{category}".format(
+        processName=processName, category=category)).setUnit("GeV")
 
 def createParameters_DoubleGaus(ws, *kargs, **wargs):
     processName = wargs["processName"]
@@ -50,16 +68,74 @@ def createParameters_DoubleGaus(ws, *kargs, **wargs):
     ws.factory("m{processName}_g1_mass_{category}[125, {massmin}, {massmax}]".format(
         processName=processName,
         category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
+    ws.var("m{processName}_g1_mass_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
     ws.factory("m{processName}_g2_mass_{category}[125, {massmin}, {massmax}]".format(
         processName=processName,
         category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
+    ws.var("m{processName}_g2_mass_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
     ws.factory("m{processName}_g1_width_{category}[1.0, 0.1, 10]".format(
         processName=processName,
         category=category))
+    ws.var("m{processName}_g1_width_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
     ws.factory("m{processName}_g2_width_{category}[1.0, 0.1, 10]".format(
         processName=processName,
         category=category))
+    ws.var("m{processName}_g2_width_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
     ws.factory("smodel{processName}_coef_{category}[0.1, 0.0001, 1.0]".format(
+        processName=processName,
+        category=category))
+
+def createParameters_TripleGaus(ws, *kargs, **wargs):
+    processName = wargs["processName"]
+    category=wargs["category"]
+    ws.factory("m{processName}_g1_mass_{category}[125, {massmin}, {massmax}]".format(
+        processName=processName,
+        category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
+    ws.var("m{processName}_g1_mass_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
+    ws.factory("m{processName}_g2_mass_{category}[125, {massmin}, {massmax}]".format(
+        processName=processName,
+        category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
+    ws.var("m{processName}_g2_mass_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
+    ws.factory("m{processName}_g3_mass_{category}[125, {massmin}, {massmax}]".format(
+        processName=processName,
+        category=category, massmin=wargs["massmin"], massmax=wargs["massmax"]))
+    ws.var("m{processName}_g3_mass_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
+    ws.factory("m{processName}_g1_width_{category}[1.0, 0.1, 10]".format(
+        processName=processName,
+        category=category))
+    ws.var("m{processName}_g1_width_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
+    ws.factory("m{processName}_g2_width_{category}[1.0, 0.1, 10]".format(
+        processName=processName,
+        category=category))
+    ws.var("m{processName}_g2_width_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
+    ws.factory("m{processName}_g3_width_{category}[1.0, 0.1, 10]".format(
+        processName=processName,
+        category=category))
+    ws.var("m{processName}_g3_width_{category}".format(
+        processName=processName,
+        category=category)).setUnit("GeV")
+    ws.factory("smodel{processName}_coef1_{category}[0.1, 0.0001, 1.0]".format(
+        processName=processName,
+        category=category))
+    ws.factory("smodel{processName}_coef2_{category}[0.1, 0.0001, 1.0]".format(
         processName=processName,
         category=category))
 
@@ -94,6 +170,21 @@ def setParameters_DoubleGaus(ws, *kargs, **wargs):
     ws.var("m%s_g1_width_%s" % (processName, category)).setConstant(kTRUE)
     ws.var("m%s_g2_width_%s" % (processName, category)).setConstant(kTRUE)
     ws.var("smodel%s_coef_%s" % (processName, category)).setConstant(kTRUE)
+
+def setParameters_TripleGaus(ws, *kargs, **wargs):
+    processName = wargs["processName"]
+    norm = wargs["norm"]
+    category=wargs["category"]
+    ws.factory("smodel%s_norm[%f, 0.0, 1000]" % (processName, norm))
+    ws.var("smodel%s_norm" % processName).setConstant(kTRUE)
+    ws.var("m%s_g1_mass_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("m%s_g2_mass_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("m%s_g3_mass_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("m%s_g1_width_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("m%s_g2_width_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("m%s_g3_width_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("smodel%s_coef1_%s" % (processName, category)).setConstant(kTRUE)
+    ws.var("smodel%s_coef2_%s" % (processName, category)).setConstant(kTRUE)
 
 #
 # Initialize the Mass Variable

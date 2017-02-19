@@ -18,7 +18,7 @@ import NtupleProcessing.python.Dataset as DS
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170122_1326"
+resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170217_1742"
 picpath = "/Users/vk/software/Analysis/files/distributions"
 #picpath_modifier = "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__allBkgs"
 #picpath_modifier = "TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8"
@@ -263,16 +263,17 @@ if __name__=="__main__":
         "ZH_HToMuMu_M125_13TeV_powheg_pythia8"
     ]
     backgrounds = {
-            'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
-            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen,
             "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8" : R.kYellow,
             "WWTo2L2Nu_13TeV-powheg-herwigpp" : R.kGray,
-            "WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8" : R.kViolet
+            "WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8" : R.kViolet,
+            "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" : R.kGreen,
+            'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kBlue,
 #            'TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8' : R.kGreen
 #            'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' : R.kGreen
     }
 #    pus = ["68", "69", "70", "71", "72", "71p3", "69p2"]
-    pus = ["68", "69", "71", "72", "70", "69p2", "71p3"]
+    #pus = ["68", "69", "71", "72", "70", "69p2", "71p3"]
+    pus = ["69"]
     mcsignals = {}
     mcbkgs = {}
     for cmssw in cmssws:
