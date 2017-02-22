@@ -23,13 +23,13 @@ import models
 #   List all the constants and some initializations
 #
 libdir="/Users/vk/software/Analysis/build-4"
-resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170122_1326"
+resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170217_1742"
 #resultsdir = "/Users/vk/software/Analysis/files/results/vR2_20170125_1204"
-workspacesDir = "/Users/vk/software/Analysis/files/bkgdata_workspaces"
+signalWorkspacesDir = "/Users/vk/software/Analysis/files/signal_workspaces_fits"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
-path = os.path.join(workspacesDir, os.path.split(resultsdir)[1] + "__" +
-    path_modifier)
-mkdir(workspacesDir)
+signalWorkspacesDir = os.path.join(
+    signalWorkspacesDir, os.path.split(resultsdir)[1] + "__" + path_modifier)
+mkdir(signalWorkspacesDir)
 default = -0.999
 R.gSystem.Load(libdir+"/libAnalysisNtupleProcessing.dylib")
 R.gSystem.Load(libdir+"/libAnalysisCore.dylib")
@@ -43,12 +43,12 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
-    fullWorkspacesDir = os.path.join(workspacesDir,
+    fullSignalWorkspacesDir = os.path.join(signalWorkspacesDir,
         "%s__%s%s" % (mcsig[0].initial_cmssw,
         data.jsonToUse.filename[:-4], sub))
-    mkdir(fullWorkspacesDir)
-    fullWorkspacesDir+="/%s"%mcsig[0].pu
-    mkdir(fullWorkspacesDir) # is the one to be used
+    mkdir(fullSignalWorkspacesDir)
+    fullSignalWorkspacesDir+="/%s"%mcsig[0].pu
+    mkdir(fullSignalWorkspacesDir) # is the one to be used
 
     counter = 0
     numvars = len(variables)
@@ -59,35 +59,8 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         category = variable["fullpath"].split("/")[0]
 
         #
-        # Procedure:
-        # 1. Get data, slice histo and convert to RooDataHist
-        # 2. [Optional] Scale all bkgs, add them up and....
-        # 3. Create all parameters, create the background model
-        # 4. Save the workspace with data and background model
+        # initialize the workspace
         #
-
-        #
-        # Get data and prepare Data HIstogram
-        #
-        fdata = R.TFile(data.pathToFile)
-        hdata = fdata.Get(variable["fullpath"])
-        if hdata.GetEntries()==0:
-            continue
-        slicedhdata = sliceHistogram(hdata, name="newhdata", **wargs)
-        ndata = int(slicedhdata.Integral())
-
-        #
-        # Background Histograms
-        #
-        mch = {}
-        mcf = {}
-        for imcbg in mcbg:
-            mcf[imcbg.name] = R.TFile(imcbg.pathToFile)
-            mch[imcbg.name] = mcf[imcbg.name].Get(variable["fullpath"])
-            mch[imcbg.name].Scale(
-                data.jsonToUse.intlumi*imcbg.cross_section/imcbg.eweight)
-
-        # 0. create a workspace
         R.RooMsgService.instance().setGlobalKillBelow(R.RooFit.FATAL)
         ws = R.RooWorkspace("higgs")
         models.createVariables_Mass(ws, **wargs)
@@ -95,45 +68,91 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         obs = ws.set("obs")
 
         #
-        # Data RooDataHist creation and preserving in Workspace
+        # for each signal
+        #   1. scale
+        #   2. aux initializations/manipulations -> build a RooDatHist
+        #   3. create model and fit
+        #   4. plot all fits and save
+        #   5. save plots
         #
-        roodata = R.RooDataHist("data_obs", "data_obs", RooArgList(obs), slicedhdata)
-        getattr(ws, "import")(roodata, RooCmdArg())
+        for mc in mcsig:
+            fff = R.TFile(mc.pathToFile)
+            sss = fff.Get(variable["fullpath"])
+            #
+            # 1. scale
+            #
+            sss.Scale(
+                data.jsonToUse.intlumi*mc.cross_section/mc.eweight)
+
+            #
+            # 2
+            #
+            ccc = TCanvas("c1", "c1", 800, 600)
+            ccc.cd()
+            newsss = sliceHistogram(sss, name=mc.buildLabel(),
+                massmin=wargs["massmin"], massmax=wargs["massmax"])
+            roo_hist = R.RooDataHist(newsss.GetName(),
+                newsss.GetName(), RooArgList(obs), newsss)
+            xframe = ws.var("x").frame()
+            xframe.SetTitle(category)
+            processName = mc.buildLabel()
+
+            #
+            # 3. model
+            #
+            modelklass = getattr(models, wargs["smodel"])
+            model = modelklass(category=category, processName=processName)
+            model.createParameters(ws, massmin=wargs["massmin"], massmax=wargs["massmax"])
+            roomodel = model.build(ws)
+            r = roomodel.fitTo(roo_hist, RooFit.Save(), RooFit.Range(wargs["fitmin"],
+                wargs["fitmax"]))
+            model.setParameters(ws, norm=roo_hist.sumEntries())
+
+            #
+            # 4. plot/save fits
+            #
+            r.Print("v")
+            #s.plotOn(xframe, RooFit.DataError(RooAbsData.SumW2))
+            roo_hist.plotOn(xframe)
+            roomodel.plotOn(xframe, RooFit.Color(kRed))
+            roomodel.paramOn(xframe, RooFit.Format("NELU", RooFit.AutoPrecision(2)), RooFit.Layout(0.6, 0.99, 0.9), RooFit.ShowConstants(True))
+            xframe.getAttText().SetTextSize(0.02)
+            chiSquare = xframe.chiSquare()
+            #txt = R.TText(2, 100, "#chi^{2} = %f" % chiSquare)
+            ttt = R.TPaveLabel(0.1,0.7,0.3,0.78, Form("#chi^{2} = %f" % chiSquare),
+                "brNDC");
+            ttt.Draw()
+            xframe.addObject(ttt)
+            xframe.Draw()
+            #latex.DrawLatex(0.4, 0.9, "#chi^{2} = %f" % chiSquare)
+            ccc.SaveAs(fullSignalWorkspacesDir+"/%s__%s__%s__%s__%s__%s.png" % (
+                roo_hist.GetName(), 
+                category, wargs["mass"], wargs["bmodel"], wargs["smode"],
+                wargs["smodel"]))
+
+            xframe2 = ws.var("x").frame()
+            xframe2.addObject(xframe.pullHist())
+            xframe2.SetMinimum(-5)
+            xframe2.SetMaximum(5)
+            xframe2.Draw()
+            ccc.SaveAs(fullSignalWorkspacesDir+"/pull__%s__%s__%s__%s__%s__%s.png" % (
+                roo_hist.GetName(), category, wargs["mass"], wargs["bmodel"], wargs["smode"],
+                wargs["smodel"]))
+
+            xframe3 = ws.var("x").frame()
+            xframe3.addObject(xframe.residHist())
+            xframe3.SetMinimum(-5)
+            xframe3.SetMaximum(5)
+            xframe3.Draw()
+            ccc.SaveAs(fullSignalWorkspacesDir+"/resid__%s__%s__%s__%s__%s__%s.png" % (
+                roo_hist.GetName(), category, wargs["mass"], wargs["bmodel"], wargs["smode"],
+                wargs["smodel"]))
 
         #
-        # Create parameters for background
+        # 5.
         #
-        modelklass = getattr(models, wargs["bmodel"])
-        model = modelklass(category=category)
-        model.createParameters(ws, ndata=ndata)
-        roomodel = model.build(ws)
-        ws.Print("v")
-        
-        #
-        # just do some fit
-        #
-        r = roomodel.fitTo(roodata, RooFit.Save())
-        ccc = TCanvas("c1", "c1", 800, 600)
-        ccc.cd()
-        frame = ws.var("x").frame()
-        frame.SetTitle(category)
-        roodata.plotOn(frame)
-        roomodel.plotOn(frame, RooFit.Color(kRed))
-        roomodel.paramOn(frame, RooFit.Format("NELU", RooFit.AutoPrecision(2)), 
-            RooFit.Layout(0.6, 0.99, 0.9), RooFit.ShowConstants(True))
-        frame.getAttText().SetTextSize(0.02)
-        chiSquare = frame.chiSquare()
-        ttt = R.TPaveLabel(0.1,0.7,0.3,0.78, Form("#chi^{2} = %f" % chiSquare),
-            "brNDC")
-        ttt.Draw()
-        frame.addObject(ttt)
-        frame.Draw()
-        ccc.SaveAs(fullWorkspacesDir + 
-            "/bkgfit__%s__%s__%s__%s__%s.png" % (
-            category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"]))
-
-        fileName = fullWorkspacesDir+\
-            "/workspace__bkgdata__analytic__%s__%s__%s__%s__%s.root" % (
+        fileName = fullSignalWorkspacesDir+\
+            "/workspace__signal__analytic__%s__%s__%s__%s__%s.root" % (
             category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
         ws.SaveAs(fileName)
 
