@@ -23,7 +23,8 @@ import models
 #   List all the constants and some initializations
 #
 libdir="/Users/vk/software/Analysis/build-4"
-resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170217_1742"
+#resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170217_1742"
+resultsdir = "/Users/vk/software/Analysis/files/results/test"
 #resultsdir = "/Users/vk/software/Analysis/files/results/vR2_20170125_1204"
 signalWorkspacesDir = "/Users/vk/software/Analysis/files/signal_workspaces_fits"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
@@ -40,6 +41,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     print data
     print mcbg
     print mcsig
+    shouldScale = wargs["shouldScale"]
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
@@ -76,13 +78,18 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         #   5. save plots
         #
         for mc in mcsig:
+            print mc
+            print variable
+            print mc.pathToFile
             fff = R.TFile(mc.pathToFile)
             sss = fff.Get(variable["fullpath"])
+
             #
             # 1. scale
             #
-            sss.Scale(
-                data.jsonToUse.intlumi*mc.cross_section/mc.eweight)
+            if shouldScale:
+                sss.Scale(
+                    data.jsonToUse.intlumi*mc.cross_section/mc.eweight)
 
             #
             # 2
@@ -210,6 +217,7 @@ if __name__=="__main__":
     pus = ["69"]
     configs_signals = {}
     configs_bkgs = {}
+    shouldScale = False
     for cmssw in cmssws:
         for pu in pus:
             oneconfig_signals = []
@@ -221,7 +229,7 @@ if __name__=="__main__":
                             "result__%s__%s__%s__%s__%s.root" % (s, cmssw,
                             datajson[:-4], pu+"mb", aux))
                         mc = MCResult(mc=mcsamples[k], pu=pu, pathToFile=pathToFile,
-                            eweight=getEventWeights(pathToFile),
+                            eweight=None if not shouldScale else getEventWeights(pathToFile),
                             options={"color":None})
                         oneconfig_signals.append(mc)
             for b in backgrounds:
@@ -231,7 +239,7 @@ if __name__=="__main__":
                             "result__%s__%s__%s__%s__%s.root" % (b[0], cmssw,
                             datajson[:-4], pu+"mb", aux))
                         mc = MCResult(mc=mcsamples[k], pu=pu, pathToFile=pathToFile,
-                            eweight=getEventWeights(pathToFile),
+                            eweight=None if not shouldScale else getEventWeights(pathToFile),
                             options={"color":b[1]})
                         oneconfig_bkgs.append(mc)
             configs_signals["%s__%s" % (cmssw, pu)] = oneconfig_signals
@@ -253,7 +261,7 @@ if __name__=="__main__":
                     for pu in pus:
                         generate(variables, (data,
                             configs_bkgs["%s__%s" % (cmssw, pu)],
-                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135)
+                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
     else:
         for cmssw in ["80X"]:
             for pu in pus:

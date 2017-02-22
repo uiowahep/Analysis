@@ -12,9 +12,9 @@ varNames = [
 #
 run1Categories = [
     "NoCats", "2Jets", "01Jets", "VBFTight", "ggFTight",
-    "ggFLoose", "01JetsTight", "01JetsTightBB", "01JetsTightBO",
+    "ggFLoose", "01JetsTightBB", "01JetsTightBO",
     "01JetsTightBE", "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
-    "01JetsLoose", "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
+    "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
     "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE"
 ]
 
