@@ -1,5 +1,20 @@
 #!/usr/bin/python
 
+#
+# NOTE: Explanation of what the assumptions are and should be customized 
+# - datacardsDir - root directory for datacards
+# - workspacesDir - root directory of your workspaces
+# - combineOutDir - root directory of combine outputs. Combined datacards will sit here!
+# - submissionDir - root directory where launchers to submit to cern's bash will sit
+# - cmsswDir - cmssw whose envs will be used to run combine
+# - typesetting - I run both templates and analytic functions
+# - smode - Signal Mode, previously used to do Combine or Separate (combining all signals together up front or leaving their contributions separately - separately is the preferred option!)
+# - mass - mass that will go in, this is just a label for a datacard
+# - version/pathModifier: datacards folder (if you generated those) will look the following:
+#   datacardsDir/version/pathModifier/PUreweight/datacard1.txt....
+#   The idea was to preserve exactly which json/cmssw/ntuple generation used for this whole process
+#
+
 import sys, os
 from Modeling.higgs.categories import *
 from Modeling.higgs.aux import *
