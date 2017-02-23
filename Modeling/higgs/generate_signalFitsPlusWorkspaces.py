@@ -22,7 +22,7 @@ import models
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
+resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
 workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/workspaces"
 fitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/fits/signal_precombine"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
@@ -248,7 +248,7 @@ if __name__=="__main__":
     pus = ["69"]
     configs_signals = {}
     configs_bkgs = {}
-    shouldScale = True
+    shouldScale = False
     for cmssw in cmssws:
         for pu in pus:
             oneconfig_signals = []

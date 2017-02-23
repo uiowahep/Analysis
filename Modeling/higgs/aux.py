@@ -3,6 +3,7 @@ import NtupleProcessing.python.Dataset as DS
 import NtupleProcessing.python.Samples as S
 import models
 from uncertainty import *
+import os,sys
 
 #
 # slice a hist
@@ -24,6 +25,12 @@ def getEventWeights(pathToFile):
     f = R.TFile(pathToFile)
     h = f.Get("eventWeights")
     return h.GetBinContent(1)
+
+def mkdir(pathDir):
+    if os.path.exists(pathDir):
+        return
+    else:
+        os.system("mkdir %s" % pathDir)
 
 def transpose(matrix):
     return [[row[i] for row in matrix] for i in range(len(matrix[0]))]
