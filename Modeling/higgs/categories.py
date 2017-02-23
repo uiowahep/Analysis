@@ -15,7 +15,7 @@ run1Categories = [
     "ggFLoose", "01JetsTightBB", "01JetsTightBO",
     "01JetsTightBE", "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
     "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
-    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE"
+    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE", "01JetsTight", "01JetsLoose"
 ]
 
 #

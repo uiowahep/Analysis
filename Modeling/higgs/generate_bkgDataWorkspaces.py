@@ -22,17 +22,17 @@ import models
 #
 #   List all the constants and some initializations
 #
-libdir="/Users/vk/software/Analysis/build-4"
-resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170122_1326"
-#resultsdir = "/Users/vk/software/Analysis/files/results/vR2_20170125_1204"
-workspacesDir = "/Users/vk/software/Analysis/files/bkgdata_workspaces"
+resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
+workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/workspaces"
+fitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/fits/bkg_precombine"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
-path = os.path.join(workspacesDir, os.path.split(resultsdir)[1] + "__" +
+workspacesDir= os.path.join(workspacesDir, os.path.split(resultsdir)[1] + "__" +
     path_modifier)
+fitsDir = os.path.join(
+    fitsDir, os.path.split(resultsdir)[1] + "__" + path_modifier)
 mkdir(workspacesDir)
+mkdir(fitsDir)
 default = -0.999
-R.gSystem.Load(libdir+"/libAnalysisNtupleProcessing.dylib")
-R.gSystem.Load(libdir+"/libAnalysisCore.dylib")
 aux = "Mu24"
 
 def generate(variables, (data, mcbg, mcsig), **wargs):
@@ -46,9 +46,14 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     fullWorkspacesDir = os.path.join(workspacesDir,
         "%s__%s%s" % (mcsig[0].initial_cmssw,
         data.jsonToUse.filename[:-4], sub))
+    fullFitsDir = os.path.join(fitsDir,
+        "%s__%s%s" % (mcsig[0].initial_cmssw,
+        data.jsonToUse.filename[:-4], sub))
     mkdir(fullWorkspacesDir)
+    mkdir(fullFitsDir)
     fullWorkspacesDir+="/%s"%mcsig[0].pu
     mkdir(fullWorkspacesDir) # is the one to be used
+    mkdir(fullFitsDir)
 
     counter = 0
     numvars = len(variables)
@@ -87,9 +92,22 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             mch[imcbg.name].Scale(
                 data.jsonToUse.intlumi*imcbg.cross_section/imcbg.eweight)
 
-        # 0. create a workspace
+        # 0. create a workspace or extract from the existing
+        try:
+            fileName = fullWorkspacesDir +\
+                "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
+                    category, 
+                    wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
+            wsFile = R.TFile(fileName, "UPDATE")
+            ws = wsFile.Get("higgs")
+            # this will raise if there is no ws
+            print ws.allPdfs().contentsString()
+            appending = True
+        except:
+            ws = R.RooWorkspace("higgs")
+            appending = False
         R.RooMsgService.instance().setGlobalKillBelow(R.RooFit.FATAL)
-        ws = R.RooWorkspace("higgs")
+#        ws = R.RooWorkspace("higgs")
         models.createVariables_Mass(ws, **wargs)
         ws.defineSet("obs", "x")
         obs = ws.set("obs")
@@ -128,14 +146,19 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         ttt.Draw()
         frame.addObject(ttt)
         frame.Draw()
-        ccc.SaveAs(fullWorkspacesDir + 
+        ccc.SaveAs(fullFitsDir + 
             "/bkgfit__%s__%s__%s__%s__%s.png" % (
             category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"]))
 
         fileName = fullWorkspacesDir+\
-            "/workspace__bkgdata__analytic__%s__%s__%s__%s__%s.root" % (
+            "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
             category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
-        ws.SaveAs(fileName)
+        if not appending:
+            ws.SaveAs(fileName)
+        else:
+            ws.Write()
+            wsFile.Write()
+            wsFile.Close()
 
 #
 #   start...
@@ -191,6 +214,7 @@ if __name__=="__main__":
     pus = ["69"]
     configs_signals = {}
     configs_bkgs = {}
+    shouldScale = True
     for cmssw in cmssws:
         for pu in pus:
             oneconfig_signals = []
@@ -202,7 +226,7 @@ if __name__=="__main__":
                             "result__%s__%s__%s__%s__%s.root" % (s, cmssw,
                             datajson[:-4], pu+"mb", aux))
                         mc = MCResult(mc=mcsamples[k], pu=pu, pathToFile=pathToFile,
-                            eweight=getEventWeights(pathToFile),
+                            eweight=None if not shouldScale else getEventWeights(pathToFile),
                             options={"color":None})
                         oneconfig_signals.append(mc)
             for b in backgrounds:
@@ -212,7 +236,7 @@ if __name__=="__main__":
                             "result__%s__%s__%s__%s__%s.root" % (b[0], cmssw,
                             datajson[:-4], pu+"mb", aux))
                         mc = MCResult(mc=mcsamples[k], pu=pu, pathToFile=pathToFile,
-                            eweight=getEventWeights(pathToFile),
+                            eweight=None if not shouldScale else getEventWeights(pathToFile),
                             options={"color":b[1]})
                         oneconfig_bkgs.append(mc)
             configs_signals["%s__%s" % (cmssw, pu)] = oneconfig_signals

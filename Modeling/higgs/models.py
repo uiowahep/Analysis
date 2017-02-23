@@ -33,6 +33,8 @@ class Model:
 class SingleGaus(Model):
     def __init__(self, **wargs):
         Model.__init__(self, **wargs)
+        self.modelName = "smodel{processName}_{category}".format(
+            processName=self.wargs["processName"], category=self.wargs["category"])
 
     def __str__(self):
         return "Single Gaus Model"
@@ -69,6 +71,8 @@ class SingleGaus(Model):
 class DoubleGaus(Model):
     def __init__(self, **wargs):
         Model.__init__(self, **wargs)
+        self.modelName = "smodel{processName}_{category}".format(
+            processName=self.wargs["processName"], category=self.wargs["category"])
 
     def build(self, ws, **wargs):
         processName = self.wargs["processName"]
@@ -127,6 +131,8 @@ class DoubleGaus(Model):
 class TripleGaus(Model):
     def __init__(self, **wargs):
         Model.__init__(self, **wargs)
+        self.modelName = "smodel{processName}_{category}".format(
+            processName=self.wargs["processName"], category=self.wargs["category"])
 
     def build(self, ws, **wargs):
         processName = self.wargs["processName"]

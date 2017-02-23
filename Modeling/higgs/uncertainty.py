@@ -1,10 +1,25 @@
 #!/usr/bin/python
 
 class Uncertainty:
-    def __init__(self, name, uncType, valuesMap): 
+    def __init__(self, name, uncType, valuesMap, exceptions=None): 
         self.name = name
         self.uncType = uncType
         self.valuesMap = valuesMap
+        #
+        #   exceptions come in the form of:
+        #   {"category":Uncertainty}
+        #   the idea is that if there is an exception for that category,
+        #   you explicitly list it.
+        #   otherwise this uncertainty is applied to all categories
+        #
+        self.exceptions = exceptions
+
+def buildNameTypeVector(uncs):
+    names = []; types = []
+    for unc in uncs:
+        names.append(unc.name)
+        types.append(unc.uncType)
+    return names,types
 
 # list all the uncertainties
 uncertainties_vR1 = [
