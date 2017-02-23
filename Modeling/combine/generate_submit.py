@@ -12,7 +12,6 @@ from Modeling.higgs.aux import *
 #combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"] + combinations["0bJets4lCombination"] + combinations["1bJetsCombination"]
 #combinations["012JetCombination"] = combinations["2JetCombination"]+combinations["01JetCombination"]
 
-#cross_sections = ["68", "69", "71","72", "69p2", "70", "71p3"]
 pus = ["69"]
 version = "vR1_20170217_1742__TTJets_DiLept_TuneCUETP8M1_13TeV-" + \
     "madgraphMLM-pythia8__allBkg"
@@ -31,7 +30,7 @@ mkdir(fullCombineOutDir)
 
 submissionsDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/combineSubmissions"
 cmsswDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_7_4_9/src"
-submitFromDir = os.path.join(submissionDir, version)
+submitFromDir = os.path.join(submissionsDir, version)
 mkdir(submitFromDir)
 
 typesetting = "analytic"
@@ -43,6 +42,12 @@ submitFromDir = os.path.join(submitFromDir, "%s__%s" % (typesetting, smode))
 mkdir(submitFromDir)
 
 #
+# explicitly list the category for combination and combinations themselves!
+#
+categories = run1CategoriesForCombination
+combinations = combinationsRun1
+
+#
 # At this point configuration part is finished!
 #
 def main():
@@ -52,7 +57,7 @@ def main():
         generate_analytic()
 
 def generate_template():
-    for pu in cross_sections:
+    for pu in pus:
         path_to_limits = limitsdir+"/%s"%pu
         mkdir(path_to_limits)
         os.chdir(path_to_limits)
@@ -106,7 +111,7 @@ def generate_analytic():
     generate_separate=True
     jobid = 0
     for smodel in smodels:
-        for pu in cross_sections:
+        for pu in pus:
             #
             # full path to our datacards
             #
@@ -117,6 +122,7 @@ def generate_analytic():
             # full path to output files
             #
             pathFullCombineOutDir = os.path.join(fullCombineOutDir, pu)
+            mkdir(pathFullCombineOutDir)
 
             #
             # build launchers
@@ -139,9 +145,9 @@ def generate_analytic():
                     outModifier = "%s__%s__%s__%s__%s__%s" % (typesetting, c,
                         mass, bmodel, smode, smodel)
                     cmd1 = "combine -M Asymptotic -m 125 -n %s %s" % (outModifier, 
-                        pathTodatacard)
+                        pathToDatacard)
                     cmd2 = "combine -M MaxLikelihoodFit -m 125 -n %s %s" % (
-                        outModifier, pathTodatacard)
+                        outModifier, pathToDatacard)
                     launcher.write("%s\n%s\n" % (cmd1, cmd2))
             joblist.append("bsub -q 1nh -o {logfile} -e {errorfile} {launcherscript}".format(logfile=os.path.join(submitFromDir, "log_%d.log" % jobid), errorfile=os.path.join(submitFromDir, "error_%d.log" % jobid), launcherscript=os.path.join(submitFromDir, "launcher_%d.sh" % jobid)))
             os.system("chmod 755 %s" % os.path.join(submitFromDir, launcherName))
@@ -163,7 +169,7 @@ def generate_analytic():
                 #
                 # NOTE: Combined datacards will sit in the folder with results!
                 #
-                pathToCombinedDatacrd = os.path.join(pathFullCombineOut,
+                pathToCombinedDatacard = os.path.join(pathFullCombineOutDir,
                     "datacard__%s__%s__%s__%s__%s__%s.txt" % (
                     typesetting, comb, mass, bmodel, smode, smodel))
                 outModifier = "%s__%s__%s__%s__%s__%s" % (typesetting, comb,
@@ -177,24 +183,24 @@ def generate_analytic():
 
                 #   create a datacard with all the categories/channels
                 print "list_datacards combined = %s" % listDatacards
-                print "combdatacardname = %s" % pathToCombineDatacard
+                print "combdatacardname = %s" % pathToCombinedDatacard
 
                 #
                 # cmd1 - combine the datacards you need
                 # 
-                cmd1 = "combineCards.py %s > %s" % (listDatacards, pathToCombineDatacard)
+                cmd1 = "combineCards.py %s > %s" % (listDatacards, pathToCombinedDatacard)
 
                 #
                 # cmd2 - compute limits
                 #
                 cmd2 = "combine -M Asymptotic -m 125 -n %s %s" % (
-                    outMmodifier, pathToCombineDatacard)
+                    outModifier, pathToCombinedDatacard)
 
                 #
                 # cmd3 - do the simultaneous fits
                 #
                 cmd3 = "combine -M MaxLikelihoodFit -m 125 -n %s %s" % (
-                    outModifier, pathToCombineDatacard)
+                    outModifier, pathToCombinedDatacard)
                 launcher.write("%s\n%s\n%s\n" % (cmd1, cmd2, cmd3))
             
             #
