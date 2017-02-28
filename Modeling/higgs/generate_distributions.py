@@ -19,8 +19,8 @@ import NtupleProcessing.python.Dataset as DS
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/results/vR1_20170217_1742"
-picpath = "/Users/vk/software/Analysis/files/distributions_after22022017"
+resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
+picpath = "/Users/vk/software/Analysis/files/higgs_analysis_files/distributions"
 #picpath_modifier = "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__allBkgs"
 #picpath_modifier = "TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8"
 picpath_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkgs"

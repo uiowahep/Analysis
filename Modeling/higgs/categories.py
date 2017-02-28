@@ -15,8 +15,31 @@ run1Categories = [
     "ggFLoose", "01JetsTightBB", "01JetsTightBO",
     "01JetsTightBE", "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
     "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
-    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE", "01JetsTight", "01JetsLoose"
+    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE", 
 ]
+
+run1CategoriesForCombination = [
+    "VBFTight", "ggFTight",
+    "ggFLoose", "01JetsTightBB", "01JetsTightBO",
+    "01JetsTightBE", "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
+    "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
+    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE", 
+]
+
+combinationsRun1 = {
+    "2JetsComb" : ["VBFTight", "ggFLoose", "ggFTight"],
+    "01JetsComb" : ["01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
+        "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO",
+        "01JetsTightBB", "01JetsTightBE", "01JetsTightBO",
+        "01JetsTightEE", "01JetsTightOE", "01JetsTightOO"],
+    "Combination" : run1CategoriesForCombination,
+    "2JetsggF" : ["ggFLoose", "ggFTight"],
+    "01JetsTightBarrel" : ["01JetsTightBB", "01JetsTightBO", "01JetsTightBE"],
+    "01JetsTightOther" : ["01JetsTightOO", "01JetsTightOE", "01JetsTightEE"],
+    "01JetsLoose" : ["01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
+        "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO"],
+}
+combinationsRun1["CombNoVBFTight"] = combinationsRun1["2JetsggF"] + combinationsRun1["01JetsComb"]
 
 #
 # Run 2 Categories list

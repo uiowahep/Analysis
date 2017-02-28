@@ -22,7 +22,7 @@ import models
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
+resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
 workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/workspaces"
 fitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/fits/bkg_precombine"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
@@ -89,8 +89,9 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         for imcbg in mcbg:
             mcf[imcbg.name] = R.TFile(imcbg.pathToFile)
             mch[imcbg.name] = mcf[imcbg.name].Get(variable["fullpath"])
-            mch[imcbg.name].Scale(
-                data.jsonToUse.intlumi*imcbg.cross_section/imcbg.eweight)
+            if shouldScale:
+                mch[imcbg.name].Scale(
+                    data.jsonToUse.intlumi*imcbg.cross_section/imcbg.eweight)
 
         # 0. create a workspace or extract from the existing
         try:
@@ -214,7 +215,7 @@ if __name__=="__main__":
     pus = ["69"]
     configs_signals = {}
     configs_bkgs = {}
-    shouldScale = True
+    shouldScale = False
     for cmssw in cmssws:
         for pu in pus:
             oneconfig_signals = []
@@ -258,7 +259,7 @@ if __name__=="__main__":
                     for pu in pus:
                         generate(variables, (data,
                             configs_bkgs["%s__%s" % (cmssw, pu)],
-                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135)
+                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
     else:
         for cmssw in ["80X"]:
             for pu in pus:

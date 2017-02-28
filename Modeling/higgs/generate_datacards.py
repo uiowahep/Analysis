@@ -24,7 +24,7 @@ uncertaintiesToUse = uncertainties_vR1
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
+resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
 workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/workspaces"
 datacardsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
