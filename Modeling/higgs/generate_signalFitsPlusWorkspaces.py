@@ -24,7 +24,7 @@ import models
 #
 resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
 #resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
-workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/workspaces"
+workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards_and_workspaces"
 fitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/fits/signal_precombine"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
 

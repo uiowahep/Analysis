@@ -25,8 +25,8 @@ uncertaintiesToUse = uncertainties_vR1
 #   List all the constants and some initializations
 #
 resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
-workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/workspaces"
-datacardsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards"
+workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/datacards_and_workspaces"
+datacardsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards_and_workspaces"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
 
 #
@@ -76,7 +76,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             signalChannels.append(chl)
             iii+=1
 
-        pathToWorkspaceFile = fullWorkspacesDir + "/" + \
+        pathToWorkspaceFile = \
             "workspace__analytic__%s__%s__%s__%s__%s.root" % (
                 category, wargs["mass"], wargs["bmodel"], 
                 wargs["smode"], wargs["smodel"])
