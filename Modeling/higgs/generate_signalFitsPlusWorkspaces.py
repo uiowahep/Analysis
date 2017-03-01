@@ -22,7 +22,8 @@ import models
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
+resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
+#resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
 workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/workspaces"
 fitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/fits/signal_precombine"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
@@ -85,15 +86,27 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
                     wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
             wsFile = R.TFile(fileName, "UPDATE")
             ws = wsFile.Get("higgs")
+            appending = True
             # this will raise if there is no ws
             print ws.allPdfs().contentsString()
-            appending = True
+            testModelName = getattr(models, wargs["smodel"])(category=category, 
+                processName="VBF").getModelName()
+            if testModelName in ws.allPdfs().contentsString():
+                print "Duplicates are already present! Removing the file!"
+                wsFile.Close()
+                os.systme("rm %s" % fileName)
+                ws = R.RooWorkspace("higgs")
+                appending = False
+                models.createVariables_Mass(ws, **wargs)
+                ws.defineSet("obs", "x")
         except:
             ws = R.RooWorkspace("higgs")
             appending = False
-        models.createVariables_Mass(ws, **wargs)
-        ws.defineSet("obs", "x")
+            models.createVariables_Mass(ws, **wargs)
+            ws.defineSet("obs", "x")
+        
         obs = ws.set("obs")
+        #models.createVariables_Mass(ws, **wargs)
 
         #
         # for each signal
@@ -158,7 +171,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             xframe.addObject(ttt)
             xframe.Draw()
             #latex.DrawLatex(0.4, 0.9, "#chi^{2} = %f" % chiSquare)
-            ccc.SaveAs(fullFitsDir+"/%s__%s__%s__%s__%s__%s.png" % (
+            ccc.SaveAs(fullFitsDir+"/fit__%s__%s__%s__%s__%s__%s.png" % (
                 roo_hist.GetName(), 
                 category, wargs["mass"], wargs["bmodel"], wargs["smode"],
                 wargs["smodel"]))
@@ -190,6 +203,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         if not appending:
             ws.SaveAs(fileName)
         else:
+            wsFile.cd()
             ws.Write()
             wsFile.Write()
             wsFile.Close()
@@ -248,7 +262,7 @@ if __name__=="__main__":
     pus = ["69"]
     configs_signals = {}
     configs_bkgs = {}
-    shouldScale = False
+    shouldScale = True
     for cmssw in cmssws:
         for pu in pus:
             oneconfig_signals = []

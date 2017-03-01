@@ -22,10 +22,14 @@ import models
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
+resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
 workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/workspaces"
 fitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/fits/bkg_precombine"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
+
+#
+# build up the dir structure
+#
 workspacesDir= os.path.join(workspacesDir, os.path.split(resultsdir)[1] + "__" +
     path_modifier)
 fitsDir = os.path.join(
@@ -40,6 +44,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     print data
     print mcbg
     print mcsig
+    shouldScale = wargs["shouldScale"]
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
@@ -104,13 +109,22 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             # this will raise if there is no ws
             print ws.allPdfs().contentsString()
             appending = True
+            testModelName = getattr(models, wargs["bmodel"])(category=category,
+                processName="VBF").getModelName()
+            if testModelName in ws.allPdfs().contentsString():
+                print "Duplicates are already present! Removing the file!"
+                wsFile.Close()
+                os.systme("rm %s" % fileName)
+                ws = R.RooWorkspace("higgs")
+                appending = False
+                models.createVariables_Mass(ws, **wargs)
+                ws.defineSet("obs", "x")
         except:
             ws = R.RooWorkspace("higgs")
             appending = False
+            models.createVariables_Mass(ws, **wargs)
+            ws.defineSet("obs", "x")
         R.RooMsgService.instance().setGlobalKillBelow(R.RooFit.FATAL)
-#        ws = R.RooWorkspace("higgs")
-        models.createVariables_Mass(ws, **wargs)
-        ws.defineSet("obs", "x")
         obs = ws.set("obs")
 
         #
@@ -215,7 +229,7 @@ if __name__=="__main__":
     pus = ["69"]
     configs_signals = {}
     configs_bkgs = {}
-    shouldScale = False
+    shouldScale = True
     for cmssw in cmssws:
         for pu in pus:
             oneconfig_signals = []
