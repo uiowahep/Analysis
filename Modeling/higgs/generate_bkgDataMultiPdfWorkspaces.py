@@ -67,6 +67,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     mkdir(fullWorkspacesDir)
     mkdir(fullFitsDir)
     fullWorkspacesDir+="/%s"%mcsig[0].pu
+    fullFitsDir += "/%s" % mcsig[0].pu
     mkdir(fullWorkspacesDir) # is the one to be used
     mkdir(fullFitsDir)
 
@@ -179,7 +180,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             frame.Draw()
             ccc.SaveAs(fullFitsDir + 
                 "/bkgfit__%s__%s__%s__%s__%s.png" % (
-                category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"]))
+                category, wargs["mass"], bmodel, wargs["smode"], wargs["smodel"]))
             counter+=1
             bkgPdfs.add(bkgmodels[bmodel])
 
@@ -200,7 +201,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         ws.Print("v")
         fileName = fullWorkspacesDir+\
             "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
-            category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
+            category, wargs["mass"], "multipdf", wargs["smode"], wargs["smodel"])
         if not appending:
             ws.SaveAs(fileName)
         else:

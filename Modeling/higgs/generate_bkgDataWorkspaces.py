@@ -57,6 +57,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     mkdir(fullWorkspacesDir)
     mkdir(fullFitsDir)
     fullWorkspacesDir+="/%s"%mcsig[0].pu
+    fullFitsDir += "/%s" % mcsig[0].pu
     mkdir(fullWorkspacesDir) # is the one to be used
     mkdir(fullFitsDir)
 

@@ -120,7 +120,7 @@ def generate_template():
 
 def generate_analytic():
     bmodel = "ExpGaus"
-    smodels = ["SingleGaus", "DoubleGaus"]
+    smodels = ["SingleGaus", "DoubleGaus", "TripleGaus"]
 
     generate_combination=True
     generate_separate=True
