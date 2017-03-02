@@ -35,6 +35,13 @@ def mkdir(pathDir):
 def transpose(matrix):
     return [[row[i] for row in matrix] for i in range(len(matrix[0]))]
 
+def blindData(hdata):
+    massmin = 120
+    massmax = 130
+    for ibin in range(hdata.GetNbinsX()):
+        if hdata.GetBinCenter(ibin+1)>massmin and hdata.GetBinCenter(ibin+1)<massmax:
+            hdata.SetBinContent(ibin+1, 0)
+
 #
 # Modeling the Results = Histograms of Mass Shapes that result from Procssing ntuples
 #

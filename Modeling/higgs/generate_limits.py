@@ -2,12 +2,13 @@ import ROOT as R
 import os, sys, subprocess, glob
 import models
 from categories import *
+from aux import *
 
 R.gROOT.SetBatch(R.kTRUE)
 
 version = "vR1_20170217_1742__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
 pus = ["69"]
-smodels = ["SingleGaus", "DoubleGaus", "TripleGaus"]
+smodels = ["SingleGaus", "DoubleGaus"]
 smodes = ["Separate"]
 type_modifier = "analytic"
 bmodel = "ExpGaus"
@@ -44,21 +45,30 @@ def createLegend(n):
 def main():
     for pu in pus:
         folder = "80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24"
-        limitsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/combine_results/%s/%s/%s" % (version, folder, pu)
+        combineOutputDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/combine_results/%s/%s/%s" % (version, folder, pu)
+        limitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/limits"
+        limitsDir = os.path.join(limitsDir, version)
+        mkdir(limitsDir)
+        limitsDir = os.path.join(limitsDir, folder)
+        mkdir(limitsDir)
+        limitsDir = os.path.join(limitsDir, pu)
+        mkdir(limitsDir)
         if type_modifier == "analytic":
             for smodel in smodels:
                 for smode in smodes:
-                    filelist = glob.glob(limitsdir+"/*%s*%s*%s*Asymptotic*.root" % (type_modifier, smode, smodel))
-                    generateLimit(filelist, limitsdir=limitsdir,
-                        smode=smode, smodel=smodel)
+                    filelist = glob.glob(combineOutputDir+"/*%s*%s*%s*Asymptotic*.root" % (type_modifier, smode, smodel))
+                    print "generating limit for %s %s %s" % (smodel, smode, str(filelist))
+                    generateLimit(filelist, combineOutputDir=combineOutputDir,
+                        smode=smode, smodel=smodel, limitsDir=limitsDir)
         else:
-            filelist = glob.glob(limitsdir+"/*%s*Asymptotic*.root" % type_modifier)
-            generateLimit(filelist, limitsdir=limitsdir)
+            filelist = glob.glob(combineOutputDir+"/*%s*Asymptotic*.root" % type_modifier)
+            generateLimit(filelist, combineOutputDir=combineOutputDir)
 
                 
 
 def generateLimit(filelist, **wargs):
-    limitsdir = wargs["limitsdir"]
+    combineOutputDir = wargs["combineOutputDir"]
+    limitsDir = wargs["limitsDir"]
     if type_modifier=="analytic":
         smode = wargs["smode"]
         smodel = wargs["smodel"]
@@ -193,7 +203,7 @@ def generateLimit(filelist, **wargs):
     mg.GetXaxis().SetRangeUser(0, 15)
 
     if type_modifier=="analytic":
-        mg.SetTitle("mH%s %s %s" % (mass, smodel, smode))
+        mg.SetTitle("mH%s %s %s" % (mass, smodel))
     else:
         mg.SetTitle("Mass Higgs %s" % mass)
     mg.GetXaxis().SetTitle("95% CL limit on #sigma/#sigma_{SM} (h #rightarrow #mu#mu)")
@@ -239,14 +249,14 @@ def generateLimit(filelist, **wargs):
     line.DrawLine(-180, 5, 350, 5)
     import json
     if type_modifier=="analytic":
-        canvas.SaveAs(limitsdir+"/limits__%s__%s__%s__%s__%s.png" % (
+        canvas.SaveAs(limitsDir+"/limits__%s__%s__%s__%s__%s.png" % (
             type_modifier, mass, bmodel, smode, smodel))
-        json.dump(map_explimits, open(limitsdir+"/explimits__%s__%s__%s__%s__%s.json" % (
+        json.dump(map_explimits, open(limitsDir+"/explimits__%s__%s__%s__%s__%s.json" % (
             type_modifier, mass, bmodel, smode, smodel), "w"))
     else:
-        canvas.SaveAs(limitsdir+"/limits__%s__%s.png" % (
+        canvas.SaveAs(limitsDir+"/limits__%s__%s.png" % (
             type_modifier, mass))
-        json.dump(map_explimits, open(limitsdir+"/explimits__%s__%s.json" % (
+        json.dump(map_explimits, open(limitsDir+"/explimits__%s__%s.json" % (
             type_modifier, mass), "w"))
 
 if __name__=="__main__":

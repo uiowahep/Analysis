@@ -9,8 +9,15 @@ from aux import *
 
 version_data = "vR1_20170217_1742__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
 version_fits = version_data
+pus = ["69"]
+folder = "80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24"
+dataworkspace_path = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards_and_workspaces"
+fitsworkspace_path = "/Users/vk/software/Analysis/files/higgs_analysis_files/combine_results"
+smodels = ["SingleGaus", "DoubleGaus"]
 
 gROOT.SetBatch(kTRUE)
+
+combinations = combinationsRun1
 
 tail = "MaxLikelihoodFit.mH125.root"
 head = "higgsCombine"
@@ -30,8 +37,8 @@ def findData(**wargs):
     bmodel = wargs["bmodel"]
     smode = wargs["smode"]
     smodel = wargs["smodel"]
-    dataworkspace_path = wargs["datapath"]
-    return "{path}/workspace__analytic__{category}__{mass}__{bmodel}__{smode}__{smodel}.root".format(path=dataworkspace_path, category=category, mass=mass, bmodel=bmodel,
+    datapath = wargs["datapath"]
+    return "{path}/workspace__analytic__{category}__{mass}__{bmodel}__{smode}__{smodel}.root".format(path=datapath, category=category, mass=mass, bmodel=bmodel,
         smode=smode, smodel=smodel)
 
 def generate_1Fit(data, fit, *kargs, **wargs):
@@ -41,7 +48,7 @@ def generate_1Fit(data, fit, *kargs, **wargs):
     combtype = wargs["combtype"]
     smodel_name = wargs["smodel"]
     bmodel_name = wargs["bmodel"]
-    fitsworkspace_path = wargs["fitspath"]
+    fitspath = wargs["fitspath"]
     mass = wargs["mass"]
     signalNames = wargs["signalNames"]
     print category
@@ -67,11 +74,11 @@ def generate_1Fit(data, fit, *kargs, **wargs):
     print "Building Background Model"
 
     modelklass = getattr(models, bmodel_name)
-    bmodel = modelklass(category=category)
-    bmodel.extractParameters(ws, fit, category=category)
-    bmodel.build(ws, category=category)
+    bmodel = modelklass(category=category, modifier=modifier)
+    bmodel.extractParameters(ws, fit)
+    broomodel = bmodel.build(ws)
     bnorm = bmodel.norm.getVal()
-    bmodel.plotOn(xframe, RooFit.Normalization(bnorm, 0), RooFit.LineColor(kBlack),
+    broomodel.plotOn(xframe, RooFit.Normalization(bnorm, 0), RooFit.LineColor(kBlack),
         RooFit.Name("new_bmodel"))
     leg.AddEntry(xframe.FindObject("new_bmodel"), "Background Model", "l")
     print "-"*40
@@ -80,40 +87,41 @@ def generate_1Fit(data, fit, *kargs, **wargs):
     for sname in signalNames:
         processName = sname.split("_")[0]
         modelklass = getattr(models, smodel_name)
-        smodel = modelklass(category=category, processName=processName)
-        smodel.extracParameters(ws, fit, category=category, processName=processName)
-        smodel.build(ws, category=category, processName=processName)
+        smodel = modelklass(category=category, processName=processName, 
+            modifier=modifier)
+        smodel.extractParameters(ws, fit)
+        sroomodel = smodel.build(ws, category=category, processName=processName)
         snorm = smodel.norm.getVal()
-        smodel.plotOn(xframe, 
-            RooFit.Normalization(snorm, 0), RooFit.LineColor(kRed),
+        sroomodel.plotOn(xframe, 
+            RooFit.Normalization(snorm*20, 0), RooFit.LineColor(kRed),
             RooFit.Name("smodel%s" % processName))
         leg.AddEntry(xframe.FindObject("smodel%s" % processName ), 
             "%s SM Higgs x 20" % processName, "l")
     
     print "-"*40
+    print "Drawing Frame"
     xframe.Draw()
     leg.Draw()
-
-    c1.SaveAs(fitsworkspace_path+"/bonlyfit__{combtype}__{category}__{mass}__{bmodel}__{smode}__{smodel}.png".format(combtype=combtype, category=category, mass=mass,
+    
+    print "-"*40
+    print "Saving the Canvas"
+    c1.SaveAs(fitspath+"/bonlyfit__{combtype}__{category}__{mass}__{bmodel}__{smode}__{smodel}.png".format(combtype=combtype, category=category, mass=mass,
         bmodel=bmodel_name, smode=smode, smodel=smodel_name))
 
 
 def main():
-#    pus = ["68", "69", "71","72", "70", "71p3", "69p2"]
-    pus = ["69"]
     for pu in pus:
         generateFits(pu)
 
 def generateFits(pu):
-    folder = "80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24"
-    dataworkspace_path = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards_and_workspaces/%s/%s/%s" % (
+    fullDataworkspace_path = "%s/%s/%s/%s" % (dataworkspace_path,
         version_data, folder, pu)
-    fitsworkspace_path = "/Users/vk/software/Analysis/files/higgs_analysis_files/combine_results/%s/%s/%s" % (
-    version_fits, folder, pu)
+    fullFitsworkspace_path = "%s/%s/%s/%s" % (fitsworkspace_path, 
+        version_fits, folder, pu)
     type_setting = "analytic"
     mass = "125"
     import glob
-    filelist = glob.glob(fitsworkspace_path+"/*mlfit*{type_setting}*.root".format(
+    filelist = glob.glob(fullFitsworkspace_path+"/*mlfit*{type_setting}*.root".format(
         type_setting=type_setting))
     ccc = 0
     combfilelist = []
@@ -131,10 +139,10 @@ def generateFits(pu):
     #   this will do only separate fitting
     for f in filelist:
         try:
-            if ("Combination" in f):
+            if extractCategory(f) in combinations:
                 if not generate_Combined: continue
                 generate_1FitCombined(pathfile=f,
-                    datapath=dataworkspace_path, fitspath=fitsworkspace_path,
+                    datapath=fullDataworkspace_path, fitspath=fullFitsworkspace_path,
                     mass=mass, type_setting=type_setting, 
                     signalNames=signals)
                 continue
@@ -144,6 +152,8 @@ def generateFits(pu):
             combtype = "Single"
             category = extractCategory(f)
             (bmodel, smode, smodel) = extractModelType(f)
+            if smodel not in smodels: continue
+
             print "category = %s" % category
             print "fit filename = %s" % f
             modifier = ""
@@ -152,7 +162,7 @@ def generateFits(pu):
 
             fdata = TFile(findData(category=category, 
                 mass=mass, bmodel=bmodel, smode=smode, smodel=smodel,
-                datapath=dataworkspace_path))
+                datapath=fullDataworkspace_path))
             wsdata = fdata.Get("higgs")
             data = wsdata.data("data_obs")
             hdata = data.createHistogram("hdata", wsdata.var("x"), 
@@ -168,7 +178,7 @@ def generateFits(pu):
             fit.Print("v")
             print "-"*40
             generate_1Fit(ds, fit, category=category, modifier=modifier,
-                bmodel=bmodel, smode = smode, smodel=smodel, fitspath=fitsworkspace_path,
+                bmodel=bmodel, smode = smode, smodel=smodel, fitspath=fullFitsworkspace_path,
                 combtype=combtype, mass=mass, signalNames=signals)
             print "-"*40
         except Exception as exc:
@@ -193,6 +203,7 @@ def generate_1FitCombined(**wargs):
             print "-"*40
             print category
             (bmodel, smode, smodel) = extractModelType(pathfile)
+            if smodel not in smodels: continue
             print bmodel
             print smode
             print smodel

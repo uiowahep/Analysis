@@ -21,6 +21,9 @@ class Model:
     def setParameters(self, ws, **wargs):
         pass
 
+    def extractParameters(self, ws, fitws, **wargs):
+        pass
+
     def __str__(self):
         return "Unknown Model"
 
@@ -58,6 +61,26 @@ class SingleGaus(Model):
             category=category)).setUnit("GeV")
         ws.var("m{processName}_width_{category}".format(
             processName=processName, category=category)).setUnit("GeV")
+    
+    def extractParameters(self, ws, fitws, **wargs):
+        category = self.wargs["category"]
+        processName = self.wargs["processName"]
+        modifier = self.wargs["modifier"]
+        const_parameters = fitws.constPars()
+        lparameterNames = [
+            "m{processName}_mass_{category}".format(category=category, 
+                processName=processName),
+            "m{processName}_width_{category}".format(category=category,
+                processName=processName)
+        ]
+        # extract model parameters
+        for pname in lparameterNames:
+            getattr(ws, "import")(const_parameters.find(pname))
+        # extract normalization
+        normName = "shapeSig_smodel{processName}_{category}_{mod}{category}__norm".format(category=category, processName=processName, mod=modifier)
+        getattr(ws, "import")(
+            const_parameters.find(normName))
+        self.norm = ws.var(normName)
 
     def setParameters(self, ws, **wargs):
         processName = self.wargs["processName"]
@@ -115,6 +138,32 @@ class DoubleGaus(Model):
         ws.factory("smodel{processName}_coef_{category}[0.1, 0.0001, 1.0]".format(
             processName=processName,
             category=category))
+    
+    def extractParameters(self, ws, fitws, **wargs):
+        category = self.wargs["category"]
+        processName = self.wargs["processName"]
+        modifier = self.wargs["modifier"]
+        const_parameters = fitws.constPars()
+        lparameterNames = [
+            "m{processName}_g1_mass_{category}".format(category=category, 
+                processName=processName),
+            "m{processName}_g1_width_{category}".format(category=category,
+                processName=processName),
+            "m{processName}_g2_mass_{category}".format(category=category, 
+                processName=processName),
+            "m{processName}_g2_width_{category}".format(category=category,
+                processName=processName),
+            "smodel{processName}_coef_{category}".format(category=category,
+                processName=processName)
+        ]
+        # extract model parameters
+        for pname in lparameterNames:
+            getattr(ws, "import")(const_parameters.find(pname))
+        # extract normalization
+        normName = "shapeSig_smodel{processName}_{category}_{mod}{category}__norm".format(category=category, processName=processName, mod=modifier)
+        getattr(ws, "import")(
+            const_parameters.find(normName))
+        self.norm = ws.var(normName)
 
     def setParameters(self, ws, **wargs):
         processName = self.wargs["processName"]
@@ -192,6 +241,38 @@ class TripleGaus(Model):
         ws.factory("smodel{processName}_coef2_{category}[0.1, 0.0001, 1.0]".format(
             processName=processName,
             category=category))
+    
+    def extractParameters(self, ws, fitws, **wargs):
+        category = self.wargs["category"]
+        processName = self.wargs["processName"]
+        modifier = self.wargs["modifier"]
+        const_parameters = fitws.constPars()
+        lparameterNames = [
+            "m{processName}_g1_mass_{category}".format(category=category, 
+                processName=processName),
+            "m{processName}_g1_width_{category}".format(category=category,
+                processName=processName),
+            "m{processName}_g2_mass_{category}".format(category=category, 
+                processName=processName),
+            "m{processName}_g2_width_{category}".format(category=category,
+                processName=processName),
+            "m{processName}_g3_mass_{category}".format(category=category, 
+                processName=processName),
+            "m{processName}_g3_width_{category}".format(category=category,
+                processName=processName),
+            "smodel{processName}_coef1_{category}".format(category=category,
+                processName=processName),
+            "smodel{processName}_coef2_{category}".format(category=category,
+                processName=processName)
+        ]
+        # extract model parameters
+        for pname in lparameterNames:
+            getattr(ws, "import")(const_parameters.find(pname))
+        # extract normalization
+        normName = "shapeSig_smodel{processName}_{category}_{mod}{category}__norm".format(category=category, processName=processName, mod=modifier)
+        getattr(ws, "import")(
+            const_parameters.find(normName))
+        self.norm = ws.var(normName)
 
     def setParameters_TripleGaus(self, ws, **wargs):
         processName = self.wargs["processName"]
@@ -219,12 +300,28 @@ class ExpGaus(Model):
         ws.factory('Exponential::bmodel_%s(f, 1)' % category)
         return ws.pdf('bmodel_%s' % category)
 
+    def extractParameters(self, ws, fitws, **wargs):
+        category = self.wargs["category"]
+        modifier = self.wargs["modifier"]
+        float_parameters = fitws.floatParsFinal()
+        lparameterNames = ["a1_{category}".format(category=category),
+            "a2_{category}".format(category=category)]
+        # extract model parameters
+        for pname in lparameterNames:
+            getattr(ws, "import")(float_parameters.find(pname))
+        # extract normalization
+        normName = "shapeBkg_bmodel_{category}_{mod}{category}__norm".format(category=category, mod=modifier)
+        getattr(ws, "import")(
+            float_parameters.find(normName))
+        self.norm = ws.var(normName)
+
     def createParameters(self, ws, **wargs):
         ndata = wargs["ndata"]
         category = self.wargs["category"]
         ws.factory('a1_%s[ 5.0, -1000, 1000]' % category)
         ws.factory('a2_%s[ 5.0, -1000, 1000]' % category)
-        ws.factory("bmodel_%s_norm[%f, %f, %f]" % (category, ndata, ndata/2, ndata*2))
+        if "noNorm" in wargs: return
+        else: ws.factory("bmodel_%s_norm[%f, %f, %f]" % (category, ndata, ndata/2, ndata*2))
 
 #
 # Initialize the Mass Variable
