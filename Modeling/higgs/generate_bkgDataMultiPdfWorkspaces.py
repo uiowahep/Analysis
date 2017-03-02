@@ -31,9 +31,9 @@ R.gSystem.Load("libHiggsAnalysisCombinedLimit.so");
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
-workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/bias_datacards_and_workspaces"
-fitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/fits/bias"
+resultsdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/results/vR1_20170217_1742"
+workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bias_datacards_and_workspaces"
+fitsDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/fits/bias"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
 
 #
