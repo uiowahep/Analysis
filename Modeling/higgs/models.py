@@ -292,13 +292,13 @@ class TripleGaus(Model):
 class ExpGaus(Model):
     def __init__(self, **wargs):
         Model.__init__(self, **wargs)
-        self.modelName = "bmodel_%s" % self.wargs["category"]
+        self.modelName = "bmodelExpGaus_%s" % self.wargs["category"]
 
     def build(self, ws, **wargs):
         category = self.wargs["category"]
         ws.factory('expr::f("-(a1_{category}*(x/100)+a2_{category}*(x/100)^2)",a1_{category},a2_{category},x)'.format(category=category))
-        ws.factory('Exponential::bmodel_%s(f, 1)' % category)
-        return ws.pdf('bmodel_%s' % category)
+        ws.factory('Exponential::%s(f, 1)' % self.modelName)
+        return ws.pdf(self.modelName)
 
     def extractParameters(self, ws, fitws, **wargs):
         category = self.wargs["category"]
@@ -310,7 +310,7 @@ class ExpGaus(Model):
         for pname in lparameterNames:
             getattr(ws, "import")(float_parameters.find(pname))
         # extract normalization
-        normName = "shapeBkg_bmodel_{category}_{mod}{category}__norm".format(category=category, mod=modifier)
+        normName = "shapeBkg_{modelName}_{mod}{category}__norm".format(category=category, mod=modifier, modelName=self.modelName)
         getattr(ws, "import")(
             float_parameters.find(normName))
         self.norm = ws.var(normName)
@@ -321,7 +321,53 @@ class ExpGaus(Model):
         ws.factory('a1_%s[ 5.0, -1000, 1000]' % category)
         ws.factory('a2_%s[ 5.0, -1000, 1000]' % category)
         if "noNorm" in wargs: return
-        else: ws.factory("bmodel_%s_norm[%f, %f, %f]" % (category, ndata, ndata/2, ndata*2))
+        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, 
+            ndata, ndata/2, ndata*2))
+class Bernstein(Model):
+    def __init__(self, **wargs):
+        Model.__init__(self, **wargs)
+        self.modelName = "bmodelBernstein_%s" % self.wargs["category"]
+
+    def build(self, ws, **wargs):
+        category = self.wargs["category"]
+        ws.factory('Bernstein::%s(x, {%s})' % (self.modelName,
+            ",".join("b%d_%s" % (i, category) for i in range(1, self.wargs["degree"]+1))))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        category = self.wargs["category"]
+        degree = self.wargs["degree"]
+        ndata = wargs["ndata"]
+        for deg in range(1, degree+1):
+            ws.factory("b{deg}_{category}[10, -1000, 1000]".format(category=category,
+                deg=deg))
+        if "noNorm" in wargs: return
+        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
+            ndata*2))
+
+class Polynomial(Model):
+    def __init__(self, **wargs):
+        Model.__init__(self, **wargs)
+        self.modelName = "bmodelPolynomial_%s" % self.wargs["category"]
+
+    def build(self, ws, **wargs):
+        category = self.wargs["category"]
+        degree = self.wargs["degree"]
+        lParameters = ",".join("p%d_%s" % (i, category) for i in range(1, degree+1))
+        print lParameters
+        ws.factory('Polynomial::%s(x, {%s})' % (self.modelName, lParameters))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        category = self.wargs["category"]
+        degree = self.wargs["degree"]
+        ndata = wargs["ndata"]
+        for deg in range(1, degree+1):
+            ws.factory("p{deg}_{category}[10, -1000, 1000]".format(category=category,
+                deg=deg))
+        if "noNorm" in wargs: return
+        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
+            ndata*2))
 
 #
 # Initialize the Mass Variable

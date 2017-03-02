@@ -55,6 +55,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     print mcsig
     shouldScale = wargs["shouldScale"]
     bmodels = wargs["bmodels"]
+    auxParameters = wargs["auxParameters"]
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
@@ -159,7 +160,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         bkgPdfs = RooArgList()
         for bmodel in bmodels:
             modelklass = getattr(models, bmodel)
-            model = modelklass(category=category)
+            model = modelklass(category=category, **(auxParameters[bmodel]))
             model.createParameters(ws, ndata=ndata, noNorm=True)
             bkgmodels[bmodel] = model.build(ws)
         
@@ -167,8 +168,9 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             # just do some fit
             #
             r = bkgmodels[bmodel].fitTo(roodata, RooFit.Save())
-            roodata.plotOn(frame)
-            bkgmodels[bmodel].plotOn(frame, RooFit.Color(kRed))
+            blindRooData(roodata).plotOn(frame)
+            bkgmodels[bmodel].plotOn(frame, RooFit.Color(kRed),
+                RooFit.Normalization(ndata, 0))
             bkgmodels[bmodel].paramOn(frame)
             frame.getAttText().SetTextSize(0.02)
             chiSquare = frame.chiSquare()
@@ -297,6 +299,11 @@ if __name__=="__main__":
     #
     smodelNames = ["SingleGaus", "DoubleGaus", "TripleGaus"]
     bmodelNames = ["ExpGaus"]
+    auxParameters = {
+        "Polynomial" : {"degree" : 5},
+        "ExpGaus" : {},
+        "Bernstein" : {"degree": 5}
+    }
 #    smodels = ["TripleGaus"]
 #    smodes = ["Separate", "Combined"]
     smodes = ["Separate"]
@@ -308,7 +315,7 @@ if __name__=="__main__":
                     for pu in pus:
                         generate(variables, (data,
                             configs_bkgs["%s__%s" % (cmssw, pu)],
-                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodels=bmodelNames, smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
+                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodels=bmodelNames, smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale, auxParameters=auxParameters)
     else:
         for cmssw in ["80X"]:
             for pu in pus:

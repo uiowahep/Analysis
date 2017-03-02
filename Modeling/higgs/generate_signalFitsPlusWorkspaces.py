@@ -295,6 +295,7 @@ if __name__=="__main__":
     #   Generate all the distributions
     #
     smodelNames = ["SingleGaus", "DoubleGaus", "TripleGaus"]
+    bmodelNames = ["ExpGaus", "Polynomial", "Bernstein"]
 #    smodels = ["TripleGaus"]
 #    smodes = ["Separate", "Combined"]
     smodes = ["Separate"]
@@ -302,11 +303,12 @@ if __name__=="__main__":
     if analytic:
         for smodel in smodelNames:
             for smode in smodes:
-                for cmssw in ["80X"]:
-                    for pu in pus:
-                        generate(variables, (data,
-                            configs_bkgs["%s__%s" % (cmssw, pu)],
-                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
+                for bmodel in bmodelNames:
+                    for cmssw in ["80X"]:
+                        for pu in pus:
+                            generate(variables, (data,
+                                configs_bkgs["%s__%s" % (cmssw, pu)],
+                                configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel=bmodel, smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
     else:
         for cmssw in ["80X"]:
             for pu in pus:

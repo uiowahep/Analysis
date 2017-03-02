@@ -45,6 +45,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     print mcbg
     print mcsig
     shouldScale = wargs["shouldScale"]
+    auxParameters = wargs["auxParameters"]
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
@@ -138,7 +139,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         # Create parameters for background
         #
         modelklass = getattr(models, wargs["bmodel"])
-        model = modelklass(category=category)
+        model = modelklass(category=category, **auxParameters)
         model.createParameters(ws, ndata=ndata)
         roomodel = model.build(ws)
         ws.Print("v")
@@ -151,8 +152,9 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         ccc.cd()
         frame = ws.var("x").frame()
         frame.SetTitle(category)
-        roodata.plotOn(frame)
-        roomodel.plotOn(frame, RooFit.Color(kRed))
+        blindRooData(ws).plotOn(frame)
+        roomodel.plotOn(frame, RooFit.Color(kRed),
+            RooFit.Normalization(ndata, 0))
         roomodel.paramOn(frame, RooFit.Format("NELU", RooFit.AutoPrecision(2)), 
             RooFit.Layout(0.6, 0.99, 0.9), RooFit.ShowConstants(True))
         frame.getAttText().SetTextSize(0.02)
@@ -263,6 +265,12 @@ if __name__=="__main__":
     #   Generate all the distributions
     #
     smodelNames = ["SingleGaus", "DoubleGaus", "TripleGaus"]
+    bmodelNames = ["ExpGaus", "Polynomial", "Bernstein"]
+    auxParameters = {
+        "Polynomial" : {"degree" : 5},
+        "ExpGaus" : {},
+        "Bernstein" : {"degree": 5}
+    }
 #    smodels = ["TripleGaus"]
 #    smodes = ["Separate", "Combined"]
     smodes = ["Separate"]
@@ -270,11 +278,12 @@ if __name__=="__main__":
     if analytic:
         for smodel in smodelNames:
             for smode in smodes:
-                for cmssw in ["80X"]:
-                    for pu in pus:
-                        generate(variables, (data,
-                            configs_bkgs["%s__%s" % (cmssw, pu)],
-                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
+                for bmodel in bmodelNames:
+                    for cmssw in ["80X"]:
+                        for pu in pus:
+                            generate(variables, (data,
+                                configs_bkgs["%s__%s" % (cmssw, pu)],
+                                configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel=bmodel, smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale, auxParameters=auxParameters[bmodel])
     else:
         for cmssw in ["80X"]:
             for pu in pus:
