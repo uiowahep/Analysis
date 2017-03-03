@@ -24,9 +24,9 @@ uncertaintiesToUse = uncertainties_vR1
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
-workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/workspaces"
-datacardsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards"
+resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
+workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/datacards_and_workspaces"
+datacardsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards_and_workspaces"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
 
 #
@@ -76,7 +76,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             signalChannels.append(chl)
             iii+=1
 
-        pathToWorkspaceFile = fullWorkspacesDir + "/" + \
+        pathToWorkspaceFile = \
             "workspace__analytic__%s__%s__%s__%s__%s.root" % (
                 category, wargs["mass"], wargs["bmodel"], 
                 wargs["smode"], wargs["smodel"])
@@ -147,7 +147,7 @@ if __name__=="__main__":
     pus = ["69"]
     configs_signals = {}
     configs_bkgs = {}
-    shouldScale = False
+    shouldScale = True
     for cmssw in cmssws:
         for pu in pus:
             oneconfig_signals = []
@@ -180,6 +180,7 @@ if __name__=="__main__":
     #   Generate all the distributions
     #
     smodelNames = ["SingleGaus", "DoubleGaus", "TripleGaus"]
+    bmodelNames = ["ExpGaus", "Polynomial", "Bernstein"]
 #    smodels = ["TripleGaus"]
 #    smodes = ["Separate", "Combined"]
     smodes = ["Separate"]
@@ -187,11 +188,12 @@ if __name__=="__main__":
     if analytic:
         for smodel in smodelNames:
             for smode in smodes:
-                for cmssw in ["80X"]:
-                    for pu in pus:
-                        generate(variables, (data,
-                            configs_bkgs["%s__%s" % (cmssw, pu)],
-                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
+                for bmodel in bmodelNames:
+                    for cmssw in ["80X"]:
+                        for pu in pus:
+                            generate(variables, (data,
+                                configs_bkgs["%s__%s" % (cmssw, pu)],
+                                configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel=bmodel, smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
     else:
         for cmssw in ["80X"]:
             for pu in pus:

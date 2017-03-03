@@ -30,8 +30,8 @@ from Modeling.higgs.aux import *
 pus = ["69"]
 version = "vR1_20170217_1742__TTJets_DiLept_TuneCUETP8M1_13TeV-" + \
     "madgraphMLM-pythia8__allBkg"
-datacardsDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/datacards"
-workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/workspaces"
+datacardsDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/datacards_and_workspaces"
+workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/datacards_and_workspaces"
 combineOutDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/combineOutDir"
 pathModifier = "80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24"
 
@@ -120,7 +120,7 @@ def generate_template():
 
 def generate_analytic():
     bmodel = "ExpGaus"
-    smodels = ["SingleGaus", "DoubleGaus"]
+    smodels = ["SingleGaus", "DoubleGaus", "TripleGaus"]
 
     generate_combination=True
     generate_separate=True

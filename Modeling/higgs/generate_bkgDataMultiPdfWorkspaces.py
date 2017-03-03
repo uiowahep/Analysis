@@ -1,3 +1,9 @@
+#
+# Must be used on lxplus only - unless you can build libHiggsAnalysisCombinedLimit.so
+# the problem is that you gotta get the dependencies + some non-standard libs
+#
+
+
 import ROOT as R
 from ROOT import *
 import sys, os, subprocess
@@ -19,20 +25,22 @@ import NtupleProcessing.python.Dataset as DS
 from aux import *
 import models
 
+# to get the RooMultiPdf
+R.gSystem.Load("libHiggsAnalysisCombinedLimit.so");
+
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
-#resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
-workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards_and_workspaces"
-fitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/fits/signal_precombine"
+resultsdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/results/vR1_20170217_1742"
+workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bias_datacards_and_workspaces"
+fitsDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/fits/bias"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
 
 #
 # build up the dir structure
 #
-workspacesDir = os.path.join(
-    workspacesDir, os.path.split(resultsdir)[1] + "__" + path_modifier)
+workspacesDir= os.path.join(workspacesDir, os.path.split(resultsdir)[1] + "__" +
+    path_modifier)
 fitsDir = os.path.join(
     fitsDir, os.path.split(resultsdir)[1] + "__" + path_modifier)
 mkdir(workspacesDir)
@@ -46,6 +54,8 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     print mcbg
     print mcsig
     shouldScale = wargs["shouldScale"]
+    bmodels = wargs["bmodels"]
+    auxParameters = wargs["auxParameters"]
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
@@ -58,9 +68,9 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     mkdir(fullWorkspacesDir)
     mkdir(fullFitsDir)
     fullWorkspacesDir+="/%s"%mcsig[0].pu
-    fullFitsDir+="/%s"%mcsig[0].pu
-    mkdir(fullFitsDir)
+    fullFitsDir += "/%s" % mcsig[0].pu
     mkdir(fullWorkspacesDir) # is the one to be used
+    mkdir(fullFitsDir)
 
     counter = 0
     numvars = len(variables)
@@ -71,25 +81,49 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         category = variable["fullpath"].split("/")[0]
 
         #
-        # initialize the workspace
+        # Procedure:
+        # 1. Get data, slice histo and convert to RooDataHist
+        # 2. [Optional] Scale all bkgs, add them up and....
+        # 3. Create all parameters, create the background model
+        # 4. Save the workspace with data and background model
         #
-        R.RooMsgService.instance().setGlobalKillBelow(R.RooFit.FATAL)
 
         #
-        # either retrieve the existing one (if u ran background first)
-        # or create a new one
+        # Get data and prepare Data HIstogram
+        #
+        fdata = R.TFile(data.pathToFile)
+        hdata = fdata.Get(variable["fullpath"])
+        if hdata.GetEntries()==0:
+            continue
+        slicedhdata = sliceHistogram(hdata, name="newhdata", **wargs)
+        ndata = int(slicedhdata.Integral())
+
+        #
+        # Background Histograms: just in case in here
+        #
+        mch = {}
+        mcf = {}
+        for imcbg in mcbg:
+            mcf[imcbg.name] = R.TFile(imcbg.pathToFile)
+            mch[imcbg.name] = mcf[imcbg.name].Get(variable["fullpath"])
+            if shouldScale:
+                mch[imcbg.name].Scale(
+                    data.jsonToUse.intlumi*imcbg.cross_section/imcbg.eweight)
+
+        #
+        # 0. create a workspace or extract from the existing
         #
         try:
             fileName = fullWorkspacesDir +\
                 "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
-                    category,
+                    category, 
                     wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
             wsFile = R.TFile(fileName, "UPDATE")
             ws = wsFile.Get("higgs")
-            appending = True
             # this will raise if there is no ws
             print ws.allPdfs().contentsString()
-            testModelName = getattr(models, wargs["smodel"])(category=category, 
+            appending = True
+            testModelName = getattr(models, wargs["bmodel"])(category=category,
                 processName="VBF").getModelName()
             if testModelName in ws.allPdfs().contentsString():
                 print "Duplicates are already present! Removing the file!"
@@ -104,106 +138,75 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             appending = False
             models.createVariables_Mass(ws, **wargs)
             ws.defineSet("obs", "x")
-        
+        R.RooMsgService.instance().setGlobalKillBelow(R.RooFit.FATAL)
         obs = ws.set("obs")
-        #models.createVariables_Mass(ws, **wargs)
 
         #
-        # for each signal
-        #   1. scale
-        #   2. aux initializations/manipulations -> build a RooDatHist
-        #   3. create model and fit
-        #   4. plot all fits and save
-        #   5. save plots
+        # Data RooDataHist creation and preserving in Workspace
         #
-        for mc in mcsig:
-            print mc
-            print variable
-            print mc.pathToFile
-            fff = R.TFile(mc.pathToFile)
-            sss = fff.Get(variable["fullpath"])
+        roodata = R.RooDataHist("data_obs", "data_obs", RooArgList(obs), slicedhdata)
+        getattr(ws, "import")(roodata, RooCmdArg())
 
+        #
+        # Create parameters for background
+        #
+        ccc = TCanvas("c1", "c1", 800, 600)
+        ccc.cd()
+        frame = ws.var("x").frame()
+        frame.SetTitle(category)
+        bkgmodels = {}
+        counter = 0
+        pdfIndex = RooCategory("pdf_index", "Index of Pdf which is active")
+        bkgPdfs = RooArgList()
+        for bmodel in bmodels:
+            modelklass = getattr(models, bmodel)
+            model = modelklass(category=category, **(auxParameters[bmodel]))
+            model.createParameters(ws, ndata=ndata, noNorm=True)
+            bkgmodels[bmodel] = model.build(ws)
+        
             #
-            # 1. scale
+            # just do some fit
             #
-            if shouldScale:
-                sss.Scale(
-                    data.jsonToUse.intlumi*mc.cross_section/mc.eweight)
-
-            #
-            # 2
-            #
-            ccc = TCanvas("c1", "c1", 800, 600)
-            ccc.cd()
-            newsss = sliceHistogram(sss, name=mc.buildLabel(),
-                massmin=wargs["massmin"], massmax=wargs["massmax"])
-            roo_hist = R.RooDataHist(newsss.GetName(),
-                newsss.GetName(), RooArgList(obs), newsss)
-            xframe = ws.var("x").frame()
-            xframe.SetTitle(category)
-            processName = mc.buildLabel()
-
-            #
-            # 3. model
-            #
-            modelklass = getattr(models, wargs["smodel"])
-            model = modelklass(category=category, processName=processName)
-            model.createParameters(ws, massmin=wargs["massmin"], massmax=wargs["massmax"])
-            roomodel = model.build(ws)
-            r = roomodel.fitTo(roo_hist, RooFit.Save(), RooFit.Range(wargs["fitmin"],
-                wargs["fitmax"]))
-            model.setParameters(ws, norm=roo_hist.sumEntries())
-
-            #
-            # 4. plot/save fits
-            #
-            r.Print("v")
-            #s.plotOn(xframe, RooFit.DataError(RooAbsData.SumW2))
-            roo_hist.plotOn(xframe)
-            roomodel.plotOn(xframe, RooFit.Color(kRed))
-            roomodel.paramOn(xframe, RooFit.Format("NELU", RooFit.AutoPrecision(2)), RooFit.Layout(0.6, 0.99, 0.9), RooFit.ShowConstants(True))
-            xframe.getAttText().SetTextSize(0.02)
-            chiSquare = xframe.chiSquare()
-            #txt = R.TText(2, 100, "#chi^{2} = %f" % chiSquare)
-            ttt = R.TPaveLabel(0.1,0.7,0.3,0.78, Form("#chi^{2} = %f" % chiSquare),
-                "brNDC");
+            r = bkgmodels[bmodel].fitTo(roodata, RooFit.Save())
+            blindRooData(roodata).plotOn(frame)
+            bkgmodels[bmodel].plotOn(frame, RooFit.Color(kRed),
+                RooFit.Normalization(ndata, 0))
+            bkgmodels[bmodel].paramOn(frame)
+            frame.getAttText().SetTextSize(0.02)
+            chiSquare = frame.chiSquare()
+            ttt = R.TPaveLabel(0.1,0.9 - counter*0.08,0.3,0.98 - counter*0.08, 
+                Form("#chi^{2} = %f" % chiSquare),
+                "brNDC")
             ttt.Draw()
-            xframe.addObject(ttt)
-            xframe.Draw()
-            #latex.DrawLatex(0.4, 0.9, "#chi^{2} = %f" % chiSquare)
-            ccc.SaveAs(fullFitsDir+"/fit__%s__%s__%s__%s__%s__%s.png" % (
-                roo_hist.GetName(), 
-                category, wargs["mass"], wargs["bmodel"], wargs["smode"],
-                wargs["smodel"]))
-
-            xframe2 = ws.var("x").frame()
-            xframe2.addObject(xframe.pullHist())
-            xframe2.SetMinimum(-5)
-            xframe2.SetMaximum(5)
-            xframe2.Draw()
-            ccc.SaveAs(fullFitsDir+"/pull__%s__%s__%s__%s__%s__%s.png" % (
-                roo_hist.GetName(), category, wargs["mass"], wargs["bmodel"], wargs["smode"],
-                wargs["smodel"]))
-
-            xframe3 = ws.var("x").frame()
-            xframe3.addObject(xframe.residHist())
-            xframe3.SetMinimum(-5)
-            xframe3.SetMaximum(5)
-            xframe3.Draw()
-            ccc.SaveAs(fullFitsDir+"/resid__%s__%s__%s__%s__%s__%s.png" % (
-                roo_hist.GetName(), category, wargs["mass"], wargs["bmodel"], wargs["smode"],
-                wargs["smodel"]))
+            frame.addObject(ttt)
+            frame.Draw()
+            ccc.SaveAs(fullFitsDir + 
+                "/bkgfit__%s__%s__%s__%s__%s.png" % (
+                category, wargs["mass"], bmodel, wargs["smode"], wargs["smodel"]))
+            counter+=1
+            bkgPdfs.add(bkgmodels[bmodel])
 
         #
-        # 5.either update or create
+        # build the multi pdf
+        # and provide the norm for it
         #
+        multipdf = RooMultiPdf("roomultipdf", "All Background Pdfs", pdfIndex, bkgPdfs)
+        multipdf_norm = RooRealVar("roomultipdf_norm", "Normalization for Backgrounds",
+            ndata/2., ndata*2)
+        getattr(ws, "import")(pdfIndex)
+        getattr(ws, "import")(multipdf_norm)
+        getattr(ws, "import")(multipdf)
+
+        #
+        # save the workspace
+        #
+        ws.Print("v")
         fileName = fullWorkspacesDir+\
             "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
-            category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
+            category, wargs["mass"], "multipdf", wargs["smode"], wargs["smodel"])
         if not appending:
             ws.SaveAs(fileName)
         else:
-            wsFile.cd()
             ws.Write()
             wsFile.Write()
             wsFile.Close()
@@ -295,7 +298,12 @@ if __name__=="__main__":
     #   Generate all the distributions
     #
     smodelNames = ["SingleGaus", "DoubleGaus", "TripleGaus"]
-    bmodelNames = ["ExpGaus", "Polynomial", "Bernstein"]
+    bmodelNames = ["ExpGaus"]
+    auxParameters = {
+        "Polynomial" : {"degree" : 5},
+        "ExpGaus" : {},
+        "Bernstein" : {"degree": 5}
+    }
 #    smodels = ["TripleGaus"]
 #    smodes = ["Separate", "Combined"]
     smodes = ["Separate"]
@@ -303,12 +311,11 @@ if __name__=="__main__":
     if analytic:
         for smodel in smodelNames:
             for smode in smodes:
-                for bmodel in bmodelNames:
-                    for cmssw in ["80X"]:
-                        for pu in pus:
-                            generate(variables, (data,
-                                configs_bkgs["%s__%s" % (cmssw, pu)],
-                                configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel=bmodel, smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
+                for cmssw in ["80X"]:
+                    for pu in pus:
+                        generate(variables, (data,
+                            configs_bkgs["%s__%s" % (cmssw, pu)],
+                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodels=bmodelNames, smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale, auxParameters=auxParameters)
     else:
         for cmssw in ["80X"]:
             for pu in pus:

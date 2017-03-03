@@ -22,10 +22,14 @@ import models
 #
 #   List all the constants and some initializations
 #
-resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/test"
-workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/workspaces"
+resultsdir = "/Users/vk/software/Analysis/files/higgs_analysis_files/results/vR1_20170217_1742"
+workspacesDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards_and_workspaces"
 fitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/fits/bkg_precombine"
 path_modifier = "TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
+
+#
+# build up the dir structure
+#
 workspacesDir= os.path.join(workspacesDir, os.path.split(resultsdir)[1] + "__" +
     path_modifier)
 fitsDir = os.path.join(
@@ -40,6 +44,8 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     print data
     print mcbg
     print mcsig
+    shouldScale = wargs["shouldScale"]
+    auxParameters = wargs["auxParameters"]
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
@@ -52,6 +58,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     mkdir(fullWorkspacesDir)
     mkdir(fullFitsDir)
     fullWorkspacesDir+="/%s"%mcsig[0].pu
+    fullFitsDir += "/%s" % mcsig[0].pu
     mkdir(fullWorkspacesDir) # is the one to be used
     mkdir(fullFitsDir)
 
@@ -104,13 +111,22 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             # this will raise if there is no ws
             print ws.allPdfs().contentsString()
             appending = True
+            testModelName = getattr(models, wargs["bmodel"])(category=category,
+                processName="VBF").getModelName()
+            if testModelName in ws.allPdfs().contentsString():
+                print "Duplicates are already present! Removing the file!"
+                wsFile.Close()
+                os.systme("rm %s" % fileName)
+                ws = R.RooWorkspace("higgs")
+                appending = False
+                models.createVariables_Mass(ws, **wargs)
+                ws.defineSet("obs", "x")
         except:
             ws = R.RooWorkspace("higgs")
             appending = False
+            models.createVariables_Mass(ws, **wargs)
+            ws.defineSet("obs", "x")
         R.RooMsgService.instance().setGlobalKillBelow(R.RooFit.FATAL)
-#        ws = R.RooWorkspace("higgs")
-        models.createVariables_Mass(ws, **wargs)
-        ws.defineSet("obs", "x")
         obs = ws.set("obs")
 
         #
@@ -123,7 +139,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         # Create parameters for background
         #
         modelklass = getattr(models, wargs["bmodel"])
-        model = modelklass(category=category)
+        model = modelklass(category=category, **auxParameters)
         model.createParameters(ws, ndata=ndata)
         roomodel = model.build(ws)
         ws.Print("v")
@@ -136,8 +152,9 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         ccc.cd()
         frame = ws.var("x").frame()
         frame.SetTitle(category)
-        roodata.plotOn(frame)
-        roomodel.plotOn(frame, RooFit.Color(kRed))
+        blindRooData(ws).plotOn(frame)
+        roomodel.plotOn(frame, RooFit.Color(kRed),
+            RooFit.Normalization(ndata, 0))
         roomodel.paramOn(frame, RooFit.Format("NELU", RooFit.AutoPrecision(2)), 
             RooFit.Layout(0.6, 0.99, 0.9), RooFit.ShowConstants(True))
         frame.getAttText().SetTextSize(0.02)
@@ -215,7 +232,7 @@ if __name__=="__main__":
     pus = ["69"]
     configs_signals = {}
     configs_bkgs = {}
-    shouldScale = False
+    shouldScale = True
     for cmssw in cmssws:
         for pu in pus:
             oneconfig_signals = []
@@ -248,6 +265,12 @@ if __name__=="__main__":
     #   Generate all the distributions
     #
     smodelNames = ["SingleGaus", "DoubleGaus", "TripleGaus"]
+    bmodelNames = ["ExpGaus", "Polynomial", "Bernstein"]
+    auxParameters = {
+        "Polynomial" : {"degree" : 5},
+        "ExpGaus" : {},
+        "Bernstein" : {"degree": 5}
+    }
 #    smodels = ["TripleGaus"]
 #    smodes = ["Separate", "Combined"]
     smodes = ["Separate"]
@@ -255,11 +278,12 @@ if __name__=="__main__":
     if analytic:
         for smodel in smodelNames:
             for smode in smodes:
-                for cmssw in ["80X"]:
-                    for pu in pus:
-                        generate(variables, (data,
-                            configs_bkgs["%s__%s" % (cmssw, pu)],
-                            configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale)
+                for bmodel in bmodelNames:
+                    for cmssw in ["80X"]:
+                        for pu in pus:
+                            generate(variables, (data,
+                                configs_bkgs["%s__%s" % (cmssw, pu)],
+                                configs_signals["%s__%s" % (cmssw, pu)]), analytic=1, smodel=smodel, bmodel=bmodel, smode=smode, mass=125, massmin=110, massmax=160, fitmin=115, fitmax=135, shouldScale=shouldScale, auxParameters=auxParameters[bmodel])
     else:
         for cmssw in ["80X"]:
             for pu in pus:

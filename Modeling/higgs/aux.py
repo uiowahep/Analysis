@@ -35,6 +35,21 @@ def mkdir(pathDir):
 def transpose(matrix):
     return [[row[i] for row in matrix] for i in range(len(matrix[0]))]
 
+def blindData(hdata):
+    massmin = 120
+    massmax = 130
+    for ibin in range(hdata.GetNbinsX()):
+        if hdata.GetBinCenter(ibin+1)>massmin and hdata.GetBinCenter(ibin+1)<massmax:
+            hdata.SetBinContent(ibin+1, 0)
+
+def blindRooData(ws):
+    data = ws.data("data_obs")
+    hdata = data.createHistogram("hdata", ws.var("x"),
+        R.RooFit.Binning(50, 110, 160))
+    blindData(hdata)
+    ds = R.RooDataHist("data_blind", "data_blind", R.RooArgList(ws.set("obs").Clone()), hdata)
+    return ds
+
 #
 # Modeling the Results = Histograms of Mass Shapes that result from Procssing ntuples
 #
