@@ -12,17 +12,17 @@ exec /bin/bash
 eval `scramv1 runtime -sh`
 source $PWD/config/env.sh
 
+## Edit parameters for this particular job
+AuxTools/python/UF_AWB_settings.py
+
 ## Convert UF files into Viktor's format
-AuxTools/python/convert_UF_AWB.py
-cd /afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/input_hists/
-hadd -f result__merged__Moriond17_Feb08__Mu24.root result__*__Moriond17_Feb08__Mu24.root
-cd -
+python AuxTools/python/convert.py -m UF_AWB
 
 ## Generate workspaces
 cd Modeling/higgs/
-python generate_signalFitsPlusWorkspaces_UF_AWB.py
-python generate_bkgDataWorkspaces_UF_AWB.py
-python generate_datacards_UF_AWB.py
+python generate_signalFitsPlusWorkspaces.py -m UF_AWB
+python generate_bkgDataWorkspaces.py -m UF_AWB
+python generate_datacards.py -m UF_AWB
 
 ## Run Combine commands
 ## This step is still somewhat buggy ... scripts point to the wrong file locations
