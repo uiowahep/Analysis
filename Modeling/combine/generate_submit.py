@@ -119,12 +119,13 @@ def generate_template():
 #                outname_modifier, combdatacardname))
 
 def generate_analytic():
-    bmodel = "ExpGaus"
-    smodels = ["SingleGaus", "DoubleGaus", "TripleGaus"]
+    bmodel = "Bernstein"
+    smodels = ["SingleGaus", "DoubleGaus"]
+#    bmodels = ["ExpGaus", "Bernstein"]
 
     generate_combination=True
     generate_separate=True
-    jobid = 0
+    jobid = 10
     for smodel in smodels:
         for pu in pus:
             #
