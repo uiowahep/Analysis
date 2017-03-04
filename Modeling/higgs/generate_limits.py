@@ -11,7 +11,7 @@ pus = ["69"]
 smodels = ["SingleGaus", "DoubleGaus"]
 smodes = ["Separate"]
 type_modifier = "analytic"
-bmodel = "ExpGaus"
+bmodel = "Bernstein"
 mass = "125"
 quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
 
@@ -56,7 +56,7 @@ def main():
         if type_modifier == "analytic":
             for smodel in smodels:
                 for smode in smodes:
-                    filelist = glob.glob(combineOutputDir+"/*%s*%s*%s*Asymptotic*.root" % (type_modifier, smode, smodel))
+                    filelist = glob.glob(combineOutputDir+"/*%s*%s*%s*%s*Asymptotic*.root" % (type_modifier, bmodel, smode, smodel))
                     print "generating limit for %s %s %s" % (smodel, smode, str(filelist))
                     generateLimit(filelist, combineOutputDir=combineOutputDir,
                         smode=smode, smodel=smodel, limitsDir=limitsDir)
@@ -203,7 +203,7 @@ def generateLimit(filelist, **wargs):
     mg.GetXaxis().SetRangeUser(0, 15)
 
     if type_modifier=="analytic":
-        mg.SetTitle("mH%s %s %s" % (mass, smodel))
+        mg.SetTitle("mH%s %s" % (mass, smodel))
     else:
         mg.SetTitle("Mass Higgs %s" % mass)
     mg.GetXaxis().SetTitle("95% CL limit on #sigma/#sigma_{SM} (h #rightarrow #mu#mu)")

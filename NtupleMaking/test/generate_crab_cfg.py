@@ -18,11 +18,6 @@ sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "NtupleProcessing/pytho
 import NtupleProcessing.python.Samples as Samples
 import NtupleProcessing.python.Dataset as DS
 
-#   get the datasets to be processed
-data_datasets = Samples.datadatasets
-mc_datasets = Samples.mcdatasets
-rereco_datasets = Samples.rerecoSep232016_datasets
-
 config_filename = "maker_h2dimuon_wElesTaus_cfg_crabtemplate.py"
 mcEOSFolder = "/mcMoriond2017"
 
@@ -33,17 +28,13 @@ jsonfile = jsonfiles[jsontag]
 
 #   select the datasets to be submitted for grid processing
 datasets = []
-#sets_to_consider=data_datasets
-#sets_to_consider = rereco_datasets
-sets_to_consider = Samples.quick_mcMoriond2017
+sets_to_consider = Samples.mcMoriond2017datasets
 for k in sets_to_consider:
-#    if sets_to_consider[k].year==2016 and sets_to_consider[k].initial_cmssw=="80X":
-#        "PromptReco" in sets_to_consider[k].name:
-#    if "23Sep2016" in sets_to_consider[k].name:
-    datasets.append(sets_to_consider[k])
-samples = []
+    if "_M120_" in sets_to_consider[k].name or "_M130_" in sets_to_consider[k].name:
+        datasets.append(sets_to_consider[k])
 
 #   create the Ntuple objects for all of the datasets
+samples = []
 for d in datasets:
 #    cmssw = d.initial_cmssw
     cmssw = "80X"
