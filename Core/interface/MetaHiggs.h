@@ -17,6 +17,26 @@ namespace analysis
 {
 	namespace dimuon
 	{
+        class Auxiliary : public analysis::core::Object
+        {
+            public: 
+                Auxiliary() : analysis::core::Object() {this->reset();}
+                virtual ~Auxiliary() {}
+
+                virtual void reset() 
+                {
+                    m_ptSum = 0;
+                    m_numHT = 0;
+                }
+
+                int m_numHT;
+                double m_ptSum;
+
+#ifdef STANDALONE
+				ClassDef(Auxiliary, 1)
+#endif
+        };
+
 		class MetaHiggs : public analysis::core::Object
 		{
 			public:
@@ -95,6 +115,7 @@ namespace analysis
 
 #ifdef STANDALONE
 ClassImpUnique(analysis::dimuon::MetaHiggs, MetaHiggs)
+ClassImpUnique(analysis::dimuon::Auxiliary, Auxiliary)
 #endif
 
 #endif

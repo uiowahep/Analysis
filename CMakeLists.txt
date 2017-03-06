@@ -86,6 +86,7 @@ ROOT_GENERATE_DICTIONARY(G__Core
     ${PROJECT_SOURCE_DIR}/Core/interface/TestClass2.h
     ${PROJECT_SOURCE_DIR}/Core/interface/TestClass3.h
     ${PROJECT_SOURCE_DIR}/Core/interface/Root4jTestSet.h
+    ${PROJECT_SOURCE_DIR}/Core/interface/Auxiliary.h
 	LINKDEF ${PROJECT_SOURCE_DIR}/config/LinkDef.h
 	OPTIONS -DSTANDALONE=1
 )
@@ -119,7 +120,7 @@ set (HEADERS ${HEADERS} ${HEADERS1})
 #	add all the executables and link against ROOT
 #
 file (GLOB MAIN_FILES1 ${PROJECT_SOURCE_DIR}/Drivers/test/*.cc)
-file (GLOB MAIN_FILES2 ${PROJECT_SOURCE_DIR}/Drivers/bin/*.cc)
+file (GLOB MAIN_FILES2 ${PROJECT_SOURCE_DIR}/Drivers/src/*.cc)
 foreach (MAIN_FILE ${MAIN_FILES1})
 	string(REPLACE ".cc" "" EXECUTABLE_NAME ${MAIN_FILE})
 	string(REPLACE "${PROJECT_SOURCE_DIR}/Drivers/test/" "" 
@@ -132,7 +133,7 @@ foreach (MAIN_FILE ${MAIN_FILES1})
 endforeach(MAIN_FILE)
 foreach (MAIN_FILE ${MAIN_FILES2})
 	string(REPLACE ".cc" "" EXECUTABLE_NAME ${MAIN_FILE})
-	string(REPLACE "${PROJECT_SOURCE_DIR}/Drivers/bin/" "" 
+	string(REPLACE "${PROJECT_SOURCE_DIR}/Drivers/src/" "" 
 		EXECUTABLE_NAME ${EXECUTABLE_NAME}
 	)
 	message("Adding Executable: ${EXECUTABLE_NAME}")

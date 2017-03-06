@@ -137,6 +137,7 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
 		analysis::core::Vertices	_vertices;
 		analysis::core::Event		_event;
 		analysis::core::EventAuxiliary		_eaux;
+        analysis::core::Auxiliary m_aux;
 		analysis::core::MET			_met;
 		analysis::core::GenJets		_genjets;
 
@@ -180,6 +181,7 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
         edm::InputTag _tagElectronMVAHZZ_values;
         edm::InputTag _tagElectronMVAHZZ_categories;
         edm::InputTag _tagConversions;
+        edm::InputTag m_tagLHE;
 
 		edm::EDGetTokenT<GenEventInfoProduct> _tokGenInfo;
 		edm::EDGetTokenT<edm::TriggerResults> _tokTriggerResults;
@@ -212,6 +214,7 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
         edm::EDGetTokenT<edm::ValueMap<float> > _tokElectronMVAHZZ_values;
         edm::EDGetTokenT<edm::ValueMap<int> > _tokElectronMVAHZZ_categories;
         edm::EDGetTokenT<reco::ConversionCollection> _tokConversions;
+        edm::EDGetTokenT<LHEEventProduct> m_tokLHE;
 
 		edm::Handle<edm::TriggerResults> _hTriggerResults;
 		edm::Handle<pat::TriggerObjectStandAloneCollection> _hTriggerObjects;
@@ -244,6 +247,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 	_tEvents->Branch("EventAuxiliary", (EventAuxiliary*)&_eaux);
 	_tEvents->Branch("MET", (MET*)&_met);
 	_tMeta->Branch("Meta", (MetaHiggs*)&_meta);
+    _tEvents->Branch("Auxiliary")(*m_aux);
 
 	//
 	//	Tags/Tokens
@@ -296,6 +300,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
         "tagElectronMVAHZZ_categories");
     _tagConversions = ps.getUntrackedParameter<edm::InputTag>(
         "tagConversions");
+    m_tagLHE = edm::InputTag("externalLHEProducer");
 
 	_tokGenInfo = consumes<GenEventInfoProduct>(
 		edm::InputTag("generator"));
@@ -351,6 +356,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
         _tagElectronMVAHZZ_categories);
     _tokConversions = mayConsume<reco::ConversionCollection>(
         _tagConversions);
+    m_tokLHE = consumes<LHEEventProduct>(m_tagLHE);
 
 	_meta._isMC = ps.getUntrackedParameter<bool>("isMC");
 	_meta._triggerNames = ps.getUntrackedParameter<std::vector<std::string> >(
@@ -480,6 +486,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 	_genHpostFSR.reset();
 	_track1HpostFSR.reset();
 	_track2HpostFSR.reset();
+    m_aux.reset();
 
     //
     // get the Jet Enetry Corrections
@@ -509,6 +516,33 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 		e.getByToken(_tokGenInfo, hGenEvtInfo);
 		_eaux._genWeight = (hGenEvtInfo->weight() > 0)? 1 : -1;
 		_meta._sumEventWeights += _eaux._genWeight;
+
+        // 
+        // LHE Event Product - to get the total HT
+        //
+        edm::Handle<LHEEventProduct> hLHE;
+        e.getByToken(m_tokLHE, hLHE);
+        for (unsigned i=0; i<(unsigned int)hLHE->hepeup().NUP; i++)
+        {
+            unsigned int pdgId = abs(hLHE->hepeup().IDUP[i]);
+            int status = hLHE->hepeup().ISTUP[i];
+            int mother1_idx = hLHE->hepeup().MOTHUP[i].first;
+            int mother2_idx = hLHE->hepeup().MOTHUP[i].second;
+            int mom1id = mother1_idx==0 ? 0 : abs(hLHE->hepeup().IDUP[mother1_idx-1]);
+            int mom2id = mother2_idx==0 ? 0 : abs(hLHE->hepeup().IDUP[mother2_idx-1]);
+            double px = (hLHE->hepeup().PUP[i])[0];
+            double py = (hLHE->hepeup().PUP[i])[1];
+            double pt = sqrt(px*px + py*py);
+
+            // select properly
+            if (status==1 && (pdgId<6 || pdgId==21) && mom1id!=6 && mom2id!=6 &&
+                mom1id!=24 && mom2id!=24 && mom1id!=23 && mom2id!=23 && mom1id!=25 && 
+                mom2id!=25)
+            {
+                m_aux.m_numHT++;
+                m_aux.m_ptSum += pt;
+            }
+        }
 
 		//
 		//	MC Truth

@@ -23,6 +23,7 @@
 #pragma link C++ class analysis::core::TestClass1+;
 #pragma link C++ class analysis::core::TestClass2+;
 #pragma link C++ class analysis::core::TestClass3+;
+#pragma link C++ class analysis::dimuon::Auxiliary+;
 
 #pragma link C++ class std::bitset<256>+;
 
