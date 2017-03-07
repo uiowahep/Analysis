@@ -92,6 +92,7 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 //	MY Classes
 #include "Analysis/Core/interface/GenJet.h"
@@ -137,7 +138,7 @@ class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
 		analysis::core::Vertices	_vertices;
 		analysis::core::Event		_event;
 		analysis::core::EventAuxiliary		_eaux;
-        analysis::core::Auxiliary m_aux;
+        analysis::dimuon::Auxiliary m_aux;
 		analysis::core::MET			_met;
 		analysis::core::GenJets		_genjets;
 
@@ -247,7 +248,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 	_tEvents->Branch("EventAuxiliary", (EventAuxiliary*)&_eaux);
 	_tEvents->Branch("MET", (MET*)&_met);
 	_tMeta->Branch("Meta", (MetaHiggs*)&_meta);
-    _tEvents->Branch("Auxiliary")(*m_aux);
+    _tEvents->Branch("Auxiliary", &m_aux);
 
 	//
 	//	Tags/Tokens

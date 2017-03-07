@@ -30,7 +30,7 @@ jsonfile = jsonfiles[jsontag]
 datasets = []
 sets_to_consider = Samples.mcMoriond2017datasets
 for k in sets_to_consider:
-    if "_M120_" in sets_to_consider[k].name or "_M130_" in sets_to_consider[k].name:
+    if "DYJetsToLL_M-50" in sets_to_consider[i].name:
         datasets.append(sets_to_consider[k])
 
 #   create the Ntuple objects for all of the datasets

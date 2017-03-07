@@ -56,4 +56,7 @@
 	<class name="edm::Wrapper<std::vector<analysis::core::Electron> >"/>
 			
 	<class name="analysis::dimuon::MetaHiggs"/>
+    <class name="edm::Wrapper<analysis::dimuon::MetaHiggs>"/>
+	<class name="analysis::dimuon::Auxiliary"/>
+    <class name="edm::Wrapper<analysis::dimuon::Auxiliary>"/>
 </lcgdict>

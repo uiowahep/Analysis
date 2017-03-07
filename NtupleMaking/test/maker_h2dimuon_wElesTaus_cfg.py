@@ -25,13 +25,15 @@ import NtupleProcessing.python.Dataset as DS
 
 #   example of how to get the dataset
 data_datasets = Samples.rerecoSep232016_datasets
-mc_datasets = Samples.mcMoriond2017datasets
+mc_datasets = Samples.mcMoriond2017_HTdatasets
 jsonfiles = Samples.jsonfiles
 jsontag = "2016_ReReco_36460"
 jsonfile = jsonfiles[jsontag]
 dataset = None
 #dataset = data_datasets["/SingleMuon/Run2016B-23Sep2016-v3/MINIAOD"]
-dataset = mc_datasets["/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
+#dataset = mc_datasets["/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
+#dataset = mc_datasets["/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM"]
+dataset = mc_datasets["/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
 
 if dataset==None:
     print "-"*40
@@ -63,6 +65,7 @@ if not thisIsData:
 else:
     process.load("Analysis.NtupleMaking.H2DiMuonMaker_Data")
 
+#process.ntuplemaker_H2DiMuonMaker.tagTriggerResults = cms.untracked.InputTag("TriggerResults", "", "HLT2")
 #
 #   Debug/Loggin
 #
@@ -81,7 +84,7 @@ print ""; print ""
 #
 #   Pool Source with proper LSs
 #
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source("PoolSource",fileNames = readFiles)
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
@@ -107,11 +110,12 @@ my_id_modules = [
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string("ntuples"+ntuple.label+".root") )
-#process.p = cms.Path(process.egmGsfElectronIDSequence * process.ntuplemaker_H2DiMuonMaker)
+process.TFileService = cms.Service("TFileService", 
+    fileName = cms.string("ntuples.root"))
+process.p = cms.Path(process.egmGsfElectronIDSequence * process.ntuplemaker_H2DiMuonMaker)
 
 process.out = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string("test.root")
 )
-process.finalize = cms.EndPath(process.out)
+#process.finalize = cms.EndPath(process.out)

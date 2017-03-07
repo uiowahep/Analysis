@@ -33,5 +33,6 @@ namespace
 		analysis::core::EventAuxiliaries dumm13;
         analysis::core::Taus dumm14;
         analysis::core::Electrons dumm15;
+		analysis::dimuon::Auxiliary dumm16;
 	};
 }

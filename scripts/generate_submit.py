@@ -17,7 +17,7 @@ def main():
 
     #   set the variables
     bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-8"
-    executable = os.path.join(bindir, "process_HiggsAnalysis_Run2Categorization")
+    executable = os.path.join(bindir, "process_HiggsAnalysis_Run1Categorization")
     batchSubmission = True
     storage = "EOS"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis"
@@ -28,7 +28,7 @@ def main():
     pileupdir = os.path.join(dirToUse, "pileup_moriond2017")
     mcera = "mcMoriond2017"
     import datetime
-    version = "vR2_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    version = "vR1_"+datetime.datetime.now().strftime("%Y%m%d_%H%M")
     dirToLaunchFrom = os.path.join(bindir, "submission"+"__"+version)
     if not os.path.exists(dirToLaunchFrom):
         os.system("mkdir %s" % dirToLaunchFrom)
@@ -70,11 +70,10 @@ def main():
     #
     descFile = open(os.path.join(dirToLaunchFrom, "description.desc"), "w")
     desc = """
-    Submitting Run 2 like Categorization/Analysis.
+    Submitting Run 1 like Categorization/Analysis.
     1) For 36fb^-1 for json file {jsonfile} ReReco
     2) {mcera} is the mcera being used
     3) {executable} is the executable used
-    4) No systematics - just analysis and categorization
     5) Ouput version is {version}
     """.format(jsonfile=jsonfile, mcera=mcera, executable=executable, version=version)
     descFile.write(desc)
