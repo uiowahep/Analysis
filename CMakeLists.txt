@@ -86,7 +86,6 @@ ROOT_GENERATE_DICTIONARY(G__Core
     ${PROJECT_SOURCE_DIR}/Core/interface/TestClass2.h
     ${PROJECT_SOURCE_DIR}/Core/interface/TestClass3.h
     ${PROJECT_SOURCE_DIR}/Core/interface/Root4jTestSet.h
-    ${PROJECT_SOURCE_DIR}/Core/interface/Auxiliary.h
 	LINKDEF ${PROJECT_SOURCE_DIR}/config/LinkDef.h
 	OPTIONS -DSTANDALONE=1
 )
@@ -99,11 +98,13 @@ set (EXTRA_LIBS ${EXTRA_LIBS} AnalysisCore)
 #
 ROOT_GENERATE_DICTIONARY(G__NtupleProcessing
 	${PROJECT_SOURCE_DIR}/NtupleProcessing/interface/Streamer.h
+    ${PROJECT_SOURCE_DIR}/NtupleProcessing/interface/RoccoR.h
 	LINKDEF ${PROJECT_SOURCE_DIR}/config/LinkDef.h
 	OPTIONS -DSTANDALONE=1
 )
 add_library(AnalysisNtupleProcessing SHARED 
-	${PROJECT_SOURCE_DIR}/NtupleProcessing/src/Streamer.cc 
+    ${PROJECT_SOURCE_DIR}/NtupleProcessing/src/Streamer.cc 
+    ${PROJECT_SOURCE_DIR}/NtupleProcessing/src/RoccoR.cc
 	G__NtupleProcessing.cxx
 )
 target_link_libraries(AnalysisNtupleProcessing ${ROOT_LIBRARIES})
