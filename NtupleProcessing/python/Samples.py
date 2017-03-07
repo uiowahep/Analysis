@@ -819,7 +819,12 @@ jsonfiles = {
     "2016_ReReco_36460" : DS.JsonFile(
         filename = "Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",
         intlumi = 36460.
-    )
+    ),
+    ## UF NTuple tag name, for easier human-readable tracking - AWB 23.02.17
+    "Moriond17_Feb08" : DS.JsonFile(
+        filename = "Moriond17_Feb08.txt", ## This is just a dummy file, not a real JSON
+        intlumi = 36460.
+        )
 }
 
 #

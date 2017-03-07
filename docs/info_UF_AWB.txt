@@ -1,0 +1,31 @@
+
+## Set up the code (see https://github.com/uiowahep/Analysis)
+git clone https://github.com/uiowahep/Analysis
+mkdir build
+mkdir build/test_1
+cd build/test_1
+cmake ../../Analysis
+cd ../../Analysis
+
+## Go into bash, source CMSSW
+exec /bin/bash
+eval `scramv1 runtime -sh`
+source $PWD/config/env.sh
+
+## Edit parameters for this particular job
+AuxTools/python/UF_AWB_settings.py
+
+## Convert UF files into Viktor's format
+python AuxTools/python/convert.py -m UF_AWB
+
+## Generate workspaces
+cd Modeling/higgs/
+python generate_signalFitsPlusWorkspaces.py -m UF_AWB
+python generate_bkgDataWorkspaces.py -m UF_AWB
+python generate_datacards.py -m UF_AWB
+
+## Run Combine commands
+## This step is still somewhat buggy ... scripts point to the wrong file locations
+cd ../../AuxTools/python/
+python generate_submitForCombine_UF_AWB.py
+

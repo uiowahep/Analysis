@@ -107,7 +107,7 @@ class PhysicsChannel:
         return [nameToUse, myId, 1]
 
     def buildRateUncertaintyVector(self):
-        return ["%f" % unc.valuesMap[self.mc.buildLabel()] for unc in self.uncs]
+        return ["%.3f" % unc.valuesMap[self.mc.buildLabel()] for unc in self.uncs]
 
 class BackgroundChannel:
     def __init__(self, modelName, uncertainties, **wargs):
