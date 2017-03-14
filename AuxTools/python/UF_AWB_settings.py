@@ -2,7 +2,7 @@
 ###########################
 ###  General settings  ###
 ###########################
-job_label = 'AWB_Mar03_test'
+job_label = 'AWB_Mar14_test_v1'
 UF_era    = 'Moriond17_Feb08'
 JSON      = 'Moriond17_Feb08.txt'
 analytic  = True
@@ -14,10 +14,10 @@ cmssws  = ['80X']
 pileups = ['69']
 
 signals = [ 'GluGlu_HToMuMu_M125_13TeV_powheg_pythia8',
-            'VBF_HToMuMu_M125_13TeV_powheg_pythia8',
-            'WMinusH_HToMuMu_M125_13TeV_powheg_pythia8',
-            'WPlusH_HToMuMu_M125_13TeV_powheg_pythia8',
-            'ZH_HToMuMu_M125_13TeV_powheg_pythia8' ]
+            'VBF_HToMuMu_M125_13TeV_powheg_pythia8' ]
+            # 'WMinusH_HToMuMu_M125_13TeV_powheg_pythia8',
+            # 'WPlusH_HToMuMu_M125_13TeV_powheg_pythia8',
+            # 'ZH_HToMuMu_M125_13TeV_powheg_pythia8' ]
 
 backgrounds = []
 
@@ -43,7 +43,7 @@ sig_modes    = ["Separate"]
 aux_params   = { "Polynomial" : {"degree" : 5},
                  "ExpGaus" : {},
                  "Bernstein" : {"degree": 5} }
-sig_M = [125, 115, 135, 118, 130]
+sig_M = [125, 110, 160, 118, 130]
 
 #####################################################################
 ###   Settings for Modeling/higgs/generate_bkgDataWorkspaces.py   ###
@@ -55,3 +55,10 @@ bkg_M = [ 91, 110, 160, 110, 160]
 ###   Settings for Modeling/higgs/generate_datacards.py   ###
 #############################################################
 datacards_dir = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/datacards/%s/%s' % (UF_era, job_label)
+
+#####################################################################
+###   Settings for Modeling/Modeling/combine/generate_submit.py   ###
+#####################################################################
+combine_dir   = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/combine_out/%s/%s' % (UF_era, job_label)
+combine_sub   = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/combine_sub/%s/%s' % (UF_era, job_label)
+combine_cmssw = '/afs/cern.ch/user/a/abrinke1/CMSSW_7_4_7/src'
