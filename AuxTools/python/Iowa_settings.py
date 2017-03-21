@@ -5,7 +5,7 @@ import ROOT as R
 ############################
 ###   General settings   ###
 ############################
-# job_label = 'AWB_Feb28_test'
+job_label = 'vR1_20170217_1742'
 # UF_era    = 'Moriond17_Feb08'
 JSON      = "Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
 analytic  = True
@@ -70,3 +70,13 @@ bkg_M =[ 91, 110, 160, 110, 160]  ## Central value, plot range, fit range
 datacards_dir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards"
 
 datacards_dir = os.path.join( datacardsDir, os.path.split(resultsdir)[1] + "__" + path_modifier)
+
+##########################################################
+###   Settings for Modeling/higgs/generate_limits.py   ###
+##########################################################
+combine_dir  = "/Users/vk/software/Analysis/files/higgs_analysis_files/combine_results/"
+combine_dir += "%s__%s/%s__%s__Mu24" % (job_label, path_modifier, cmssws[0], JSON.replace('.txt',''))
+limits_dir   = "/Users/vk/software/Analysis/files/higgs_analysis_files/limits/"
+limits_dir  += "%s__%s/%s__%s__Mu24" % (job_label, path_modifier, cmssws[0], JSON.replace('.txt',''))
+
+

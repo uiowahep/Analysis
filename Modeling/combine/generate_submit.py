@@ -16,50 +16,59 @@
 #
 
 import sys, os
-from Modeling.higgs.categories import *
 from Modeling.higgs.aux import *
+import argparse
+import AuxTools.python.common as CM
 
-#    "0bJets4lCombination" : ["0bJets4l2Mu1e", "0bJets4l3Mu1e",
-#        "0bJets4l2Mu2e", "0bJets4l3Mu0e", "0bJets4l4Mu0e"],
-#    "1bJetsCombination" : ["1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
-#        "1bJets3l", "1bJets2l"]
-#}
-#combinations["TotalCombinationNoVBFTight"] = combinations["2JetCombinationNoVBFTight"] + combinations["01JetCombination"] + combinations["0bJets4lCombination"] + combinations["1bJetsCombination"]
-#combinations["012JetCombination"] = combinations["2JetCombination"]+combinations["01JetCombination"]
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Verbose debugging output')
+parser.add_argument('-m', '--mode', type=str, default='Iowa', help='Run in Iowa, UF_AWB, or UF_AMC mode')
+args = parser.parse_args()
 
-pus = ["69"]
-version = "vR1_20170217_1742__TTJets_DiLept_TuneCUETP8M1_13TeV-" + \
-    "madgraphMLM-pythia8__allBkg"
-datacardsDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/datacards_and_workspaces"
-workspacesDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/datacards_and_workspaces"
-combineOutDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/combineOutDir"
-pathModifier = "80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24"
+if (args.mode == 'Iowa'):
+    from Modeling.higgs.categories import *
+    import AuxTools.python.Iowa_settings as SET
+if (args.mode == 'UF_AWB'):
+    from Modeling.higgs.categories_UF_AWB import *
+    import AuxTools.python.UF_AWB_settings as SET
+if (args.mode == 'UF_AMC'):
+    from Modeling.higgs.categories_UF_AMC import *
+    import AuxTools.python.UF_AMC_settings as SET
 
-fullDatacardsDir = os.path.join(datacardsDir,
-    version, pathModifier)
-fullCombineOutDir = os.path.join(combineOutDir,
-    version)
-mkdir(fullCombineOutDir)
-fullCombineOutDir = os.path.join(fullCombineOutDir, pathModifier)
-mkdir(fullCombineOutDir)
 
-submissionsDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/combineSubmissions"
-cmsswDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_7_4_9/src"
-submitFromDir = os.path.join(submissionsDir, version)
-mkdir(submitFromDir)
+pus      = SET.pileups
+cmsswDir = SET.combine_cmssw
+smode    = SET.sig_modes[0]
+mass     = SET.sig_M[0]
+joblist  = []
+if SET.analytic:
+    typesetting = "analytic"
 
-typesetting = "analytic"
-smode = "Separate"
-mass = 125
-joblist = []
+if 'UF' in args.mode:
+    fullDatacardsDir  = SET.datacards_dir
+    fullCombineOutDir = SET.combine_dir 
+    submitFromDir     = SET.combine_sub
+else:
+    version        = "%s__%s" % (SET.in_hist_dir.split('/')[-1], SET.path_modifier)
+    datacardsDir   = SET.workspaces_dir
+    combineOutDir  = SET.combine_dir
+    submissionsDir = SET.combine_sub
+    pathModifier   = "%s__%s__Mu24" % (SET.cmssws[0], SET.JSON.replace('.txt', ''))
 
-submitFromDir = os.path.join(submitFromDir, "%s__%s" % (typesetting, smode))
-mkdir(submitFromDir)
+    fullDatacardsDir  = os.path.join(datacardsDir, version, pathModifier)
+    fullCombineOutDir = os.path.join(combineOutDir, version)
+    fullCombineOutDir = os.path.join(fullCombineOutDir, pathModifier)
+    submitFromDir     = os.path.join(submissionsDir, version)
+    submitFromDir     = os.path.join(submitFromDir, "%s__%s" % (typesetting, smode))
+
+CM.mkdir(fullCombineOutDir)
+CM.mkdir(submitFromDir)
+
 
 #
 # explicitly list the category for combination and combinations themselves!
 #
-categories = run1CategoriesForCombination
+categories   = run1CategoriesForCombination
 combinations = combinationsRun1
 
 #
@@ -74,7 +83,7 @@ def main():
 def generate_template():
     for pu in pus:
         path_to_limits = limitsdir+"/%s"%pu
-        mkdir(path_to_limits)
+        CM.mkdir(path_to_limits)
         os.chdir(path_to_limits)
         generate_combination = True
         generate_separate = True
@@ -83,7 +92,7 @@ def generate_template():
         if generate_separate:
             for c in categories:
                 path_to_datacard = "%s/%s/datacard__%s__%s__%s.txt" % (datacardsdir,
-                    pu, typesetting, c, mass)
+                   pu, typesetting, c, mass)
                 outname_modifier = "%s__%s__%s" % (typesetting, c,
                     mass)
                 os.system("combine -M Asymptotic -m 125 -n %s %s" % (outname_modifier, 
@@ -119,26 +128,31 @@ def generate_template():
 #                outname_modifier, combdatacardname))
 
 def generate_analytic():
-    bmodel = "Bernstein"
-    smodels = ["SingleGaus", "DoubleGaus"]
-#    bmodels = ["ExpGaus", "Bernstein"]
+    bmodel  = SET.bkg_models[0]
+    smodels = SET.sig_models
 
     generate_combination=True
     generate_separate=True
-    jobid = 10
+    jobid = 0
     for smodel in smodels:
         for pu in pus:
             #
             # full path to our datacards
             #
-            pathFullDatacardsDir = os.path.join(fullDatacardsDir, pu)
-            mkdir (pathFullDatacardsDir)
+            if 'UF' in args.mode:
+                pathFullDatacardsDir = fullDatacardsDir
+            else:
+                pathFullDatacardsDir = os.path.join(fullDatacardsDir, pu)
+                CM.mkdir(pathFullDatacardsDir)
 
             #
             # full path to output files
             #
-            pathFullCombineOutDir = os.path.join(fullCombineOutDir, pu)
-            mkdir(pathFullCombineOutDir)
+            if 'UF' in args.mode:
+                pathFullCombineOutDir = fullCombineOutDir
+            else:
+                pathFullCombineOutDir = os.path.join(fullCombineOutDir, pu)
+                CM.mkdir(pathFullCombineOutDir)
 
             #
             # build launchers
@@ -147,6 +161,7 @@ def generate_analytic():
             launcher = open(os.path.join(submitFromDir, launcherName), "w")
             launcher.write("cd %s\n" % cmsswDir)
             launcher.write("eval `scramv1 runtime -sh`\n")
+            launcher.write("cd -\n")
             launcher.write("cd %s\n" % pathFullCombineOutDir)
 
             #
@@ -166,7 +181,8 @@ def generate_analytic():
                         outModifier, pathToDatacard)
                     launcher.write("%s\n%s\n" % (cmd1, cmd2))
             joblist.append("bsub -q 1nh -o {logfile} -e {errorfile} {launcherscript}".format(logfile=os.path.join(submitFromDir, "log_%d.log" % jobid), errorfile=os.path.join(submitFromDir, "error_%d.log" % jobid), launcherscript=os.path.join(submitFromDir, "launcher_%d.sh" % jobid)))
-            os.system("chmod 755 %s" % os.path.join(submitFromDir, launcherName))
+            os.system("chmod 755 %s\n" % os.path.join(submitFromDir, launcherName))
+            launcher.write("cd -\n")
             launcher.close()
             jobid+=1
 
@@ -177,6 +193,7 @@ def generate_analytic():
             launcher = open(os.path.join(submitFromDir, launcherName), "w")
             launcher.write("cd %s\n" % cmsswDir)
             launcher.write("eval `scramv1 runtime -sh`\n")
+            launcher.write("cd -\n")
             launcher.write("cd %s\n" % pathFullCombineOutDir)
         #   combination
             if not generate_combination: continue
@@ -223,7 +240,8 @@ def generate_analytic():
             # appending to the list of jobs to submit
             #
             joblist.append("bsub -q 1nh -o {logfile} -e {errorfile} {launcherscript}".format(logfile=os.path.join(submitFromDir, "log_%d.log" % jobid), errorfile=os.path.join(submitFromDir, "error_%d.log" % jobid), launcherscript=os.path.join(submitFromDir, "launcher_%d.sh" % jobid)))
-            os.system("chmod 755 %s" % os.path.join(submitFromDir, launcherName))
+            os.system("chmod 755 %s\n" % os.path.join(submitFromDir, launcherName))
+            launcher.write("cd -\n")
             launcher.close()
             jobid+=1
     submitterName = "submit.sh"

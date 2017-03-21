@@ -2,7 +2,7 @@
 ###########################
 ###  General settings  ###
 ###########################
-job_label = 'AWB_Mar14_test_v1'
+job_label = 'AWB_Mar21_test_v2'
 UF_era    = 'Moriond17_Feb08'
 JSON      = 'Moriond17_Feb08.txt'
 analytic  = True
@@ -14,10 +14,10 @@ cmssws  = ['80X']
 pileups = ['69']
 
 signals = [ 'GluGlu_HToMuMu_M125_13TeV_powheg_pythia8',
-            'VBF_HToMuMu_M125_13TeV_powheg_pythia8' ]
-            # 'WMinusH_HToMuMu_M125_13TeV_powheg_pythia8',
-            # 'WPlusH_HToMuMu_M125_13TeV_powheg_pythia8',
-            # 'ZH_HToMuMu_M125_13TeV_powheg_pythia8' ]
+            'VBF_HToMuMu_M125_13TeV_powheg_pythia8',
+            'WMinusH_HToMuMu_M125_13TeV_powheg_pythia8',
+            'WPlusH_HToMuMu_M125_13TeV_powheg_pythia8',
+            'ZH_HToMuMu_M125_13TeV_powheg_pythia8' ]
 
 backgrounds = []
 
@@ -25,7 +25,7 @@ backgrounds = []
 ######################################################
 ###   Settings for AuxTools/python/convert_UF.py   ###
 ######################################################
-orig_file    = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/validate_UNBLINDED_dimu_mass_PF_110_160_nolow_run1categories_36814.root'
+orig_file    = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories1_36814_dyMG.root'
 orig_sig_dir = 'signal_histos'
 
 ############################################################################
@@ -43,7 +43,7 @@ sig_modes    = ["Separate"]
 aux_params   = { "Polynomial" : {"degree" : 5},
                  "ExpGaus" : {},
                  "Bernstein" : {"degree": 5} }
-sig_M = [125, 110, 160, 118, 130]
+sig_M = [125, 110, 160, 112, 132]
 
 #####################################################################
 ###   Settings for Modeling/higgs/generate_bkgDataWorkspaces.py   ###
@@ -62,3 +62,8 @@ datacards_dir = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/datacards/%s/%s
 combine_dir   = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/combine_out/%s/%s' % (UF_era, job_label)
 combine_sub   = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/combine_sub/%s/%s' % (UF_era, job_label)
 combine_cmssw = '/afs/cern.ch/user/a/abrinke1/CMSSW_7_4_7/src'
+
+##########################################################
+###   Settings for Modeling/higgs/generate_limits.py   ###
+##########################################################
+limits_dir = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/limits/%s/%s' % (UF_era, job_label)

@@ -26,6 +26,23 @@ python generate_bkgDataWorkspaces.py -m UF_AWB
 python generate_datacards.py -m UF_AWB
 
 ## Run Combine commands
-## This step is still somewhat buggy ... scripts point to the wrong file locations
 cd ../combine/
 python generate_submit.py -m UF_AWB
+
+## Run limits
+cd /afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/combine_sub/Moriond17_Feb08/AWB_Mar21_test_v2/
+## Open last launcher_X.sh file
+##   * Replace all "combine -M Asymptotic" with "# combine -M Asymptotic"
+##   * Replace all "combine -M MaxLikelihoodFit" with "# combine -M MaxLikelihoodFit"
+## ./launcher_X.sh
+## Open combined datacards in /afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/combine_out/Moriond17_Feb08/AWB_Mar21_test_v2/
+##   * Replace all "/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/datacards/Moriond17_Feb08/AWB_Mar21_test_v2//" with "/"
+## Open last launcher_X.sh file
+##   * Replace all "# combine" with "combine"
+##   * Replace all "combineCards.py" with "# combineCards.py"
+## ./launcher_X.sh
+## cd -
+
+## Make combined limit plots
+cd ../higgs
+python generate_limits.py -m UF_AWB

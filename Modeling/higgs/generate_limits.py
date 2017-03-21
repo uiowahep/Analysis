@@ -3,23 +3,40 @@ import os, sys, subprocess, glob
 import models
 from categories import *
 from aux import *
+import argparse
+import AuxTools.python.common as CM
 
 R.gROOT.SetBatch(R.kTRUE)
 
-version = "vR1_20170217_1742__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__allBkg"
-pus = ["69"]
-smodels = ["SingleGaus", "DoubleGaus"]
-smodes = ["Separate"]
-type_modifier = "analytic"
-bmodel = "Bernstein"
-mass = "125"
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Verbose debugging output')
+parser.add_argument('-m', '--mode', type=str, default='Iowa', help='Run in Iowa, UF_AWB, or UF_AMC mode')
+args = parser.parse_args()
+
+if (args.mode == 'Iowa'):
+    from Modeling.higgs.categories import *
+    import AuxTools.python.Iowa_settings as SET
+if (args.mode == 'UF_AWB'):
+    from Modeling.higgs.categories_UF_AWB import *
+    import AuxTools.python.UF_AWB_settings as SET
+if (args.mode == 'UF_AMC'):
+    from Modeling.higgs.categories_UF_AMC import *
+    import AuxTools.python.UF_AMC_settings as SET
+
+pus       = SET.pileups
+smodels   = SET.sig_models
+smodes    = SET.sig_modes
+bmodel    = SET.bkg_models[0]
+type_mod  = 'analytic' if SET.analytic else 'templates'
+mass      = SET.sig_M[0]
 quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
 
 tail = "Asymptotic.mH%s.root" % mass
 head = "higgsCombine"
 
-categoriesToInclude = ["2JetsggF", "01JetsTightBarrel", "01JetsTightOther",
-    "01JetsLoose", "VBFTight", "Combination"]
+categoriesToInclude = run1CategoriesForCombination
+# categoriesToInclude = combinationsRun1
+
 
 def extractCategory(s):
     s = s.split("/")
@@ -44,24 +61,23 @@ def createLegend(n):
 
 def main():
     for pu in pus:
-        folder = "80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24"
-        combineOutputDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/combine_results/%s/%s/%s" % (version, folder, pu)
-        limitsDir = "/Users/vk/software/Analysis/files/higgs_analysis_files/limits"
-        limitsDir = os.path.join(limitsDir, version)
-        mkdir(limitsDir)
-        limitsDir = os.path.join(limitsDir, folder)
-        mkdir(limitsDir)
-        limitsDir = os.path.join(limitsDir, pu)
-        mkdir(limitsDir)
-        if type_modifier == "analytic":
+        if ('UF' in args.mode):
+            combineOutputDir = SET.combine_dir
+            limitsDir = SET.limits_dir
+        else:
+            combineOutputDir = SET.combine_dir+"/"+pu
+            limitsDir = SET.limits_dir+"/"+pu
+
+        CM.mkdir(limitsDir)
+        if type_mod == "analytic":
             for smodel in smodels:
                 for smode in smodes:
-                    filelist = glob.glob(combineOutputDir+"/*%s*%s*%s*%s*Asymptotic*.root" % (type_modifier, bmodel, smode, smodel))
+                    filelist = glob.glob(combineOutputDir+"/*%s*%s*%s*%s*Asymptotic*.root" % (type_mod, bmodel, smode, smodel))
                     print "generating limit for %s %s %s" % (smodel, smode, str(filelist))
                     generateLimit(filelist, combineOutputDir=combineOutputDir,
                         smode=smode, smodel=smodel, limitsDir=limitsDir)
         else:
-            filelist = glob.glob(combineOutputDir+"/*%s*Asymptotic*.root" % type_modifier)
+            filelist = glob.glob(combineOutputDir+"/*%s*Asymptotic*.root" % type_mod)
             generateLimit(filelist, combineOutputDir=combineOutputDir)
 
                 
@@ -69,7 +85,7 @@ def main():
 def generateLimit(filelist, **wargs):
     combineOutputDir = wargs["combineOutputDir"]
     limitsDir = wargs["limitsDir"]
-    if type_modifier=="analytic":
+    if type_mod=="analytic":
         smode = wargs["smode"]
         smodel = wargs["smodel"]
 
@@ -202,7 +218,7 @@ def generateLimit(filelist, **wargs):
     mg.Draw("AP2")
     mg.GetXaxis().SetRangeUser(0, 15)
 
-    if type_modifier=="analytic":
+    if type_mod=="analytic":
         mg.SetTitle("mH%s %s" % (mass, smodel))
     else:
         mg.SetTitle("Mass Higgs %s" % mass)
@@ -226,7 +242,7 @@ def generateLimit(filelist, **wargs):
     for i in range(n):
         title = titles[i]
         expLimit = expectedstr[i]
-        if type_modifier=="analytic":
+        if type_mod=="analytic":
             titleIndex = 0
             expLimitIndex = 0
 #            titleIndex = -20
@@ -248,16 +264,16 @@ def generateLimit(filelist, **wargs):
     line.SetLineColor(R.kBlack)
     line.DrawLine(-180, 5, 350, 5)
     import json
-    if type_modifier=="analytic":
+    if type_mod=="analytic":
         canvas.SaveAs(limitsDir+"/limits__%s__%s__%s__%s__%s.png" % (
-            type_modifier, mass, bmodel, smode, smodel))
+            type_mod, mass, bmodel, smode, smodel))
         json.dump(map_explimits, open(limitsDir+"/explimits__%s__%s__%s__%s__%s.json" % (
-            type_modifier, mass, bmodel, smode, smodel), "w"))
+            type_mod, mass, bmodel, smode, smodel), "w"))
     else:
         canvas.SaveAs(limitsDir+"/limits__%s__%s.png" % (
-            type_modifier, mass))
+            type_mod, mass))
         json.dump(map_explimits, open(limitsDir+"/explimits__%s__%s.json" % (
-            type_modifier, mass), "w"))
+            type_mod, mass), "w"))
 
 if __name__=="__main__":
     main()

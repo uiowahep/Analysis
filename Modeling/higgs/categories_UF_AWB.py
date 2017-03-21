@@ -13,44 +13,38 @@ varNames = ["DiMuonMass"]
 # Run 1 Categories list
 #
 
-## Small test sample
-run1Categories = ["01JetsTightBB", "01JetsLooseBB", "01JetsTightEE"]
-run1CategoriesForCombination = run1Categories
-combinationsRun1 = { "Combination" : run1CategoriesForCombination }
+# ## Small test sample
+# run1Categories = ["01JetsTightBB", "01JetsLooseBB", "01JetsTightEE"]
+# run1CategoriesForCombination = run1Categories
+# combinationsRun1 = { "Combination" : run1CategoriesForCombination }
 
 
-# ## Full list of categories
-# run1Categories = [
-#     # "NoCats", "2Jets", "01Jets", "VBFTight", "ggFTight",
-#     "VBFTight", "ggFTight", "ggFLoose", 
-#     "01JetsTightBB", "01JetsTightBO", "01JetsTightBE", 
-#     "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
-#     "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
-#     "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE"
-#     ]
+## Full list of categories
+run1Categories = [
+    # "NoCats", "2Jets", "01Jets", "VBFTight", "ggFTight",
+    "VBFTight", "ggFTight", "ggFLoose", 
+    "01JetsTightBB", "01JetsTightBO", "01JetsTightBE", 
+    "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
+    "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
+    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE"
+    ]
 
-# run1CategoriesForCombination = [
-#     "VBFTight", "ggFTight", "ggFLoose", 
-#     "01JetsTightBB", "01JetsTightBO", "01JetsTightBE", 
-#     "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
-#     "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
-#     "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE",
-#     ]
+run1CategoriesForCombination = [
+    "VBFTight", "ggFTight", "ggFLoose", 
+    "01JetsTightBB", "01JetsTightBO", "01JetsTightBE", 
+    "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
+    "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
+    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE",
+    ]
 
-# combinationsRun1 = {
-#     "2JetsComb"  : ["VBFTight", "ggFLoose", "ggFTight"],
-#     "01JetsComb" : ["01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
-#                     "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO",
-#                     "01JetsTightBB", "01JetsTightBE", "01JetsTightBO",
-#                     "01JetsTightEE", "01JetsTightOE", "01JetsTightOO"],
-#     "Combination" : run1CategoriesForCombination,
-#     "2JetsggF" : ["ggFLoose", "ggFTight"],
-#     "01JetsTightBarrel" : ["01JetsTightBB", "01JetsTightBO", "01JetsTightBE"],
-#     "01JetsTightOther" : ["01JetsTightOO", "01JetsTightOE", "01JetsTightEE"],
-#     "01JetsLoose" : ["01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
-#                      "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO"],
-#     }
-# combinationsRun1["CombNoVBFTight"] = combinationsRun1["2JetsggF"] + combinationsRun1["01JetsComb"]
+combinationsRun1 = {
+    "2JetsComb"  : ["VBFTight", "ggFLoose", "ggFTight"],
+    "01JetsTightCentral" : ["01JetsTightBB", "01JetsTightBO", "01JetsTightOO"],
+    "01JetsTightForward" : ["01JetsTightBE", "01JetsTightOE", "01JetsTightEE"],
+    "01JetsLoose" : ["01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
+                     "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO"],
+    "Combination" : run1CategoriesForCombination,
+    }
 
 
 #
