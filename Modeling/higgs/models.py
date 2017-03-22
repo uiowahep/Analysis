@@ -8,9 +8,11 @@ import sys, os
 #
 # Model
 #
-class Model:
+class Model(object):
     def __init__(self, **wargs):
+        object.__init__(self)
         self.wargs = wargs
+        self.modelId = self.__class__.__name__
 
     def build(self, ws, **wargs):
         return None
@@ -32,6 +34,9 @@ class Model:
 
     def getModelName(self):
         return self.modelName
+
+    def getModelId(self):
+        return self.modelId
 
 class SingleGaus(Model):
     def __init__(self, **wargs):
@@ -274,7 +279,7 @@ class TripleGaus(Model):
             const_parameters.find(normName))
         self.norm = ws.var(normName)
 
-    def setParameters_TripleGaus(self, ws, **wargs):
+    def setParameters(self, ws, **wargs):
         processName = self.wargs["processName"]
         norm = wargs["norm"]
         category = self.wargs["category"]
@@ -323,10 +328,66 @@ class ExpGaus(Model):
         if "noNorm" in wargs: return
         else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, 
             ndata, ndata/2, ndata*2))
+
+class BWZRedux(Model):
+    def __init__(self, **wargs):
+        Model.__init__(self, **wargs)
+        self.modelName = "bmodelBWZRedux_%s" % self.wargs["category"]
+
+    def build(self, ws, **wargs):
+        category = self.wargs["category"]
+        ws.factory("expr::bwzredux_f_{category}('(bwzredux_a2_{category}*(x/100)+bwzredux_a3_{category}*(x/100)^2)', x, bwzredux_a2_{category}, bwzredux_a3_{category})".format(
+            category=category))
+        ws.factory("EXPR::bmodelBWZRedux_{category}('exp(bwzredux_f_{category})*(2.5)/(pow(x-91.2, bwzredux_a1_{category}) + pow(2.5/2, bwzredux_a1_{category}))', x, bwzredux_a1_{category}, bwzredux_f_{category})".format(category=category))
+        return ws.pdf("bmodelBWZRedux_%s" % category)
+
+    def createParameters(self, ws, **wargs):
+        ndata = wargs["ndata"]
+        category = self.wargs["category"]
+        ws.factory("bwzredux_a1_%s[1.39, 0.7, 2.1]" % category)
+        ws.factory("bwzredux_a2_%s[0.47, 0.30, 0.62]" % category)
+        ws.factory("bwzredux_a3_%s[-0.26, -0.40, -0.12]" % category)
+        if "noNorm" in wargs: return
+        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, 
+            ndata, ndata/2, ndata*2))
+
+    def extractParameters(self, ws, fitws, **wargs):
+        pass
+
+class BWZGamma(Model):
+    def __init__(self, **wargs):
+        Model.__init__(self, **wargs)
+        self.modelName = "bmodelBWZGamma_%s" % self.wargs["category"]
+
+    def build(self, ws, **wargs):
+        category = self.wargs["category"]
+        ws.factory("EXPR::photonExp_{category}('exp(x*expParam_{category})*pow(x, -2)', x, expParam_{category})".format(category=category))
+        ws.factory("EXPR::bwExp_{category}('exp(x*expParam_{category})*zwidth_{category}/(pow(x-zmass_{category}, 2) + 0.25*pow(zwidth_{category},2))', x, zmass_{category}, zwidth_{category}, expParam_{category})".format(category=category))
+        ws.factory("SUM::bmodelBWZGamma_{category}(fraction_{category}*bwExp_{category}, photonExp_{category})".format(category=category))
+        return ws.pdf("bmodelBWZGamma_%s" % category)
+
+    def createParameters(self, ws, **wargs):
+        ndata = wargs["ndata"]
+        category = self.wargs["category"]
+        ws.factory('zwidth_%s[2.5,0,30]' % category)
+        ws.factory('zmass_%s[91.2, 90, 92]' % category)
+        ws.factory("expParam_%s[-0.0053, -0.0073, -0.0033]" % category)
+        ws.factory("fraction_%s[0.379, 0.2, 1]" % category)
+
+        ws.var("zwidth_%s" % category).setConstant(kTRUE)
+        ws.var("zmass_%s" % category).setConstant(kTRUE)
+        if "noNorm" in wargs: return
+        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, 
+            ndata, ndata/2, ndata*2))
+
+    def extractParameters(self, ws, fitws, **wargs):
+        pass
+
 class Bernstein(Model):
     def __init__(self, **wargs):
         Model.__init__(self, **wargs)
         self.modelName = "bmodelBernstein_%s" % self.wargs["category"]
+        self.modelId += "_%d" % self.wargs["degree"]
 
     def build(self, ws, **wargs):
         category = self.wargs["category"]
@@ -345,10 +406,104 @@ class Bernstein(Model):
         else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
             ndata*2))
 
+class SumExponentials(Model):
+    def __init__(self, **wargs):
+        Model.__init__(self, **wargs)
+        self.modelName = "bmodelSumExponentials_%s" % self.wargs["category"]
+        self.modelId += "_%d" % self.wargs["degree"]
+
+    def build(self, ws, **wargs):
+        category = self.wargs["category"]
+        degree = self.wargs["degree"]
+
+        acc = []
+        for i in range(degree):
+            ws.factory("expr::exp_{i}_{category}('beta_{i}_{category}*exp(alpha_{i}_{category}*x)', x, alpha_{i}_{category}, beta_{i}_{category})".format(i=i+1, category=category))
+            acc.append("exp_{i}_{category}".format(i=i+1, category=category))
+        resultSum = "+".join(acc)
+        resultComma = ",".join(acc)
+        ws.factory("EXPR::bmodelSumExponentials_{category}('{resultSum}', {resultComma})".format(category=category, resultSum=resultSum, resultComma=resultComma))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        category = self.wargs["category"]
+        degree = self.wargs["degree"]
+        ndata = wargs["ndata"]
+
+        for i in range(degree):
+            ws.factory("beta_%d_%s[10, -1000, 1000]" % (i+1, category))
+            ws.factory("alpha_%d_%s[1, -100, 100]" % (i+1, category))
+        if "noNorm" in wargs: return
+        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
+            ndata*2))
+
+class SumPowers(Model):
+    def __init__(self, **wargs):
+        Model.__init__(self, **wargs)
+        self.modelName = "bmodelSumPowers_%s" % self.wargs["category"]
+        self.modelId += "_%d" % self.wargs["degree"]
+
+    def build(self, ws, **wargs):
+        category = self.wargs["category"]
+        degree = self.wargs["degree"]
+        
+        acc = []
+        for i in range(degree):
+            ws.factory("expr::pol_{i}_{category}('b_{i}_{category}*pow(x, a_{i}_{category})', x, a_{i}_{category}, b_{i}_{category})".format(i=i+1, category=category))
+            acc.append("pol_{i}_{category}".format(i=i+1, category=category))
+        resultSum = "+".join(acc)
+        resultComma = ",".join(acc)
+        ws.factory("EXPR::bmodelSumPowers_{category}('{resultSum}', {resultComma})".format(category=category, resultSum=resultSum, resultComma=resultComma))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        category = self.wargs["category"]
+        degree = self.wargs["degree"]
+        ndata = wargs["ndata"]
+        
+        for i in range(degree):
+            ws.factory("b_%d_%s[10, -1000, 1000]" % (i+1, category))
+            ws.factory("a_%d_%s[1, -100, 100]" % (i+1, category))
+        if "noNorm" in wargs: return
+        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
+            ndata*2))
+
+class LaurentSeries(Model):
+    def __init__(self, **wargs):
+        Model.__init__(self, **wargs)
+        self.modelName = "bmodelLaurentSeries_%s" % self.wargs["category"]
+        self.exponents = [-4, -3, -5, -2, -6, -1, -7, 0, -8, 1, -9]
+        self.modelId += "_%d" % self.wargs["degree"]
+
+    def build(self, ws, **wargs):
+        category = self.wargs["category"]
+        degree = self.wargs["degree"]
+        
+        acc = []
+        for i in range(degree):
+            ws.factory("expr::lpol_{i}_{category}('lcoeff_{i}_{category}*pow(x, {exponent})', x, lcoeff_{i}_{category})".format(i=i+1, category=category, exponent=self.exponents[i]))
+            acc.append("lpol_{i}_{category}".format(i=i+1, category=category))
+        resultSum = "+".join(acc)
+        resultComma = ",".join(acc)
+        ws.factory("EXPR::bmodelLaurentSeries_{category}('{resultSum}', {resultComma})".format(category=category, resultSum=resultSum, resultComma=resultComma))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        category = self.wargs["category"]
+        degree = self.wargs["degree"]
+        ndata = wargs["ndata"]
+        
+        for i in range(degree):
+            ws.factory("lcoeff_%d_%s[10, -1000, 1000]" % (i+1, category))
+        if "noNorm" in wargs: return
+        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
+            ndata*2))
+
 class Polynomial(Model):
     def __init__(self, **wargs):
         Model.__init__(self, **wargs)
         self.modelName = "bmodelPolynomial_%s" % self.wargs["category"]
+        self.modelId += "_%d" % self.wargs["degree"]
 
     def build(self, ws, **wargs):
         category = self.wargs["category"]

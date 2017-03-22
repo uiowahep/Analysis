@@ -50,12 +50,42 @@ sig_fits_dir   = os.path.join( sig_fits_dir, os.path.split(in_hist_dir)[1] + "__
 
 scale_MC     = True
 sig_models   = ["SingleGaus", "DoubleGaus", "TripleGaus"]
-bkg_models   = ["ExpGaus", "Polynomial", "Bernstein"]
+bkg_models   = [
+    {"name" : "BWZRedux", "aux" : {}},
+    {"name" : "BWZGamma", "aux" : {}},
+    {"name" : "SumExponentials", "aux" : {"degree" : 1}},
+    {"name" : "SumExponentials", "aux" : {"degree" : 2}},
+    {"name" : "SumExponentials", "aux" : {"degree" : 3}},
+    {"name" : "SumExponentials", "aux" : {"degree" : 4}},
+    {"name" : "SumPowers", "aux" : {"degree" : 2}},
+    {"name" : "SumPowers", "aux" : {"degree" : 3}},
+    {"name" : "SumPowers", "aux" : {"degree" : 4}},
+    {"name" : "SumPowers", "aux" : {"degree" : 5}},
+    {"name" : "SumPowers", "aux" : {"degree" : 6}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 2}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 3}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 4}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 5}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 6}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 7}},
+
+    {"name" : "Polynomial", "aux" : {"degree" : 3}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 4}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 5}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 6}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 7}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 8}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 9}}, 
+    {"name" : "ExpGaus", "aux" : {}}, 
+    {"name" : "Bernstein", "aux" : {"degree" : 2}},
+    {"name" : "Bernstein", "aux" : {"degree" : 3}},
+    {"name" : "Bernstein", "aux" : {"degree" : 4}},
+    {"name" : "Bernstein", "aux" : {"degree" : 5}},
+    {"name" : "Bernstein", "aux" : {"degree" : 6}},
+    {"name" : "Bernstein", "aux" : {"degree" : 7}},
+    {"name" : "Bernstein", "aux" : {"degree" : 8}},
+]
 sig_modes    = ["Separate"]
-# sig_modes    = ["Separate", "Combined"]
-aux_params   = { "Polynomial" : {"degree" : 5},
-                 "ExpGaus" : {},
-                 "Bernstein" : {"degree": 5} }
 sig_M =[125, 110, 140, 115, 135]  ## Central value, plot range, fit range
 
 #####################################################################
@@ -69,7 +99,7 @@ bkg_M =[ 91, 110, 160, 110, 160]  ## Central value, plot range, fit range
 #############################################################
 datacards_dir = "/Users/vk/software/Analysis/files/higgs_analysis_files/datacards"
 
-datacards_dir = os.path.join( datacardsDir, os.path.split(resultsdir)[1] + "__" + path_modifier)
+datacards_dir = os.path.join( datacards_dir, os.path.split(in_hist_dir)[1] + "__" + path_modifier)
 
 ##########################################################
 ###   Settings for Modeling/higgs/generate_limits.py   ###

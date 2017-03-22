@@ -52,6 +52,14 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         print mcbg
         print mcsig
     shouldScale = wargs["shouldScale"]
+    auxParameters = wargs["auxParameters"]
+
+    #
+    # just Initialize the Bkg Model Class to get the ID to use!
+    #
+    bmodelklass = getattr(models, wargs["bmodel"])
+    bmodel = modelklass(category=category, **auxParameters)
+    bmodelId = model.getModelId()
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
@@ -92,7 +100,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             fileName = fullWorkspacesDir +\
                 "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
                     category,
-                    wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
+                    wargs["mass"], bmodelId, wargs["smode"], wargs["smodel"])
             wsFile = R.TFile(fileName, "UPDATE")
             ws = wsFile.Get("higgs")
             appending = True
@@ -170,7 +178,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
                 suffix = '%s_%s_%s.png' % (roo_hist.GetName(), category, wargs["smodel"])
             else:
                 suffix = '_%s__%s__%s__%s__%s__%s.png' % (roo_hist.GetName(), category, wargs["mass"], 
-                                                          wargs["bmodel"], wargs["smode"], wargs["smodel"])
+                                                          bmodelId, wargs["smode"], wargs["smodel"])
 
             r.Print("v")
             #s.plotOn(xframe, RooFit.DataError(RooAbsData.SumW2))
@@ -207,7 +215,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         #
         fileName = fullWorkspacesDir+\
             "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
-            category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
+            category, wargs["mass"], bmodelId, wargs["smode"], wargs["smodel"])
 
             
         if not appending:
@@ -296,8 +304,8 @@ if __name__=="__main__":
                     for cmssw in SET.cmssws:
                         for pu in SET.pileups:
                             generate( variables, (data, configs_bkgs["%s__%s" % (cmssw, pu)], configs_signals["%s__%s" % (cmssw, pu)]), 
-                                      analytic=1, smodel=smodel, bmodel=bmodel, smode=smode, mass=SET.sig_M[0], 
-                                      massmin=SET.sig_M[1], massmax=SET.sig_M[2], fitmin=SET.sig_M[3], fitmax=SET.sig_M[4], 
+                                      analytic=1, smodel=smodel, bmodel=bmodel["name"], smode=smode, mass=SET.sig_M[0], 
+                                      massmin=SET.sig_M[1], massmax=SET.sig_M[2], fitmin=SET.sig_M[3], fitmax=SET.sig_M[4], auxParameters=bmodel["aux"],
                                       shouldScale=SET.scale_MC, Verbose=args.verbose, UF=('UF' in args.mode) )
     else:
         for cmssw in SET.cmssws:

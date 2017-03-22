@@ -79,6 +79,13 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         mchsig = {}
         mcfsig = {}
         category = variable["fullpath"].split("/")[0]
+        
+        #
+        # Initialize the Model Class
+        #
+        modelklass = getattr(models, wargs["bmodel"])
+        model = modelklass(category=category, **auxParameters)
+        modelId = model.getModelId()
 
         #
         # Procedure:
@@ -115,7 +122,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             fileName = fullWorkspacesDir +\
                 "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
                     category, 
-                    wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
+                    wargs["mass"], modelId, wargs["smode"], wargs["smodel"])
             wsFile = R.TFile(fileName, "UPDATE")
             ws = wsFile.Get("higgs")
             # this will raise if there is no ws
@@ -146,10 +153,8 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         getattr(ws, "import")(roodata, RooCmdArg())
 
         #
-        # Create parameters for background
+        # Create parameters for background and create the actual pdf
         #
-        modelklass = getattr(models, wargs["bmodel"])
-        model = modelklass(category=category, **auxParameters)
         model.createParameters(ws, ndata=ndata)
         roomodel = model.build(ws)
         if wargs["Verbose"]: ws.Print("v")
@@ -178,14 +183,14 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         if wargs["UF"]:
             suffix = '%s_%s.png' % (category, wargs["bmodel"])
         else:
-            suffix = '_%s__%s__%s__%s__%s.png' % ( category, wargs["mass"], wargs["bmodel"],
+            suffix = '_%s__%s__%s__%s__%s.png' % ( category, wargs["mass"], modelId,
                                                    wargs["smode"], wargs["smodel"] )
 
         ccc.SaveAs(fullFitsDir+"/bkgfit_%s" % suffix)
 
         fileName = fullWorkspacesDir+\
             "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
-            category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
+            category, wargs["mass"], modelId, wargs["smode"], wargs["smodel"])
         if not appending:
             ws.SaveAs(fileName)
         else:
@@ -273,9 +278,9 @@ if __name__=="__main__":
                     for cmssw in SET.cmssws:
                         for pu in SET.pileups:
                             generate( variables, (data, configs_bkgs["%s__%s" % (cmssw, pu)], configs_signals["%s__%s" % (cmssw, pu)]),
-                                      analytic=1, smodel=smodel, bmodel=bmodel, smode=smode, mass=SET.sig_M[0], 
+                                      analytic=1, smodel=smodel, bmodel=bmodel["name"], smode=smode, mass=SET.sig_M[0], 
                                       massmin=SET.bkg_M[1], massmax=SET.bkg_M[2], fitmin=SET.sig_M[3], fitmax=SET.sig_M[4], 
-                                      shouldScale=SET.scale_MC, auxParameters=SET.aux_params[bmodel],
+                                      shouldScale=SET.scale_MC, auxParameters=bmodel["aux"],
                                       Verbose=args.verbose, UF=('UF' in args.mode) )
     else:
         for cmssw in SET.cmssws:

@@ -37,12 +37,42 @@ sig_fits_dir   = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits/sig_fits/%s/%s
 
 scale_MC     = False
 sig_models   = ["DoubleGaus"]
-# bkg_models   = ["ExpGaus", "Polynomial", "Bernstein"]
-bkg_models   = ["ExpGaus"]
+bkg_models = [
+    {"name" : "BWZRedux", "aux" : {}},
+    {"name" : "BWZGamma", "aux" : {}},
+    {"name" : "SumExponentials", "aux" : {"degree" : 1}},
+    {"name" : "SumExponentials", "aux" : {"degree" : 2}},
+    {"name" : "SumExponentials", "aux" : {"degree" : 3}},
+    {"name" : "SumExponentials", "aux" : {"degree" : 4}},
+    {"name" : "SumPowers", "aux" : {"degree" : 2}},
+    {"name" : "SumPowers", "aux" : {"degree" : 3}},
+    {"name" : "SumPowers", "aux" : {"degree" : 4}},
+    {"name" : "SumPowers", "aux" : {"degree" : 5}},
+    {"name" : "SumPowers", "aux" : {"degree" : 6}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 2}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 3}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 4}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 5}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 6}},
+    {"name" : "LaurentSeries", "aux" : {"degree" : 7}},
+
+    {"name" : "Polynomial", "aux" : {"degree" : 3}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 4}},
+    {"name" : "Polynomial", "aux" : {"degree" : 5}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 6}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 7}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 8}}, 
+    {"name" : "Polynomial", "aux" : {"degree" : 9}}, 
+    {"name" : "ExpGaus", "aux" : {}},
+    {"name" : "Bernstein", "aux" : {"degree" : 2}},
+    {"name" : "Bernstein", "aux" : {"degree" : 3}},
+    {"name" : "Bernstein", "aux" : {"degree" : 4}},
+    {"name" : "Bernstein", "aux" : {"degree" : 5}},
+    {"name" : "Bernstein", "aux" : {"degree" : 6}},
+    {"name" : "Bernstein", "aux" : {"degree" : 7}},
+    {"name" : "Bernstein", "aux" : {"degree" : 8}},
+]
 sig_modes    = ["Separate"]
-aux_params   = { "Polynomial" : {"degree" : 5},
-                 "ExpGaus" : {},
-                 "Bernstein" : {"degree": 5} }
 sig_M = [125, 110, 160, 112, 132]
 
 #####################################################################
