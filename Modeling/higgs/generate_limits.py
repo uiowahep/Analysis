@@ -1,7 +1,6 @@
 import ROOT as R
 import os, sys, subprocess, glob
 import models
-from categories import *
 from aux import *
 import argparse
 import AuxTools.python.common as CM
@@ -28,7 +27,7 @@ smodels   = SET.sig_models
 smodes    = SET.sig_modes
 bmodel    = SET.bkg_models[0]
 bmodelklass = getattr(models, bmodel["name"])
-bmodel = bmodelklass(category=category, **bmodel["aux"])
+bmodel = bmodelklass(category="", **bmodel["aux"])
 bmodelId = bmodel.getModelId()
 
 type_mod  = 'analytic' if SET.analytic else 'templates'
@@ -38,8 +37,8 @@ quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
 tail = "Asymptotic.mH%s.root" % mass
 head = "higgsCombine"
 
-categoriesToInclude = run1CategoriesForCombination
-# categoriesToInclude = combinationsRun1
+#categoriesToInclude = run1CategoriesForCombination
+categoriesToInclude = combinationsRun1
 
 
 def extractCategory(s):
@@ -96,6 +95,7 @@ def generateLimit(filelist, **wargs):
     limitMap = {}
     for s in filelist:
         category = extractCategory(s)
+	print category
         if category not in categoriesToInclude:
             continue
         print category

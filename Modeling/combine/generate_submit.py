@@ -19,7 +19,7 @@ import sys, os
 from Modeling.higgs.aux import *
 import argparse
 import AuxTools.python.common as CM
-import Modeling.higgs.models as models
+import Modeling.higgs.models
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Verbose debugging output')
@@ -130,10 +130,6 @@ def generate_template():
 
 def generate_analytic():
     bmodel  = SET.bkg_models[0]
-    bmodelklass = getattr(models, bmodel["name"])
-    bmodel = bmodelklass(category=category, **bmodel["aux"])
-    bmodelId = bmodel.getModelId()
-
     smodels = SET.sig_models
 
     generate_combination=True
@@ -174,6 +170,10 @@ def generate_analytic():
             # 
             if generate_separate:
                 for c in categories:
+		    print bmodel
+    		    bmodelklass = getattr(models, bmodel["name"])
+    		    bm = bmodelklass(category=c, **bmodel["aux"])
+    		    bmodelId = bm.getModelId()
                     pathToDatacard = os.path.join(pathFullDatacardsDir,
                         "datacard__%s__%s__%s__%s__%s__%s.txt" % (typesetting,
                         c, mass, bmodelId, smode, smodel)
@@ -203,6 +203,9 @@ def generate_analytic():
         #   combination
             if not generate_combination: continue
             for comb in combinations:
+    		bmodelklass = getattr(models, bmodel["name"])
+    		bm = bmodelklass(category=comb, **bmodel["aux"])
+    		bmodelId = bm.getModelId()
                 listDatacards = ""
                 #
                 # NOTE: Combined datacards will sit in the folder with results!
