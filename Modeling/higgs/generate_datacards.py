@@ -54,6 +54,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         print mcbg
         print mcsig
     shouldScale = wargs["shouldScale"]
+    auxParameters = wargs["auxParameters"]
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
@@ -80,6 +81,13 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         mcfsig = {}
         category = variable["fullpath"].split("/")[0]
 
+        #
+        # Initialize the Model Class
+        #
+        bmodelklass = getattr(models, wargs["bmodel"])
+        bmodel = bmodelklass(category=category, **auxParameters)
+        bmodelId = bmodel.getModelId()
+
         signalChannels = []
         iii = 0
         for mc in mcsig:
@@ -88,19 +96,18 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
             signalChannels.append(chl)
             iii+=1
 
-        pathToWorkspaceFile = fullWorkspacesDir + "/" + \
-            "workspace__analytic__%s__%s__%s__%s__%s.root" % (
-                category, wargs["mass"], wargs["bmodel"], 
+        pathToWorkspaceFile = "workspace__analytic__%s__%s__%s__%s__%s.root" % (
+                category, wargs["mass"], bmodelId, 
                 wargs["smode"], wargs["smodel"])
         bkgchl = BackgroundChannel(wargs["bmodel"], uncertaintiesToUse, myId=1,
-            category=category)
+            category=category, modelAux=auxParameters)
         card = Datacard(category, signalChannels, bkgchl, data, 
             pathToWorkspaceFile=pathToWorkspaceFile)
         stringCard = card.build()
 
         fileName = fullDatacardsDir+\
             "/datacard__analytic__%s__%s__%s__%s__%s.txt" % (
-            category, wargs["mass"], wargs["bmodel"], wargs["smode"], wargs["smodel"])
+            category, wargs["mass"], bmodelId, wargs["smode"], wargs["smodel"])
         f = open(fileName, "w")
         f.write(stringCard)
         print 'Wrote out datacard %s' % fileName
@@ -174,12 +181,14 @@ if __name__=="__main__":
     if SET.analytic:
         for smodel in SET.sig_models:
             for smode in SET.sig_modes:
-                for cmssw in SET.cmssws:
-                    for pu in SET.pileups:
-                        generate( variables, (data, configs_bkgs["%s__%s" % (cmssw, pu)], configs_signals["%s__%s" % (cmssw, pu)]), 
-                                  analytic=1, smodel=smodel, bmodel="ExpGaus", smode=smode, mass=SET.sig_M[0], 
+                for bmodel in SET.bkg_models:
+                    for cmssw in SET.cmssws:
+                        for pu in SET.pileups:
+                            generate( variables, (data, configs_bkgs["%s__%s" % (cmssw, pu)], configs_signals["%s__%s" % (cmssw, pu)]), 
+                                  analytic=1, smodel=smodel, bmodel=bmodel["name"], smode=smode, mass=SET.sig_M[0], 
                                   massmin=SET.bkg_M[1], massmax=SET.bkg_M[2], fitmin=SET.sig_M[3], fitmax=SET.sig_M[4], 
-                                  shouldScale=SET.scale_MC, Verbose=args.verbose, UF=('UF' in args.mode) )
+                                  shouldScale=SET.scale_MC, auxParameters=bmodel["aux"],
+                                  Verbose=args.verbose, UF=('UF' in args.mode) )
     else:
         for cmssw in SET.cmssws:
             for pu in SET.pileups:

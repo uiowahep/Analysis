@@ -19,6 +19,7 @@ import sys, os
 from Modeling.higgs.aux import *
 import argparse
 import AuxTools.python.common as CM
+import Modeling.higgs.models as models
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Verbose debugging output')
@@ -129,6 +130,10 @@ def generate_template():
 
 def generate_analytic():
     bmodel  = SET.bkg_models[0]
+    bmodelklass = getattr(models, bmodel["name"])
+    bmodel = bmodelklass(category=category, **bmodel["aux"])
+    bmodelId = bmodel.getModelId()
+
     smodels = SET.sig_models
 
     generate_combination=True
@@ -171,10 +176,10 @@ def generate_analytic():
                 for c in categories:
                     pathToDatacard = os.path.join(pathFullDatacardsDir,
                         "datacard__%s__%s__%s__%s__%s__%s.txt" % (typesetting,
-                        c, mass, bmodel, smode, smodel)
+                        c, mass, bmodelId, smode, smodel)
                     )
                     outModifier = "%s__%s__%s__%s__%s__%s" % (typesetting, c,
-                        mass, bmodel, smode, smodel)
+                        mass, bmodelId, smode, smodel)
                     cmd1 = "combine -M Asymptotic -m 125 -n %s %s" % (outModifier, 
                         pathToDatacard)
                     cmd2 = "combine -M MaxLikelihoodFit -m 125 -n %s %s" % (
@@ -204,13 +209,13 @@ def generate_analytic():
                 #
                 pathToCombinedDatacard = os.path.join(pathFullCombineOutDir,
                     "datacard__%s__%s__%s__%s__%s__%s.txt" % (
-                    typesetting, comb, mass, bmodel, smode, smodel))
+                    typesetting, comb, mass, bmodelId, smode, smodel))
                 outModifier = "%s__%s__%s__%s__%s__%s" % (typesetting, comb,
-                    mass, bmodel, smode, smodel)
+                    mass, bmodelId, smode, smodel)
                 for cat in combinations[comb]:
                     pathToDatacard = os.path.join(pathFullDatacardsDir,
                         "datacard__%s__%s__%s__%s__%s__%s.txt" % (
-                        typesetting, cat, mass, bmodel, smode, smodel))
+                        typesetting, cat, mass, bmodelId, smode, smodel))
                     listDatacards += "  {name}={path_to_datacard}".format(
                         name=("bin"+cat), path_to_datacard=pathToDatacard)
 

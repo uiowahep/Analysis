@@ -112,6 +112,7 @@ class PhysicsChannel:
 class BackgroundChannel:
     def __init__(self, modelName, uncertainties, **wargs):
         self.modelName = modelName
+        self.modelAux = wargs["modelAux"]
         self.wargs = wargs
         self.uncs = uncertainties
 
@@ -119,7 +120,7 @@ class BackgroundChannel:
         category = self.wargs["category"]
         myId = self.wargs["myId"]
         modelklass = getattr(models, self.modelName)
-        model = modelklass(category=category)
+        model = modelklass(category=category, **self.modelAux)
 
         nameToUse = model.getModelName()
 

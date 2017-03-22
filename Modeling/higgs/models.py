@@ -431,8 +431,8 @@ class SumExponentials(Model):
         ndata = wargs["ndata"]
 
         for i in range(degree):
-            ws.factory("beta_%d_%s[10, -1000, 1000]" % (i+1, category))
-            ws.factory("alpha_%d_%s[1, -100, 100]" % (i+1, category))
+            ws.factory("beta_%d_%s[10, -1000000, 1000000]" % (i+1, category))
+            ws.factory("alpha_%d_%s[1, -20, 20]" % (i+1, category))
         if "noNorm" in wargs: return
         else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
             ndata*2))
@@ -462,8 +462,8 @@ class SumPowers(Model):
         ndata = wargs["ndata"]
         
         for i in range(degree):
-            ws.factory("b_%d_%s[10, -1000, 1000]" % (i+1, category))
-            ws.factory("a_%d_%s[1, -100, 100]" % (i+1, category))
+            ws.factory("b_%d_%s[10, -100000000, 10000000]" % (i+1, category))
+            ws.factory("a_%d_%s[1, -20, 20]" % (i+1, category))
         if "noNorm" in wargs: return
         else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
             ndata*2))
@@ -518,7 +518,7 @@ class Polynomial(Model):
         degree = self.wargs["degree"]
         ndata = wargs["ndata"]
         for deg in range(1, degree+1):
-            ws.factory("p{deg}_{category}[10, -1000, 1000]".format(category=category,
+            ws.factory("p{deg}_{category}[10, -10000000, 10000000]".format(category=category,
                 deg=deg))
         if "noNorm" in wargs: return
         else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,

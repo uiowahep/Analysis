@@ -54,13 +54,6 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     shouldScale = wargs["shouldScale"]
     auxParameters = wargs["auxParameters"]
 
-    #
-    # just Initialize the Bkg Model Class to get the ID to use!
-    #
-    bmodelklass = getattr(models, wargs["bmodel"])
-    bmodel = modelklass(category=category, **auxParameters)
-    bmodelId = model.getModelId()
-
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
     if wargs["UF"]:
@@ -86,6 +79,13 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         mchsig = {}
         mcfsig = {}
         category = variable["fullpath"].split("/")[0]
+    
+        #
+        # just Initialize the Bkg Model Class to get the ID to use!
+        #
+        bmodelklass = getattr(models, wargs["bmodel"])
+        bmodel = bmodelklass(category=category, **auxParameters)
+        bmodelId = bmodel.getModelId()
 
         #
         # initialize the workspace
@@ -259,7 +259,7 @@ if __name__=="__main__":
 
     configs_signals = {}
     configs_bkgs = {}
-    shouldScale = False
+    shouldScale = SET.scale_MC
     for cmssw in SET.cmssws:
         for pu in SET.pileups:
             oneconfig_signals = []
