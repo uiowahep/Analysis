@@ -27,6 +27,10 @@ pus       = SET.pileups
 smodels   = SET.sig_models
 smodes    = SET.sig_modes
 bmodel    = SET.bkg_models[0]
+bmodelklass = getattr(models, bmodel["name"])
+bmodel = bmodelklass(category=category, **bmodel["aux"])
+bmodelId = bmodel.getModelId()
+
 type_mod  = 'analytic' if SET.analytic else 'templates'
 mass      = SET.sig_M[0]
 quantiles = [-1.0, 0.16, 0.84, 0.025, 0.975, 0.5]
@@ -72,7 +76,7 @@ def main():
         if type_mod == "analytic":
             for smodel in smodels:
                 for smode in smodes:
-                    filelist = glob.glob(combineOutputDir+"/*%s*%s*%s*%s*Asymptotic*.root" % (type_mod, bmodel, smode, smodel))
+                    filelist = glob.glob(combineOutputDir+"/*%s*%s*%s*%s*Asymptotic*.root" % (type_mod, bmodelId, smode, smodel))
                     print "generating limit for %s %s %s" % (smodel, smode, str(filelist))
                     generateLimit(filelist, combineOutputDir=combineOutputDir,
                         smode=smode, smodel=smodel, limitsDir=limitsDir)
@@ -266,9 +270,9 @@ def generateLimit(filelist, **wargs):
     import json
     if type_mod=="analytic":
         canvas.SaveAs(limitsDir+"/limits__%s__%s__%s__%s__%s.png" % (
-            type_mod, mass, bmodel, smode, smodel))
+            type_mod, mass, bmodelId, smode, smodel))
         json.dump(map_explimits, open(limitsDir+"/explimits__%s__%s__%s__%s__%s.json" % (
-            type_mod, mass, bmodel, smode, smodel), "w"))
+            type_mod, mass, bmodelId, smode, smodel), "w"))
     else:
         canvas.SaveAs(limitsDir+"/limits__%s__%s.png" % (
             type_mod, mass))
