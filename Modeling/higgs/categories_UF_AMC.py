@@ -1,49 +1,25 @@
+import AuxTools.python.UF_AMC_settings as SET
+from itertools import izip
 
-#
-# all the standard variable names
-#
-
-# varNames = [
-#     "DiJetMass", "DiJetdeta", "DiMuonpt", "DiMuonMass",
-#     "DiMuoneta", "DiMuondphi", "Muonpt", "Muoneta", "Muonphi"
-# ]
 varNames = ["DiMuonMass"]
 
 #
 # Run 1 Categories list
 #
 
-# ## Small test sample
-# run1Categories = ["01JetsTightBB", "01JetsLooseBB", "01JetsTightEE"]
-# run1CategoriesForCombination = run1Categories
-# combinationsRun1 = { "Combination" : run1CategoriesForCombination }
-
-
 ## Full list of categories
-run1Categories = [
-    # "NoCats", "2Jets", "01Jets", "VBFTight", "ggFTight",
-    "VBFTight", "ggFTight", "ggFLoose", 
-    "01JetsTightBB", "01JetsTightBO", "01JetsTightBE", 
-    "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
-    "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
-    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE"
-    ]
+run1Categories = SET.out_category_names
 
-run1CategoriesForCombination = [
-    "VBFTight", "ggFTight", "ggFLoose", 
-    "01JetsTightBB", "01JetsTightBO", "01JetsTightBE", 
-    "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
-    "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
-    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE",
-    ]
+## list of categories to make datacards and workspaces for
+run1CategoriesForCombination = SET.out_category_names
+
+## sets of combined limits to produce
+#clist = SET.out_category_names[:]
+#combinationsRun1 = dict(izip(SET.out_category_names, clist))
+#combinationsRun1["Combination"] = run1CategoriesForCombination
 
 combinationsRun1 = {
-    "2JetsComb"  : ["VBFTight", "ggFLoose", "ggFTight"],
-    "01JetsTightCentral" : ["01JetsTightBB", "01JetsTightBO", "01JetsTightOO"],
-    "01JetsTightForward" : ["01JetsTightBE", "01JetsTightOE", "01JetsTightEE"],
-    "01JetsLoose" : ["01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
-                     "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO"],
-    "Combination" : run1CategoriesForCombination,
+    "Combination" : run1CategoriesForCombination
     }
 
 
