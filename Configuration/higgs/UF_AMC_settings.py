@@ -1,3 +1,5 @@
+from itertools import izip
+import ROOT as R
 
 ###########################
 ###  General settings  ###
@@ -21,12 +23,61 @@ signals = [ 'GluGlu_HToMuMu_M125_13TeV_powheg_pythia8',
 
 backgrounds = []
 
-
 ######################################################
 ###   Settings for AuxTools/python/convert_UF.py   ###
 ######################################################
-orig_file    = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories1_36814_dyMG.root'
+
+# combined limit of ~2.21
+#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories1_36814_dyMG.root'
+
+# combined limit of ~ 2.00
+#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg200_36814_dyMG.root'        # !!!
+#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg100_scale1_36814_dyMG.root' # !!!
+#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg50_scale1_36814_dyMG.root'  # !!!
+
+# combined limit of ~ 2.03
+#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg500_36814_dyMG.root'        # !!!
+#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg500_scale1_36814_dyMG.root'
+#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg200_scale1_36814_dyMG.root'
+#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg100_36814_dyMG.root'
+#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg50_36814_dyMG.root'
+
+orig_file    = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/%s' % orig_filename
 orig_sig_dir = 'signal_histos'
+
+#####################################################
+###   Categories                                  ###
+#####################################################
+
+in_category_names = []
+out_category_names = []
+
+in_file = R.TFile(orig_file)
+stacks_dir = in_file.GetDirectory("stacks")
+
+i = 0
+for key in stacks_dir.GetListOfKeys():
+    name = key.GetName()
+    name = name.replace("_stack", "")
+    if name == "c_ALL" or name == "c_01_Jet" or name == "c_2_Jet" or name == "c_01_Jet_Tight" or name == "c_01_Jet_Loose": 
+        continue
+    if "T_" != name[0:2] and "tree" in orig_filename:
+        continue
+    if "tree" in orig_filename:
+        out_category_names.append("c" + str(i))
+        i+=1
+    in_category_names.append(name)
+
+if "tree" not in orig_filename: 
+    out_category_names = in_category_names
+
+in_to_out_category_map = dict(izip(in_category_names, out_category_names))
+
+#print in_category_names
+#print ""
+#print out_category_names
+#print ""
+#print in_to_out_category_map
 
 ############################################################################
 ###   Settings for Modeling/higgs/generate_signalFitsPlusWorkspaces.py   ###
@@ -37,10 +88,12 @@ sig_fits_dir   = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/out/si
 
 scale_MC     = False
 sig_models   = ["DoubleGaus"]
+#sig_models   = ["SingleGaus", "DoubleGaus", "TripleGaus"]
 sig_modes    = ["Separate"]
+#sig_modes    = ["Combined"]
 
 bkg_models = [
-    #{"name" : "BWZRedux", "aux" : {}}, 
+    {"name" : "BWZRedux", "aux" : {}} 
     #{"name" : "BWZGamma", "aux" : {}},
     #{"name" : "SumExponentials", "aux" : {"degree" : 1}},
     #{"name" : "SumExponentials", "aux" : {"degree" : 2}},
@@ -69,7 +122,7 @@ bkg_models = [
     #{"name" : "Bernstein", "aux" : {"degree" : 2}},
     #{"name" : "Bernstein", "aux" : {"degree" : 3}},
     #{"name" : "Bernstein", "aux" : {"degree" : 4}},
-    {"name" : "Bernstein", "aux" : {"degree" : 5}}
+    #{"name" : "Bernstein", "aux" : {"degree" : 5}}
     #{"name" : "Bernstein", "aux" : {"degree" : 6}},
     #{"name" : "Bernstein", "aux" : {"degree" : 7}},
     #{"name" : "Bernstein", "aux" : {"degree" : 8}},
