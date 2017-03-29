@@ -19,7 +19,7 @@ import NtupleProcessing.python.Samples as Samples
 import NtupleProcessing.python.Dataset as DS
 
 config_filename = "maker_h2dimuon_wElesTaus_cfg_crabtemplate.py"
-mcEOSFolder = "/mcMoriond2017"
+mcEOSFolder = "/mcDYHT"
 
 #   get the json file to be used if needed
 jsonfiles = Samples.jsonfiles
@@ -30,7 +30,7 @@ jsonfile = jsonfiles[jsontag]
 datasets = []
 sets_to_consider = Samples.mcMoriond2017datasets
 for k in sets_to_consider:
-    if "DYJetsToLL_M-50" in sets_to_consider[i].name:
+    if "DYJetsToLL_M-50" in sets_to_consider[k].name:
         datasets.append(sets_to_consider[k])
 
 #   create the Ntuple objects for all of the datasets
@@ -57,6 +57,7 @@ for d in datasets:
 
 #   iterate/generate/commit and create config files
 print "Generating Config Files..."
+cccc = 0;
 for s in samples:
 
     "Generating...."
@@ -111,7 +112,7 @@ for s in samples:
             line = line.replace('#', '')
             line = line.replace('JSONFILE', "json/"+s.json)
         if "REQUESTNAME" in line:
-                line = line.replace("REQUESTNAME", Samples.buildRequestName(s, jsontag))
+                line = line.replace("REQUESTNAME", Samples.buildRequestName(s, jsontag) + "__%s" % cccc)
         if 'DATASETTAGNAME' in line: 
             datasettag = Samples.buildDatasetTagName(s)
             line = line.replace('DATASETTAGNAME', datasettag)
@@ -123,8 +124,9 @@ for s in samples:
             if s.isData:
                 line = line.replace("JOBUNITS", "200")
             else:
-                line = line.replace("JOBUNITS", "40")
+                line = line.replace("JOBUNITS", "10")
         outfile.write(line)
     
     outfile.close()
     file.close()
+    cccc+=1

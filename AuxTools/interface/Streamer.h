@@ -4,8 +4,8 @@
  *	Description:
  */
 
-#ifndef Analysis_NtupleProcessing_Streamer_h
-#define Analysis_NtupleProcessing_Streamer_h
+#ifndef Analysis_AuxTools_Streamer_h
+#define Analysis_AuxTools_Streamer_h
 
 #ifdef STANDALONE
 

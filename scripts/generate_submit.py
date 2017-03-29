@@ -7,16 +7,11 @@ def main():
     print (" "*40)+"SET UP"+(" "*40)
     print "-"*80
 
-    #   do the Framework imports
-    if "ANALYSISHOME" not in os.environ.keys():
-        raise NameError("Can not find ANALYSISHOME env var")
-    sys.path.append(os.environ["ANALYSISHOME"])
-    sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "NtupleProcessing/python"))
-    import NtupleProcessing.python.Samples as S
-    import NtupleProcessing.python.Dataset as DS
+    import Configuration.higgs.Samples as S
+    import Configuration.higgs.Dataset as DS
 
     #   set the variables
-    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-8"
+    bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-29032017"
     executable = os.path.join(bindir, "process_HiggsAnalysis_Run1Categorization")
     batchSubmission = True
     storage = "EOS"
@@ -57,7 +52,7 @@ def main():
     print (" "*40)+"SET UP Ntuples"+(" "*40)
     print "-"*80
     data_datasets = S.rerecoSep232016_datasets
-    mc_datasets = S.mcMoriond2017datasets
+    mc_datasets = S.mcMoriond2017datasets_1
     jsonfiles = S.jsonfiles
     jsontag = "2016_ReReco_36460"
     jsonfile = jsonfiles[jsontag]
@@ -119,7 +114,7 @@ def main():
     print data_ntuples
     print mc_ntuples
     ntuples = []
-    ntuples.extend(data_ntuples)
+#    ntuples.extend(data_ntuples)
     ntuples.extend(mc_ntuples)
 
     #

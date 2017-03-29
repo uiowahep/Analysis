@@ -6,14 +6,11 @@ def main():
     print "-"*80
     print (" "*40)+"SET UP"+(" "*40)
     print "-"*80
-
-    #   do the Framework imports
-    if "ANALYSISHOME" not in os.environ.keys():
-        raise NameError("Can not find ANALYSISHOME env var")
-    sys.path.append(os.environ["ANALYSISHOME"])
-    sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "NtupleProcessing/python"))
-    import NtupleProcessing.python.Samples as S
-    import NtupleProcessing.python.Dataset as DS
+    
+    import Configuration.higgs.Samples as S
+    import Configuration.higgs.Dataset as DS
+#    import Configuration.higgs.Samples as S
+#    import Configuration.higgs.Dataset as DS
 
     #   set the variables
     executable = os.path.join(os.environ["ANALYSISHOME"], "process_HiggsAnalysis")
@@ -22,7 +19,7 @@ def main():
     cmsswsrcdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis"
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
-    executable = os.path.join(dirToUse, "bin/build-8", "generate_PUMCFiles")
+    executable = os.path.join(dirToUse, "bin/build-29032017", "generate_PUMCFiles")
     analysisHome = os.environ["ANALYSISHOME"]
     shouldGenPUMC = 1
     filelistdir = os.path.join(dirToUse, "filelists")
@@ -46,7 +43,7 @@ def main():
     print "-"*80
     print (" "*40)+"SET UP Ntuples"+(" "*40)
     print "-"*80
-    mc_datasets = S.mcMoriond2017datasets
+    mc_datasets = S.mcMoriond2017datasets_1
     mc_ntuples = []
     cmssw = "80X"
     for k in mc_datasets:
