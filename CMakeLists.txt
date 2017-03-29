@@ -60,7 +60,6 @@ set (EXTRA_LIBS ${EXTRA_LIBS} ${ROOT_LIBRARIES})
 #	add the includes to the search path
 #
 include_directories ("${PROJECT_SOURCE_DIR}/Core/interface")
-include_directories ("${PROJECT_SOURCE_DIR}/NtupleProcessing/interface")
 include_directories ("${PROJECT_SOURCE_DIR}/AuxTools/interface")
 include_directories ("${PROJECT_SOURCE_DIR}/Drivers/interface")
 
@@ -96,19 +95,17 @@ set (EXTRA_LIBS ${EXTRA_LIBS} AnalysisCore)
 #
 #	Add Ntuple Processing as shared lib but compiled as a ROOT dictionary
 #
-ROOT_GENERATE_DICTIONARY(G__NtupleProcessing
-	${PROJECT_SOURCE_DIR}/NtupleProcessing/interface/Streamer.h
-    ${PROJECT_SOURCE_DIR}/NtupleProcessing/interface/RoccoR.h
+ROOT_GENERATE_DICTIONARY(G__AuxTools
+    ${PROJECT_SOURCE_DIR}/AuxTools/interface/Streamer.h
 	LINKDEF ${PROJECT_SOURCE_DIR}/config/LinkDef.h
 	OPTIONS -DSTANDALONE=1
 )
-add_library(AnalysisNtupleProcessing SHARED 
-    ${PROJECT_SOURCE_DIR}/NtupleProcessing/src/Streamer.cc 
-    ${PROJECT_SOURCE_DIR}/NtupleProcessing/src/RoccoR.cc
-	G__NtupleProcessing.cxx
+add_library(AnalysisAuxTools SHARED 
+    ${PROJECT_SOURCE_DIR}/AuxTools/src/Streamer.cc 
+    G__AuxTools.cxx
 )
-target_link_libraries(AnalysisNtupleProcessing ${ROOT_LIBRARIES})
-set (EXTRA_LIBS ${EXTRA_LIBS} AnalysisNtupleProcessing)
+target_link_libraries(AnalysisAuxTools ${ROOT_LIBRARIES})
+set (EXTRA_LIBS ${EXTRA_LIBS} AnalysisAuxTools)
 
 #
 #	Add the headers to compile against
@@ -154,4 +151,3 @@ file (COPY ${ALL_SCRIPTS} DESTINATION ${PROJECT_BINARY_DIR}/scripts)
 file (COPY ${ALL_CONFIG} DESTINATION ${PROJECT_BINARY_DIR}/config)
 file (COPY ${ALL_RESOURCES} DESTINATION ${PROJECT_BINARY_DIR}/resources)
 file (COPY ${PROJECT_SOURCE_DIR}/AuxTools/python DESTINATION ${PROJECT_BINARY_DIR}/AuxTools)
-file (COPY ${PROJECT_SOURCE_DIR}/NtupleProcessing/python DESTINATION ${PROJECT_BINARY_DIR}/NtupleProcessing)

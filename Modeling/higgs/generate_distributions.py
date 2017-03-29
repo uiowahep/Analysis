@@ -12,7 +12,7 @@ def mkdir(d):
 if "ANALYSISHOME" not in os.environ.keys():
     raise NameError("Can not find ANALYSISHOME env var")
 sys.path.append(os.environ["ANALYSISHOME"])
-sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "NtupleProcessing/python"))
+sys.path.append(os.path.join(os.environ["ANALYSISHOME"], "Configuration/python"))
 import NtupleProcessing.python.Samples as S
 import NtupleProcessing.python.Dataset as DS
 

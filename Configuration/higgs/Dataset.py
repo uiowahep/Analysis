@@ -102,6 +102,9 @@ class MCDataset(Dataset):
         else:
             self.cross_section=None
 
+    def buildProcessName(self):
+        return self.name.split("/")[1].split("_")[0]
+
 class Ntuple(MCDataset):
     """
     Data/MC Ntuple - the output of CMSSW Ntuple Making

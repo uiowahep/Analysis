@@ -20,6 +20,7 @@ import NtupleProcessing.python.Samples as S
 import NtupleProcessing.python.Dataset as DS
 from aux import *
 import models
+from overlays import *
 
 if (args.mode == 'Iowa'):
     from categories import *
@@ -45,15 +46,16 @@ CM.mkdir(fitsDir)
 default = -0.999
 aux = "Mu24"
 
-def generate(variables, (data, mcbg, mcsig), **wargs):
+def generate(variables, (data, groupName, lModels), **wargs):
     if wargs["Verbose"]:
         print "-"*40
         print data
         print mcbg
         print mcsig
 
-    shouldScale = wargs["shouldScale"]
-    auxParameters = wargs["auxParameters"]
+    smode = wargs["smode"]
+    smodel = wargs["smodel"]
+    mass = wargs["mass"]
 
     #   Create the pic directory
     sub = "" if aux==None or aux=="" else "__%s" % aux
@@ -77,9 +79,13 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
     numvars = len(variables)
     for variable in variables:
         savemodifier = ""
-        mchsig = {}
-        mcfsig = {}
         category = variable["fullpath"].split("/")[0]
+
+        firstFileName = fullWorkspacesDir + \
+            "/workspace__analytic__%s__%s__%s__%s__%s.root" % (
+                category, mass, )
+        for model in lModels:
+
         
         #
         # Initialize the Model Class
@@ -107,17 +113,7 @@ def generate(variables, (data, mcbg, mcsig), **wargs):
         ndata = int(slicedhdata.Integral())
 
         #
-        # Background Histograms
-        #
-        mch = {}
-        mcf = {}
-        for imcbg in mcbg:
-            mcf[imcbg.name] = R.TFile(imcbg.pathToFile)
-            mch[imcbg.name] = mcf[imcbg.name].Get(variable["fullpath"])
-            if shouldScale:
                 mch[imcbg.name].Scale(
-                    data.jsonToUse.intlumi*imcbg.cross_section/imcbg.eweight)
-
         # 0. create a workspace or extract from the existing
         try:
             fileName = fullWorkspacesDir +\
@@ -233,45 +229,18 @@ if __name__=="__main__":
         jsonToUse=jsonToUse, pathToFile=resultPathName)
 
 
-    configs_signals = {}
-    configs_bkgs = {}
-    for cmssw in SET.cmssws:
-        for pu in SET.pileups:
-            oneconfig_signals = []
-            oneconfig_bkgs = []
-            for s in SET.signals:
-                for k in mcsamples:
-                    if s in k and cmssw==mcsamples[k].initial_cmssw:
-                        if ('UF' in args.mode):
-                            pathToFile = '%s/%s.root' % (resultsdir, s)
-                        else:
-                            pathToFile = os.path.join(resultsdir,
-                                "result__%s__%s__%s__%s__%s.root" % (s, cmssw,
-                                datajson[:-4], pu+"mb", aux))
-                        mc = MCResult(mc=mcsamples[k], pu=pu, pathToFile=pathToFile,
-                            eweight=None if not SET.scale_MC else getEventWeights(pathToFile),
-                            options={"color":None})
-                        oneconfig_signals.append(mc)
-            for b in SET.backgrounds:
-                for k in mcsamples:
-                    if b[0] in k and cmssw==mcsamples[k].initial_cmssw:
-                        if ('UF' in args.mode):
-                            pathToFile = '%s/%s.root' % (resultsdir, b[0])
-                        else:
-                            pathToFile = os.path.join(resultsdir,
-                                "result__%s__%s__%s__%s__%s.root" % (b[0], cmssw,
-                                datajson[:-4], pu+"mb", aux))
-                        mc = MCResult(mc=mcsamples[k], pu=pu, pathToFile=pathToFile,
-                            eweight=None if not SET.scale_MC else getEventWeights(pathToFile),
-                            options={"color":b[1]})
-                        oneconfig_bkgs.append(mc)
-            configs_signals["%s__%s" % (cmssw, pu)] = oneconfig_signals
-            configs_bkgs["%s__%s" % (cmssw, pu)] = oneconfig_bkgs
-
-
     #
     #   Generate all the distributions
     #
+    smode = "Separate"
+    smodel = "SingleGaus"
+    pu = "69"
+    cmssw = "80X"
+    mass = "125"
+    for mGroup in modelGroups:
+        generate(variables, (data, mGroup, modelGroups[mGroup]), 
+            smode=smode, smodel=smodel, mass=mass)
+
     if SET.analytic:
         for smodel in SET.sig_models:
             for smode in SET.sig_modes:
