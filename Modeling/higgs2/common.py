@@ -19,9 +19,15 @@ colors = [
 ### predefined lists of models ###
 ##################################
 # signal
-singleGaus = SingleGaus(singleGaus_initialValues)
-doubleGaus = DoubleGaus(doubleGaus_initialValues)
-tripleGaus = TripleGaus(tripleGaus_initialValues)
+singleGaus125 = SingleGaus(singleGaus125_initialValues)
+singleGaus120 = SingleGaus(singleGaus120_initialValues)
+singleGaus130 = SingleGaus(singleGaus130_initialValues)
+doubleGaus125 = DoubleGaus(doubleGaus125_initialValues)
+doubleGaus120 = DoubleGaus(doubleGaus120_initialValues)
+doubleGaus130 = DoubleGaus(doubleGaus130_initialValues)
+tripleGaus125 = TripleGaus(tripleGaus125_initialValues)
+tripleGaus120 = TripleGaus(tripleGaus120_initialValues)
+tripleGaus130 = TripleGaus(tripleGaus130_initialValues)
 
 # background
 expGaus = ExpGaus(expGaus_defaultValues)

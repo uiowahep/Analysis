@@ -68,6 +68,22 @@ class SingleGaus(Model):
     def extract(self, cfg, **wargs):
         return ws.pdf(self.modelName)
 
+    def setInitialValuesFromTH1(self, th1, **wargs):
+        self.initialValues = {
+            "mean" : th1.GetMean(), "meanmin" : th1.GetMean() - 2*th1.GetRMS(),
+            "meanmax" : th1.GetMean() + 2*th1.GetRMS(),
+            "sigma" : th1.GetRMS(), "sigmamin" : 0,
+            "sigmamax" : 2*th1.GetRMS()
+        }
+        print self.initialValues
+    
+    def setInitialValuesFromModel(self, model, ws, **wargs):
+        massDifference = wargs["massDifference"]
+        print ws.var("mean_{modelName}".format(modelName=model.modelName)).getVal()
+        self.initialValues["mean"] = (ws.var("mean_{modelName}".format(modelName=model.modelName)).getVal()+massDifference)
+        self.initialValues["sigma"] = ws.var("sigma_{modelName}".format(modelName=model.modelName)).getVal()
+        print self.initialValues
+
     def createParameters(self, ws, **wargs):
         # below we create model parameters
         ws.factory("mean_{modelName}[{mean}, {meanmin}, {meanmax}]".format(
@@ -99,6 +115,27 @@ class DoubleGaus(Model):
         ws.factory("SUM::{modelName}(coef_{modelName}*g1_{modelName}, g2_{modelName})".format(
             modelName=self.modelName))
         return ws.pdf(self.modelName)
+    
+    def setInitialValuesFromTH1(self, th1, **wargs):
+        self.initialValues = {
+            "mean1" : th1.GetMean(), "mean1min" : th1.GetMean() - 2*th1.GetRMS(),
+            "mean1max" : th1.GetMean() + 2*th1.GetRMS(),
+            "sigma1" : th1.GetRMS(), "sigma1min" : 0,
+            "sigma1max" : 2*th1.GetRMS(),
+            "mean2" : th1.GetMean(), "mean2min" : th1.GetMean() - 2*th1.GetRMS(),
+            "mean2max" : th1.GetMean() + 2*th1.GetRMS(),
+            "sigma2" : th1.GetRMS(), "sigma2min" : 0,
+            "sigma2max" : 2*th1.GetRMS(),
+            "coef" : 0.8, "coefmin" : 0, "coefmax" : 1
+        }
+
+    def setInitialValuesFromModel(self, model, ws, **wargs):
+        massDifference = wargs["massDifference"]
+        self.initialValues["mean1"] = ws.var("mean1_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
+        self.initialValues["sigma1"] = ws.var("sigma1_{modelName}".format(modelName=model.modelName)).getVal(),
+        self.initialValues["mean2"] = ws.var("mean2_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
+        self.initialValues["sigma2"] = ws.var("sigma2_{modelName}".format(modelName=model.modelName)).getVal(),
+        self.initialValues["coef"] = ws.var("coef_{modelName}".format(modelName=model.modelName)).getVal()
 
     def createParameters(self, ws, **wargs):
         # gaus vars
@@ -146,6 +183,36 @@ class TripleGaus(Model):
             modelName=self.modelName))
         ws.factory("SUM::{modelName}(coef1_{modelName}*g1_{modelName}, coef2_{modelName}*g2_{modelName}, g3_{modelName})".format(modelName=self.modelName))
         return ws.pdf(self.modelName)
+    
+    def setInitialValuesFromTH1(self, th1, **wargs):
+        self.initialValues = {
+            "mean1" : th1.GetMean(), "mean1min" : th1.GetMean() - 2*th1.GetRMS(),
+            "mean1max" : th1.GetMean() + 2*th1.GetRMS(),
+            "sigma1" : th1.GetRMS(), "sigma1min" : 0,
+            "sigma1max" : 2*th1.GetRMS(),
+            "mean2" : th1.GetMean(), "mean2min" : th1.GetMean() - 2*th1.GetRMS(),
+            "mean2max" : th1.GetMean() + 2*th1.GetRMS(),
+            "sigma2" : th1.GetRMS(), "sigma2min" : 0,
+            "sigma2max" : 2*th1.GetRMS(),
+            "mean3" : th1.GetMean(), "mean3min" : th1.GetMean() - 2*th1.GetRMS(),
+            "mean3max" : th1.GetMean() + 2*th1.GetRMS(),
+            "sigma3" : th1.GetRMS(), "sigma3min" : 0,
+            "sigma3max" : 2*th1.GetRMS(),
+            "coef1" : 0.3, "coef1min" : 0, "coef1max" : 1,
+            "coef2" : 0.4, "coef2min" : 0, "coef2max" : 1
+        }
+        print self.initialValues 
+    
+    def setInitialValuesFromModel(self, model, ws, **wargs):
+        massDifference = wargs["massDifference"]
+        self.initialValues["mean1"] = ws.var("mean1_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
+        self.initialValues["sigma1"] = ws.var("sigma1_{modelName}".format(modelName=model.modelName)).getVal(),
+        self.initialValues["mean2"] = ws.var("mean2_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
+        self.initialValues["sigma2"] = ws.var("sigma2_{modelName}".format(modelName=model.modelName)).getVal(),
+        self.initialValues["mean3"] = ws.var("mean3_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
+        self.initialValues["sigma3"] = ws.var("sigma3_{modelName}".format(modelName=model.modelName)).getVal(),
+        self.initialValues["coef1"] = ws.var("coef1_{modelName}".format(modelName=model.modelName)).getVal()
+        self.initialValues["coef2"] = ws.var("coef2_{modelName}".format(modelName=model.modelName)).getVal()
 
     def createParameters(self, ws, **wargs):
         # gaus vars

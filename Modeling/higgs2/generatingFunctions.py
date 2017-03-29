@@ -133,9 +133,9 @@ def signalFit((category, variable), ws, signal, model, **wargs):
     pathToDir="/tmp"
     if "pathToDir" in wargs:
         pathToDir = wargs["pathToDir"]
-    higgsMass = 125
-    if "higgsMass" in wargs:
-        higgsMass = wargs["higgsMass"]
+    initialValuesFromTH1 = False
+    if "initialValuesFromTH1" in wargs:
+        initialValuesFromTH1 = wargs["initialValuesFromTH1"]
 
     #
     # get the frame
@@ -150,27 +150,39 @@ def signalFit((category, variable), ws, signal, model, **wargs):
     fsdata = R.TFile(signal.pathToFile)
     hsdata = fsdata.Get(category + "/" + variable["name"])
     hsdata.Scale(1/signal.getWeight())
+#    hsdata.GetXaxis().SetRange(variable["min"], variable["max"])
     rsdata = aux.buildRooHist(ws, hsdata)
 
     #
     # set up the model and perform the fit
     #
-    model.initialize(aux.buildSignalModelName(model, category, signal.mc.buildProcessName()))
+    model.initialize(aux.buildSignalModelName(model, category, signal.mc.buildProcessName(), variable["central"]))
+    if initialValuesFromTH1:
+        model.setInitialValuesFromTH1(hsdata)
     model.createParameters(ws)
     pdf = model.build(ws)
-    r = pdf.fitTo(rsdata, R.RooFit.Range(variable["fitmin"], variable["fitmax"]))
+    r = pdf.fitTo(rsdata, R.RooFit.Save(), 
+        R.RooFit.Range(variable["fitmin"], variable["fitmax"]))
 
     #
     # overlay fit/roohist
     #
     rsdata.plotOn(frame)
     pdf.plotOn(frame, R.RooFit.LineColor(R.kRed))
-    pdf.paramOn(frame, R.RooFit.Format("NELU", R.RooFit.AutoPrecision(2)), R.RooFit.Layout(0.6, 0.99, 0.9), R.RooFit.ShowConstants(True))
+    pdf.paramOn(frame, R.RooFit.Format("NELU", R.RooFit.AutoPrecision(2)), R.RooFit.Layout(0.5, 0.9, 0.9), R.RooFit.ShowConstants(True))
     frame.getAttText().SetTextSize(0.02)
+    chiSquare = frame.chiSquare()
+    ttt = R.TPaveLabel(0.1,0.7,0.3,0.78, R.Form("#chi^{2} = %f" % chiSquare),
+        "brNDC")
+    ttt.Draw()
+    frame.addObject(ttt)
     frame.Draw()
-    fileName = "signalFit__{category}__{higgsMass}__{processName}__{modelId}.png".format(
-        category=category, higgsMass=higgsMass, processName=signal.mc.buildProcessName(),
-        modelId=model.modelId)
+    mods = "default"
+    if initialValuesFromTH1:
+        mods="TH1"
+    fileName = "signalFit__{category}__{higgsMass}__{processName}__{modelId}__{mods}.png".format(
+        category=category, higgsMass=variable["central"], processName=signal.mc.buildProcessName(),
+        modelId=model.modelId, mods=mods)
     canvas.SaveAs(os.path.join(pathToDir, fileName))
     
     #
@@ -178,7 +190,60 @@ def signalFit((category, variable), ws, signal, model, **wargs):
     #
     fsdata.Close()
 
-def signalInterpolationFits(signals):
+def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
+    """
+    assume the Workspace already exists and x-variable is already defined
+    """
+    # 
+    # initialize the values from wargs
+    # 
+    pathToDir = "/tmp"
+    if "pathToDir" in wargs:
+        pathToDir = wargs["pathToDir"]
+
+    #
+    # the the canvas/frame
+    #
+    canvas = R.TCanvas("c1", "c1", 800, 600)
+    canvas.cd()
+    frame = ws.var("x").frame()
+    
+    #
+    # for each mass point, perform a fit.
+    # initial values for each consequetive model will be derived from the 
+    # previous mass point
+    #
+    imodel = 0
+    prevSignal=None; prevModel=None; prevVariable=None
+    for (signal, model, variable) in tupleSignalModelVariable:
+        fsdata = R.TFile(signal.pathToFile)
+        hsdata = fsdata.Get(category + "/" + variable["name"])
+        hsdata.Scale(1/signal.getWeight())
+        rsdata = aux.buildRooHist(ws, hsdata)
+        model.initialize(aux.buildSignalModelName(model, category,
+            signal.mc.buildProcessName(), variable["central"]))
+        if imodel>0:
+            model.setInitialValuesFromModel(prevModel, ws, 
+                massDifference=(variable["central"] - prevVariable["central"]))
+        model.createParameters(ws)
+        pdf = model.build(ws)
+        r = pdf.fitTo(rsdata, R.RooFit.Save(),
+            R.RooFit.Range(variable["fitmin"], variable["fitmax"]))
+        prevSignal = signal
+        prevModel = model
+        prevVariable = variable
+
+        pdf.plotOn(frame, R.RooFit.LineColor(R.kBlue))
+        imodel+=1
+
+    #
+    # save the canvas
+    #
+    frame.Draw()
+    fileName = "signalFitInterpolation__{category}__{processName}__{modelId}__{mods}.png".format(category=category, processName=signal.mc.buildProcessName(), modelId=model.modelId, mods="")
+    canvas.SaveAs(os.path.join(pathToDir, fileName))
+
+def ftestPerFamily():
     pass
 
 def backgroundFits((category, variable), ws, data, models, **wargs):

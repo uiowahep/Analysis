@@ -28,20 +28,50 @@ def generate_backgroundFits():
         backgroundFits((category, diMuonMass125), ws, data, modelsToUse,
             pathToDir=backgroundfitsDir,groupName="bersteinsPlusPhysModels")
 
-def generate_signalFits():
+def generate_signalFitInterpolations():
     for category in run1Categories:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
-        for modelToUse in [singleGaus, doubleGaus, tripleGaus]:
+        signalFitInterpolation(category, ws, 
+            [
+                (vbf120, singleGaus120, diMuonMass120),
+                (vbf125, singleGaus125, diMuonMass125),
+                (vbf130, singleGaus130, diMuonMass130),
+            ],
+            pathToDir=singalfitinterpolationsDir
+        )
+
+def generate_signalFits():
+    initialValuesFromTH1 = True
+    for category in run1Categories:
+        ws = R.RooWorkspace("higgs")
+        aux.buildMassVariable(ws, **diMuonMass125)
+        for modelToUse in [singleGaus125, doubleGaus125, tripleGaus125]:
             modelToUse.color = R.kRed
-            signalFit((category, diMuonMass125), ws, vbf, modelToUse, pathToDir=signalfitsDir)
-            signalFit((category, diMuonMass125), ws, glu, modelToUse, pathToDir=signalfitsDir)
-            signalFit((category, diMuonMass125), ws, wm, modelToUse, pathToDir=signalfitsDir)
-            signalFit((category, diMuonMass125), ws, wp, modelToUse, pathToDir=signalfitsDir)
-            signalFit((category, diMuonMass125), ws, zh, modelToUse, pathToDir=signalfitsDir)
+            signalFit((category, diMuonMass125), ws, vbf125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass125), ws, glu125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass125), ws, wm125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass125), ws, wp125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass125), ws, zh125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+        aux.buildMassVariable(ws, **diMuonMass120)
+        for modelToUse in [singleGaus120, doubleGaus120, tripleGaus120]:
+            modelToUse.color = R.kRed
+            signalFit((category, diMuonMass120), ws, vbf120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass120), ws, glu120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass120), ws, wm120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass120), ws, wp120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass120), ws, zh120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+        aux.buildMassVariable(ws, **diMuonMass130)
+        for modelToUse in [singleGaus130, doubleGaus130, tripleGaus130]:
+            modelToUse.color = R.kRed
+            signalFit((category, diMuonMass130), ws, vbf130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass130), ws, glu130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass130), ws, wm130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass130), ws, wp130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass130), ws, zh130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
 
 def generate_distributions():
-    logY = False
+    logY = True
     for category in run1Categories:
         for vname in varNames:
             variable = {}
@@ -51,7 +81,8 @@ def generate_distributions():
             if category!="NoCats" and vname=="DiMuonMass":
                 variable["min"] = 110
                 variable["max"] = 160
-            distributions((category, variable), data, [glu, vbf, wm, wp, zh],
+            distributions((category, variable), data, 
+                [glu125, vbf125, wm125, wp125, zh125],
                 [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], pathToDir=distributionsDir,
                 logY=logY)
 
@@ -62,3 +93,5 @@ if __name__=="__main__":
         generate_signalFits()
     elif args.number == 2:
         generate_backgroundFits()
+    elif args.number == 3:
+        generate_signalFitInterpolations()

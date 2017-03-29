@@ -81,8 +81,8 @@ def buildRooHist(ws, hist):
         R.RooArgList(ws.set("obs")), hist)
     return roo_hist
 
-def buildSignalModelName(smodel, category, processName):
-    return "{className}_{category}_{processName}".format(className=smodel.__class__.__name__, category=category, processName=processName)
+def buildSignalModelName(smodel, category, processName, mass):
+    return "{className}_{category}_{processName}{mass}".format(className=smodel.__class__.__name__, category=category, processName=processName, mass=mass)
 
 def buildBackgroundModelName(bmodel, category):
     if hasattr(bmodel, "degree"):
