@@ -114,7 +114,7 @@ def main():
     print data_ntuples
     print mc_ntuples
     ntuples = []
-#    ntuples.extend(data_ntuples)
+    ntuples.extend(data_ntuples)
     ntuples.extend(mc_ntuples)
 
     #

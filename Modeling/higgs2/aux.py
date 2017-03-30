@@ -78,7 +78,7 @@ def buildMassVariable(ws, **wargs):
 
 def buildMH(ws, **wargs):
     print wargs
-    ws.factory("x[{mhmin}, {mhmax}]".format(**wargs))
+    ws.factory("MH[{mhmin}, {mhmax}]".format(**wargs))
 
 def buildRooHist(ws, hist):
     roo_hist = R.RooDataHist(hist.GetName(), hist.GetName(),

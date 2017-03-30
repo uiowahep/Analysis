@@ -15,16 +15,20 @@ jobLabel = "vR1_20170329_1241"
 #######################
 ### Directory Setup ###
 #######################
-projectDir = "/Users/vk/software/Analysis/files/analysis_results/"
-histDir = os.path.join(projectDir, "results", jobLabel)
-distributionsDir = os.path.join(projectDir, "distributions", jobLabel);
+projectDirLocal = "/Users/vk/software/Analysis/files/analysis_results/"
+projectDirLxplus = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/analysis_results"
+projectDirToUse = projectDirLxplus
+histDir = os.path.join(projectDirToUse, "results", jobLabel)
+distributionsDir = os.path.join(projectDirToUse, "distributions", jobLabel);
 aux.mkdir(distributionsDir)
-backgroundfitsDir = os.path.join(projectDir, "backgroundfits", jobLabel)
+backgroundfitsDir = os.path.join(projectDirToUse, "backgroundfits", jobLabel)
 aux.mkdir(backgroundfitsDir)
-signalfitsDir = os.path.join(projectDir, "signalfits", jobLabel)
+signalfitsDir = os.path.join(projectDirToUse, "signalfits", jobLabel)
 aux.mkdir(signalfitsDir)
-singalfitinterpolationsDir = os.path.join(projectDir, "signalfitinterpolations", jobLabel)
+singalfitinterpolationsDir = os.path.join(projectDirToUse, "signalfitinterpolations", jobLabel)
 aux.mkdir(singalfitinterpolationsDir)
+signalfitinterpolationswithsplineDir = os.path.join(projectDirToUse, "signalfitinterpolationswithspline", jobLabel)
+aux.mkdir(signalfitinterpolationswithsplineDir)
 
 #################
 ###  Samples  ###

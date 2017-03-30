@@ -211,7 +211,6 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
     #
     canvas = R.TCanvas("c1", "c1", 800, 600)
     canvas.cd()
-    frame = ws.var("x").frame()
     
     #
     # for each mass point, perform a fit.
@@ -223,6 +222,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
     parameters = []
     massPoints = []
     for (signal, model, variable) in tupleSignalModelVariable:
+        frame = ws.var("x").frame()
         fsdata = R.TFile(signal.pathToFile)
         hsdata = fsdata.Get(category + "/" + variable["name"])
         hsdata.Scale(1/signal.getWeight())
@@ -242,6 +242,17 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
         imodel +=1
         massPoints.append(variable["central"])
 
+        # plot this model together with signal histogram
+        rsdata.plotOn(frame)
+        pdf.plotOn(frame, R.RooFit.LineColor(R.kBlue))
+
+        # draw the frame and save the canvas
+        frame.Draw()
+        fileName = "signalFit__{category}__{higgsMass}__{processName}__{modelId}__{mods}.png".format(
+            category=category, higgsMass=variable["central"], processName=signal.mc.buildProcessName(),
+            modelId=model.modelId, mods="default")
+        canvas.SaveAs(os.path.join(pathToDir, fileName))
+
         # exctract the parameters
         lParameters = model.getParameterValuesAsList(ws)
         parameters.append(lParameters)
@@ -253,17 +264,27 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
     # build the Splines
     # have to transpose the matrix of parameters first
     #
+    frame = ws.var("x").frame()
     paramsTransposed = aux.transpose(parameters)
+    print parameters
+    print paramsTransposed
     finalmodel = prevModel.__class__()
     finalmodel.initialize(aux.buildSignalModelName(model, category, signal.mc.buildProcessName()))
     finalpdf = finalmodel.buildWithParameterMatrix(ws, massPoints, paramsTransposed)
     finalpdf.Print("v")
 
     #
+    # plot for each GeV and save the canvas
+    #
+    for mh in [120+i for i in range(11)]:
+        ws.var("MH").setVal(mh)
+        finalpdf.plotOn(frame)
+
+    #
     # save the canvas
     #
     frame.Draw()
-    fileName = "signalFitInterpolation__{category}__{processName}__{modelId}__{mods}.png".format(category=category, processName=signal.mc.buildProcessName(), modelId=model.modelId, mods="")
+    fileName = "signalFitInterpolationWithSpline__{category}__{processName}__{modelId}__{mods}.png".format(category=category, processName=signal.mc.buildProcessName(), modelId=model.modelId, mods="")
     canvas.SaveAs(os.path.join(pathToDir, fileName))
 
 def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
@@ -334,11 +355,12 @@ def backgroundFits((category, variable), ws, data, models, **wargs):
         groupName = wargs["groupName"]
 
     #
-    # get the canvas
+    # get the canvas and legend set up
     #
     canvas = R.TCanvas("c1", "c1", 800, 600)
     canvas.cd()
     frame = ws.var("x").frame()
+    legend = R.TLegend(0.65, 0.6, 0.9, 0.9)
 
     #
     # get the data histogram
@@ -360,6 +382,7 @@ def backgroundFits((category, variable), ws, data, models, **wargs):
         pdfs[modelName] = model.build(ws)
         r = pdfs[modelName].fitTo(rdata, R.RooFit.Save())
         pdfs[modelName].plotOn(frame, R.RooFit.LineColor(model.color))
+        legend.AddEntry(modelId, model.modelId)
     frame.Draw()
     
     #
@@ -368,6 +391,8 @@ def backgroundFits((category, variable), ws, data, models, **wargs):
     fileName = "backgroundFits__{category}__{groupName}.png".format(
         category=category,
         groupName=groupName)
+    legend.Draw()
+    R.gPad.Modified()
     canvas.SaveAs(os.path.join(pathToDir, fileName))
 
     #

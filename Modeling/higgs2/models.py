@@ -67,21 +67,28 @@ class SingleGaus(Model):
         return ws.pdf(self.modelName)
 
     def buildWithParameterMatrix(self, ws, massPoints, pmatrix, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
         means = pmatrix[0]
-        sigmas = pmatri[1]
+        sigmas = pmatrix[1]
         meansArray = array.array("f", means)
         sigmasArray = array.array("f", sigmas)
         massPointsArray = array.array("f", massPoints)
+        print meansArray
+        print sigmasArray
+        print massPointsArray
         meansSpline = R.RooSpline1D("mean_{modelName}".format(modelName=self.modelName),
             "mean_{modelName}".format(modelName=self.modelName),
             ws.var("MH"), len(means), massPointsArray, meansArray)
         sigmasSpline = R.RooSpline1D("sigma_{modelName}".format(modelName=self.modelName),
             "sigma_{modelName}".format(modelName=self.modelName),
             ws.var("MH"), len(means), massPointsArray, sigmasArray)
-        getattr(ws, "import")(meansSpline)
-        getattr(ws, "import")(sigmasSpline)
+        meansSpline.Print("v")
+        sigmasSpline.Print("v")
+        getattr(ws, "import")(meansSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(sigmasSpline, R.RooFit.RecycleConflictNodes())
         ws.factory("Gaussian::{modelName}(x, mean_{modelName}, sigma_{modelName})".format(
             modelName=self.modelName))
+        ws.Print("v")
         return ws.pdf(self.modelName)
 
     def extract(self, cfg, **wargs):
@@ -100,15 +107,13 @@ class SingleGaus(Model):
         return \
             [
                 ws.var("mean_{modelName}".format(modelName=self.modelName)).getVal(), 
-                ws.var("sigma_{modelName}".format(modelName=self.modelName)).getVal(i)
+                ws.var("sigma_{modelName}".format(modelName=self.modelName)).getVal()
             ]
 
     def setInitialValuesFromModel(self, model, ws, **wargs):
         massDifference = wargs["massDifference"]
-        print ws.var("mean_{modelName}".format(modelName=model.modelName)).getVal()
         self.initialValues["mean"] = (ws.var("mean_{modelName}".format(modelName=model.modelName)).getVal()+massDifference)
         self.initialValues["sigma"] = ws.var("sigma_{modelName}".format(modelName=model.modelName)).getVal()
-        print self.initialValues
 
     def createParameters(self, ws, **wargs):
         # below we create model parameters
@@ -127,7 +132,7 @@ class SingleGaus(Model):
         ws.var("sigma_{modelName}".format(modelName=self.modelName)).setConstant(kTRUE)
 
 class DoubleGaus(Model):
-    def __init__(self, initialValues, **wargs):
+    def __init__(self, initialValues=None, **wargs):
         Model.__init__(self, initialValues, **wargs)
 
     def initialize(self, modelName, *kargs, **wargs):
@@ -141,7 +146,44 @@ class DoubleGaus(Model):
         ws.factory("SUM::{modelName}(coef_{modelName}*g1_{modelName}, g2_{modelName})".format(
             modelName=self.modelName))
         return ws.pdf(self.modelName)
-    
+
+    def buildWithParameterMatrix(self, ws, massPoints, pmatrix, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+        mean1s = pmatrix[0]
+        sigma1s = pmatrix[1]
+        mean2s = pmatrix[2]
+        sigma2s = pmatrix[3]
+        coefs = pmatrix[4]
+
+        mean1sArray = array.array("f", mean1s)
+        sigma1sArray = array.array("f", sigma1s)
+        mean2sArray = array.array("f", mean2s)
+        sigma2sArray = array.array("f", sigma2s)
+        coefsArray = array.array("f", coefs)
+        massPointsArray = array.array("f", massPoints)
+        
+        mean1sSpline = R.RooSpline1D("mean1_{modelName}".format(modelName=self.modelName),
+            "mean1_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(mean1s), massPointsArray, mean1sArray)
+        sigma1sSpline = R.RooSpline1D("sigma1_{modelName}".format(modelName=self.modelName),
+            "sigma1_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(sigma1s), massPointsArray, sigma1sArray)
+        mean2sSpline = R.RooSpline1D("mean2_{modelName}".format(modelName=self.modelName),
+            "mean2_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(mean2s), massPointsArray, mean2sArray)
+        sigma2sSpline = R.RooSpline1D("sigma2_{modelName}".format(modelName=self.modelName),
+            "sigma2_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(sigma2s), massPointsArray, sigma2sArray)
+        coefsSpline = R.RooSpline1D("coef_{modelName}".format(modelName=self.modelName),
+            "coef_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(coefs), massPointsArray, coefsArray)
+        getattr(ws, "import")(mean1sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(sigma1sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(mean2sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(sigma2sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(coefsSpline, R.RooFit.RecycleConflictNodes())
+        return self.build(ws)
+
     def setInitialValuesFromTH1(self, th1, **wargs):
         self.initialValues = {
             "mean1" : th1.GetMean(), "mean1min" : th1.GetMean() - 2*th1.GetRMS(),
@@ -155,20 +197,43 @@ class DoubleGaus(Model):
             "coef" : 0.8, "coefmin" : 0, "coefmax" : 1
         }
 
+    def getParameterValuesAsList(self, ws, **args):
+        return \
+            [
+                ws.var("mean1_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("sigma1_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("mean2_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("sigma2_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("coef_{modelName}".format(modelName=self.modelName)).getVal()
+            ]
+
     def setInitialValuesFromModel(self, model, ws, **wargs):
         massDifference = wargs["massDifference"]
-        self.initialValues["mean1"] = ws.var("mean1_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
-        self.initialValues["sigma1"] = ws.var("sigma1_{modelName}".format(modelName=model.modelName)).getVal(),
-        self.initialValues["mean2"] = ws.var("mean2_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
-        self.initialValues["sigma2"] = ws.var("sigma2_{modelName}".format(modelName=model.modelName)).getVal(),
-        self.initialValues["coef"] = ws.var("coef_{modelName}".format(modelName=model.modelName)).getVal()
+        print self.initialValues
+        
+        mean1 = ws.var("mean1_{modelName}".format(modelName=model.modelName)).getVal()+massDifference
+        sigma1 = ws.var("sigma1_{modelName}".format(modelName=model.modelName)).getVal()
+        mean2 = ws.var("mean2_{modelName}".format(modelName=model.modelName)).getVal()+massDifference
+        sigma2 = ws.var("sigma2_{modelName}".format(modelName=model.modelName)).getVal()
+        coef = ws.var("coef_{modelName}".format(modelName=model.modelName)).getVal()
+        self.initialValues["mean1"] = mean1 
+        self.initialValues["sigma1"] = sigma1
+        self.initialValues["mean2"] = mean2
+        self.initialValues["sigma2"] = sigma2
+        self.initialValues["coef"] = coef
+        print self.initialValues
 
     def createParameters(self, ws, **wargs):
         # gaus vars
+        print self.initialValues
         ws.factory("mean1_{modelName}[{mean1}, {mean1min}, {mean1max}]".format(
             modelName=self.modelName, **self.initialValues))
         ws.factory("sigma1_{modelName}[{sigma1}, {sigma1min}, {sigma1max}]".format(
             modelName=self.modelName, **self.initialValues))
+        ws.Print("v")
+        print "mean1_{modelName}".format(modelName=self.modelName)
+        print ws.var("mean1_{modelName}".format(modelName=self.modelName))
+        print ws.var("sigma1_{modelName}".format(modelName=self.modelName))
         ws.var("mean1_{modelName}".format(modelName=self.modelName)).setUnit("GeV")
         ws.var("sigma1_{modelName}".format(modelName=self.modelName)).setUnit("GeV")
         ws.factory("mean2_{modelName}[{mean2}, {mean2min}, {mean2max}]".format(
@@ -194,7 +259,7 @@ class DoubleGaus(Model):
         ws.var("coef_{modelName}".format(modelName=self.modelName)).setConstant(kTRUE)
 
 class TripleGaus(Model):
-    def __init__(self, initialValues, **wargs):
+    def __init__(self, initialValues=None, **wargs):
         Model.__init__(self, initialValues, **wargs)
 
     def initialize(self, modelName, *kargs, **wargs):
@@ -229,14 +294,83 @@ class TripleGaus(Model):
         }
         print self.initialValues 
     
+    def buildWithParameterMatrix(self, ws, massPoints, pmatrix, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+        mean1s = pmatrix[0]
+        sigma1s = pmatrix[1]
+        mean2s = pmatrix[2]
+        sigma2s = pmatrix[3]
+        mean3s = pmatrix[4]
+        sigma3s = pmatrix[5]
+        coef1s = pmatrix[6]
+        coef2s = pmatrix[7]
+
+        mean1sArray = array.array("f", mean1s)
+        sigma1sArray = array.array("f", sigma1s)
+        mean2sArray = array.array("f", mean2s)
+        sigma2sArray = array.array("f", sigma2s)
+        mean3sArray = array.array("f", mean3s)
+        sigma3sArray = array.array("f", sigma3s)
+        coef1sArray = array.array("f", coef1s)
+        coef2sArray = array.array("f", coef2s)
+        massPointsArray = array.array("f", massPoints)
+        
+        mean1sSpline = R.RooSpline1D("mean1_{modelName}".format(modelName=self.modelName),
+            "mean1_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(mean1s), massPointsArray, mean1sArray)
+        sigma1sSpline = R.RooSpline1D("sigma1_{modelName}".format(modelName=self.modelName),
+            "sigma1_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(sigma1s), massPointsArray, sigma1sArray)
+        mean2sSpline = R.RooSpline1D("mean2_{modelName}".format(modelName=self.modelName),
+            "mean2_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(mean2s), massPointsArray, mean2sArray)
+        sigma2sSpline = R.RooSpline1D("sigma2_{modelName}".format(modelName=self.modelName),
+            "sigma2_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(sigma2s), massPointsArray, sigma2sArray)
+        mean3sSpline = R.RooSpline1D("mean3_{modelName}".format(modelName=self.modelName),
+            "mean3_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(mean3s), massPointsArray, mean3sArray)
+        sigma3sSpline = R.RooSpline1D("sigma3_{modelName}".format(modelName=self.modelName),
+            "sigma3_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(sigma3s), massPointsArray, sigma3sArray)
+        coef1sSpline = R.RooSpline1D("coef1_{modelName}".format(modelName=self.modelName),
+            "coef1_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(coef1s), massPointsArray, coef1sArray)
+        coef2sSpline = R.RooSpline1D("coef2_{modelName}".format(modelName=self.modelName),
+            "coef2_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(coef2s), massPointsArray, coef2sArray)
+        getattr(ws, "import")(mean1sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(sigma1sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(mean2sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(sigma2sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(mean3sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(sigma3sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(coef1sSpline, R.RooFit.RecycleConflictNodes())
+        getattr(ws, "import")(coef2sSpline, R.RooFit.RecycleConflictNodes())
+        return self.build(ws)
+    
+    def getParameterValuesAsList(self, ws, **args):
+        return \
+            [
+                ws.var("mean1_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("sigma1_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("mean2_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("sigma2_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("mean3_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("sigma3_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("coef1_{modelName}".format(modelName=self.modelName)).getVal(),
+                ws.var("coef2_{modelName}".format(modelName=self.modelName)).getVal()
+            ]
+
+    
     def setInitialValuesFromModel(self, model, ws, **wargs):
         massDifference = wargs["massDifference"]
-        self.initialValues["mean1"] = ws.var("mean1_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
-        self.initialValues["sigma1"] = ws.var("sigma1_{modelName}".format(modelName=model.modelName)).getVal(),
-        self.initialValues["mean2"] = ws.var("mean2_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
-        self.initialValues["sigma2"] = ws.var("sigma2_{modelName}".format(modelName=model.modelName)).getVal(),
-        self.initialValues["mean3"] = ws.var("mean3_{modelName}".format(modelName=model.modelName)).getVal()+massDifference,
-        self.initialValues["sigma3"] = ws.var("sigma3_{modelName}".format(modelName=model.modelName)).getVal(),
+        self.initialValues["mean1"] = ws.var("mean1_{modelName}".format(modelName=model.modelName)).getVal()+massDifference
+        self.initialValues["sigma1"] = ws.var("sigma1_{modelName}".format(modelName=model.modelName)).getVal()
+        self.initialValues["mean2"] = ws.var("mean2_{modelName}".format(modelName=model.modelName)).getVal()+massDifference
+        self.initialValues["sigma2"] = ws.var("sigma2_{modelName}".format(modelName=model.modelName)).getVal()
+        self.initialValues["mean3"] = ws.var("mean3_{modelName}".format(modelName=model.modelName)).getVal()+massDifference
+        self.initialValues["sigma3"] = ws.var("sigma3_{modelName}".format(modelName=model.modelName)).getVal()
         self.initialValues["coef1"] = ws.var("coef1_{modelName}".format(modelName=model.modelName)).getVal()
         self.initialValues["coef2"] = ws.var("coef2_{modelName}".format(modelName=model.modelName)).getVal()
 

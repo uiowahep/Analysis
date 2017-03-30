@@ -41,6 +41,141 @@ def generate_signalFitInterpolations():
             pathToDir=singalfitinterpolationsDir
         )
 
+def generate_signalFitInterpolationsWithSpline():
+    for category in run1Categories:
+        ws = R.RooWorkspace("higgs")
+        aux.buildMassVariable(ws, **diMuonMass125)
+        aux.buildMH(ws, mhmin=120, mhmax=130)
+        print "*"*80
+        print "Generating Single Gaus Splines"
+        print "*"*80
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (vbf120, singleGaus120, diMuonMass120),
+                (vbf125, singleGaus125, diMuonMass125),
+                (vbf130, singleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (glu120, singleGaus120, diMuonMass120),
+                (glu125, singleGaus125, diMuonMass125),
+                (glu130, singleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wp120, singleGaus120, diMuonMass120),
+                (wp125, singleGaus125, diMuonMass125),
+                (wp130, singleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wm120, singleGaus120, diMuonMass120),
+                (wm125, singleGaus125, diMuonMass125),
+                (wm130, singleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (zh120, singleGaus120, diMuonMass120),
+                (zh125, singleGaus125, diMuonMass125),
+                (zh130, singleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        print "*"*80
+        print "Generating Double Gaus Splines"
+        print "*"*80
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (vbf120, doubleGaus120, diMuonMass120),
+                (vbf125, doubleGaus125, diMuonMass125),
+                (vbf130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (glu120, doubleGaus120, diMuonMass120),
+                (glu125, doubleGaus125, diMuonMass125),
+                (glu130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wp120, doubleGaus120, diMuonMass120),
+                (wp125, doubleGaus125, diMuonMass125),
+                (wp130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wm120, doubleGaus120, diMuonMass120),
+                (wm125, doubleGaus125, diMuonMass125),
+                (wm130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (zh120, doubleGaus120, diMuonMass120),
+                (zh125, doubleGaus125, diMuonMass125),
+                (zh130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        print "*"*80
+        print "Generating Triple Gaus Splines"
+        print "*"*80
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (vbf120, tripleGaus120, diMuonMass120),
+                (vbf125, tripleGaus125, diMuonMass125),
+                (vbf130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (glu120, tripleGaus120, diMuonMass120),
+                (glu125, tripleGaus125, diMuonMass125),
+                (glu130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wp120, tripleGaus120, diMuonMass120),
+                (wp125, tripleGaus125, diMuonMass125),
+                (wp130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wm120, tripleGaus120, diMuonMass120),
+                (wm125, tripleGaus125, diMuonMass125),
+                (wm130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        signalFitInterpolationWithSpline(category, ws, 
+            [
+                (zh120, tripleGaus120, diMuonMass120),
+                (zh125, tripleGaus125, diMuonMass125),
+                (zh130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+
 def generate_signalFits():
     initialValuesFromTH1 = True
     for category in run1Categories:
@@ -95,3 +230,5 @@ if __name__=="__main__":
         generate_backgroundFits()
     elif args.number == 3:
         generate_signalFitInterpolations()
+    elif args.number == 4:
+        generate_signalFitInterpolationsWithSpline()
