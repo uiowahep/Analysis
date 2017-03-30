@@ -18,15 +18,29 @@ args = parser.parse_args()
 
 def generate_backgroundFits():
     for category in run1Categories:
+        for modelGroup in backgroundModelGroups:
+            ws = R.RooWorkspace("higgs")
+            aux.buildMassVariable(ws, **diMuonMass125)
+            modelsToUse = modelGroup.models
+            counter = 0;
+            for m in modelsToUse:
+                m.color = colors[counter]
+                counter+=1
+            backgroundFits((category, diMuonMass125), ws, data, modelsToUse,
+                pathToDir=backgroundfitsDir,groupName=modelGroup.name)
+
+def generate_backgroundsWithRooMultiPdf():
+    modelGroupToUse = modelGroupForMultiPdf
+    for category in run1Categories:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
-        modelsToUse = bersteinsPlusPhysModels
         counter = 0;
-        for m in modelsToUse:
+        for model in modelGroupToUse.models:
             m.color = colors[counter]
-            counter+=1
-        backgroundFits((category, diMuonMass125), ws, data, modelsToUse,
-            pathToDir=backgroundfitsDir,groupName="bersteinsPlusPhysModels")
+            counter += 1
+        backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
+            modelGroupToUse.models, pathToDir=backgroundfitswithroomultipdfDir,
+            groupName=modelGroupToUse.name)
 
 def generate_signalFitInterpolations():
     for category in run1Categories:
@@ -232,3 +246,5 @@ if __name__=="__main__":
         generate_signalFitInterpolations()
     elif args.number == 4:
         generate_signalFitInterpolationsWithSpline()
+    elif args.number == 5:
+        generate_backgroundsWithRooMultiPdf()

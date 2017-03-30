@@ -19,7 +19,7 @@ class Model(object):
         self.initialValues = initialValues
         self.modelId = self.__class__.__name__
         if hasattr(self, "degree"):
-            self.modelId += "-%d" % self.degree
+            self.modelId += "_%d" % self.degree
 
     def initialize(self, modelName, *kargs, **wargs):
         self.modelName = modelName
@@ -488,8 +488,8 @@ class BWZGamma(Model):
 
 class Bernstein(Model):
     def __init__(self, initialValues, **wargs):
-        Model.__init__(self, initialValues, **wargs)
         self.degree = wargs["degree"]
+        Model.__init__(self, initialValues, **wargs)
 
     def initialize(self, modelName, *kargs, **wargs):
         Model.initialize(self, modelName, *kargs, **wargs)
@@ -509,8 +509,8 @@ class Bernstein(Model):
 
 class SumExponentials(Model):
     def __init__(self, initialValues, **wargs):
-        Model.__init__(self, initialValues, **wargs)
         self.degree = wargs["degree"]
+        Model.__init__(self, initialValues, **wargs)
 
     def initialize(self, modelName, *kargs, **wargs):
         Model.initialize(self, modelName, *kargs, **wargs)

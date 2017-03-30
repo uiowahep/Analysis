@@ -40,9 +40,8 @@ def blindHistogram(hdata, mmin, mmax):
         if hdata.GetBinCenter(ibin+1)>massmin and hdata.GetBinCenter(ibin+1)<massmax:
             hdata.SetBinContent(ibin+1, 0)
 
-def blindRooData(ws):
-    data = ws.data("data_obs")
-    hdata = data.createHistogram("hdata", ws.var("x"),
+def blindRooData(rhist):
+    hdata = rhist.createHistogram("hdata", ws.var("x"),
         R.RooFit.Binning(50, 110, 160))
     blindData(hdata)
     ds = R.RooDataHist("data_blind", "data_blind", R.RooArgList(ws.set("obs").Clone()), hdata)

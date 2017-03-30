@@ -17,7 +17,7 @@ jobLabel = "vR1_20170329_1241"
 #######################
 projectDirLocal = "/Users/vk/software/Analysis/files/analysis_results/"
 projectDirLxplus = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/analysis_results"
-projectDirToUse = projectDirLxplus
+projectDirToUse = projectDirLocal
 histDir = os.path.join(projectDirToUse, "results", jobLabel)
 distributionsDir = os.path.join(projectDirToUse, "distributions", jobLabel);
 aux.mkdir(distributionsDir)
@@ -29,6 +29,8 @@ singalfitinterpolationsDir = os.path.join(projectDirToUse, "signalfitinterpolati
 aux.mkdir(singalfitinterpolationsDir)
 signalfitinterpolationswithsplineDir = os.path.join(projectDirToUse, "signalfitinterpolationswithspline", jobLabel)
 aux.mkdir(signalfitinterpolationswithsplineDir)
+backgroundfitswithroomultipdfDir = os.path.join(projectDirToUse, "backgroundfitswithroomultipdf", jobLabel)
+aux.mkdir(backgroundfitswithroomultipdfDir)
 
 #################
 ###  Samples  ###

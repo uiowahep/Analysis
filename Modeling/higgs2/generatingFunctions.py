@@ -343,6 +343,31 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
 def ftestPerFamily():
     pass
 
+def backgroundsWithRooMultiPdf((category, variable), ws, data, models, **wargs):
+    #
+    # load the combine lib
+    #
+    R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+
+    #
+    # run the background Fits
+    #
+    backgroundFits((category, variable), ws, data, models, **wargs)
+
+    #
+    # build the RooMultiPdf and the _norm
+    #
+    pdfs = R.RooArgList()
+    for model in models:
+        pdfs.add(ws.pdf(model.modelName))
+    ccc = R.RooCategory("pdfindex_{category}".format(category=category))
+    multipdf = R.RooMultiPdf("multipdf_{category}".format(category=category),
+        "Background Models Envelope", ccc, pdfs)
+    ws.factory("multipdf_{category}_norm[0, 100000000]".format(category=category))
+    getattr(ws, "import")(ccc, R.RooFit.RecycleConflictNodes())
+    getattr(ws, "import")(multipdf, R.RooFit.RecycleConflictNodes())
+    ws.Print("v")
+
 def backgroundFits((category, variable), ws, data, models, **wargs):
     #
     # initialize the values from wargs
@@ -367,22 +392,28 @@ def backgroundFits((category, variable), ws, data, models, **wargs):
     #
     fdata = R.TFile(data.pathToFile)
     hdata = fdata.Get(category + "/" + variable["name"])
+    hdata_blind = hdata.Clone("Blind")
+    aux.blindHistogram(hdata_blind, 120, 130)
     rdata = aux.buildRooHist(ws, hdata)
+    rdata_blind = aux.buildRooHist(ws, hdata_blind)
+    norm = rdata.sumEntries()
 
     #
     # iterate thru all the models/fit/plot
     #
     counter = 0
     pdfs = {}
-    rdata.plotOn(frame)
+    rdata_blind.plotOn(frame)
     for model in models:
         modelName = aux.buildBackgroundModelName(model, category)
         model.initialize(modelName)
         model.createParameters(ws)
         pdfs[modelName] = model.build(ws)
         r = pdfs[modelName].fitTo(rdata, R.RooFit.Save())
-        pdfs[modelName].plotOn(frame, R.RooFit.LineColor(model.color))
-        legend.AddEntry(modelId, model.modelId)
+        pdfs[modelName].plotOn(frame, R.RooFit.Name(model.modelId), 
+            R.RooFit.LineColor(model.color), R.RooFit.Normalization(norm, 0))
+        legend.AddEntry(frame.findObject(model.modelId), model.modelId, "l")
+        print model.modelId
     frame.Draw()
     
     #

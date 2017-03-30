@@ -36,6 +36,21 @@ bwzGamma = BWZGamma(bwzgamma_defaultValues)
 bernsteins = [Bernstein(bernstein_defaultValues, degree=i) for i in range(1, 11)]
 sumExps = [SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 11)]
 
-allPhysBkgModels = [expGaus, bwzRedux, bwzGamma]
-bersteinsPlusPhysModels = allPhysBkgModels + bernsteins
-allBackgroundModels = allPhysBkgModels + bernsteins + sumExps
+
+class ModelGroup(object):
+    def __init__(self, name, models):
+        self.models = models
+        self.name = name
+        object.__init__(self)
+
+bernsteinModels = ModelGroup("bersteinModels", bernsteins)
+sumExpModels = ModelGroup("sumExpModels", sumExps)
+allPhysBkgModels = ModelGroup("allPhysBkgModels", [expGaus, bwzRedux, bwzGamma])
+bernsteinsPlusPhysModels = ModelGroup("bersteinsPlusPhysModels", 
+    allPhysBkgModels.models + bernsteins)
+sumExpsPlusPhysModels = ModelGroup("sumExpsPlusPhysModels", allPhysBkgModels.models + sumExps)
+allBackgroundModels = ModelGroup("allBackgroundModels", allPhysBkgModels.models + bernsteins + sumExps)
+
+backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
+modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
+    Bernstein(bernstein_defaultValues, degree=5)])
