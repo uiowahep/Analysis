@@ -190,6 +190,82 @@ def signalFit((category, variable), ws, signal, model, **wargs):
     #
     fsdata.Close()
 
+def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **wargs):
+    """
+    assume the Workspace already exists and x-variable is already defined
+    """
+    #
+    # Load Combine's lib
+    #
+    R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+
+    # 
+    # initialize the values from wargs
+    # 
+    pathToDir = "/tmp"
+    if "pathToDir" in wargs:
+        pathToDir = wargs["pathToDir"]
+
+    #
+    # the the canvas/frame
+    #
+    canvas = R.TCanvas("c1", "c1", 800, 600)
+    canvas.cd()
+    frame = ws.var("x").frame()
+    
+    #
+    # for each mass point, perform a fit.
+    # initial values for each consequetive model will be derived from the 
+    # previous mass point
+    #
+    imodel = 0
+    prevSignal=None; prevModel=None; prevVariable=None
+    parameters = []
+    massPoints = []
+    for (signal, model, variable) in tupleSignalModelVariable:
+        fsdata = R.TFile(signal.pathToFile)
+        hsdata = fsdata.Get(category + "/" + variable["name"])
+        hsdata.Scale(1/signal.getWeight())
+        rsdata = aux.buildRooHist(ws, hsdata)
+        model.initialize(aux.buildSignalModelName(model, category,
+            signal.mc.buildProcessName(), variable["central"]))
+        if imodel>0:
+            model.setInitialValuesFromModel(prevModel, ws, 
+                massDifference=(variable["central"] - prevVariable["central"]))
+        model.createParameters(ws)
+        pdf = model.build(ws)
+        r = pdf.fitTo(rsdata, R.RooFit.Save(),
+            R.RooFit.Range(variable["fitmin"], variable["fitmax"]))
+        prevSignal = signal
+        prevModel = model
+        prevVariable = variable
+        imodel +=1
+        massPoints.append(variable["central"])
+
+        # exctract the parameters
+        lParameters = model.getParameterValuesAsList(ws)
+        parameters.append(lParameters)
+
+#        pdf.plotOn(frame, R.RooFit.LineColor(R.kBlue))
+        imodel+=1
+
+    #
+    # build the Splines
+    # have to transpose the matrix of parameters first
+    #
+    paramsTransposed = aux.transpose(parameters)
+    finalmodel = prevModel.__class__()
+    finalmodel.initialize(aux.buildSignalModelName(model, category, signal.mc.buildProcessName()))
+    finalpdf = finalmodel.buildWithParameterMatrix(ws, massPoints, paramsTransposed)
+    finalpdf.Print("v")
+
+    #
+    # save the canvas
+    #
+    frame.Draw()
+    fileName = "signalFitInterpolation__{category}__{processName}__{modelId}__{mods}.png".format(category=category, processName=signal.mc.buildProcessName(), modelId=model.modelId, mods="")
+    canvas.SaveAs(os.path.join(pathToDir, fileName))
+
 def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
     """
     assume the Workspace already exists and x-variable is already defined

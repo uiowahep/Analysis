@@ -76,12 +76,16 @@ def buildMassVariable(ws, **wargs):
     ws.var("x").setUnit("GeV")
     ws.defineSet("obs", "x")
 
+def buildMH(ws, **wargs):
+    print wargs
+    ws.factory("x[{mhmin}, {mhmax}]".format(**wargs))
+
 def buildRooHist(ws, hist):
     roo_hist = R.RooDataHist(hist.GetName(), hist.GetName(),
         R.RooArgList(ws.set("obs")), hist)
     return roo_hist
 
-def buildSignalModelName(smodel, category, processName, mass):
+def buildSignalModelName(smodel, category, processName, mass=""):
     return "{className}_{category}_{processName}{mass}".format(className=smodel.__class__.__name__, category=category, processName=processName, mass=mass)
 
 def buildBackgroundModelName(bmodel, category):

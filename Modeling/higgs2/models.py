@@ -4,6 +4,7 @@ All the Model Declaration/Definitions used are provided below
 
 import sys, os
 import ROOT as R
+import array 
 
 #
 # Model
@@ -65,6 +66,24 @@ class SingleGaus(Model):
             modelName=self.modelName))
         return ws.pdf(self.modelName)
 
+    def buildWithParameterMatrix(self, ws, massPoints, pmatrix, **wargs):
+        means = pmatrix[0]
+        sigmas = pmatri[1]
+        meansArray = array.array("f", means)
+        sigmasArray = array.array("f", sigmas)
+        massPointsArray = array.array("f", massPoints)
+        meansSpline = R.RooSpline1D("mean_{modelName}".format(modelName=self.modelName),
+            "mean_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(means), massPointsArray, meansArray)
+        sigmasSpline = R.RooSpline1D("sigma_{modelName}".format(modelName=self.modelName),
+            "sigma_{modelName}".format(modelName=self.modelName),
+            ws.var("MH"), len(means), massPointsArray, sigmasArray)
+        getattr(ws, "import")(meansSpline)
+        getattr(ws, "import")(sigmasSpline)
+        ws.factory("Gaussian::{modelName}(x, mean_{modelName}, sigma_{modelName})".format(
+            modelName=self.modelName))
+        return ws.pdf(self.modelName)
+
     def extract(self, cfg, **wargs):
         return ws.pdf(self.modelName)
 
@@ -77,6 +96,13 @@ class SingleGaus(Model):
         }
         print self.initialValues
     
+    def getParameterValuesAsList(self, ws, **args):
+        return \
+            [
+                ws.var("mean_{modelName}".format(modelName=self.modelName)).getVal(), 
+                ws.var("sigma_{modelName}".format(modelName=self.modelName)).getVal(i)
+            ]
+
     def setInitialValuesFromModel(self, model, ws, **wargs):
         massDifference = wargs["massDifference"]
         print ws.var("mean_{modelName}".format(modelName=model.modelName)).getVal()
