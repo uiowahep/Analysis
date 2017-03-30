@@ -360,7 +360,8 @@ def backgroundsWithRooMultiPdf((category, variable), ws, data, models, **wargs):
     pdfs = R.RooArgList()
     for model in models:
         pdfs.add(ws.pdf(model.modelName))
-    ccc = R.RooCategory("pdfindex_{category}".format(category=category))
+    ccc = R.RooCategory("pdfindex_{category}".format(category=category),
+        "Index of the currently active or selected pdf")
     multipdf = R.RooMultiPdf("multipdf_{category}".format(category=category),
         "Background Models Envelope", ccc, pdfs)
     ws.factory("multipdf_{category}_norm[0, 100000000]".format(category=category))

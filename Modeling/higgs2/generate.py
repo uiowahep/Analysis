@@ -36,7 +36,7 @@ def generate_backgroundsWithRooMultiPdf():
         aux.buildMassVariable(ws, **diMuonMass125)
         counter = 0;
         for model in modelGroupToUse.models:
-            m.color = colors[counter]
+            model.color = colors[counter]
             counter += 1
         backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
             modelGroupToUse.models, pathToDir=backgroundfitswithroomultipdfDir,

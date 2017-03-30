@@ -17,7 +17,7 @@ jobLabel = "vR1_20170329_1241"
 #######################
 projectDirLocal = "/Users/vk/software/Analysis/files/analysis_results/"
 projectDirLxplus = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/analysis_results"
-projectDirToUse = projectDirLocal
+projectDirToUse = projectDirLxplus
 histDir = os.path.join(projectDirToUse, "results", jobLabel)
 distributionsDir = os.path.join(projectDirToUse, "distributions", jobLabel);
 aux.mkdir(distributionsDir)
