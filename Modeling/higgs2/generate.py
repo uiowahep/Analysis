@@ -29,15 +29,215 @@ def generate_backgroundFits():
             backgroundFits((category, diMuonMass125), ws, data, modelsToUse,
                 pathToDir=backgroundfitsDir,groupName=modelGroup.name)
 
+def generate_datacardsTripleGaus():
+    modelGroupToUse = modelGroupForMultiPdf
+    workspaceName = "higgs"
+    for category in run1Categories:
+        workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
+            category=category, signalModelId = tripleGaus120.modelId)
+        ws = R.RooWorkspace(workspaceName)
+        aux.buildMassVariable(ws, **diMuonMass125)
+        aux.buildMH(ws, mhmin=120, mhmax=130)
+        
+        #
+        # create the RooDataHist and import it into the Workspace here explicitly
+        #
+        fdata = R.TFile(data.pathToFile)
+        hdata = fdata.Get(category + "/" + "DiMuonMass")
+        rdata = aux.buildRooHist(ws, hdata,
+            "data_obs_{category}".format(category=category))
+        getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
+        fdata.Close()
+        
+        #
+        # Create the Signal Models
+        #
+        print "*"*80
+        print "Generating Triple Gaus Splines"
+        print "*"*80
+        vbfmodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (vbf120, tripleGaus120, diMuonMass120),
+                (vbf125, tripleGaus125, diMuonMass125),
+                (vbf130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        glumodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (glu120, tripleGaus120, diMuonMass120),
+                (glu125, tripleGaus125, diMuonMass125),
+                (glu130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        wpmodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wp120, tripleGaus120, diMuonMass120),
+                (wp125, tripleGaus125, diMuonMass125),
+                (wp130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        wmmodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wm120, tripleGaus120, diMuonMass120),
+                (wm125, tripleGaus125, diMuonMass125),
+                (wm130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        zhmodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (zh120, tripleGaus120, diMuonMass120),
+                (zh125, tripleGaus125, diMuonMass125),
+                (zh130, tripleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+
+        #
+        # Create the Background Model
+        #
+        counter = 0
+        for model in modelGroupToUse.models:
+            model.color = colors[counter]
+            counter += 1
+        backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
+            modelGroupToUse.models, pathToDir=backgroundfitswithroomultipdfDir,
+            groupName=modelGroupToUse.name)
+
+        #
+        # Signal and Background Models are ready and are in the Workspace
+        # create the datacard for this category
+        #
+        datacardAnalytic(category, ws, data, 
+            [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
+            ws.pdf("multipdf_{category}".format(category=category)),
+            pathToDir=datacardsworkspacesDir,
+            workspaceFileName=workspaceFileName,
+            workspaceName=workspaceName
+        )
+
+        #
+        # save the Workspacee
+        #
+        ws.SaveAs(os.path.join(datacardsworkspacesDir, workspaceFileName))
+
+def generate_datacardsDoubleGaus():
+    modelGroupToUse = modelGroupForMultiPdf
+    workspaceName = "higgs"
+    for category in run1Categories:
+        workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
+            category=category, signalModelId = doubleGaus120.modelId)
+        ws = R.RooWorkspace(workspaceName)
+        aux.buildMassVariable(ws, **diMuonMass125)
+        aux.buildMH(ws, mhmin=120, mhmax=130)
+        
+        #
+        # create the RooDataHist and import it into the Workspace here explicitly
+        #
+        fdata = R.TFile(data.pathToFile)
+        hdata = fdata.Get(category + "/" + "DiMuonMass")
+        rdata = aux.buildRooHist(ws, hdata,
+            "data_obs_{category}".format(category=category))
+        getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
+        fdata.Close()
+        
+        #
+        # Create the Signal Models
+        #
+        print "*"*80
+        print "Generating Double Gaus Splines"
+        print "*"*80
+        vbfmodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (vbf120, doubleGaus120, diMuonMass120),
+                (vbf125, doubleGaus125, diMuonMass125),
+                (vbf130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        glumodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (glu120, doubleGaus120, diMuonMass120),
+                (glu125, doubleGaus125, diMuonMass125),
+                (glu130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        wpmodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wp120, doubleGaus120, diMuonMass120),
+                (wp125, doubleGaus125, diMuonMass125),
+                (wp130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        wmmodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (wm120, doubleGaus120, diMuonMass120),
+                (wm125, doubleGaus125, diMuonMass125),
+                (wm130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+        zhmodel = signalFitInterpolationWithSpline(category, ws, 
+            [
+                (zh120, doubleGaus120, diMuonMass120),
+                (zh125, doubleGaus125, diMuonMass125),
+                (zh130, doubleGaus130, diMuonMass130),
+            ],
+            pathToDir=signalfitinterpolationswithsplineDir
+        )
+
+        #
+        # Create the Background Model
+        #
+        counter = 0
+        for model in modelGroupToUse.models:
+            model.color = colors[counter]
+            counter += 1
+        backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
+            modelGroupToUse.models, pathToDir=backgroundfitswithroomultipdfDir,
+            groupName=modelGroupToUse.name)
+
+        #
+        # Signal and Background Models are ready and are in the Workspace
+        # create the datacard for this category
+        #
+        datacardAnalytic(category, ws, data, 
+            [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
+            ws.pdf("multipdf_{category}".format(category=category)),
+            pathToDir=datacardsworkspacesDir,
+            workspaceFileName=workspaceFileName,
+            workspaceName=workspaceName
+        )
+
+        #
+        # save the Workspacee
+        #
+        ws.SaveAs(os.path.join(datacardsworkspacesDir, workspaceFileName))
+
 def generate_datacardsSingleGaus():
     modelGroupToUse = modelGroupForMultiPdf
     workspaceName = "higgs"
     for category in run1Categories:
-        workspaceFileName = "workspace__{category}__{signalModelId}".format(
+        workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
             category=category, signalModelId = singleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
         aux.buildMassVariable(ws, **diMuonMass125)
         aux.buildMH(ws, mhmin=120, mhmax=130)
+
+        #
+        # create the RooDataHist and import it into the Workspace here explicitly
+        #
+        fdata = R.TFile(data.pathToFile)
+        hdata = fdata.Get(category + "/" + "DiMuonMass")
+        rdata = aux.buildRooHist(ws, hdata,
+            "data_obs_{category}".format(category=category))
+        getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
+        fdata.Close()
         
         #
         # Create the Signal Models
@@ -112,6 +312,10 @@ def generate_datacardsSingleGaus():
         #
         # save the Workspacee
         #
+        print "*"*80
+        print "*** Final RooWorkspace contents ***"
+        print "*"*80
+        ws.Print("v")
         ws.SaveAs(os.path.join(datacardsworkspacesDir, workspaceFileName))
 
 def generate_backgroundsWithRooMultiPdf():
@@ -335,3 +539,9 @@ if __name__=="__main__":
         generate_backgroundsWithRooMultiPdf()
     elif args.number == 6:
         generate_datacardsSingleGaus()
+    elif args.number == 7:
+        generate_datacardsDoubleGaus()
+    elif args.number == 8:
+        generate_datacardsTripleGaus()
+    else:
+        pass

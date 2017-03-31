@@ -79,10 +79,15 @@ def buildMH(ws, **wargs):
     print wargs
     ws.factory("MH[{mhmin}, {mhmax}]".format(**wargs))
 
-def buildRooHist(ws, hist):
-    roo_hist = R.RooDataHist(hist.GetName(), hist.GetName(),
+def buildRooHist(ws, hist, name=None):
+    if name==None:
+        name = hist.GetName()
+    roo_hist = R.RooDataHist(name, name,
         R.RooArgList(ws.set("obs")), hist)
     return roo_hist
+
+def unpackSignalModelName(modelName):
+    return modelName.split("_")
 
 def buildSignalModelName(smodel, category, processName, mass=""):
     return "{className}_{category}_{processName}{mass}".format(className=smodel.__class__.__name__, category=category, processName=processName, mass=mass)

@@ -90,6 +90,15 @@ class SingleGaus(Model):
             modelName=self.modelName))
         ws.Print("v")
         return ws.pdf(self.modelName)
+    
+    def setNormalization(self, ws, massPoints, norms, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+        massPointsArray = array.array("f", massPoints)
+        normsArray = array.array("f", norms)
+        normsSpline = R.RooSpline1D("{modelName}_norm".format(modelName=self.modelName),
+            "{modelName}_norm".format(modelName=self.modelName),
+            ws.var("MH"), len(massPoints), massPointsArray, normsArray)
+        getattr(ws, "import")(normsSpline, R.RooFit.RecycleConflictNodes())
 
     def extract(self, cfg, **wargs):
         return ws.pdf(self.modelName)
@@ -183,6 +192,15 @@ class DoubleGaus(Model):
         getattr(ws, "import")(sigma2sSpline, R.RooFit.RecycleConflictNodes())
         getattr(ws, "import")(coefsSpline, R.RooFit.RecycleConflictNodes())
         return self.build(ws)
+
+    def setNormalization(self, ws, massPoints, norms, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+        massPointsArray = array.array("f", massPoints)
+        normsArray = array.array("f", norms)
+        normsSpline = R.RooSpline1D("{modelName}_norm".format(modelName=self.modelName),
+            "{modelName}_norm".format(modelName=self.modelName),
+            ws.var("MH"), len(massPoints), massPointsArray, normsArray)
+        getattr(ws, "import")(normsSpline, R.RooFit.RecycleConflictNodes())
 
     def setInitialValuesFromTH1(self, th1, **wargs):
         self.initialValues = {
@@ -348,6 +366,15 @@ class TripleGaus(Model):
         getattr(ws, "import")(coef1sSpline, R.RooFit.RecycleConflictNodes())
         getattr(ws, "import")(coef2sSpline, R.RooFit.RecycleConflictNodes())
         return self.build(ws)
+    
+    def setNormalization(self, ws, massPoints, norms, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+        massPointsArray = array.array("f", massPoints)
+        normsArray = array.array("f", norms)
+        normsSpline = R.RooSpline1D("{modelName}_norm".format(modelName=self.modelName),
+            "{modelName}_norm".format(modelName=self.modelName),
+            ws.var("MH"), len(massPoints), massPointsArray, normsArray)
+        getattr(ws, "import")(normsSpline, R.RooFit.RecycleConflictNodes())
     
     def getParameterValuesAsList(self, ws, **args):
         return \

@@ -10,6 +10,7 @@ import definitions as defs
 import Configuration.higgs.Samples as S
 import models
 from Configuration.higgs.Iowa_settings import *
+import common
 
 #
 # a list of functions that generate certain distributions/fits/plots/etc...
@@ -221,12 +222,17 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
     prevSignal=None; prevModel=None; prevVariable=None
     parameters = []
     massPoints = []
+    norms = []
     for (signal, model, variable) in tupleSignalModelVariable:
         frame = ws.var("x").frame()
         fsdata = R.TFile(signal.pathToFile)
         hsdata = fsdata.Get(category + "/" + variable["name"])
         hsdata.Scale(1/signal.getWeight())
         rsdata = aux.buildRooHist(ws, hsdata)
+        binfirst = hsdata.FindBin(variable["min"])
+        binlast = hsdata.FindBin(variable["max"])
+#        norms.append(hsdata.Integral(binfirst, binlast))
+        norms.append(rsdata.sumEntries())
         model.initialize(aux.buildSignalModelName(model, category,
             signal.mc.buildProcessName(), variable["central"]))
         if imodel>0:
@@ -262,6 +268,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
 
     #
     # build the Splines
+    # create the spline for normalization
     # have to transpose the matrix of parameters first
     #
     frame = ws.var("x").frame()
@@ -271,6 +278,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
     finalmodel = prevModel.__class__()
     finalmodel.initialize(aux.buildSignalModelName(model, category, signal.mc.buildProcessName()))
     finalpdf = finalmodel.buildWithParameterMatrix(ws, massPoints, paramsTransposed)
+    finalmodel.setNormalization(ws, massPoints, norms)
     finalpdf.Print("v")
 
     #
@@ -372,7 +380,7 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     #
     # Header
     #
-    content.append(delimiString)
+    content.append(delimString)
     imaxString = "imax 1 number of bins"
     content.append(imaxString)
     jmaxString = "jmax {nProcessesMinus1} number of processes minus 1".format(nProcessesMinus1=len(signalModels))
@@ -387,8 +395,11 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     # but we go with *...
     #
     pathToWorkspaceFile = os.path.join(pathToDir, workspaceFileName)
-    shapesString = "shapes * * {pathToWorkspaceFile} {workspaceName}:$PROCESS".format(
-        pathToWorkspaceFile=pathToWorkspaceFile, workspaceName=workspaceName)
+    dataShapeString = "shapes data_obs * {pathToWorkspaceFile} {workspaceName}:data_obs_$CHANNEL".format(pathToWorkspaceFile=pathToWorkspaceFile, workspaceName=workspaceName)
+    bkgShapeString = "shapes BKG * {pathToWorkspaceFile} {workspaceName}:multipdf_$CHANNEL".format(pathToWorkspaceFile=pathToWorkspaceFile, workspaceName=workspaceName)
+    shapesString = "shapes * * {pathToWorkspaceFile} {workspaceName}:{className}_$CHANNEL_$PROCESS".format(
+        pathToWorkspaceFile=pathToWorkspaceFile, workspaceName=workspaceName,
+        className=signalModels[0].__class__.__name__)
     content.append(shapesString)
     content.append(delimString)
 
@@ -400,29 +411,58 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     obsString = "observation -1"
     content.append(obsString)
     content.append(delimString)
-
+    
     #
     # MC processes/rates
     #
     categoryList = [category for i in range(len(signalModels)+1)]
-    processNamesList = [model.modelName for model in signalModels] + \
-        [backgroundPdf.GetName()]
-    processNumbersList = [-len(signalModels)+i for i in range(1, len(signalModels)+2)]
-    rateString = [data.jsonToUse.intlumi for i in range(signalModels)] + [1]
-    binString = "bin {CategoryList}".format(CategoryList=categoryList)
+    processNamesList = [aux.unpackSignalModelName(model.modelName)[-1]
+        for model in signalModels] + ["BKG"]
+    processNumbersList = ["%d" % (-len(signalModels)+i) for i in range(1, len(signalModels)+2)]
+    rateString = ["%.2f" % data.jsonToUse.intlumi for i in range(len(signalModels))] + ["1"]
+    binString = "bin {CategoryList}".format(CategoryList=" ".join(categoryList))
     content.append(binString)
-    processNamesString = "process {ProcessNamesList}".format(ProcessNamesList=processNamesList)
+    processNamesString = "process {ProcessNamesList}".format(
+        ProcessNamesList=" ".join(processNamesList))
     content.append(processNamesString)
-    processNumbersString = "process {ProcessNumbersList}".format(ProcessNumbersList=processNumbersList)
+    processNumbersString = "process {ProcessNumbersList}".format(
+        ProcessNumbersList=" ".join(processNumbersList))
     content.append(processNumbersString)
-    rateString = "rate {rateString}".format(rateString=rateString)
+    rateString = "rate {rateString}".format(rateString=" ".join(rateString))
     content.append(rateString)
+    content.append(delimString)
+
+    #
+    # Rate Parameters: Branching Fraction/Cross-section values
+    #
+    for signal in signalModels:
+        processName = aux.unpackSignalModelName(signal.modelName)[-1]
+        combineSignalName = common.mapDASNames2Combine[processName]
+        brString = "hmm rateParam * {processName} $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/sm_br_yr4.root:br".format(processName=processName)
+        content.append(brString)
+        xsString = "{combineSignalName} rateParam * {processName} $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/sm_yr4_13TeV.root:xs_13TeV".format(
+            processName=processName, combineSignalName=combineSignalName)
+        content.append(xsString)
+    content.append(delimString)
+    
+    # 
+    # fake uncertainty to make RooMultiPdf work
+    #
+    fakeUncList = ["-" for i in range(len(signalModels))] + ["1.0001"]
+    fakeUncString = "fake lnN {fakeUncList}".format(fakeUncList=" ".join(fakeUncList))
+    content.append(fakeUncString)
+
+    #
+    # add pdf index
+    #
+    content.append("pdfindex_{category} discrete".format(category=category))
     content.append(delimString)
 
     #
     # join all the lines in content with "\n"
     #
-    fileName = "datacard__{category}__{signalModelId}.txt"
+    fileName = "datacard__{category}__{signalModelId}.txt".format(category=category,
+        signalModelId=signalModels[0].modelId)
     outputFile = file(os.path.join(pathToDir, fileName), "w")
     outputFile.write("\n".join(content) + "\n")
     outputFile.close()
@@ -482,7 +522,7 @@ def backgroundFits((category, variable), ws, data, models, **wargs):
     rdata = aux.buildRooHist(ws, hdata)
     rdata_blind = aux.buildRooHist(ws, hdata_blind)
     norm = rdata.sumEntries()
-
+    
     #
     # iterate thru all the models/fit/plot
     #

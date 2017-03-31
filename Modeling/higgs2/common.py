@@ -15,6 +15,18 @@ colors = [
     R.kSpring
 ]
 
+#########################################################
+### Map CMS DAS Higgs Signal Name to Combine Notation ###
+#########################################################
+mapDASNames2Combine = {
+    "VBF" : "vbfH_13TeV",
+    "GluGlu" : "ggH_13TeV",
+    "WMinusH" : "WminusH_13TeV",
+    "WPlusH" : "WplusH_13TeV",
+    "ZH" : "ZH_13TeV",
+    "ttH" : "ttH_13TeV"
+}
+
 ##################################
 ### predefined lists of models ###
 ##################################
