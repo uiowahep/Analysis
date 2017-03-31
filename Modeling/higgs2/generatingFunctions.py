@@ -287,6 +287,11 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
     fileName = "signalFitInterpolationWithSpline__{category}__{processName}__{modelId}__{mods}.png".format(category=category, processName=signal.mc.buildProcessName(), modelId=model.modelId, mods="")
     canvas.SaveAs(os.path.join(pathToDir, fileName))
 
+    #
+    # return the model that you build with RooSplines
+    #
+    return finalmodel
+
 def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
     """
     assume the Workspace already exists and x-variable is already defined
@@ -343,6 +348,85 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
 def ftestPerFamily():
     pass
 
+def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
+    #
+    # defuaults from wargs
+    #
+    pathToDir = "/tmp"
+    if "pathToDir" in wargs:
+        pathToDir = wargs["pathToDir"]
+    workspaceFileName = "workspace__testCategory__testSignalModelId.root"
+    if "workspaceFileName" in wargs:
+        workspaceFileName = wargs["workspaceFileName"]
+    workspaceName = "higgs"
+    if "workspaceName" in wargs:
+        workspaceName = wargs["workspaceName"]
+
+    #
+    # datacard content as a list of strings.
+    # NOTE: no \n termination, we will join with '\n' in the end
+    #
+    content = []
+    delimString = "-"*90
+
+    #
+    # Header
+    #
+    content.append(delimiString)
+    imaxString = "imax 1 number of bins"
+    content.append(imaxString)
+    jmaxString = "jmax {nProcessesMinus1} number of processes minus 1".format(nProcessesMinus1=len(signalModels))
+    content.append(jmaxString)
+    kmaxString = "kmax * number of nuisance parameters"
+    content.append(kmaxString)
+    content.append(delimString)
+
+    #
+    # Full path to the TFile with Workspace Section
+    # In principle the full list of all models/data should come in here
+    # but we go with *...
+    #
+    pathToWorkspaceFile = os.path.join(pathToDir, workspaceFileName)
+    shapesString = "shapes * * {pathToWorkspaceFile} {workspaceName}:$PROCESS".format(
+        pathToWorkspaceFile=pathToWorkspaceFile, workspaceName=workspaceName)
+    content.append(shapesString)
+    content.append(delimString)
+
+    #
+    # observation per bin
+    #
+    binString = "bin {category}".format(category=category)
+    content.append(binString)
+    obsString = "observation -1"
+    content.append(obsString)
+    content.append(delimString)
+
+    #
+    # MC processes/rates
+    #
+    categoryList = [category for i in range(len(signalModels)+1)]
+    processNamesList = [model.modelName for model in signalModels] + \
+        [backgroundPdf.GetName()]
+    processNumbersList = [-len(signalModels)+i for i in range(1, len(signalModels)+2)]
+    rateString = [data.jsonToUse.intlumi for i in range(signalModels)] + [1]
+    binString = "bin {CategoryList}".format(CategoryList=categoryList)
+    content.append(binString)
+    processNamesString = "process {ProcessNamesList}".format(ProcessNamesList=processNamesList)
+    content.append(processNamesString)
+    processNumbersString = "process {ProcessNumbersList}".format(ProcessNumbersList=processNumbersList)
+    content.append(processNumbersString)
+    rateString = "rate {rateString}".format(rateString=rateString)
+    content.append(rateString)
+    content.append(delimString)
+
+    #
+    # join all the lines in content with "\n"
+    #
+    fileName = "datacard__{category}__{signalModelId}.txt"
+    outputFile = file(os.path.join(pathToDir, fileName), "w")
+    outputFile.write("\n".join(content) + "\n")
+    outputFile.close()
+    
 def backgroundsWithRooMultiPdf((category, variable), ws, data, models, **wargs):
     #
     # load the combine lib

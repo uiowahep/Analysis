@@ -31,6 +31,8 @@ signalfitinterpolationswithsplineDir = os.path.join(projectDirToUse, "signalfiti
 aux.mkdir(signalfitinterpolationswithsplineDir)
 backgroundfitswithroomultipdfDir = os.path.join(projectDirToUse, "backgroundfitswithroomultipdf", jobLabel)
 aux.mkdir(backgroundfitswithroomultipdfDir)
+datacardsworkspacesDir = os.path.join("datacardsworkspaces", jobLabel)
+aux.mkdir(datacardsworkspacesDir)
 
 #################
 ###  Samples  ###
