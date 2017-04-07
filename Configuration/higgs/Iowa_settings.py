@@ -4,13 +4,19 @@ import ROOT as R
 import Modeling.higgs2.models as models
 import Modeling.higgs2.definitions as defs
 import Modeling.higgs2.aux as aux
+import Modeling.higgs2.categories as categories
 import Samples as S
 
 ########################
 ### General Settings ###
 ########################
-#jobLabel = "vR1_20170217_1742"
 jobLabel = "vR1_20170329_1241"
+categoriesToUse = categories.run1CategoriesForCombination
+combinationsToUse = categories.run1Combinations
+reps2NamesToUse = categories.run1CombReps2Names
+names2RepsToUse = categories.run1CombNames2Reps
+massListToUse = [120, 125, 130]
+signalModelNames = ["SingleGaus"]
 
 #######################
 ### Directory Setup ###

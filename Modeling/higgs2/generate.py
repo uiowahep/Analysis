@@ -17,7 +17,7 @@ parser.add_argument('-m', '--mode', type=str, default='Iowa', help='Run in Iowa,
 args = parser.parse_args()
 
 def generate_backgroundFits():
-    for category in run1Categories:
+    for category in categoriesToUse:
         for modelGroup in backgroundModelGroups:
             ws = R.RooWorkspace("higgs")
             aux.buildMassVariable(ws, **diMuonMass125)
@@ -32,7 +32,7 @@ def generate_backgroundFits():
 def generate_datacardsTripleGaus():
     modelGroupToUse = modelGroupForMultiPdf
     workspaceName = "higgs"
-    for category in run1Categories:
+    for category in categoriesToUse:
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
             category=category, signalModelId = tripleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
@@ -127,7 +127,7 @@ def generate_datacardsTripleGaus():
 def generate_datacardsDoubleGaus():
     modelGroupToUse = modelGroupForMultiPdf
     workspaceName = "higgs"
-    for category in run1Categories:
+    for category in categoriesToUse:
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
             category=category, signalModelId = doubleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
@@ -222,7 +222,7 @@ def generate_datacardsDoubleGaus():
 def generate_datacardsSingleGaus():
     modelGroupToUse = modelGroupForMultiPdf
     workspaceName = "higgs"
-    for category in run1Categories:
+    for category in categoriesToUse:
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
             category=category, signalModelId = singleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
@@ -320,7 +320,7 @@ def generate_datacardsSingleGaus():
 
 def generate_backgroundsWithRooMultiPdf():
     modelGroupToUse = modelGroupForMultiPdf
-    for category in run1Categories:
+    for category in categoriesToUse:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
         counter = 0;
@@ -332,7 +332,7 @@ def generate_backgroundsWithRooMultiPdf():
             groupName=modelGroupToUse.name)
 
 def generate_signalFitInterpolations():
-    for category in run1Categories:
+    for category in categoriesToUse:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
         signalFitInterpolation(category, ws, 
@@ -345,7 +345,7 @@ def generate_signalFitInterpolations():
         )
 
 def generate_signalFitInterpolationsWithSpline():
-    for category in run1Categories:
+    for category in categoriesToUse:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
         aux.buildMH(ws, mhmin=120, mhmax=130)
@@ -481,7 +481,7 @@ def generate_signalFitInterpolationsWithSpline():
 
 def generate_signalFits():
     initialValuesFromTH1 = True
-    for category in run1Categories:
+    for category in categoriesToUse:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
         for modelToUse in [singleGaus125, doubleGaus125, tripleGaus125]:
@@ -510,7 +510,7 @@ def generate_signalFits():
 
 def generate_distributions():
     logY = True
-    for category in run1Categories:
+    for category in categoriesToUse:
         for vname in varNames:
             variable = {}
             variable["name"]=vname

@@ -18,29 +18,6 @@ run1Categories = [
     "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE", 
 ]
 
-run1CategoriesForCombination = [
-    "VBFTight", "ggFTight",
-    "ggFLoose", "01JetsTightBB", "01JetsTightBO",
-    "01JetsTightBE", "01JetsTightOO", "01JetsTightOE", "01JetsTightEE",
-    "01JetsLooseBB", "01JetsLooseBO", "01JetsLooseBE",
-    "01JetsLooseOO", "01JetsLooseOE", "01JetsLooseEE", 
-]
-
-combinationsRun1 = {
-    "2JetsComb" : ["VBFTight", "ggFLoose", "ggFTight"],
-    "01JetsComb" : ["01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
-        "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO",
-        "01JetsTightBB", "01JetsTightBE", "01JetsTightBO",
-        "01JetsTightEE", "01JetsTightOE", "01JetsTightOO"],
-    "Combination" : run1CategoriesForCombination,
-    "2JetsggF" : ["ggFLoose", "ggFTight"],
-    "01JetsTightBarrel" : ["01JetsTightBB", "01JetsTightBO", "01JetsTightBE"],
-    "01JetsTightOther" : ["01JetsTightOO", "01JetsTightOE", "01JetsTightEE"],
-    "01JetsLoose" : ["01JetsLooseBB", "01JetsLooseBE", "01JetsLooseBO",
-        "01JetsLooseEE", "01JetsLooseOE", "01JetsLooseOO"],
-}
-combinationsRun1["CombNoVBFTight"] = combinationsRun1["2JetsggF"] + combinationsRun1["01JetsComb"]
-
 #
 # Run 2 Categories list
 #
@@ -52,3 +29,58 @@ run2Categories.extend(
         "0bJets4l3Mu1e", "0bJets4l4Mu0e", "0bJets4l2Mu2e", 
     ]
 )
+
+#
+# Category Representations
+#
+run1CatReps = ["cat%d" % i for i in range(len(run1Categories))]
+run1Reps2Names = {}
+run1Names2Reps = {}
+for i in range(run1CatReps):
+    run1Reps2Names[run1CatReps[i]] = run1Categories[i]
+    run1Names2Reps[run1Categories[i]] = run1CatReps[i]
+
+#
+# Combinations for Run1
+# combinations are named already so that you can use them directly
+# NOTE: run1CategoriesForCombination is used rather than run1Categories!
+#
+run1Combinations = {
+    "comb2Jets" : [
+        run1Names2Reps["VBFTight"], 
+        run1Names2Reps["ggFLoose"], 
+        run1Names2Reps["ggFTight"]],
+    "comb01Jets" : [
+        run1Names2Reps["01JetsLooseBB"], 
+        run1Names2Reps["01JetsLooseBE"], 
+        run1Names2Reps["01JetsLooseBO"],
+        run1Names2Reps["01JetsLooseEE"], 
+        run1Names2Reps["01JetsLooseOE"], 
+        run1Names2Reps["01JetsLooseOO"],
+        run1CombNames2Reps["01JetsTightBB"], 
+        run1CombNames2Reps["01JetsTightBE"], 
+        run1CombNames2Reps["01JetsTightBO"],
+        run1CombNames2Reps["01JetsTightEE"], 
+        run1CombNames2Reps["01JetsTightOE"], 
+        run1CombNames2Reps["01JetsTightOO"]],
+    "comb2JetsggF" : [
+        run1CombNames2Reps["ggFLoose"], 
+        run1CombNames2Reps["ggFTight"]],
+    "comb01JetsTightB" : [
+        run1CombNames2Reps["01JetsTightBB"], 
+        run1CombNames2Reps["01JetsTightBO"], 
+        run1CombNames2Reps["01JetsTightBE"]],
+    "comb01JetsTightO" : [
+        run1CombNames2Reps["01JetsTightOO"], 
+        run1CombNames2Reps["01JetsTightOE"], 
+        run1CombNames2Reps["01JetsTightEE"]],
+    "comb01JetsLoose" : [
+        run1CombNames2Reps["01JetsLooseBB"], 
+        run1CombNames2Reps["01JetsLooseBE"], 
+        run1CombNames2Reps["01JetsLooseBO"],
+        run1CombNames2Reps["01JetsLooseEE"], 
+        run1CombNames2Reps["01JetsLooseOE"], 
+        run1CombNames2Reps["01JetsLooseOO"]],
+}
+run1Combinations["combTotal"] = run1Combinations["comb01Jets"] + run1Combinations["comb2Jets"]
+run1Combinations["combNoVBFTight"] = run1Combinations["comb2JetsggF"] + run1Combinations["comb01Jets"]

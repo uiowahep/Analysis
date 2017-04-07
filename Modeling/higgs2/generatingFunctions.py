@@ -157,7 +157,8 @@ def signalFit((category, variable), ws, signal, model, **wargs):
     #
     # set up the model and perform the fit
     #
-    model.initialize(aux.buildSignalModelName(model, category, signal.mc.buildProcessName(), variable["central"]))
+    model.initialize(aux.buildSignalModelName(model, names2RepsToUse[category], 
+        signal.mc.buildProcessName(), variable["central"]))
     if initialValuesFromTH1:
         model.setInitialValuesFromTH1(hsdata)
     model.createParameters(ws)
@@ -233,7 +234,8 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
         binlast = hsdata.FindBin(variable["max"])
 #        norms.append(hsdata.Integral(binfirst, binlast))
         norms.append(rsdata.sumEntries())
-        model.initialize(aux.buildSignalModelName(model, category,
+        model.initialize(aux.buildSignalModelName(model, 
+            names2RepsToUse[category],
             signal.mc.buildProcessName(), variable["central"]))
         if imodel>0:
             model.setInitialValuesFromModel(prevModel, ws, 
@@ -276,7 +278,8 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
     print parameters
     print paramsTransposed
     finalmodel = prevModel.__class__()
-    finalmodel.initialize(aux.buildSignalModelName(model, category, signal.mc.buildProcessName()))
+    finalmodel.initialize(aux.buildSignalModelName(model, 
+        names2Reps[category], signal.mc.buildProcessName()))
     finalpdf = finalmodel.buildWithParameterMatrix(ws, massPoints, paramsTransposed)
     finalmodel.setNormalization(ws, massPoints, norms)
     finalpdf.Print("v")
@@ -330,7 +333,8 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
         hsdata = fsdata.Get(category + "/" + variable["name"])
         hsdata.Scale(1/signal.getWeight())
         rsdata = aux.buildRooHist(ws, hsdata)
-        model.initialize(aux.buildSignalModelName(model, category,
+        model.initialize(aux.buildSignalModelName(model, 
+            names2RepsToUse[category],
             signal.mc.buildProcessName(), variable["central"]))
         if imodel>0:
             model.setInitialValuesFromModel(prevModel, ws, 
@@ -408,7 +412,7 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     #
     # observation per bin
     #
-    binString = "bin {category}".format(category=category)
+    binString = "bin {category}".format(category=names2Reps[category])
     content.append(binString)
     obsString = "observation -1"
     content.append(obsString)
@@ -417,7 +421,7 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     #
     # MC processes/rates
     #
-    categoryList = [category for i in range(len(signalModels)+1)]
+    categoryList = [names2Reps[category] for i in range(len(signalModels)+1)]
     processNamesList = [aux.unpackSignalModelName(model.modelName)[-1]
         for model in signalModels] + ["BKG"]
     processNumbersList = ["%d" % (-len(signalModels)+i) for i in range(1, len(signalModels)+2)]
@@ -457,13 +461,13 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     #
     # add pdf index
     #
-    content.append("pdfindex_{category} discrete".format(category=category))
+    content.append("pdfindex_{category} discrete".format(category=names2Reps[category]))
     content.append(delimString)
 
     #
     # join all the lines in content with "\n"
     #
-    fileName = "datacard__{category}__{signalModelId}.txt".format(category=category,
+    fileName = "datacard__{category}__{signalModelId}.txt".format(category=names2Reps[category],
         signalModelId=signalModels[0].modelId)
     outputFile = file(os.path.join(pathToDir, fileName), "w")
     outputFile.write("\n".join(content) + "\n")
@@ -486,11 +490,11 @@ def backgroundsWithRooMultiPdf((category, variable), ws, data, models, **wargs):
     pdfs = R.RooArgList()
     for model in models:
         pdfs.add(ws.pdf(model.modelName))
-    ccc = R.RooCategory("pdfindex_{category}".format(category=category),
+    ccc = R.RooCategory("pdfindex_{category}".format(category=names2Reps[category]),
         "Index of the currently active or selected pdf")
-    multipdf = R.RooMultiPdf("multipdf_{category}".format(category=category),
+    multipdf = R.RooMultiPdf("multipdf_{category}".format(category=names2Reps[category]),
         "Background Models Envelope", ccc, pdfs)
-    ws.factory("multipdf_{category}_norm[0, 100000000]".format(category=category))
+    ws.factory("multipdf_{category}_norm[0, 100000000]".format(category=names2Reps[category]))
     getattr(ws, "import")(ccc, R.RooFit.RecycleConflictNodes())
     getattr(ws, "import")(multipdf, R.RooFit.RecycleConflictNodes())
     ws.Print("v")
@@ -532,7 +536,7 @@ def backgroundFits((category, variable), ws, data, models, **wargs):
     pdfs = {}
     rdata_blind.plotOn(frame)
     for model in models:
-        modelName = aux.buildBackgroundModelName(model, category)
+        modelName = aux.buildBackgroundModelName(model, names2Reps[category])
         model.initialize(modelName)
         model.createParameters(ws)
         pdfs[modelName] = model.build(ws)
