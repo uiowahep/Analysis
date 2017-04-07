@@ -397,10 +397,12 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     pathToWorkspaceFile = os.path.join(pathToDir, workspaceFileName)
     dataShapeString = "shapes data_obs * {pathToWorkspaceFile} {workspaceName}:data_obs_$CHANNEL".format(pathToWorkspaceFile=pathToWorkspaceFile, workspaceName=workspaceName)
     bkgShapeString = "shapes BKG * {pathToWorkspaceFile} {workspaceName}:multipdf_$CHANNEL".format(pathToWorkspaceFile=pathToWorkspaceFile, workspaceName=workspaceName)
-    shapesString = "shapes * * {pathToWorkspaceFile} {workspaceName}:{className}_$CHANNEL_$PROCESS".format(
+    sigShapesString = "shapes * * {pathToWorkspaceFile} {workspaceName}:{className}_$CHANNEL_$PROCESS".format(
         pathToWorkspaceFile=pathToWorkspaceFile, workspaceName=workspaceName,
         className=signalModels[0].__class__.__name__)
-    content.append(shapesString)
+    content.append(dataShapeString)
+    content.append(bkgShapeString)
+    content.append(sigShapesString)
     content.append(delimString)
 
     #
