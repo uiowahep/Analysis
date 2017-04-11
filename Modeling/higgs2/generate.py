@@ -3,7 +3,6 @@
 import ROOT as R
 R.gROOT.SetBatch(R.kTRUE)
 
-import categories
 from generatingFunctions import *
 import argparse
 
