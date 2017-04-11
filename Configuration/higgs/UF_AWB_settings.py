@@ -186,11 +186,11 @@ zh130MC = S.mcMoriond2017datasets_1["Z_130"]
 
 # sample objects
 data = defs.Data("NoCats", jsonToUse, dataPathToFile, color=R.kBlack)
-dy = defs.MC("NoCats", dyPathToFile, dyMC, color=R.kBlue)
-tt = defs.MC("NoCats", ttPathToFile, ttMC, color=R.kGreen)
-wJetsToLNu = defs.MC("NoCats", wJetsToLNuPathToFile, wJetsToLNuMC, color=R.kYellow)
-wwTo2L2Nu = defs.MC("NoCats", wwTo2L2NuPathToFile, wwTo2L2NuMC, color=R.kGray)
-wzTo3LNu = defs.MC("NoCats", wzTo3LNuPathToFile, wzTo3LNuMC, color=R.kViolet)
+#dy = defs.MC("NoCats", dyPathToFile, dyMC, color=R.kBlue)
+#tt = defs.MC("NoCats", ttPathToFile, ttMC, color=R.kGreen)
+#wJetsToLNu = defs.MC("NoCats", wJetsToLNuPathToFile, wJetsToLNuMC, color=R.kYellow)
+#wwTo2L2Nu = defs.MC("NoCats", wwTo2L2NuPathToFile, wwTo2L2NuMC, color=R.kGray)
+#wzTo3LNu = defs.MC("NoCats", wzTo3LNuPathToFile, wzTo3LNuMC, color=R.kViolet)
 glu125 = defs.MC("NoCats", glu125PathToFile, glu125MC, color=None)
 glu120 = defs.MC("NoCats", glu120PathToFile, glu120MC, color=None)
 glu130 = defs.MC("NoCats", glu130PathToFile, glu130MC, color=None)

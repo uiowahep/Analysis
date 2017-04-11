@@ -15,15 +15,12 @@ args = parser.parse_args()
 if args.mode == "Iowa":
     import Configuration.higgs.Iowa_settings as settings
     from Configuration.higgs.Iowa_settings import *
-    from categories import *
 elif args.mode == "UF_AWB":
     import Configuration.higgs.UF_AWB_settings as settings
     from Configuration.higgs.UF_AWB_settings import *
-    from categories_UF_AWB import *
 elif args.mode == "UF_AMC":
     import Configuration.higgs.UF_AMC_settings as settings
     from Configuration.higgs.UF_AMC_settings import *
-    from categories_UF_AMC import *
 
 def generate_backgroundFits():
     for category in categoriesToUse:
