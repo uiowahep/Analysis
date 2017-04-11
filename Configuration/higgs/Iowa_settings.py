@@ -219,3 +219,70 @@ diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":110, "max":160,
     "fitmin" : 110, "fitmax" : 130}
 diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":110, "max":160,
     "fitmin" : 120, "fitmax" : 140}
+
+"""
+a list of common things, not configurations, but common...
+"""
+
+######################
+### Pool of Colors ###
+######################
+colors = [
+    R.kBlack, R.kRed, R.kGreen, R.kBlue, R.kYellow, R.kViolet, R.kGray,
+    R.kOrange, R.kPink, R.kMagenta, R.kAzure, R.kCyan, R.kTeal,
+    R.kSpring
+]
+
+#########################################################
+### Map CMS DAS Higgs Signal Name to Combine Notation ###
+#########################################################
+mapDASNames2Combine = {
+    "VBF" : "vbfH_13TeV",
+    "GluGlu" : "ggH_13TeV",
+    "WMinusH" : "WminusH_13TeV",
+    "WPlusH" : "WplusH_13TeV",
+    "ZH" : "ZH_13TeV",
+    "ttH" : "ttH_13TeV"
+}
+
+##################################
+### predefined lists of models ###
+##################################
+# signal
+singleGaus125 = models.SingleGaus(singleGaus125_initialValues)
+singleGaus120 = models.SingleGaus(singleGaus120_initialValues)
+singleGaus130 = models.SingleGaus(singleGaus130_initialValues)
+doubleGaus125 = models.DoubleGaus(doubleGaus125_initialValues)
+doubleGaus120 = models.DoubleGaus(doubleGaus120_initialValues)
+doubleGaus130 = models.DoubleGaus(doubleGaus130_initialValues)
+tripleGaus125 = models.TripleGaus(tripleGaus125_initialValues)
+tripleGaus120 = models.TripleGaus(tripleGaus120_initialValues)
+tripleGaus130 = models.TripleGaus(tripleGaus130_initialValues)
+
+# background
+expGaus = models.ExpGaus(expGaus_defaultValues)
+bwzRedux = models.BWZRedux(bwzredux_defaultValues)
+bwzGamma = models.BWZGamma(bwzgamma_defaultValues)
+bernsteins = [models.Bernstein(bernstein_defaultValues, degree=i) for i in range(1, 11)]
+sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 11)]
+
+
+class ModelGroup(object):
+    def __init__(self, name, models):
+        self.models = models
+        self.name = name
+        object.__init__(self)
+
+bernsteinModels = ModelGroup("bersteinModels", bernsteins)
+sumExpModels = ModelGroup("sumExpModels", sumExps)
+allPhysBkgModels = ModelGroup("allPhysBkgModels", [expGaus, bwzRedux, bwzGamma])
+bernsteinsPlusPhysModels = ModelGroup("bersteinsPlusPhysModels",
+    allPhysBkgModels.models + bernsteins)
+sumExpsPlusPhysModels = ModelGroup("sumExpsPlusPhysModels", allPhysBkgModels.models + sumExps)
+allBackgroundModels = ModelGroup("allBackgroundModels", allPhysBkgModels.models + bernsteins + sumExps)
+
+backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
+modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
+    models.Bernstein(bernstein_defaultValues, degree=6)])
+modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma])
+

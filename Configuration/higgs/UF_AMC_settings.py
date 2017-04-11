@@ -1,156 +1,288 @@
-from itertools import izip
+
+import os, sys
 import ROOT as R
+import Modeling.higgs2.models as models
+import Modeling.higgs2.definitions as defs
+import Modeling.higgs2.aux as aux
+import Modeling.higgs2.categories as categories
+import Samples as S
 
-###########################
-###  General settings  ###
-###########################
-job_label = 'AMC_Mar14_test_v1'
-UF_era    = 'Moriond17_Feb08'
-JSON      = 'Moriond17_Feb08.txt'
-analytic  = True
+########################
+### General Settings ###
+########################
+jobLabel = "vR1_20170329_1241"
+categoriesToUse = categories.run1Categories
+combinationsToUse = categories.run1Combinations
+reps2NamesToUse = categories.run1Reps2Names
+names2RepsToUse = categories.run1Names2Reps
+massListToUse = [120, 125, 130]
+signalModelNames = ["SingleGaus"]
 
 #######################
-###   Data to use   ###
+### Directory Setup ###
 #######################
-cmssws  = ['80X']
-pileups = ['69']
+projectDirLocal = "/Users/vk/software/Analysis/files/analysis_results/"
+projectDirLxplus = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/analysis_results"
+projectDirToUse = projectDirLxplus
+histDir = os.path.join(projectDirToUse, "results", jobLabel)
+distributionsDir = os.path.join(projectDirToUse, "distributions", jobLabel);
+aux.mkdir(distributionsDir)
+backgroundfitsDir = os.path.join(projectDirToUse, "backgroundfits", jobLabel)
+aux.mkdir(backgroundfitsDir)
+signalfitsDir = os.path.join(projectDirToUse, "signalfits", jobLabel)
+aux.mkdir(signalfitsDir)
+singalfitinterpolationsDir = os.path.join(projectDirToUse, "signalfitinterpolations", jobLabel)
+aux.mkdir(singalfitinterpolationsDir)
+signalfitinterpolationswithsplineDir = os.path.join(projectDirToUse, "signalfitinterpolationswithspline", jobLabel)
+aux.mkdir(signalfitinterpolationswithsplineDir)
+backgroundfitswithroomultipdfDir = os.path.join(projectDirToUse, "backgroundfitswithroomultipdf", jobLabel)
+aux.mkdir(backgroundfitswithroomultipdfDir)
+datacardsworkspacesDir = os.path.join(projectDirToUse, "datacardsworkspaces", jobLabel)
+aux.mkdir(datacardsworkspacesDir)
+combineoutputDir = os.path.join(projectDirToUse, "combineoutput", jobLabel)
+aux.mkdir(combineoutputDir)
+combinesubmissionsDir = os.path.join(projectDirToUse, "combinesubmissions", jobLabel)
+aux.mkdir(combinesubmissionsDir)
 
-signals = [ 'GluGlu_HToMuMu_M125_13TeV_powheg_pythia8',
-            'VBF_HToMuMu_M125_13TeV_powheg_pythia8',
-            'WMinusH_HToMuMu_M125_13TeV_powheg_pythia8',
-            'WPlusH_HToMuMu_M125_13TeV_powheg_pythia8',
-            'ZH_HToMuMu_M125_13TeV_powheg_pythia8' ]
+#################
+###  Samples  ###
+#################
+jsonToUse = S.jsonfiles["2016_ReReco_36460"]
+dataPathToFile = histDir + "/" + "result__merged__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24.root"
 
-backgrounds = []
+# background files
+dyPathToFile = histDir + "/" + "result__DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+ttPathToFile = histDir + "/" + "result__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+wJetsToLNuPathToFile = histDir + "/" + "result__WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+wwTo2L2NuPathToFile = histDir + "/" + "result__WWTo2L2Nu_13TeV-powheg-herwigpp__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+wzTo3LNuPathToFile = histDir + "/" + "result__WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
 
-######################################################
-###   Settings for AuxTools/python/convert_UF.py   ###
-######################################################
+dyMC = S.mcMoriond2017datasets["/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_HCALDebug_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
+ttMC = S.mcMoriond2017datasets["/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
+wJetsToLNuMC = S.mcMoriond2017datasets["/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
+wwTo2L2NuMC = S.mcMoriond2017datasets["/WWTo2L2Nu_13TeV-powheg-herwigpp/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
+wzTo3LNuMC = S.mcMoriond2017datasets["/WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM"]
 
-# combined limit of ~2.21
-#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories1_36814_dyMG.root'
+# signal files
+glu125PathToFile = histDir + "/" + "result__GluGlu_HToMuMu_M125_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+glu120PathToFile = histDir + "/" + "result__GluGlu_HToMuMu_M120_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+glu130PathToFile = histDir + "/" + "result__GluGlu_HToMuMu_M130_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+vbf125PathToFile = histDir + "/" + "result__VBF_HToMuMu_M125_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+vbf120PathToFile = histDir + "/" + "result__VBF_HToMuMu_M120_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+vbf130PathToFile = histDir + "/" + "result__VBF_HToMuMu_M130_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+wm125PathToFile = histDir + "/" + "result__WMinusH_HToMuMu_M125_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+wm120PathToFile = histDir + "/" + "result__WMinusH_HToMuMu_M120_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+wm130PathToFile = histDir + "/" + "result__WMinusH_HToMuMu_M130_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+wp125PathToFile = histDir + "/" + "result__WPlusH_HToMuMu_M125_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+wp120PathToFile = histDir + "/" + "result__WPlusH_HToMuMu_M120_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+wp130PathToFile = histDir + "/" + "result__WPlusH_HToMuMu_M130_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+zh125PathToFile = histDir + "/" + "result__ZH_HToMuMu_M125_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+zh120PathToFile = histDir + "/" + "result__ZH_HToMuMu_M120_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
+zh130PathToFile = histDir + "/" + "result__ZH_HToMuMu_M130_13TeV_powheg_pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
 
-# combined limit of ~ 2.00
-#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg200_36814_dyMG.root'        # !!!
-#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg100_scale1_36814_dyMG.root' # !!!
-#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg50_scale1_36814_dyMG.root'  # !!!
+glu125MC = S.mcMoriond2017datasets_1["GluGlu_125"]
+glu120MC = S.mcMoriond2017datasets_1["GluGlu_120"]
+glu130MC = S.mcMoriond2017datasets_1["GluGlu_130"]
+vbf125MC = S.mcMoriond2017datasets_1["VBF_125"]
+vbf120MC = S.mcMoriond2017datasets_1["VBF_120"]
+vbf130MC = S.mcMoriond2017datasets_1["VBF_130"]
+wm125MC = S.mcMoriond2017datasets_1["WM_125"]
+wm120MC = S.mcMoriond2017datasets_1["WM_120"]
+wm130MC = S.mcMoriond2017datasets_1["WM_130"]
+wp125MC = S.mcMoriond2017datasets_1["WP_125"]
+wp120MC = S.mcMoriond2017datasets_1["WP_120"]
+wp130MC = S.mcMoriond2017datasets_1["WP_130"]
+zh125MC = S.mcMoriond2017datasets_1["Z_125"]
+zh120MC = S.mcMoriond2017datasets_1["Z_120"]
+zh130MC = S.mcMoriond2017datasets_1["Z_130"]
 
-# combined limit of ~ 2.03
-#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg500_36814_dyMG.root'        # !!!
-#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg500_scale1_36814_dyMG.root'
-#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg200_scale1_36814_dyMG.root'
-#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg100_36814_dyMG.root'
-#orig_filename = 'validate_UNBLINDED_dimu_mass_PF_110_160_nolow_categories3_tree_nodes16_minbkg50_36814_dyMG.root'
+# sample objects
+data = defs.Data("NoCats", jsonToUse, dataPathToFile, color=R.kBlack)
+dy = defs.MC("NoCats", dyPathToFile, dyMC, color=R.kBlue)
+tt = defs.MC("NoCats", ttPathToFile, ttMC, color=R.kGreen)
+wJetsToLNu = defs.MC("NoCats", wJetsToLNuPathToFile, wJetsToLNuMC, color=R.kYellow)
+wwTo2L2Nu = defs.MC("NoCats", wwTo2L2NuPathToFile, wwTo2L2NuMC, color=R.kGray)
+wzTo3LNu = defs.MC("NoCats", wzTo3LNuPathToFile, wzTo3LNuMC, color=R.kViolet)
+glu125 = defs.MC("NoCats", glu125PathToFile, glu125MC, color=None)
+glu120 = defs.MC("NoCats", glu120PathToFile, glu120MC, color=None)
+glu130 = defs.MC("NoCats", glu130PathToFile, glu130MC, color=None)
+vbf125 = defs.MC("NoCats", vbf125PathToFile, vbf125MC, color=None)
+vbf120 = defs.MC("NoCats", vbf120PathToFile, vbf120MC, color=None)
+vbf130 = defs.MC("NoCats", vbf130PathToFile, vbf130MC, color=None)
+wm125 = defs.MC("NoCats", wm125PathToFile, wm125MC, color=None)
+wm120 = defs.MC("NoCats", wm120PathToFile, wm120MC, color=None)
+wm130 = defs.MC("NoCats", wm130PathToFile, wm130MC, color=None)
+wp125 = defs.MC("NoCats", wp125PathToFile, wp125MC, color=None)
+wp120 = defs.MC("NoCats", wp120PathToFile, wp120MC, color=None)
+wp130 = defs.MC("NoCats", wp130PathToFile, wp130MC, color=None)
+zh125 = defs.MC("NoCats", zh125PathToFile, zh125MC, color=None)
+zh120 = defs.MC("NoCats", zh120PathToFile, zh120MC, color=None)
+zh130 = defs.MC("NoCats", zh130PathToFile, zh130MC, color=None)
 
-orig_file    = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/%s' % orig_filename
-orig_sig_dir = 'signal_histos'
+########################
+### Models' Settings ###
+########################
+# single gaus
+singleGaus125_initialValues = {
+    "mean":125, "meanmin":115, "meanmax":135,
+    "sigma":1.0, "sigmamin":0.1, "sigmamax":10
+}
+singleGaus120_initialValues = {
+    "mean":120, "meanmin":110, "meanmax":130,
+    "sigma":1.0, "sigmamin":0.1, "sigmamax":10
+}
+singleGaus130_initialValues = {
+    "mean":130, "meanmin":120, "meanmax":140,
+    "sigma":1.0, "sigmamin":0.1, "sigmamax":10
+}
+doubleGaus125_initialValues = {
+    "mean1":125, "mean1min":115, "mean1max":135,
+    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
+    "mean2":125, "mean2min":115, "mean2max":135,
+    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
+    "coef" : 0.1, "coefmin" : 0.0001, "coefmax": 1
+}
+doubleGaus120_initialValues = {
+    "mean1":120, "mean1min":110, "mean1max":130,
+    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
+    "mean2":120, "mean2min":110, "mean2max":130,
+    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
+    "coef" : 0.1, "coefmin" : 0.0001, "coefmax": 1
+}
+doubleGaus130_initialValues = {
+    "mean1":130, "mean1min":120, "mean1max":140,
+    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
+    "mean2":130, "mean2min":120, "mean2max":140,
+    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
+    "coef" : 0.1, "coefmin" : 0.0001, "coefmax": 1
+}
+tripleGaus125_initialValues = {
+    "mean1":125, "mean1min":115, "mean1max":135,
+    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
+    "mean2":125, "mean2min":115, "mean2max":135,
+    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
+    "mean3":125, "mean3min":115, "mean3max":135,
+    "sigma3":1.0, "sigma3min":0.1, "sigma3max":10,
+    "coef1" : 0.1, "coef1min" : 0.0001, "coef1max" : 1,
+    "coef2" : 0.1, "coef2min" : 0.0001, "coef2max" : 1,
+}
+tripleGaus120_initialValues = {
+    "mean1":120, "mean1min":110, "mean1max":130,
+    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
+    "mean2":120, "mean2min":110, "mean2max":130,
+    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
+    "mean3":120, "mean3min":110, "mean3max":130,
+    "sigma3":1.0, "sigma3min":0.1, "sigma3max":10,
+    "coef1" : 0.1, "coef1min" : 0.0001, "coef1max" : 1,
+    "coef2" : 0.1, "coef2min" : 0.0001, "coef2max" : 1,
+}
+tripleGaus130_initialValues = {
+    "mean1":130, "mean1min":120, "mean1max":140,
+    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
+    "mean2":130, "mean2min":120, "mean2max":140,
+    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
+    "mean3":130, "mean3min":120, "mean3max":140,
+    "sigma3":1.0, "sigma3min":0.1, "sigma3max":10,
+    "coef1" : 0.1, "coef1min" : 0.0001, "coef1max" : 1,
+    "coef2" : 0.1, "coef2min" : 0.0001, "coef2max" : 1,
+}
 
-#####################################################
-###   Categories                                  ###
-#####################################################
+# expGaus
+expGaus_defaultValues = {
+    "a1" : 1.0, "a1min" : -20, "a1max" : 20,
+    "a2" : 0.3, "a2min" : -20, "a2max" : 20
+}
+# BWZ Redux
+bwzredux_defaultValues = {
+    "a1" : 1.39, "a1min" : 0.7, "a1max" : 2.1,
+    "a2" : 0.47, "a2min" : 0.30, "a2max" : 0.62,
+    "a3" : -0.26, "a3min" : -0.40, "a3max" : -0.12
+}
+# BWZ Gamma
+bwzgamma_defaultValues = {
+    "zwidth" : 2.5, "zwidthmin" : 0, "zwidthmax" : 30,
+    "zmass" : 91.2, "zmassmin" : 90, "zmassmax" : 92,
+    "expParam" : -0.0053, "expParammin" : -0.0073, "expParammax" : -0.0033,
+    "fraction" : 0.379, "fractionmin" : 0.2, "fractionmax" : 1
+}
+# bernsteins
+bernstein_defaultValues = aux.buildDefaultValuesBerstein(20)
+# sum exponentials
+sumExp_defaultValues = aux.buildDefaultValuesSumExponentials(20)
 
-in_category_names = []
-out_category_names = []
+################################################
+### Mass Variables/Fit Ranges/Drawing Ranges ###
+################################################
+diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":110, "max":160,
+    "fitmin" : 115, "fitmax" : 135}
+diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":110, "max":160,
+    "fitmin" : 110, "fitmax" : 130}
+diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":110, "max":160,
+    "fitmin" : 120, "fitmax" : 140}
 
-in_file = R.TFile(orig_file)
-stacks_dir = in_file.GetDirectory("stacks")
+"""
+a list of common things, not configurations, but common...
+"""
 
-i = 0
-for key in stacks_dir.GetListOfKeys():
-    name = key.GetName()
-    name = name.replace("_stack", "")
-    if name == "c_ALL" or name == "c_01_Jet" or name == "c_2_Jet" or name == "c_01_Jet_Tight" or name == "c_01_Jet_Loose": 
-        continue
-    if "T_" != name[0:2] and "tree" in orig_filename:
-        continue
-    if "tree" in orig_filename:
-        out_category_names.append("c" + str(i))
-        i+=1
-    in_category_names.append(name)
-
-if "tree" not in orig_filename: 
-    out_category_names = in_category_names
-
-in_to_out_category_map = dict(izip(in_category_names, out_category_names))
-
-#print in_category_names
-#print ""
-#print out_category_names
-#print ""
-#print in_to_out_category_map
-
-############################################################################
-###   Settings for Modeling/higgs/generate_signalFitsPlusWorkspaces.py   ###
-############################################################################
-in_hist_dir    = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/out/input_hists/%s/%s' % (UF_era, job_label) 
-workspaces_dir = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/out/workspaces_datacards/%s/%s' % (UF_era, job_label)
-sig_fits_dir   = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/out/sig_fits/%s/%s' % (UF_era, job_label)
-
-scale_MC     = False
-sig_models   = ["DoubleGaus"]
-#sig_models   = ["SingleGaus", "DoubleGaus", "TripleGaus"]
-sig_modes    = ["Separate"]
-#sig_modes    = ["Combined"]
-
-bkg_models = [
-    {"name" : "BWZRedux", "aux" : {}} 
-    #{"name" : "BWZGamma", "aux" : {}},
-    #{"name" : "SumExponentials", "aux" : {"degree" : 1}},
-    #{"name" : "SumExponentials", "aux" : {"degree" : 2}},
-    #{"name" : "SumExponentials", "aux" : {"degree" : 3}},
-    #{"name" : "SumExponentials", "aux" : {"degree" : 4}},
-    #{"name" : "SumPowers", "aux" : {"degree" : 2}},
-    #{"name" : "SumPowers", "aux" : {"degree" : 3}},
-    #{"name" : "SumPowers", "aux" : {"degree" : 4}},
-    #{"name" : "SumPowers", "aux" : {"degree" : 5}},
-    #{"name" : "SumPowers", "aux" : {"degree" : 6}},
-    #{"name" : "LaurentSeries", "aux" : {"degree" : 2}},
-    #{"name" : "LaurentSeries", "aux" : {"degree" : 3}},
-    #{"name" : "LaurentSeries", "aux" : {"degree" : 4}},
-    #{"name" : "LaurentSeries", "aux" : {"degree" : 5}},
-    #{"name" : "LaurentSeries", "aux" : {"degree" : 6}},
-    #{"name" : "LaurentSeries", "aux" : {"degree" : 7}},
-
-    #{"name" : "Polynomial", "aux" : {"degree" : 3}},
-    #{"name" : "Polynomial", "aux" : {"degree" : 4}},
-    #{"name" : "Polynomial", "aux" : {"degree" : 5}},
-    #{"name" : "Polynomial", "aux" : {"degree" : 6}},
-    #{"name" : "Polynomial", "aux" : {"degree" : 7}},
-    #{"name" : "Polynomial", "aux" : {"degree" : 8}},
-    #{"name" : "Polynomial", "aux" : {"degree" : 9}},
-    #{"name" : "ExpGaus", "aux" : {}},
-    #{"name" : "Bernstein", "aux" : {"degree" : 2}},
-    #{"name" : "Bernstein", "aux" : {"degree" : 3}},
-    #{"name" : "Bernstein", "aux" : {"degree" : 4}},
-    #{"name" : "Bernstein", "aux" : {"degree" : 5}}
-    #{"name" : "Bernstein", "aux" : {"degree" : 6}},
-    #{"name" : "Bernstein", "aux" : {"degree" : 7}},
-    #{"name" : "Bernstein", "aux" : {"degree" : 8}},
+######################
+### Pool of Colors ###
+######################
+colors = [
+    R.kBlack, R.kRed, R.kGreen, R.kBlue, R.kYellow, R.kViolet, R.kGray,
+    R.kOrange, R.kPink, R.kMagenta, R.kAzure, R.kCyan, R.kTeal,
+    R.kSpring
 ]
 
+#########################################################
+### Map CMS DAS Higgs Signal Name to Combine Notation ###
+#########################################################
+mapDASNames2Combine = {
+    "VBF" : "vbfH_13TeV",
+    "GluGlu" : "ggH_13TeV",
+    "WMinusH" : "WminusH_13TeV",
+    "WPlusH" : "WplusH_13TeV",
+    "ZH" : "ZH_13TeV",
+    "ttH" : "ttH_13TeV"
+}
 
-sig_M = [125, 110, 160, 112, 132]
+##################################
+### predefined lists of models ###
+##################################
+# signal
+singleGaus125 = models.SingleGaus(singleGaus125_initialValues)
+singleGaus120 = models.SingleGaus(singleGaus120_initialValues)
+singleGaus130 = models.SingleGaus(singleGaus130_initialValues)
+doubleGaus125 = models.DoubleGaus(doubleGaus125_initialValues)
+doubleGaus120 = models.DoubleGaus(doubleGaus120_initialValues)
+doubleGaus130 = models.DoubleGaus(doubleGaus130_initialValues)
+tripleGaus125 = models.TripleGaus(tripleGaus125_initialValues)
+tripleGaus120 = models.TripleGaus(tripleGaus120_initialValues)
+tripleGaus130 = models.TripleGaus(tripleGaus130_initialValues)
 
-#####################################################################
-###   Settings for Modeling/higgs/generate_bkgDataWorkspaces.py   ###
-#####################################################################
-bkg_fits_dir = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/out/bkg_fits/%s/%s' % (UF_era, job_label)
-bkg_M = [ 91, 110, 160, 110, 160]
+# background
+expGaus = models.ExpGaus(expGaus_defaultValues)
+bwzRedux = models.BWZRedux(bwzredux_defaultValues)
+bwzGamma = models.BWZGamma(bwzgamma_defaultValues)
+bernsteins = [models.Bernstein(bernstein_defaultValues, degree=i) for i in range(1, 11)]
+sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 11)]
 
-#############################################################
-###   Settings for Modeling/higgs/generate_datacards.py   ###
-#############################################################
-#datacards_dir = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/out/datacards/%s/%s' % (UF_era, job_label)
-datacards_dir = workspaces_dir # workspaces and datacards needs to be in the same directory
 
-#####################################################################
-###   Settings for Modeling/Modeling/combine/generate_submit.py   ###
-#####################################################################
-combine_dir   = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/out/combine_out/%s/%s' % (UF_era, job_label)
-combine_sub   = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/out/combine_sub/%s/%s' % (UF_era, job_label)
-combine_cmssw = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/combine/CMSSW_7_4_7/src'
+class ModelGroup(object):
+    def __init__(self, name, models):
+        self.models = models
+        self.name = name
+        object.__init__(self)
 
-##########################################################
-###   Settings for Modeling/higgs/generate_limits.py   ###
-##########################################################
-limits_dir = '/afs/cern.ch/work/a/acarnes/public/h2mumu/limit_setting/out/limits/%s/%s' % (UF_era, job_label)
+bernsteinModels = ModelGroup("bersteinModels", bernsteins)
+sumExpModels = ModelGroup("sumExpModels", sumExps)
+allPhysBkgModels = ModelGroup("allPhysBkgModels", [expGaus, bwzRedux, bwzGamma])
+bernsteinsPlusPhysModels = ModelGroup("bersteinsPlusPhysModels",
+    allPhysBkgModels.models + bernsteins)
+sumExpsPlusPhysModels = ModelGroup("sumExpsPlusPhysModels", allPhysBkgModels.models + sumExps)
+allBackgroundModels = ModelGroup("allBackgroundModels", allPhysBkgModels.models + bernsteins + sumExps)
+
+backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
+modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
+    models.Bernstein(bernstein_defaultValues, degree=6)])
+modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma])
+

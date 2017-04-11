@@ -5,7 +5,6 @@ R.gROOT.SetBatch(R.kTRUE)
 
 import categories
 from generatingFunctions import *
-from common import *
 import argparse
 
 parser = argparse.ArgumentParser()

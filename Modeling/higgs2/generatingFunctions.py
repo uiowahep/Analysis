@@ -9,7 +9,6 @@ import aux, os, sys
 import definitions as defs
 import Configuration.higgs.Samples as S
 import models
-import common
 
 #
 # a list of functions that generate certain distributions/fits/plots/etc...
@@ -442,7 +441,7 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, settings, 
     #
     for signal in signalModels:
         processName = aux.unpackSignalModelName(signal.modelName)[-1]
-        combineSignalName = common.mapDASNames2Combine[processName]
+        combineSignalName = settings.mapDASNames2Combine[processName]
         brString = "hmm rateParam * {processName} $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/sm_br_yr4.root:br".format(processName=processName)
         content.append(brString)
         xsString = "{combineSignalName} rateParam * {processName} $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/sm_yr4_13TeV.root:xs_13TeV".format(
