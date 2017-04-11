@@ -643,13 +643,3 @@ class Polynomial(Model):
         if "noNorm" in wargs: return
         else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
             ndata*2))
-
-#
-# Initialize the Mass Variable
-#
-def createVariables_Mass(ws, *kargs, **wargs):
-    massmin = wargs["massmin"]
-    massmax = wargs["massmax"]
-    ws.factory("x[125.0, %f, %f]" % (massmin, massmax))
-    ws.var("x").SetTitle("m_{#mu#mu}")
-    ws.var("x").setUnit("GeV")

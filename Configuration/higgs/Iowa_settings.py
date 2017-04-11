@@ -11,10 +11,10 @@ import Samples as S
 ### General Settings ###
 ########################
 jobLabel = "vR1_20170329_1241"
-categoriesToUse = categories.run1CategoriesForCombination
+categoriesToUse = categories.run1Categories
 combinationsToUse = categories.run1Combinations
-reps2NamesToUse = categories.run1CombReps2Names
-names2RepsToUse = categories.run1CombNames2Reps
+reps2NamesToUse = categories.run1Reps2Names
+names2RepsToUse = categories.run1Names2Reps
 massListToUse = [120, 125, 130]
 signalModelNames = ["SingleGaus"]
 
@@ -39,6 +39,10 @@ backgroundfitswithroomultipdfDir = os.path.join(projectDirToUse, "backgroundfits
 aux.mkdir(backgroundfitswithroomultipdfDir)
 datacardsworkspacesDir = os.path.join(projectDirToUse, "datacardsworkspaces", jobLabel)
 aux.mkdir(datacardsworkspacesDir)
+combineoutputDir = os.path.join(projectDirToUse, "combineoutput", jobLabel)
+aux.mkdir(combineoutputDir)
+combinesubmissionsDir = os.path.join(projectDirToUse, "combinesubmissions", jobLabel)
+aux.mkdir(combinesubmissionsDir)
 
 #################
 ###  Samples  ###
@@ -185,8 +189,8 @@ tripleGaus130_initialValues = {
 
 # expGaus
 expGaus_defaultValues = {
-    "a1" : 5.0, "a1min" : -1000, "a1max" : 1000,
-    "a2" : 5.0, "a2min" : -1000, "a2max" : 1000
+    "a1" : 1.0, "a1min" : -20, "a1max" : 20,
+    "a2" : 0.3, "a2min" : -20, "a2max" : 20
 }
 # BWZ Redux
 bwzredux_defaultValues = {

@@ -7,7 +7,9 @@ from Configuration.higgs.Iowa_settings import *
 parser = argparse.ArgumentParser()
 parser.add_argument('-m', '--mode', type=str, 
     default='Iowa', help='Run in Iowa, UF_AWB, or UF_AMC mode')
-parser.add_argument("-M", "--method", type=str,
+parser.add_argument("--mass", type=str,
+    default="125", help="Mass to use")
+parser.add_argument("--method", type=str,
     default="Asymptotic", help="Which Combine Method to Run")
 
 args = parser.parse_args()
@@ -16,7 +18,7 @@ args = parser.parse_args()
 # given names for categories and datacard names
 # returns a cmd to combine those and produce a combined datacard
 #
-def combineCards(namesForCombination, datacardNames, combinedDatacard):
+def combineCards((namesForCombination, datacardNames), combinedDatacard):
     cardsToCombine = ""
     counter = 0
     for cardName in namesForCombination:
@@ -30,8 +32,9 @@ def combineCards(namesForCombination, datacardNames, combinedDatacard):
     return cmd
 
 def asymptotic(mass, outputModifier, pathToDatacard, **wargs):
-    cmd = "combine -M Asymptotic -m {mass} -n {outputModifier} {pathToDatacard}\n".format(
-        mass=mass, outputModifier=outputModifier, pathToDatacard=pathToDatacard
+    cmd = "combine -M Asymptotic -m {mass} -n {outputModifier} -d {pathToDatacard} {asymOptions}\n".format(
+        mass=mass, outputModifier=outputModifier, pathToDatacard=pathToDatacard,
+        **wargs
     )
     return cmd
 

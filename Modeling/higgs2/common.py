@@ -65,4 +65,5 @@ allBackgroundModels = ModelGroup("allBackgroundModels", allPhysBkgModels.models 
 
 backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
 modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
-    Bernstein(bernstein_defaultValues, degree=5)])
+    Bernstein(bernstein_defaultValues, degree=6)])
+modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma])

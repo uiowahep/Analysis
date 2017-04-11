@@ -34,7 +34,7 @@ def generate_datacardsTripleGaus():
     workspaceName = "higgs"
     for category in categoriesToUse:
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
-            category=category, signalModelId = tripleGaus120.modelId)
+            category=names2RepsToUse[category], signalModelId = tripleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
         aux.buildMassVariable(ws, **diMuonMass125)
         aux.buildMH(ws, mhmin=120, mhmax=130)
@@ -45,7 +45,7 @@ def generate_datacardsTripleGaus():
         fdata = R.TFile(data.pathToFile)
         hdata = fdata.Get(category + "/" + "DiMuonMass")
         rdata = aux.buildRooHist(ws, hdata,
-            "data_obs_{category}".format(category=category))
+            "data_obs_{category}".format(category=names2RepsToUse[category]))
         getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
         fdata.Close()
         
@@ -113,7 +113,7 @@ def generate_datacardsTripleGaus():
         #
         datacardAnalytic(category, ws, data, 
             [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
-            ws.pdf("multipdf_{category}".format(category=category)),
+            ws.pdf("multipdf_{category}".format(category=names2RepsToUse[category])),
             pathToDir=datacardsworkspacesDir,
             workspaceFileName=workspaceFileName,
             workspaceName=workspaceName
@@ -129,7 +129,7 @@ def generate_datacardsDoubleGaus():
     workspaceName = "higgs"
     for category in categoriesToUse:
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
-            category=category, signalModelId = doubleGaus120.modelId)
+            category=names2RepsToUse[category], signalModelId = doubleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
         aux.buildMassVariable(ws, **diMuonMass125)
         aux.buildMH(ws, mhmin=120, mhmax=130)
@@ -140,7 +140,7 @@ def generate_datacardsDoubleGaus():
         fdata = R.TFile(data.pathToFile)
         hdata = fdata.Get(category + "/" + "DiMuonMass")
         rdata = aux.buildRooHist(ws, hdata,
-            "data_obs_{category}".format(category=category))
+            "data_obs_{category}".format(category=names2RepsToUse[category]))
         getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
         fdata.Close()
         
@@ -208,7 +208,7 @@ def generate_datacardsDoubleGaus():
         #
         datacardAnalytic(category, ws, data, 
             [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
-            ws.pdf("multipdf_{category}".format(category=category)),
+            ws.pdf("multipdf_{category}".format(category=names2RepsToUse[category])),
             pathToDir=datacardsworkspacesDir,
             workspaceFileName=workspaceFileName,
             workspaceName=workspaceName
@@ -220,11 +220,11 @@ def generate_datacardsDoubleGaus():
         ws.SaveAs(os.path.join(datacardsworkspacesDir, workspaceFileName))
 
 def generate_datacardsSingleGaus():
-    modelGroupToUse = modelGroupForMultiPdf
+    modelGroupToUse = modelGroupTest
     workspaceName = "higgs"
     for category in categoriesToUse:
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
-            category=category, signalModelId = singleGaus120.modelId)
+            category=names2RepsToUse[category], signalModelId = singleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
         aux.buildMassVariable(ws, **diMuonMass125)
         aux.buildMH(ws, mhmin=120, mhmax=130)
@@ -235,7 +235,7 @@ def generate_datacardsSingleGaus():
         fdata = R.TFile(data.pathToFile)
         hdata = fdata.Get(category + "/" + "DiMuonMass")
         rdata = aux.buildRooHist(ws, hdata,
-            "data_obs_{category}".format(category=category))
+            "data_obs_{category}".format(category=names2RepsToUse[category]))
         getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
         fdata.Close()
         
@@ -303,7 +303,7 @@ def generate_datacardsSingleGaus():
         #
         datacardAnalytic(category, ws, data, 
             [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
-            ws.pdf("multipdf_{category}".format(category=category)),
+            ws.pdf("multipdf_{category}".format(category=names2RepsToUse[category])),
             pathToDir=datacardsworkspacesDir,
             workspaceFileName=workspaceFileName,
             workspaceName=workspaceName

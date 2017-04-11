@@ -36,7 +36,7 @@ run2Categories.extend(
 run1CatReps = ["cat%d" % i for i in range(len(run1Categories))]
 run1Reps2Names = {}
 run1Names2Reps = {}
-for i in range(run1CatReps):
+for i in range(len(run1CatReps)):
     run1Reps2Names[run1CatReps[i]] = run1Categories[i]
     run1Names2Reps[run1Categories[i]] = run1CatReps[i]
 
@@ -57,30 +57,30 @@ run1Combinations = {
         run1Names2Reps["01JetsLooseEE"], 
         run1Names2Reps["01JetsLooseOE"], 
         run1Names2Reps["01JetsLooseOO"],
-        run1CombNames2Reps["01JetsTightBB"], 
-        run1CombNames2Reps["01JetsTightBE"], 
-        run1CombNames2Reps["01JetsTightBO"],
-        run1CombNames2Reps["01JetsTightEE"], 
-        run1CombNames2Reps["01JetsTightOE"], 
-        run1CombNames2Reps["01JetsTightOO"]],
+        run1Names2Reps["01JetsTightBB"], 
+        run1Names2Reps["01JetsTightBE"], 
+        run1Names2Reps["01JetsTightBO"],
+        run1Names2Reps["01JetsTightEE"], 
+        run1Names2Reps["01JetsTightOE"], 
+        run1Names2Reps["01JetsTightOO"]],
     "comb2JetsggF" : [
-        run1CombNames2Reps["ggFLoose"], 
-        run1CombNames2Reps["ggFTight"]],
+        run1Names2Reps["ggFLoose"], 
+        run1Names2Reps["ggFTight"]],
     "comb01JetsTightB" : [
-        run1CombNames2Reps["01JetsTightBB"], 
-        run1CombNames2Reps["01JetsTightBO"], 
-        run1CombNames2Reps["01JetsTightBE"]],
+        run1Names2Reps["01JetsTightBB"], 
+        run1Names2Reps["01JetsTightBO"], 
+        run1Names2Reps["01JetsTightBE"]],
     "comb01JetsTightO" : [
-        run1CombNames2Reps["01JetsTightOO"], 
-        run1CombNames2Reps["01JetsTightOE"], 
-        run1CombNames2Reps["01JetsTightEE"]],
+        run1Names2Reps["01JetsTightOO"], 
+        run1Names2Reps["01JetsTightOE"], 
+        run1Names2Reps["01JetsTightEE"]],
     "comb01JetsLoose" : [
-        run1CombNames2Reps["01JetsLooseBB"], 
-        run1CombNames2Reps["01JetsLooseBE"], 
-        run1CombNames2Reps["01JetsLooseBO"],
-        run1CombNames2Reps["01JetsLooseEE"], 
-        run1CombNames2Reps["01JetsLooseOE"], 
-        run1CombNames2Reps["01JetsLooseOO"]],
+        run1Names2Reps["01JetsLooseBB"], 
+        run1Names2Reps["01JetsLooseBE"], 
+        run1Names2Reps["01JetsLooseBO"],
+        run1Names2Reps["01JetsLooseEE"], 
+        run1Names2Reps["01JetsLooseOE"], 
+        run1Names2Reps["01JetsLooseOO"]],
 }
 run1Combinations["combTotal"] = run1Combinations["comb01Jets"] + run1Combinations["comb2Jets"]
 run1Combinations["combNoVBFTight"] = run1Combinations["comb2JetsggF"] + run1Combinations["comb01Jets"]
