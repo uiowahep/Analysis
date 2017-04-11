@@ -5,8 +5,6 @@ R.gROOT.SetBatch(R.kTRUE)
 
 import categories
 from generatingFunctions import *
-from Configuration.higgs.Iowa_settings import *
-from categories import *
 from common import *
 import argparse
 
@@ -15,6 +13,19 @@ parser.add_argument("-n", "--number", type=int, default=0, help="number identifi
 parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Verbose debugging output')
 parser.add_argument('-m', '--mode', type=str, default='Iowa', help='Run in Iowa, UF_AWB, or UF_AMC mode')
 args = parser.parse_args()
+
+if args.mode == "Iowa":
+    import Configuration.higgs.Iowa_settings as settings
+    from Configuration.higgs.Iowa_settings import *
+    from categories import *
+elif args.mode == "UF_AWB":
+    import Configuration.higgs.UF_AWB_settings as settings
+    from Configuration.higgs.UF_AWB_settings import *
+    from categories_UF_AWB import *
+elif args.mode == "UF_AMC":
+    import Configuration.higgs.UF_AMC_settings as settings
+    from Configuration.higgs.UF_AMC_settings import *
+    from categories_UF_AMC import *
 
 def generate_backgroundFits():
     for category in categoriesToUse:
@@ -27,6 +38,7 @@ def generate_backgroundFits():
                 m.color = colors[counter]
                 counter+=1
             backgroundFits((category, diMuonMass125), ws, data, modelsToUse,
+                settings,
                 pathToDir=backgroundfitsDir,groupName=modelGroup.name)
 
 def generate_datacardsTripleGaus():
@@ -60,7 +72,8 @@ def generate_datacardsTripleGaus():
                 (vbf120, tripleGaus120, diMuonMass120),
                 (vbf125, tripleGaus125, diMuonMass125),
                 (vbf130, tripleGaus130, diMuonMass130),
-            ],
+            ], 
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         glumodel = signalFitInterpolationWithSpline(category, ws, 
@@ -69,6 +82,7 @@ def generate_datacardsTripleGaus():
                 (glu125, tripleGaus125, diMuonMass125),
                 (glu130, tripleGaus130, diMuonMass130),
             ],
+            settings, 
             pathToDir=signalfitinterpolationswithsplineDir
         )
         wpmodel = signalFitInterpolationWithSpline(category, ws, 
@@ -77,6 +91,7 @@ def generate_datacardsTripleGaus():
                 (wp125, tripleGaus125, diMuonMass125),
                 (wp130, tripleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         wmmodel = signalFitInterpolationWithSpline(category, ws, 
@@ -85,6 +100,7 @@ def generate_datacardsTripleGaus():
                 (wm125, tripleGaus125, diMuonMass125),
                 (wm130, tripleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         zhmodel = signalFitInterpolationWithSpline(category, ws, 
@@ -93,6 +109,7 @@ def generate_datacardsTripleGaus():
                 (zh125, tripleGaus125, diMuonMass125),
                 (zh130, tripleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
 
@@ -104,7 +121,7 @@ def generate_datacardsTripleGaus():
             model.color = colors[counter]
             counter += 1
         backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
-            modelGroupToUse.models, pathToDir=backgroundfitswithroomultipdfDir,
+            modelGroupToUse.models, settings, pathToDir=backgroundfitswithroomultipdfDir,
             groupName=modelGroupToUse.name)
 
         #
@@ -114,6 +131,7 @@ def generate_datacardsTripleGaus():
         datacardAnalytic(category, ws, data, 
             [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
             ws.pdf("multipdf_{category}".format(category=names2RepsToUse[category])),
+            settings,
             pathToDir=datacardsworkspacesDir,
             workspaceFileName=workspaceFileName,
             workspaceName=workspaceName
@@ -156,6 +174,7 @@ def generate_datacardsDoubleGaus():
                 (vbf125, doubleGaus125, diMuonMass125),
                 (vbf130, doubleGaus130, diMuonMass130),
             ],
+            settings, 
             pathToDir=signalfitinterpolationswithsplineDir
         )
         glumodel = signalFitInterpolationWithSpline(category, ws, 
@@ -164,6 +183,7 @@ def generate_datacardsDoubleGaus():
                 (glu125, doubleGaus125, diMuonMass125),
                 (glu130, doubleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         wpmodel = signalFitInterpolationWithSpline(category, ws, 
@@ -172,6 +192,7 @@ def generate_datacardsDoubleGaus():
                 (wp125, doubleGaus125, diMuonMass125),
                 (wp130, doubleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         wmmodel = signalFitInterpolationWithSpline(category, ws, 
@@ -180,6 +201,7 @@ def generate_datacardsDoubleGaus():
                 (wm125, doubleGaus125, diMuonMass125),
                 (wm130, doubleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         zhmodel = signalFitInterpolationWithSpline(category, ws, 
@@ -188,6 +210,7 @@ def generate_datacardsDoubleGaus():
                 (zh125, doubleGaus125, diMuonMass125),
                 (zh130, doubleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
 
@@ -199,7 +222,7 @@ def generate_datacardsDoubleGaus():
             model.color = colors[counter]
             counter += 1
         backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
-            modelGroupToUse.models, pathToDir=backgroundfitswithroomultipdfDir,
+            modelGroupToUse.models, settings, pathToDir=backgroundfitswithroomultipdfDir,
             groupName=modelGroupToUse.name)
 
         #
@@ -209,6 +232,7 @@ def generate_datacardsDoubleGaus():
         datacardAnalytic(category, ws, data, 
             [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
             ws.pdf("multipdf_{category}".format(category=names2RepsToUse[category])),
+            settings,
             pathToDir=datacardsworkspacesDir,
             workspaceFileName=workspaceFileName,
             workspaceName=workspaceName
@@ -251,6 +275,7 @@ def generate_datacardsSingleGaus():
                 (vbf125, singleGaus125, diMuonMass125),
                 (vbf130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         glumodel = signalFitInterpolationWithSpline(category, ws, 
@@ -259,6 +284,7 @@ def generate_datacardsSingleGaus():
                 (glu125, singleGaus125, diMuonMass125),
                 (glu130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         wpmodel = signalFitInterpolationWithSpline(category, ws, 
@@ -267,6 +293,7 @@ def generate_datacardsSingleGaus():
                 (wp125, singleGaus125, diMuonMass125),
                 (wp130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         wmmodel = signalFitInterpolationWithSpline(category, ws, 
@@ -275,6 +302,7 @@ def generate_datacardsSingleGaus():
                 (wm125, singleGaus125, diMuonMass125),
                 (wm130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         zhmodel = signalFitInterpolationWithSpline(category, ws, 
@@ -283,6 +311,7 @@ def generate_datacardsSingleGaus():
                 (zh125, singleGaus125, diMuonMass125),
                 (zh130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
 
@@ -294,7 +323,8 @@ def generate_datacardsSingleGaus():
             model.color = colors[counter]
             counter += 1
         backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
-            modelGroupToUse.models, pathToDir=backgroundfitswithroomultipdfDir,
+            modelGroupToUse.models, settings,
+            pathToDir=backgroundfitswithroomultipdfDir,
             groupName=modelGroupToUse.name)
 
         #
@@ -304,6 +334,7 @@ def generate_datacardsSingleGaus():
         datacardAnalytic(category, ws, data, 
             [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
             ws.pdf("multipdf_{category}".format(category=names2RepsToUse[category])),
+            settings,
             pathToDir=datacardsworkspacesDir,
             workspaceFileName=workspaceFileName,
             workspaceName=workspaceName
@@ -328,7 +359,7 @@ def generate_backgroundsWithRooMultiPdf():
             model.color = colors[counter]
             counter += 1
         backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
-            modelGroupToUse.models, pathToDir=backgroundfitswithroomultipdfDir,
+            modelGroupToUse.models, settings, pathToDir=backgroundfitswithroomultipdfDir,
             groupName=modelGroupToUse.name)
 
 def generate_signalFitInterpolations():
@@ -341,6 +372,7 @@ def generate_signalFitInterpolations():
                 (vbf125, singleGaus125, diMuonMass125),
                 (vbf130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=singalfitinterpolationsDir
         )
 
@@ -358,6 +390,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (vbf125, singleGaus125, diMuonMass125),
                 (vbf130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -366,6 +399,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (glu125, singleGaus125, diMuonMass125),
                 (glu130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -374,6 +408,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (wp125, singleGaus125, diMuonMass125),
                 (wp130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -382,6 +417,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (wm125, singleGaus125, diMuonMass125),
                 (wm130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -390,6 +426,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (zh125, singleGaus125, diMuonMass125),
                 (zh130, singleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         print "*"*80
@@ -401,6 +438,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (vbf125, doubleGaus125, diMuonMass125),
                 (vbf130, doubleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -409,6 +447,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (glu125, doubleGaus125, diMuonMass125),
                 (glu130, doubleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -417,6 +456,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (wp125, doubleGaus125, diMuonMass125),
                 (wp130, doubleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -425,6 +465,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (wm125, doubleGaus125, diMuonMass125),
                 (wm130, doubleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -433,6 +474,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (zh125, doubleGaus125, diMuonMass125),
                 (zh130, doubleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         print "*"*80
@@ -444,6 +486,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (vbf125, tripleGaus125, diMuonMass125),
                 (vbf130, tripleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -452,6 +495,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (glu125, tripleGaus125, diMuonMass125),
                 (glu130, tripleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -460,6 +504,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (wp125, tripleGaus125, diMuonMass125),
                 (wp130, tripleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -468,6 +513,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (wm125, tripleGaus125, diMuonMass125),
                 (wm130, tripleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
         signalFitInterpolationWithSpline(category, ws, 
@@ -476,6 +522,7 @@ def generate_signalFitInterpolationsWithSpline():
                 (zh125, tripleGaus125, diMuonMass125),
                 (zh130, tripleGaus130, diMuonMass130),
             ],
+            settings,
             pathToDir=signalfitinterpolationswithsplineDir
         )
 
@@ -486,27 +533,27 @@ def generate_signalFits():
         aux.buildMassVariable(ws, **diMuonMass125)
         for modelToUse in [singleGaus125, doubleGaus125, tripleGaus125]:
             modelToUse.color = R.kRed
-            signalFit((category, diMuonMass125), ws, vbf125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass125), ws, glu125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass125), ws, wm125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass125), ws, wp125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass125), ws, zh125, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass125), ws, vbf125, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass125), ws, glu125, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass125), ws, wm125, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass125), ws, wp125, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass125), ws, zh125, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
         aux.buildMassVariable(ws, **diMuonMass120)
         for modelToUse in [singleGaus120, doubleGaus120, tripleGaus120]:
             modelToUse.color = R.kRed
-            signalFit((category, diMuonMass120), ws, vbf120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass120), ws, glu120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass120), ws, wm120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass120), ws, wp120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass120), ws, zh120, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass120), ws, vbf120, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass120), ws, glu120, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass120), ws, wm120, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass120), ws, wp120, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass120), ws, zh120, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
         aux.buildMassVariable(ws, **diMuonMass130)
         for modelToUse in [singleGaus130, doubleGaus130, tripleGaus130]:
             modelToUse.color = R.kRed
-            signalFit((category, diMuonMass130), ws, vbf130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass130), ws, glu130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass130), ws, wm130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass130), ws, wp130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass130), ws, zh130, modelToUse, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass130), ws, vbf130, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass130), ws, glu130, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass130), ws, wm130, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass130), ws, wp130, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
+            signalFit((category, diMuonMass130), ws, zh130, modelToUse, settings, pathToDir=signalfitsDir, initialValuesFromTH1=initialValuesFromTH1)
 
 def generate_distributions():
     logY = True
@@ -521,7 +568,8 @@ def generate_distributions():
                 variable["max"] = 160
             distributions((category, variable), data, 
                 [glu125, vbf125, wm125, wp125, zh125],
-                [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], pathToDir=distributionsDir,
+                [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], settings,
+                pathToDir=distributionsDir,
                 logY=logY)
 
 if __name__=="__main__":

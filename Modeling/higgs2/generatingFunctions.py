@@ -9,13 +9,12 @@ import aux, os, sys
 import definitions as defs
 import Configuration.higgs.Samples as S
 import models
-from Configuration.higgs.Iowa_settings import *
 import common
 
 #
 # a list of functions that generate certain distributions/fits/plots/etc...
 #
-def distributions((category, variable), data, signals, backgrounds, **wargs):
+def distributions((category, variable), data, signals, backgrounds, settings, **wargs):
     """
     data, signals mc, backgrounds mc samples
     """
@@ -124,7 +123,7 @@ def distributions((category, variable), data, signals, backgrounds, **wargs):
     for x in fs:
         fs[x].Close()
 
-def signalFit((category, variable), ws, signal, model, **wargs):
+def signalFit((category, variable), ws, signal, model, settings, **wargs):
     """
     assume Workspace exists and x-variable is already present
     """
@@ -157,7 +156,7 @@ def signalFit((category, variable), ws, signal, model, **wargs):
     #
     # set up the model and perform the fit
     #
-    model.initialize(aux.buildSignalModelName(model, names2RepsToUse[category], 
+    model.initialize(aux.buildSignalModelName(model, settings.names2RepsToUse[category], 
         signal.mc.buildProcessName(), variable["central"]))
     if initialValuesFromTH1:
         model.setInitialValuesFromTH1(hsdata)
@@ -192,7 +191,8 @@ def signalFit((category, variable), ws, signal, model, **wargs):
     #
     fsdata.Close()
 
-def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **wargs):
+def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, settings,
+    **wargs):
     """
     assume the Workspace already exists and x-variable is already defined
     """
@@ -235,7 +235,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
 #        norms.append(hsdata.Integral(binfirst, binlast))
         norms.append(rsdata.sumEntries())
         model.initialize(aux.buildSignalModelName(model, 
-            names2RepsToUse[category],
+            settings.names2RepsToUse[category],
             signal.mc.buildProcessName(), variable["central"]))
         if imodel>0:
             model.setInitialValuesFromModel(prevModel, ws, 
@@ -279,7 +279,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
     print paramsTransposed
     finalmodel = prevModel.__class__()
     finalmodel.initialize(aux.buildSignalModelName(model, 
-        names2RepsToUse[category], signal.mc.buildProcessName()))
+        settings.names2RepsToUse[category], signal.mc.buildProcessName()))
     finalpdf = finalmodel.buildWithParameterMatrix(ws, massPoints, paramsTransposed)
     finalmodel.setNormalization(ws, massPoints, norms)
     finalpdf.Print("v")
@@ -303,7 +303,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, **w
     #
     return finalmodel
 
-def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
+def signalFitInterpolation(category, ws, tupleSignalModelVariable, settings, **wargs):
     """
     assume the Workspace already exists and x-variable is already defined
     """
@@ -334,7 +334,7 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
         hsdata.Scale(1/signal.getWeight())
         rsdata = aux.buildRooHist(ws, hsdata)
         model.initialize(aux.buildSignalModelName(model, 
-            names2RepsToUse[category],
+            settings.names2RepsToUse[category],
             signal.mc.buildProcessName(), variable["central"]))
         if imodel>0:
             model.setInitialValuesFromModel(prevModel, ws, 
@@ -360,7 +360,7 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, **wargs):
 def ftestPerFamily():
     pass
 
-def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
+def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, settings, **wargs):
     #
     # defuaults from wargs
     #
@@ -411,7 +411,7 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     #
     # observation per bin
     #
-    binString = "bin {category}".format(category=names2RepsToUse[category])
+    binString = "bin {category}".format(category=settings.names2RepsToUse[category])
     content.append(binString)
     obsString = "observation -1"
     content.append(obsString)
@@ -420,7 +420,7 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     #
     # MC processes/rates
     #
-    categoryList = [names2RepsToUse[category] for i in range(len(signalModels)+1)]
+    categoryList = [settings.names2RepsToUse[category] for i in range(len(signalModels)+1)]
     processNamesList = [aux.unpackSignalModelName(model.modelName)[-1]
         for model in signalModels] + ["BKG"]
     processNumbersList = ["%d" % (-len(signalModels)+i) for i in range(1, len(signalModels)+2)]
@@ -460,19 +460,19 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, **wargs):
     #
     # add pdf index
     #
-    content.append("pdfindex_{category} discrete".format(category=names2RepsToUse[category]))
+    content.append("pdfindex_{category} discrete".format(category=settings.names2RepsToUse[category]))
     content.append(delimString)
 
     #
     # join all the lines in content with "\n"
     #
-    fileName = "datacard__{category}__{signalModelId}.txt".format(category=names2RepsToUse[category],
+    fileName = "datacard__{category}__{signalModelId}.txt".format(category=settings.names2RepsToUse[category],
         signalModelId=signalModels[0].modelId)
     outputFile = file(os.path.join(pathToDir, fileName), "w")
     outputFile.write("\n".join(content) + "\n")
     outputFile.close()
     
-def backgroundsWithRooMultiPdf((category, variable), ws, data, models, **wargs):
+def backgroundsWithRooMultiPdf((category, variable), ws, data, models, settings, **wargs):
     #
     # load the combine lib
     #
@@ -481,7 +481,7 @@ def backgroundsWithRooMultiPdf((category, variable), ws, data, models, **wargs):
     #
     # run the background Fits
     #
-    backgroundFits((category, variable), ws, data, models, **wargs)
+    backgroundFits((category, variable), ws, data, models, settings, **wargs)
 
     #
     # build the RooMultiPdf and the _norm
@@ -489,16 +489,16 @@ def backgroundsWithRooMultiPdf((category, variable), ws, data, models, **wargs):
     pdfs = R.RooArgList()
     for model in models:
         pdfs.add(ws.pdf(model.modelName))
-    ccc = R.RooCategory("pdfindex_{category}".format(category=names2RepsToUse[category]),
+    ccc = R.RooCategory("pdfindex_{category}".format(category=settings.names2RepsToUse[category]),
         "Index of the currently active or selected pdf")
-    multipdf = R.RooMultiPdf("multipdf_{category}".format(category=names2RepsToUse[category]),
+    multipdf = R.RooMultiPdf("multipdf_{category}".format(category=settings.names2RepsToUse[category]),
         "Background Models Envelope", ccc, pdfs)
-    ws.factory("multipdf_{category}_norm[0, 100000000]".format(category=names2RepsToUse[category]))
+    ws.factory("multipdf_{category}_norm[0, 100000000]".format(category=settings.names2RepsToUse[category]))
     getattr(ws, "import")(ccc, R.RooFit.RecycleConflictNodes())
     getattr(ws, "import")(multipdf, R.RooFit.RecycleConflictNodes())
     ws.Print("v")
 
-def backgroundFits((category, variable), ws, data, models, **wargs):
+def backgroundFits((category, variable), ws, data, models, settings, **wargs):
     #
     # initialize the values from wargs
     #
@@ -535,7 +535,7 @@ def backgroundFits((category, variable), ws, data, models, **wargs):
     pdfs = {}
     rdata_blind.plotOn(frame)
     for model in models:
-        modelName = aux.buildBackgroundModelName(model, names2RepsToUse[category])
+        modelName = aux.buildBackgroundModelName(model, settings.names2RepsToUse[category])
         model.initialize(modelName)
         model.createParameters(ws)
         pdfs[modelName] = model.build(ws)
