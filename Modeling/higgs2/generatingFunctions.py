@@ -481,6 +481,10 @@ def backgroundsWithRooMultiPdf((category, variable), ws, data, models, settings,
     # run the background Fits
     #
     backgroundFits((category, variable), ws, data, models, settings, **wargs)
+    fdata = R.TFile(data.pathToFile)
+    hdata = fdata.Get(category + "/" + variable["name"])
+    rdata = aux.buildRooHist(ws, hdata)
+    norm = rdata.sumEntries()
 
     #
     # build the RooMultiPdf and the _norm
@@ -490,9 +494,10 @@ def backgroundsWithRooMultiPdf((category, variable), ws, data, models, settings,
         pdfs.add(ws.pdf(model.modelName))
     ccc = R.RooCategory("pdfindex_{category}".format(category=settings.names2RepsToUse[category]),
         "Index of the currently active or selected pdf")
+    ccc.defineType("something", 0)
     multipdf = R.RooMultiPdf("multipdf_{category}".format(category=settings.names2RepsToUse[category]),
         "Background Models Envelope", ccc, pdfs)
-    ws.factory("multipdf_{category}_norm[0, 100000000]".format(category=settings.names2RepsToUse[category]))
+    ws.factory("multipdf_{category}_norm[{central}, {minval}, {maxval}]".format(category=settings.names2RepsToUse[category], central=norm, minval=norm/2.0, maxval=norm*2.0))
     getattr(ws, "import")(ccc, R.RooFit.RecycleConflictNodes())
     getattr(ws, "import")(multipdf, R.RooFit.RecycleConflictNodes())
     ws.Print("v")

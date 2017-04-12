@@ -290,7 +290,8 @@ bwzredux_defaultValues = {
 bwzgamma_defaultValues = {
     "zwidth" : 2.5, "zwidthmin" : 0, "zwidthmax" : 30,
     "zmass" : 91.2, "zmassmin" : 90, "zmassmax" : 92,
-    "expParam" : -0.0053, "expParammin" : -0.0073, "expParammax" : -0.0033,
+    "expParam" : -0.1, "expParammin": -1, "expParammax": -0.001,
+#    "expParam" : -0.0053, "expParammin" : -0.0073, "expParammax" : -0.0033,
     "fraction" : 0.379, "fractionmin" : 0.2, "fractionmax" : 1
 }
 # bernsteins
@@ -373,4 +374,3 @@ backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinMo
 modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
     models.Bernstein(bernstein_defaultValues, degree=6)])
 modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma])
-
