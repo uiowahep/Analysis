@@ -533,7 +533,7 @@ class BWZGamma(Model):
     def extractParameters(self, ws, fitws, **wargs):
         pass
 
-class BersteinFast(Model):
+class BernsteinFast(Model):
     def __init__(self, initialValues, **wargs):
         self.degree = wargs["degree"]
         Model.__init__(self, initialValues, **wargs)
@@ -543,18 +543,21 @@ class BersteinFast(Model):
 
     def build(self, ws, **wargs):
         R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
-        bern = R.RooBersteinFast(self.degree)(self.modelName, self.modelName,
+        print self.parameters
+        bern = R.RooBernsteinFast(self.degree)(self.modelName, self.modelName,
             ws.var("x"), self.parameters)
         getattr(ws, "import")(bern, R.RooFit.RecycleConflictNodes())
         return ws.pdf(self.modelName)
 
     def createParameters(self, ws, **wargs):
         self.parameters = R.RooArgList()
-        for deg in range(self.degree):
+        for deg in range(1, self.degree+1):
             ws.factory(("b%d_{modelName}[{b%d}, {b%dmin}, {b%dmax}]" % (
                 deg, deg, deg, deg)).format(modelName=self.modelName, **self.initialValues))
-            self.parameters.add(ws.var("b{order}_{modelName}".format(
-                order=self.degree, modelName=self.modelName)))
+            ws.factory(("expr::bsq%d_{modelName}('b%d_{modelName}*b%d_{modelName}', b%d_{modelName})" % (
+                deg, deg, deg, deg)).format(modelName=self.modelName))
+            self.parameters.add(ws.function("bsq{order}_{modelName}".format(
+                order=deg, modelName=self.modelName)))
 
 class Bernstein(Model):
     def __init__(self, initialValues, **wargs):

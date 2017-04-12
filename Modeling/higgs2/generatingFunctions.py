@@ -503,6 +503,7 @@ def backgroundsWithRooMultiPdf((category, variable), ws, data, models, settings,
     ws.Print("v")
 
 def backgroundFits((category, variable), ws, data, models, settings, **wargs):
+    R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
     #
     # initialize the values from wargs
     #

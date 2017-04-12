@@ -361,7 +361,7 @@ expGaus = models.ExpGaus(expGaus_defaultValues)
 bwz = models.BWZ(bwz_defaultValues)
 bwzRedux = models.BWZRedux(bwzredux_defaultValues)
 bwzGamma = models.BWZGamma(bwzgamma_defaultValues)
-bernsteinsFast = [models.BernsteinFast(bernstein_defaultValues, degree=i) for i in range(1, 11)]
+bernsteinsFast = [models.BernsteinFast(bernstein_defaultValues, degree=i) for i in range(1, 8)]
 bernsteins = [models.Bernstein(bernstein_defaultValues, degree=i) for i in range(1, 11)]
 sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 11)]
 
@@ -377,12 +377,13 @@ sumExpModels = ModelGroup("sumExpModels", sumExps)
 allPhysBkgModels = ModelGroup("allPhysBkgModels", [bwz, expGaus, bwzRedux, bwzGamma])
 bernsteinsPlusPhysModels = ModelGroup("bersteinsPlusPhysModels",
     allPhysBkgModels.models + bernsteins)
-bernsteinsFastModels = ModelGroup("bersteinFastModels", bernsteinsFast)
+bernsteinsFastModels = ModelGroup("bernsteinFastModels", bernsteinsFast)
 sumExpsPlusPhysModels = ModelGroup("sumExpsPlusPhysModels", allPhysBkgModels.models + sumExps)
-allBackgroundModels = ModelGroup("allBackgroundModels", allPhysBkgModels.models + bernsteins + sumExps)
+allBackgroundModels = ModelGroup("allBackgroundModels", allPhysBkgModels.models + bernsteinsFastModels.models)
 
 #backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
-backgroundModelGroups = [allPhysBkgModels, bernsteinFastModels]
+backgroundModelGroups = [bernsteinsFastModels, allPhysBkgModels, allBackgroundModels]
 modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
     models.Bernstein(bernstein_defaultValues, degree=6)])
-modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma])
+modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma, 
+    models.BernsteinFast(bernstein_defaultValues, degree=5)])
