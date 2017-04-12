@@ -204,9 +204,13 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 	setNoCats.hMuonphi->Fill(p4m1.Phi(), puweight);
 	setNoCats.hMuonphi->Fill(p4m2.Phi(), puweight);
 	
+    if (!(mu1._isPF && mu2._isPF))
+        return;
+    /*
 	if (!(p4dimuon.M()>110 && p4dimuon.M()<160 &&
 		mu1._isPF && mu2._isPF))
 		return;
+        */
 
 	std::vector<TLorentzVector> p4jets;
 	for (Jets::const_iterator it=jets->begin(); it!=jets->end(); ++it)
