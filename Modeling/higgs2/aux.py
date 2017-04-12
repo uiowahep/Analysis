@@ -102,9 +102,9 @@ def buildBackgroundModelName(bmodel, category):
 def buildDefaultValuesBerstein(degree):
     d = {}
     for i in range(1, degree+1):
-        d["b%d" % i] = 10
-        d["b%dmin" % i] = -1000
-        d["b%dmax" % i] = 1000
+        d["b%d" % i] = 0.1*(i+1)
+        d["b%dmin" % i] = -5.
+        d["b%dmax" % i] = 5.
     return d
 def buildDefaultValuesSumExponentials(degree):
     d = {}

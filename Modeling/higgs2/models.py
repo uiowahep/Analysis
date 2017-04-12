@@ -465,6 +465,26 @@ class ExpGaus(Model):
         ws.factory('a2_{modelName}[ {a2}, {a2min}, {a2max}]'.format(
             modelName=self.modelName, **self.initialValues))
 
+class BWZ(Model):
+    def __init__(self, initialValues, **wargs):
+        Model.__init__(self, initialValues, **wargs)
+
+    def initialize(self, modelName, *kargs, **wargs):
+        Model.initialize(self, modelName, *kargs, **wargs)
+
+    def build(self, ws, **wargs):
+        ws.factory("EXPR::{modelName}('exp(x*expParam_{modelName})*(zwidth_{modelName})/(pow(x-zmass_{modelName}, 2) + 0.25*pow(zwidth_{modelName}, 2))', x, zmass_{modelName}, zwidth_{modelName}, expParam_{modelName})".format(modelName=self.modelName))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        ws.factory("zwidth_{modelName}[{zwidth}, {zwidthmin}, {zwidthmax}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("zmass_{modelName}[{zmass}, {zmassmin}, {zmassmax}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expParam_{modelName}[{expParam}, {expParammin}, {expParammax}]".format(modelName=self.modelName, **self.initialValues))
+        ws.var("zwidth_{modelName}".format(modelName=self.modelName)).setConstant(R.kTRUE)
+        ws.var("zmass_{modelName}".format(modelName=self.modelName)).setConstant(R.kTRUE)
+
 class BWZRedux(Model):
     def __init__(self, initialValues, **wargs):
         Model.__init__(self, initialValues, **wargs)
@@ -512,6 +532,29 @@ class BWZGamma(Model):
 
     def extractParameters(self, ws, fitws, **wargs):
         pass
+
+class BersteinFast(Model):
+    def __init__(self, initialValues, **wargs):
+        self.degree = wargs["degree"]
+        Model.__init__(self, initialValues, **wargs)
+
+    def initialize(self, modelName, *kargs, **wargs):
+        Model.initialize(self, modelName, *kargs, **wargs)
+
+    def build(self, ws, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+        bern = R.RooBersteinFast(self.degree)(self.modelName, self.modelName,
+            ws.var("x"), self.parameters)
+        getattr(ws, "import")(bern, R.RooFit.RecycleConflictNodes())
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        self.parameters = R.RooArgList()
+        for deg in range(self.degree):
+            ws.factory(("b%d_{modelName}[{b%d}, {b%dmin}, {b%dmax}]" % (
+                deg, deg, deg, deg)).format(modelName=self.modelName, **self.initialValues))
+            self.parameters.add(ws.var("b{order}_{modelName}".format(
+                order=self.degree, modelName=self.modelName)))
 
 class Bernstein(Model):
     def __init__(self, initialValues, **wargs):

@@ -280,6 +280,14 @@ expGaus_defaultValues = {
     "a1" : 1.0, "a1min" : -20, "a1max" : 20,
     "a2" : 0.3, "a2min" : -20, "a2max" : 20
 }
+
+# BWZ
+bwz_defaultValues = {
+    "zmass" : 91.2, "zmassmin": 90, "zmassmax" : 92,
+    "zwidth" : 2.5, "zwidthmin" : 0, "zwidthmax" : 30,
+    "expParam" : -1e-03, "expParammin" : -1e-02, "expParammax" : 1e-02
+}
+
 # BWZ Redux
 bwzredux_defaultValues = {
     "a1" : 1.39, "a1min" : 0.7, "a1max" : 2.1,
@@ -350,8 +358,10 @@ tripleGaus130 = models.TripleGaus(tripleGaus130_initialValues)
 
 # background
 expGaus = models.ExpGaus(expGaus_defaultValues)
+bwz = models.BWZ(bwz_defaultValues)
 bwzRedux = models.BWZRedux(bwzredux_defaultValues)
 bwzGamma = models.BWZGamma(bwzgamma_defaultValues)
+bernsteinsFast = [models.BernsteinFast(bernstein_defaultValues, degree=i) for i in range(1, 11)]
 bernsteins = [models.Bernstein(bernstein_defaultValues, degree=i) for i in range(1, 11)]
 sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 11)]
 
@@ -364,13 +374,15 @@ class ModelGroup(object):
 
 bernsteinModels = ModelGroup("bersteinModels", bernsteins)
 sumExpModels = ModelGroup("sumExpModels", sumExps)
-allPhysBkgModels = ModelGroup("allPhysBkgModels", [expGaus, bwzRedux, bwzGamma])
+allPhysBkgModels = ModelGroup("allPhysBkgModels", [bwz, expGaus, bwzRedux, bwzGamma])
 bernsteinsPlusPhysModels = ModelGroup("bersteinsPlusPhysModels",
     allPhysBkgModels.models + bernsteins)
+bernsteinsFastModels = ModelGroup("bersteinFastModels", bernsteinsFast)
 sumExpsPlusPhysModels = ModelGroup("sumExpsPlusPhysModels", allPhysBkgModels.models + sumExps)
 allBackgroundModels = ModelGroup("allBackgroundModels", allPhysBkgModels.models + bernsteins + sumExps)
 
-backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
+#backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
+backgroundModelGroups = [allPhysBkgModels, bernsteinFastModels]
 modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
     models.Bernstein(bernstein_defaultValues, degree=6)])
 modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma])
