@@ -98,7 +98,8 @@ run1Combinations["combNoVBFTight"] = run1Combinations["comb2JetsggF"] + run1Comb
 ########################
 ### General Settings ###
 ########################
-jobLabel = "vR1_20170329_1241"
+#jobLabel = "vR1_20170329_1241"
+jobLabel = "vR1_20170412_2336"
 categoriesToUse = run1Categories
 combinationsToUse = run1Combinations
 reps2NamesToUse = run1Reps2Names
@@ -212,67 +213,67 @@ zh130 = defs.MC("NoCats", zh130PathToFile, zh130MC, color=None)
 ########################
 # single gaus
 singleGaus125_initialValues = {
-    "mean":125, "meanmin":115, "meanmax":135,
+    "mean":125, "meanmin":123, "meanmax":127,
     "sigma":1.0, "sigmamin":0.1, "sigmamax":10
 }
 singleGaus120_initialValues = {
-    "mean":120, "meanmin":110, "meanmax":130,
+    "mean":120, "meanmin":118, "meanmax":122,
     "sigma":1.0, "sigmamin":0.1, "sigmamax":10
 }
 singleGaus130_initialValues = {
-    "mean":130, "meanmin":120, "meanmax":140,
+    "mean":130, "meanmin":128, "meanmax":132,
     "sigma":1.0, "sigmamin":0.1, "sigmamax":10
 }
 doubleGaus125_initialValues = {
-    "mean1":125, "mean1min":115, "mean1max":135,
+    "mean1":125, "mean1min":123, "mean1max":127,
     "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
-    "mean2":125, "mean2min":115, "mean2max":135,
+    "mean2":125, "mean2min":123, "mean2max":127,
     "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
-    "coef" : 0.1, "coefmin" : 0.0001, "coefmax": 1
+    "coef" : 0.8, "coefmin" : 0.0001, "coefmax": 1
 }
 doubleGaus120_initialValues = {
-    "mean1":120, "mean1min":110, "mean1max":130,
+    "mean1":120, "mean1min":118, "mean1max":122,
     "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
-    "mean2":120, "mean2min":110, "mean2max":130,
+    "mean2":120, "mean2min":118, "mean2max":122,
     "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
-    "coef" : 0.1, "coefmin" : 0.0001, "coefmax": 1
+    "coef" : 0.8, "coefmin" : 0.0001, "coefmax": 1
 }
 doubleGaus130_initialValues = {
-    "mean1":130, "mean1min":120, "mean1max":140,
+    "mean1":130, "mean1min":128, "mean1max":132,
     "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
-    "mean2":130, "mean2min":120, "mean2max":140,
+    "mean2":130, "mean2min":128, "mean2max":132,
     "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
-    "coef" : 0.1, "coefmin" : 0.0001, "coefmax": 1
+    "coef" : 0.8, "coefmin" : 0.0001, "coefmax": 1
 }
 tripleGaus125_initialValues = {
-    "mean1":125, "mean1min":115, "mean1max":135,
-    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
-    "mean2":125, "mean2min":115, "mean2max":135,
-    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
-    "mean3":125, "mean3min":115, "mean3max":135,
-    "sigma3":1.0, "sigma3min":0.1, "sigma3max":10,
-    "coef1" : 0.1, "coef1min" : 0.0001, "coef1max" : 1,
-    "coef2" : 0.1, "coef2min" : 0.0001, "coef2max" : 1,
+    "mean1":125, "mean1min":123, "mean1max":127,
+    "sigma1":1.1, "sigma1min":0.5, "sigma1max":1.7,
+    "mean2":125, "mean2min":123, "mean2max":127,
+    "sigma2":2.5, "sigma2min":1.7, "sigma2max":4,
+    "mean3":121, "mean3min":116, "mean3max":123,
+    "sigma3":4.5, "sigma3min":3, "sigma3max":7,
+    "coef1" : 0.78, "coef1min" : 0.0001, "coef1max" : 1,
+    "coef2" : 0.16, "coef2min" : 0.0001, "coef2max" : 1,
 }
 tripleGaus120_initialValues = {
-    "mean1":120, "mean1min":110, "mean1max":130,
-    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
-    "mean2":120, "mean2min":110, "mean2max":130,
-    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
-    "mean3":120, "mean3min":110, "mean3max":130,
-    "sigma3":1.0, "sigma3min":0.1, "sigma3max":10,
-    "coef1" : 0.1, "coef1min" : 0.0001, "coef1max" : 1,
-    "coef2" : 0.1, "coef2min" : 0.0001, "coef2max" : 1,
+    "mean1":120, "mean1min":118, "mean1max":122,
+    "sigma1":1.1, "sigma1min":0.5, "sigma1max":1.7,
+    "mean2":120, "mean2min":118, "mean2max":122,
+    "sigma2":2.5, "sigma2min":1.7, "sigma2max":4,
+    "mean3":116, "mean3min":111, "mean3max":118,
+    "sigma3":4.5, "sigma3min":3, "sigma3max":7,
+    "coef1" : 0.78, "coef1min" : 0.0001, "coef1max" : 1,
+    "coef2" : 0.16, "coef2min" : 0.0001, "coef2max" : 1,
 }
 tripleGaus130_initialValues = {
-    "mean1":130, "mean1min":120, "mean1max":140,
-    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
-    "mean2":130, "mean2min":120, "mean2max":140,
-    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
-    "mean3":130, "mean3min":120, "mean3max":140,
-    "sigma3":1.0, "sigma3min":0.1, "sigma3max":10,
-    "coef1" : 0.1, "coef1min" : 0.0001, "coef1max" : 1,
-    "coef2" : 0.1, "coef2min" : 0.0001, "coef2max" : 1,
+    "mean1":130, "mean1min":128, "mean1max":132,
+    "sigma1":1.1, "sigma1min":0.5, "sigma1max":1.7,
+    "mean2":130, "mean2min":128, "mean2max":132,
+    "sigma2":2.5, "sigma2min":1.7, "sigma2max":4,
+    "mean3":126, "mean3min":121, "mean3max":128,
+    "sigma3":4.5, "sigma3min":3, "sigma3max":7,
+    "coef1" : 0.78, "coef1min" : 0.0001, "coef1max" : 1,
+    "coef2" : 0.16, "coef2min" : 0.0001, "coef2max" : 1,
 }
 
 # expGaus
@@ -310,11 +311,11 @@ sumExp_defaultValues = aux.buildDefaultValuesSumExponentials(20)
 ################################################
 ### Mass Variables/Fit Ranges/Drawing Ranges ###
 ################################################
-diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":110, "max":160,
+diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":100, "max":150,
     "fitmin" : 115, "fitmax" : 135}
-diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":110, "max":160,
+diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":100, "max":150,
     "fitmin" : 110, "fitmax" : 130}
-diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":110, "max":160,
+diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":100, "max":150,
     "fitmin" : 120, "fitmax" : 140}
 
 """

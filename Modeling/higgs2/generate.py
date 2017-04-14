@@ -37,7 +37,7 @@ def generate_backgroundFits():
                 pathToDir=backgroundfitsDir,groupName=modelGroup.name)
 
 def generate_datacardsTripleGaus():
-    modelGroupToUse = modelGroupForMultiPdf
+    modelGroupToUse = modelGroupTest
     workspaceName = "higgs"
     for category in categoriesToUse:
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
@@ -138,7 +138,7 @@ def generate_datacardsTripleGaus():
         ws.SaveAs(os.path.join(datacardsworkspacesDir, workspaceFileName))
 
 def generate_datacardsDoubleGaus():
-    modelGroupToUse = modelGroupForMultiPdf
+    modelGroupToUse = modelGroupTest
     workspaceName = "higgs"
     for category in categoriesToUse:
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(

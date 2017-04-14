@@ -148,12 +148,16 @@ class DoubleGaus(Model):
         Model.initialize(self, modelName, *kargs, **wargs)
     
     def build(self, ws, **wargs):
-        ws.factory("Gaussian::g1_{modelName}(x, mean1_{modelName}, sigma1_{modelName})".format(
+        g1 = ws.factory("Gaussian::g1_{modelName}(x, mean1_{modelName}, sigma1_{modelName})".format(
             modelName=self.modelName))
-        ws.factory("Gaussian::g2_{modelName}(x, mean2_{modelName}, sigma2_{modelName})".format(
+        g2 = ws.factory("Gaussian::g2_{modelName}(x, mean2_{modelName}, sigma2_{modelName})".format(
             modelName=self.modelName))
-        ws.factory("SUM::{modelName}(coef_{modelName}*g1_{modelName}, g2_{modelName})".format(
-            modelName=self.modelName))
+        self.gaussians = R.RooArgList(g1, g2)
+        self.fractions = R.RooArgList(ws.var("coef_{modelName}".format(
+            modelName=self.modelName)))
+        doubleGaus = R.RooAddPdf(self.modelName, self.modelName,
+            self.gaussians, self.fractions, R.kTRUE)
+        getattr(ws, "import")(doubleGaus, R.RooFit.RecycleConflictNodes())
         return ws.pdf(self.modelName)
 
     def buildWithParameterMatrix(self, ws, massPoints, pmatrix, **wargs):
@@ -284,13 +288,19 @@ class TripleGaus(Model):
         Model.initialize(self, modelName, *kargs, **wargs)
 
     def build(self, ws, **wargs):
-        ws.factory("Gaussian::g1_{modelName}(x, mean1_{modelName}, sigma1_{modelName})".format(
+        g1 = ws.factory("Gaussian::g1_{modelName}(x, mean1_{modelName}, sigma1_{modelName})".format(
             modelName=self.modelName))
-        ws.factory("Gaussian::g2_{modelName}(x, mean2_{modelName}, sigma2_{modelName})".format(
+        g2 = ws.factory("Gaussian::g2_{modelName}(x, mean2_{modelName}, sigma2_{modelName})".format(
             modelName=self.modelName))
-        ws.factory("Gaussian::g3_{modelName}(x, mean3_{modelName}, sigma3_{modelName})".format(
+        g3 = ws.factory("Gaussian::g3_{modelName}(x, mean3_{modelName}, sigma3_{modelName})".format(
             modelName=self.modelName))
-        ws.factory("SUM::{modelName}(coef1_{modelName}*g1_{modelName}, coef2_{modelName}*g2_{modelName}, g3_{modelName})".format(modelName=self.modelName))
+        self.gaussians = R.RooArgList(g1, g2, g3)
+        self.fractions = R.RooArgList(ws.var("coef1_{modelName}".format(
+            modelName=self.modelName)), ws.var("coef2_{modelName}".format(
+            modelName=self.modelName)))
+        tripleGaus = R.RooAddPdf(self.modelName, self.modelName,
+            self.gaussians, self.fractions, R.kTRUE)
+        getattr(ws, "import")(tripleGaus, R.RooFit.RecycleConflictNodes())
         return ws.pdf(self.modelName)
     
     def setInitialValuesFromTH1(self, th1, **wargs):

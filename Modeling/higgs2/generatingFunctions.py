@@ -532,6 +532,8 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
     rdata = aux.buildRooHist(ws, hdata)
     rdata_blind = aux.buildRooHist(ws, hdata_blind)
     norm = rdata.sumEntries()
+    print "Integral = %f" % hdata.Integral()
+    print "SumEntries = %f" % rdata.sumEntries()
     
     #
     # iterate thru all the models/fit/plot
@@ -539,6 +541,7 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
     counter = 0
     pdfs = {}
     rdata_blind.plotOn(frame)
+#    rdata.plotOn(frame)
     for model in models:
         modelName = aux.buildBackgroundModelName(model, settings.names2RepsToUse[category])
         model.initialize(modelName)
@@ -546,7 +549,9 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
         pdfs[modelName] = model.build(ws)
         r = pdfs[modelName].fitTo(rdata, R.RooFit.Save())
         pdfs[modelName].plotOn(frame, R.RooFit.Name(model.modelId), 
-            R.RooFit.LineColor(model.color), R.RooFit.Normalization(norm, 0))
+            R.RooFit.LineColor(model.color), R.RooFit.Normalization(norm, R.RooAbsReal.NumEvent))
+#        pdfs[modelName].plotOn(frame, R.RooFit.Name(model.modelId), 
+#            R.RooFit.LineColor(model.color))
         legend.AddEntry(frame.findObject(model.modelId), model.modelId, "l")
         print model.modelId
     frame.Draw()

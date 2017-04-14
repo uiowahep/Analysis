@@ -19,7 +19,7 @@ def main():
     dirToUse = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis"
     analysisHome = os.environ["ANALYSISHOME"]
     filelistdir = os.path.join(dirToUse, "filelists")
-    resultsdir = os.path.join(dirToUse, "results")
+    resultsdir = os.path.join(dirToUse, "analysis_results", "results")
     pileupdir = os.path.join(dirToUse, "pileup_moriond2017")
     mcera = "mcMoriond2017"
     import datetime
