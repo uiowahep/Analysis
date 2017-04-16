@@ -104,15 +104,23 @@ categoriesToUse = run1Categories
 combinationsToUse = run1Combinations
 reps2NamesToUse = run1Reps2Names
 names2RepsToUse = run1Names2Reps
-massListToUse = [120, 125, 130]
-signalModelNames = ["SingleGaus"]
+
+#########################################
+### General Combine-specific Settings ###
+#########################################
+massPointsToUse = [120, 125, 130]
+physicsModelParametersToSet = {}
+nuisancesToFreeze = ["MH"]
+def map2string(m, sep=","):
+    return ",".join(["{key}={value}".format(key=x, value=m[x]) for x in m])
 
 #######################
 ### Directory Setup ###
 #######################
 projectDirLocal = "/Users/vk/software/Analysis/files/analysis_results/"
 projectDirLxplus = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/analysis_results"
-projectDirToUse = projectDirLxplus
+cmsswDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_7_4_9/src"
+projectDirToUse = projectDirLocal
 histDir = os.path.join(projectDirToUse, "results", jobLabel)
 distributionsDir = os.path.join(projectDirToUse, "distributions", jobLabel);
 aux.mkdir(distributionsDir)
