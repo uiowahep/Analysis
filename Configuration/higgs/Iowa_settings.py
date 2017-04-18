@@ -149,6 +149,8 @@ combinesubmissionsDir = os.path.join(projectDirToUse, "combinesubmissions", jobL
 aux.mkdir(combinesubmissionsDir)
 limitsDir = os.path.join(projectDirToUse, "limits", jobLabel)
 aux.mkdir(limitsDir)
+ftestDir = os.path.join(projectDirToUse, "ftest", jobLabel)
+aux.mkdir(ftestDir)
 
 #################
 ###  Samples  ###
@@ -405,3 +407,4 @@ modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, 
     models.Bernstein(bernstein_defaultValues, degree=6)])
 modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma, 
     models.BernsteinFast(bernstein_defaultValues, degree=5)])
+orderedModelGroups = [bernsteinsFastModels]

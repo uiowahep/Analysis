@@ -21,6 +21,8 @@ parser.add_argument("--signalModel", type=str,
     default="SingleGaus", help="Name of the Signal Model to be used")
 parser.add_argument("--extraCombineOptions", type=str,
     default="", help="Additional Options to be passed directly to combine")
+parser.add_argument("--inDirName", type=str,
+    default="test", help="Directory name that has been created in .../datacardsworkspaces/$jobLabel/ in which all the datacards/workspaces reside. The idea is that you might regenerate the workspaces with different bin width or mass range or changing the background envelope and keep track of these changes up to Combine Step")
 parser.add_argument("--outDirName", type=str,
     default="test", help="Directory Name that will be created in the .../combineoutput/$jobLabel/ folder where all the results will go to. Directory Name that will be created in the .../combinesubmissions/$joblabel/ folder where all the launchers will go to.")
 parser.add_argument("--splitLevel", type=int,
@@ -104,7 +106,8 @@ def combinations():
     for combination in combinationsToUse:
         if combination in args.categoriesToSkip:
             continue
-        datacard = os.path.join(datacardsworkspacesDir, "datacard__{category}__{signalModel}.root".format(category=combination, signalModel=args.signalModel))
+        datacard = os.path.join(datacardsworkspacesDir, args.inDirName, 
+            "datacard__{category}__{signalModel}.root".format(category=combination, signalModel=args.signalModel))
         for massPoint in args.massPoints:
             # set the mass for splines
             physicsModelParametersToSet["MH"] = massPoint
@@ -135,7 +138,8 @@ def categories():
     for category in categoriesToUse:
         if names2RepsToUse[category] in args.categoriesToSkip:
             continue
-        datacard = os.path.join(datacardsworkspacesDir, "datacard__{category}__{signalModel}.root".format(category=names2RepsToUse[category], signalModel=args.signalModel))
+        datacard = os.path.join(datacardsworkspacesDir, args.inDirName, 
+            "datacard__{category}__{signalModel}.root".format(category=names2RepsToUse[category], signalModel=args.signalModel))
         for massPoint in args.massPoints:
             # set the mass for splines
             physicsModelParametersToSet["MH"] = massPoint
@@ -150,16 +154,18 @@ def categories():
     createLaunchers(cmds, submitDir, label)
 
 def combineCards():
+    datacardsDir = os.path.join(datacardsworkspacesDir, args.inDirName)
     for combination in combinationsToUse:
         combinedDatacard = "datacard__{combination}__{signalModel}.txt".format(
             combination=combination, signalModel=args.signalModel)
         lexploded = ["{label}=datacard__{category}__{signalModel}.txt".format(
             category=x, label=x, signalModel=args.signalModel) for x in combinationsToUse[combination]]
-        os.system('./mycombineCards.sh {cmssw} {cardsDir} "{lexploded}" {combinedDatacard}'.format(cmssw = cmsswDir, cardsDir=datacardsworkspacesDir, lexploded=" ".join(lexploded), combinedDatacard=combinedDatacard))
+        os.system('./mycombineCards.sh {cmssw} {cardsDir} "{lexploded}" {combinedDatacard}'.format(cmssw = cmsswDir, cardsDir=datacardsDir, lexploded=" ".join(lexploded), combinedDatacard=combinedDatacard))
 
 
 def text2workspace():
-    os.system("./mytext2workspace.sh %s %s %s" % (datacardsworkspacesDir,
+    datacardsDir = os.path.join(datacardsworkspacesDir, args.inDirName)
+    os.system("./mytext2workspace.sh %s %s %s" % (datacardsDir,
         cmsswDir, args.signalModel))
 
 def main():

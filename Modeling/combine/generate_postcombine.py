@@ -278,6 +278,7 @@ def plotLimitsByMass(mass):
         mass=mass, signalModel=args.signalModel)))
 
 def plotLimits():
+    mkdir(os.path.join(limitsDir, args.outDirName))
     for mass in args.massPoints:
         plotLimitsByMass(mass)
     for category in categoriesToUse:
@@ -294,8 +295,6 @@ def fits():
 
 def main():
     import sys
-    print args
-    mkdir(os.path.join(limitsDir, args.outDirName))
     what = getattr(sys.modules[__name__], args.what)
     what()
 

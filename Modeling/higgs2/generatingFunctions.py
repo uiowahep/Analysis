@@ -356,10 +356,68 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, settings, **w
     fileName = "signalFitInterpolation__{category}__{processName}__{modelId}__{mods}.png".format(category=category, processName=signal.mc.buildProcessName(), modelId=model.modelId, mods="")
     canvas.SaveAs(os.path.join(pathToDir, fileName))
 
-def ftestPerFamily(familyModelGroup):
-    pass
-   # for model in familyModelGroup.models:
-    
+def ftestPerFamily((category, variable), ws, data, familyModelGroup, settings, **wargs):
+    #
+    # initialize the values from wargs
+    #
+    pathToDir = "/tmp"
+    if "pathToDir" in wargs:
+        pathToDir = wargs["pathToDir"]
+
+    #
+    # canvas 
+    #
+    canvas = R.TCanvas("c1", "c1", 800, 600)
+    canvas.cd()
+    frame = ws.var("x").frame()
+    legend = R.TLegend(0.65, 0.6, 0.9, 0.9)
+
+    #
+    # Get the data histogram
+    #
+    fdata = R.TFile(data.pathToFile)
+    hdata = fdata.Get(category + "/" + variable["name"])
+    hdata_blind = hdata.Clone("Blind")
+    aux.blindHistogram(hdata_blind, 120, 130)
+    rdata = aux.buildRooHist(ws, hdata)
+    rdata_blind = aux.buildRooHist(ws, hdata_blind)
+    norm = rdata.sumEntries()
+    print "Integral = %f" % hdata.Integral()
+    print "SumEntries = %f" % rdata.sumEntries()
+
+    #
+    # perform the actual test
+    #
+    maxProb = 0.05; prevNLL = -1.0; prevModel=None; prevDegree=0
+    prob=0
+    pdfs = {}
+    rdata_blind.plotOn(frame)
+    for model in familyModelGroup.models:
+        modelName = aux.buildBackgroundModelName(model, 
+            settings.names2RepsToUse[category])
+        model.initialize(modelName)
+        model.createParameters(ws)
+        pdfs[modelName] = model.build(ws)
+        r = pdfs[modelName].fitTo(rdata)
+        pdfs[modelName].plotOn(frame, R.RooFit.Name(model.modelId),
+            R.RooFit.LineColor(model.color), R.RooFit.Normalization(norm, 
+                R.RooAbsReal.NumEvent))
+        legend.AddEntry(frame.findObject(model.modelId), model.modelId, "l")
+    frame.Draw()
+
+    #
+    # save the canvas
+    #
+    fileName = "ftest__{category}__{familyName}.png".format(
+        category = category, familyName=familyModelGroup.name)
+    legend.Draw()
+    R.gPad.Modified()
+    canvas.SaveAs(os.path.join(pathToDir, fileName))
+
+    #
+    # close the ROOT file
+    #
+    fdata.Close()
 
 def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, settings, **wargs):
     #
