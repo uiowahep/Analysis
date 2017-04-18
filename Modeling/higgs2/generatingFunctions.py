@@ -356,8 +356,10 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, settings, **w
     fileName = "signalFitInterpolation__{category}__{processName}__{modelId}__{mods}.png".format(category=category, processName=signal.mc.buildProcessName(), modelId=model.modelId, mods="")
     canvas.SaveAs(os.path.join(pathToDir, fileName))
 
-def ftestPerFamily():
+def ftestPerFamily(familyModelGroup):
     pass
+   # for model in familyModelGroup.models:
+    
 
 def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, settings, **wargs):
     #

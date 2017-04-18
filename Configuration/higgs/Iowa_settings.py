@@ -108,7 +108,14 @@ names2RepsToUse = run1Names2Reps
 #########################################
 ### General Combine-specific Settings ###
 #########################################
-massPointsToUse = [120, 125, 130]
+quantiles2Reps = { 
+    -1.0 : "observed", 
+    0.16 : "m1sigma", 
+    0.84 : "p1sigma", 
+    0.025 : "m2sigma", 
+    0.975 : "p2sigma", 
+    0.5 : "expected"
+}
 physicsModelParametersToSet = {}
 nuisancesToFreeze = ["MH"]
 def map2string(m, sep=","):
@@ -120,7 +127,7 @@ def map2string(m, sep=","):
 projectDirLocal = "/Users/vk/software/Analysis/files/analysis_results/"
 projectDirLxplus = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/analysis_results"
 cmsswDir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_7_4_9/src"
-projectDirToUse = projectDirLocal
+projectDirToUse = projectDirLxplus
 histDir = os.path.join(projectDirToUse, "results", jobLabel)
 distributionsDir = os.path.join(projectDirToUse, "distributions", jobLabel);
 aux.mkdir(distributionsDir)
@@ -140,6 +147,8 @@ combineoutputDir = os.path.join(projectDirToUse, "combineoutput", jobLabel)
 aux.mkdir(combineoutputDir)
 combinesubmissionsDir = os.path.join(projectDirToUse, "combinesubmissions", jobLabel)
 aux.mkdir(combinesubmissionsDir)
+limitsDir = os.path.join(projectDirToUse, "limits", jobLabel)
+aux.mkdir(limitsDir)
 
 #################
 ###  Samples  ###

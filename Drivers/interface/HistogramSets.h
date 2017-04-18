@@ -32,7 +32,7 @@ namespace analysis
 					100, 0, 200);
                 hDiMuonpt->Sumw2(kTRUE);
 				hDiMuonMass = new TH1D("DiMuonMass", 
-					"DiMuonMass", 1400, 50, 400);
+					"DiMuonMass", 7000, 50, 400);
                 hDiMuonMass->Sumw2(kTRUE);
 				hDiMuoneta = new TH1D("DiMuoneta", "DiMuoneta",
 					50, -2.5, 2.5);
