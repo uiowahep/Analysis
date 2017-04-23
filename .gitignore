@@ -16,4 +16,10 @@
 *.gz
 *.html
 *.txt
+*.swg
+*.swh
+*.swi
+*.swj
+*.swk
+*.swl
 crab_projects/

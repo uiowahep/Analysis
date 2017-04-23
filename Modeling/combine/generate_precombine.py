@@ -16,6 +16,7 @@ parser.add_argument("--method", type=str,
 parser.add_argument("--massPoints", type=int, nargs="+",
     help="Mass Points for which to probe/run combine")
 parser.add_argument("--categoriesToSkip", type=str, nargs="*",
+    default=[],
     help="Categories that should be skipped")
 parser.add_argument("--signalModel", type=str,
     default="SingleGaus", help="Name of the Signal Model to be used")
@@ -151,6 +152,107 @@ def categories():
             cmds.append(cmd)
     
     label = "%s_%s_%s" % ("categories", args.method, args.signalModel)
+    createLaunchers(cmds, submitDir, label)
+
+def biasScan():
+    R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+
+    #
+    # prepare the submission/output dirs
+    #
+    outDir = os.path.join(combineoutputDir, args.outDirName)
+    mkdir(outDir)
+    submitDir = os.path.join(combinesubmissionsDir, args.outDirName)
+    mkdir(submitDir)
+    workspacesDir = os.path.join(datacardsworkspacesDir, args.inDirName)
+
+    #
+    # perform the scan
+    #
+    import definitions as defs
+    cmds = []
+    ourNuisances = nuisancesToFreeze
+    for category in categoriesToUse:
+        if names2RepsToUse[category] in args.categoriesToSkip:
+            continue
+        datacard = os.path.join(datacardsworkspacesDir, args.inDirName,
+            "datacard__{category}__{signalModel}.root".format(
+                category=names2RepsToUse[category], signalModel=args.signalModel))
+        # add the current pdfindex to the list of nuisances to be frozen
+        ourNuisances.append("pdfindex_{category}".format(
+            category=names2RepsToUse[category]))
+
+        # get the current workspace
+        workspaceFileName = "workspace__{category}__{signalModel}.root".format(
+            category=names2RepsToUse[category], signalModel=args.signalModel)
+        currentWorkspaceFile = R.TFile(os.path.join(workspacesDir, workspaceFileName))
+        higgsWorkspace = currentWorkspaceFile.Get("higgs")
+        # get all the variables
+        allVariables = higgsWorkspace.allVars().contentsString().split(",")
+        # get the multipdf
+        multipdf = higgsWorkspace.pdf("multipdf_{category}".format(
+            category=names2RepsToUse[category]))
+        for massPoint in args.massPoints:
+            physicsModelParametersToSet["MH"] = massPoint
+            # this is list of cmd strings that have to go as a single Command!
+            cmdStrings = []
+            # iterate thru all of the pdfs in our envelope
+            for iref in range(multipdf.getNumPdfs()):
+                # set the pdfindex_category to the iref
+                physicsModelParametersToSet["pdfindex_{category}".format(
+                    category=names2RepsToUse[category])] = iref
+                
+                outputModifierGenerateOnly = names2RepsToUse[category] + "__" + \
+                    str(massPoint) + "__" + str(iref) + "__" + args.signalModel
+                # generate the toys command
+                cmdStrings.append("# GenerateOnly\n")
+                cmdGenerateOnly = "combine -d {datacard} -n {outputModifier} -M GenerateOnly --setPhysicsModelParameters {physicsModelParametersToSet} --toysFrequentist -t 100 --expectSignal 1 --saveToys -m {mass} --freezeNuisances {nuisancesToFreeze}".format(
+                    datacard=datacard, mass=massPoint, 
+                    outputModifier=outputModifierGenerateOnly,
+                    physicsModelParametersToSet=map2string(physicsModelParametersToSet),
+                    nuisancesToFreeze=",".join(ourNuisances))
+                cmdStrings.append(cmdGenerateOnly)
+                for ibkg in range(multipdf.getNumPdfs()):
+                    currentPdfName = multipdf.getPdf(ibkg).GetName()
+                    # retrieve the names of all other parameters
+                    # that we have to fix. Given that we fit with ibkg
+                    # parameters of other models must be frozen
+                    # for the fit to be executed 100% correctly!!!
+                    otherModelsParametersToFreeze = []
+                    for var in allVariables:
+                        for ipdf in range(multipdf.getNumPdfs()):
+                            if ibkg==ipdf: continue
+                            currentPdfName = multipdf.getPdf(ipdf).GetName()
+                            if currentPdfName in var:
+                                otherModelsParametersToFreeze.append(var)
+                                break
+                    # set the pdfindex_category to the model that
+                    # we are going to fit our toy's reference with!
+                    physicsModelParametersToSet["pdfindex_{category}".format(
+                        category=names2RepsToUse[category])] = ibkg
+                    outputModifier = names2RepsToUse[category] + "__" + \
+                        str(massPoint) + "__" + str(iref) + "__" + str(ibkg) + \
+                        "__" + args.signalModel
+                    # perform the fit for that function
+                    cmdStrings.append("# MaxLikelihoodFit\n")
+                    cmdMaxLikelihoodFit = "combine -d {datacard} -M MaxLikelihoodFit  --setPhysicsModelParameters {physicsModelParametersToSet} --toysFile higgsCombine{outputModifierGenerateOnly}.GenerateOnly.mH{mass}.123456.root  -t 100 --rMin 0.1 --rMax 50 --freezeNuisances {nuisancesToFreeze} -m {mass} -n {outputModifier} --saveShapes --plots".format(datacard=datacard,
+                        physicsModelParametersToSet=map2string(physicsModelParametersToSet),
+                        outputModifierGenerateOnly=outputModifierGenerateOnly,
+                        mass=massPoint, 
+                        nuisancesToFreeze=",".join(ourNuisances +
+                            otherModelsParametersToFreeze),
+                        outputModifier=outputModifier)
+                    cmdStrings.append(cmdMaxLikelihoodFit)
+            # remove that pdfindex..... from the dictionary!
+            del physicsModelParametersToSet["pdfindex_{category}".format(
+                category=names2RepsToUse[category])]
+            cmd = defs.Command(category, cmdStrings)
+            cmds.append(cmd)
+        # remove the current pdfindex from the list of nuisances to be frozen!
+        ourNuisances.remove("pdfindex_{category}".format(
+            category=names2RepsToUse[category]))
+
+    label = "biasScan_{signalModel}".format(signalModel = args.signalModel)
     createLaunchers(cmds, submitDir, label)
 
 def combineCards():

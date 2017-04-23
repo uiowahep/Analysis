@@ -151,6 +151,8 @@ limitsDir = os.path.join(projectDirToUse, "limits", jobLabel)
 aux.mkdir(limitsDir)
 ftestDir = os.path.join(projectDirToUse, "ftest", jobLabel)
 aux.mkdir(ftestDir)
+biasScanDir = os.path.join(projectDirToUse, "biasScan", jobLabel)
+aux.mkdir(biasScanDir)
 
 #################
 ###  Samples  ###
@@ -245,23 +247,23 @@ singleGaus130_initialValues = {
 }
 doubleGaus125_initialValues = {
     "mean1":125, "mean1min":123, "mean1max":127,
-    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
-    "mean2":125, "mean2min":123, "mean2max":127,
-    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
+    "sigma1":1.0, "sigma1min":0.5, "sigma1max":4,
+    "mean2":125, "mean2min":121, "mean2max":129,
+    "sigma2":1.0, "sigma2min":1.7, "sigma2max":7,
     "coef" : 0.8, "coefmin" : 0.0001, "coefmax": 1
 }
 doubleGaus120_initialValues = {
     "mean1":120, "mean1min":118, "mean1max":122,
-    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
-    "mean2":120, "mean2min":118, "mean2max":122,
-    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
+    "sigma1":1.0, "sigma1min":0.5, "sigma1max":4,
+    "mean2":120, "mean2min":116, "mean2max":124,
+    "sigma2":1.0, "sigma2min":1.7, "sigma2max":7,
     "coef" : 0.8, "coefmin" : 0.0001, "coefmax": 1
 }
 doubleGaus130_initialValues = {
     "mean1":130, "mean1min":128, "mean1max":132,
-    "sigma1":1.0, "sigma1min":0.1, "sigma1max":10,
-    "mean2":130, "mean2min":128, "mean2max":132,
-    "sigma2":1.0, "sigma2min":0.1, "sigma2max":10,
+    "sigma1":1.0, "sigma1min":0.5, "sigma1max":4,
+    "mean2":130, "mean2min":126, "mean2max":134,
+    "sigma2":1.0, "sigma2min":1.7, "sigma2max":7,
     "coef" : 0.8, "coefmin" : 0.0001, "coefmax": 1
 }
 tripleGaus125_initialValues = {
@@ -326,15 +328,20 @@ bwzgamma_defaultValues = {
 bernstein_defaultValues = aux.buildDefaultValuesBerstein(20)
 # sum exponentials
 sumExp_defaultValues = aux.buildDefaultValuesSumExponentials(20)
+# power Law
+powLaw_defaultValues = aux.buildDefaultValuesPowerLaw(20)
+# laurent series
+exponents = [-4, -3, -5, -2, -6, -1, -7, 0, -8, 1, -9, 2, -10, 3, -11]
+laurent_defaultValues = aux.buildDefaultValuesLaurentSeries(20)
 
 ################################################
 ### Mass Variables/Fit Ranges/Drawing Ranges ###
 ################################################
-diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":100, "max":150,
+diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":110, "max":160,
     "fitmin" : 115, "fitmax" : 135}
-diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":100, "max":150,
+diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":110, "max":160,
     "fitmin" : 110, "fitmax" : 130}
-diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":100, "max":150,
+diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":110, "max":160,
     "fitmin" : 120, "fitmax" : 140}
 
 """
@@ -383,8 +390,9 @@ bwzRedux = models.BWZRedux(bwzredux_defaultValues)
 bwzGamma = models.BWZGamma(bwzgamma_defaultValues)
 bernsteinsFast = [models.BernsteinFast(bernstein_defaultValues, degree=i) for i in range(1, 8)]
 bernsteins = [models.Bernstein(bernstein_defaultValues, degree=i) for i in range(1, 11)]
-sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 11)]
-
+sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 8)]
+powerLaw = [models.PowerLaw(powLaw_defaultValues, degree=i) for i in range(1, 10)]
+laurentSeries = [models.LaurentSeries(laurent_defaultValues, degree=i, exponents=exponents) for i in range(2, 10)]
 
 class ModelGroup(object):
     def __init__(self, name, models):
@@ -395,6 +403,8 @@ class ModelGroup(object):
 bernsteinModels = ModelGroup("bersteinModels", bernsteins)
 sumExpModels = ModelGroup("sumExpModels", sumExps)
 allPhysBkgModels = ModelGroup("allPhysBkgModels", [bwz, expGaus, bwzRedux, bwzGamma])
+laurentModels = ModelGroup("LaurentSeries", laurentSeries)
+powerLawModels = ModelGroup("PowerLaw", powerLaw)
 bernsteinsPlusPhysModels = ModelGroup("bersteinsPlusPhysModels",
     allPhysBkgModels.models + bernsteins)
 bernsteinsFastModels = ModelGroup("bernsteinFastModels", bernsteinsFast)
@@ -407,4 +417,6 @@ modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, 
     models.Bernstein(bernstein_defaultValues, degree=6)])
 modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma, 
     models.BernsteinFast(bernstein_defaultValues, degree=5)])
-orderedModelGroups = [bernsteinsFastModels]
+physGroupTest = ModelGroup("physModelsGroup", [bwzRedux, bwzGamma, expGaus, bwz])
+orderedGroupsTest = [bernsteinsFastModels, sumExpModels]
+orderedModelGroups = [bernsteinsFastModels, sumExpModels, powerLawModels]

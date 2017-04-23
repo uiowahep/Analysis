@@ -3,8 +3,8 @@
 import ROOT as R
 R.gROOT.SetBatch(R.kTRUE)
 
-from generatingFunctions import *
-from aux import *
+import generatingFunctions as funcs
+import aux
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -34,7 +34,7 @@ elif args.mode == "UF_AMC":
 
 def backgroundFits():
     pathToDir = os.path.join(backgroundfitsDir, args.outDirName)
-    mkdir(pathToDir)
+    aux.mkdir(pathToDir)
     for category in categoriesToUse:
         for modelGroup in backgroundModelGroups:
             ws = R.RooWorkspace("higgs")
@@ -44,32 +44,43 @@ def backgroundFits():
             for m in modelsToUse:
                 m.color = colors[counter]
                 counter+=1
-            backgroundFits((category, diMuonMass125), ws, data, modelsToUse,
+            funcs.backgroundFits(
+                (category, diMuonMass125), ws, data, modelsToUse,
                 settings,
                 pathToDir=pathToDir,groupName=modelGroup.name)
 
 def ftest():
     pathToDir = os.path.join(ftestDir, args.outDirName)
-    mkdir(pathToDir)
+    aux.mkdir(pathToDir)
+    fTestResults = {}
     for category in categoriesToUse:
+        fTestResults[category] = {}
         for modelGroup in orderedModelGroups:
             ws = R.RooWorkspace("higgs")
             aux.buildMassVariable(ws, **diMuonMass125)
             counter = 0;
-            for m in modelsToUse:
+            for m in modelGroup.models:
                 m.color = colors[counter]
                 counter+=1
-            backgroundFits((category, diMuonMass125), ws, data, modelGroup,
+            modelToBeUsed, values = funcs.ftestPerFamily(
+                (category, diMuonMass125), ws, data, modelGroup,
                 settings, pathToDir=pathToDir)
+            fTestResults[category][modelGroup.name] = values
+    funcs.plotFTestResults(fTestResults, pathToDir=pathToDir)
 
 def datacardsTripleGaus():
-    modelGroupToUse = modelGroupTest
+    physGroupToUse = physGroupTest
+    orderedGroupsToUse = orderedGroupsTest
     workspaceName = "higgs"
     signalSplinesDir = os.path.join(signalfitinterpolationswithsplineDir, args.outDirName)
     backgroundsDir = os.path.join(backgroundfitswithroomultipdfDir, args.outDirName)
     datacardsDir = os.path.join(datacardsworkspacesDir, args.outDirName)
-    mkdir(signalSplinesDir); mkdir(backgroundsDir); mkdir(datacardsDir)
+    fffTestDir = os.path.join(ftestDir, args.outDirName)
+    aux.mkdir(signalSplinesDir); aux.mkdir(backgroundsDir); aux.mkdir(datacardsDir)
+    aux.mkdir(fffTestDir)
+    fTestResults = {}
     for category in categoriesToUse:
+        fTestResults[category] = {}
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
             category=names2RepsToUse[category], signalModelId = tripleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
@@ -92,7 +103,7 @@ def datacardsTripleGaus():
         print "*"*80
         print "Generating Triple Gaus Splines"
         print "*"*80
-        vbfmodel = signalFitInterpolationWithSpline(category, ws, 
+        vbfmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (vbf120, tripleGaus120, diMuonMass120),
                 (vbf125, tripleGaus125, diMuonMass125),
@@ -101,7 +112,7 @@ def datacardsTripleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        glumodel = signalFitInterpolationWithSpline(category, ws, 
+        glumodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (glu120, tripleGaus120, diMuonMass120),
                 (glu125, tripleGaus125, diMuonMass125),
@@ -110,7 +121,7 @@ def datacardsTripleGaus():
             settings, 
             pathToDir=signalSplinesDir
         )
-        wpmodel = signalFitInterpolationWithSpline(category, ws, 
+        wpmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wp120, tripleGaus120, diMuonMass120),
                 (wp125, tripleGaus125, diMuonMass125),
@@ -119,7 +130,7 @@ def datacardsTripleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        wmmodel = signalFitInterpolationWithSpline(category, ws, 
+        wmmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wm120, tripleGaus120, diMuonMass120),
                 (wm125, tripleGaus125, diMuonMass125),
@@ -128,7 +139,7 @@ def datacardsTripleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        zhmodel = signalFitInterpolationWithSpline(category, ws, 
+        zhmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (zh120, tripleGaus120, diMuonMass120),
                 (zh125, tripleGaus125, diMuonMass125),
@@ -137,23 +148,41 @@ def datacardsTripleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
+        
+        #
+        # Perform the F-Test and select the proper order of the 
+        #
+        selectedOrderedModels = []
+        for modelGroup in orderedGroupsToUse:
+            counter = 0;
+            for m in modelGroup.models:
+                m.color = colors[counter]
+                counter+=1
+            selectedModel, values = funcs.ftestPerFamily(
+                (category, diMuonMass125), ws, data, modelGroup,
+                settings, pathToDir=fffTestDir)
+            if selectedModel is not None:
+                selectedOrderedModels.append(selectedModel)
+            fTestResults[category][modelGroup.name] = values
 
         #
         # Create the Background Model
         #
+        totalModelGroup = ModelGroup("bkgModels",
+            physGroupTest.models + selectedOrderedModels)
         counter = 0
-        for model in modelGroupToUse.models:
+        for model in totalModelGroup.models:
             model.color = colors[counter]
             counter += 1
-        backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
-            modelGroupToUse.models, settings, pathToDir=backgroundsDir,
-            groupName=modelGroupToUse.name)
+        funcs.backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
+            totalModelGroup.models, settings, pathToDir=backgroundsDir,
+            groupName=totalModelGroup.name)
 
         #
         # Signal and Background Models are ready and are in the Workspace
         # create the datacard for this category
         #
-        datacardAnalytic(category, ws, data, 
+        funcs.datacardAnalytic(category, ws, data, 
             [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
             ws.pdf("multipdf_{category}".format(category=names2RepsToUse[category])),
             settings,
@@ -167,14 +196,24 @@ def datacardsTripleGaus():
         #
         ws.SaveAs(os.path.join(datacardsDir, workspaceFileName))
 
+    #
+    # plot all the F-test results
+    #
+    funcs.plotFTestResults(fTestResults, pathToDir=fffTestDir)
+
 def datacardsDoubleGaus():
-    modelGroupToUse = modelGroupTest
+    physGroupToUse = physGroupTest
+    orderedGroupsToUse = orderedGroupsTest
     workspaceName = "higgs"
     signalSplinesDir = os.path.join(signalfitinterpolationswithsplineDir, args.outDirName)
     backgroundsDir = os.path.join(backgroundfitswithroomultipdfDir, args.outDirName)
     datacardsDir = os.path.join(datacardsworkspacesDir, args.outDirName)
-    mkdir(signalSplinesDir); mkdir(backgroundsDir); mkdir(datacardsDir)
+    fffTestDir = os.path.join(ftestDir, args.outDirName)
+    aux.mkdir(signalSplinesDir); aux.mkdir(backgroundsDir); aux.mkdir(datacardsDir)
+    aux.mkdir(fffTestDir)
+    fTestResults = {}
     for category in categoriesToUse:
+        fTestResults[category] = {}
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
             category=names2RepsToUse[category], signalModelId = doubleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
@@ -197,7 +236,7 @@ def datacardsDoubleGaus():
         print "*"*80
         print "Generating Double Gaus Splines"
         print "*"*80
-        vbfmodel = signalFitInterpolationWithSpline(category, ws, 
+        vbfmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (vbf120, doubleGaus120, diMuonMass120),
                 (vbf125, doubleGaus125, diMuonMass125),
@@ -206,7 +245,7 @@ def datacardsDoubleGaus():
             settings, 
             pathToDir=signalSplinesDir
         )
-        glumodel = signalFitInterpolationWithSpline(category, ws, 
+        glumodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (glu120, doubleGaus120, diMuonMass120),
                 (glu125, doubleGaus125, diMuonMass125),
@@ -215,7 +254,7 @@ def datacardsDoubleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        wpmodel = signalFitInterpolationWithSpline(category, ws, 
+        wpmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wp120, doubleGaus120, diMuonMass120),
                 (wp125, doubleGaus125, diMuonMass125),
@@ -224,7 +263,7 @@ def datacardsDoubleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        wmmodel = signalFitInterpolationWithSpline(category, ws, 
+        wmmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wm120, doubleGaus120, diMuonMass120),
                 (wm125, doubleGaus125, diMuonMass125),
@@ -233,7 +272,7 @@ def datacardsDoubleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        zhmodel = signalFitInterpolationWithSpline(category, ws, 
+        zhmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (zh120, doubleGaus120, diMuonMass120),
                 (zh125, doubleGaus125, diMuonMass125),
@@ -242,23 +281,41 @@ def datacardsDoubleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
+        
+        #
+        # Perform the F-Test and select the proper order of the 
+        #
+        selectedOrderedModels = []
+        for modelGroup in orderedGroupsToUse:
+            counter = 0;
+            for m in modelGroup.models:
+                m.color = colors[counter]
+                counter+=1
+            selectedModel, values = funcs.ftestPerFamily(
+                (category, diMuonMass125), ws, data, modelGroup,
+                settings, pathToDir=fffTestDir)
+            if selectedModel is not None:
+                selectedOrderedModels.append(selectedModel)
+            fTestResults[category][modelGroup.name] = values
 
         #
         # Create the Background Model
         #
+        totalModelGroup = ModelGroup("bkgModels",
+            physGroupTest.models + selectedOrderedModels)
         counter = 0
-        for model in modelGroupToUse.models:
+        for model in totalModelGroup.models:
             model.color = colors[counter]
             counter += 1
-        backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
-            modelGroupToUse.models, settings, pathToDir=backgroundsDir,
-            groupName=modelGroupToUse.name)
+        funcs.backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
+            totalModelGroup.models, settings, pathToDir=backgroundsDir,
+            groupName=totalModelGroup.name)
 
         #
         # Signal and Background Models are ready and are in the Workspace
         # create the datacard for this category
         #
-        datacardAnalytic(category, ws, data, 
+        funcs.datacardAnalytic(category, ws, data, 
             [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
             ws.pdf("multipdf_{category}".format(category=names2RepsToUse[category])),
             settings,
@@ -272,14 +329,24 @@ def datacardsDoubleGaus():
         #
         ws.SaveAs(os.path.join(datacardsDir, workspaceFileName))
 
+    #
+    # plot all the F-test results
+    #
+    funcs.plotFTestResults(fTestResults, pathToDir=fffTestDir)
+
 def datacardsSingleGaus():
-    modelGroupToUse = modelGroupTest
+    physGroupToUse = physGroupTest
+    orderedGroupsToUse = orderedGroupsTest
     workspaceName = "higgs"
     signalSplinesDir = os.path.join(signalfitinterpolationswithsplineDir, args.outDirName)
     backgroundsDir = os.path.join(backgroundfitswithroomultipdfDir, args.outDirName)
     datacardsDir = os.path.join(datacardsworkspacesDir, args.outDirName)
-    mkdir(signalSplinesDir); mkdir(backgroundsDir); mkdir(datacardsDir)
+    fffTestDir = os.path.join(ftestDir, args.outDirName)
+    aux.mkdir(signalSplinesDir); aux.mkdir(backgroundsDir); aux.mkdir(datacardsDir)
+    aux.mkdir(fffTestDir)
+    fTestResults = {}
     for category in categoriesToUse:
+        fTestResults[category] = {}
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
             category=names2RepsToUse[category], signalModelId = singleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
@@ -302,7 +369,7 @@ def datacardsSingleGaus():
         print "*"*80
         print "Generating Single Gaus Splines"
         print "*"*80
-        vbfmodel = signalFitInterpolationWithSpline(category, ws, 
+        vbfmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (vbf120, singleGaus120, diMuonMass120),
                 (vbf125, singleGaus125, diMuonMass125),
@@ -311,7 +378,7 @@ def datacardsSingleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        glumodel = signalFitInterpolationWithSpline(category, ws, 
+        glumodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (glu120, singleGaus120, diMuonMass120),
                 (glu125, singleGaus125, diMuonMass125),
@@ -320,7 +387,7 @@ def datacardsSingleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        wpmodel = signalFitInterpolationWithSpline(category, ws, 
+        wpmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wp120, singleGaus120, diMuonMass120),
                 (wp125, singleGaus125, diMuonMass125),
@@ -329,7 +396,7 @@ def datacardsSingleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        wmmodel = signalFitInterpolationWithSpline(category, ws, 
+        wmmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wm120, singleGaus120, diMuonMass120),
                 (wm125, singleGaus125, diMuonMass125),
@@ -338,7 +405,7 @@ def datacardsSingleGaus():
             settings,
             pathToDir=signalSplinesDir
         )
-        zhmodel = signalFitInterpolationWithSpline(category, ws, 
+        zhmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (zh120, singleGaus120, diMuonMass120),
                 (zh125, singleGaus125, diMuonMass125),
@@ -349,22 +416,40 @@ def datacardsSingleGaus():
         )
 
         #
+        # Perform the F-Test and select the proper order of the 
+        #
+        selectedOrderedModels = []
+        for modelGroup in orderedGroupsToUse:
+            counter = 0;
+            for m in modelGroup.models:
+                m.color = colors[counter]
+                counter+=1
+            selectedModel, values = funcs.ftestPerFamily(
+                (category, diMuonMass125), ws, data, modelGroup,
+                settings, pathToDir=fffTestDir)
+            if selectedModel is not None:
+                selectedOrderedModels.append(selectedModel)
+            fTestResults[category][modelGroup.name] = values
+
+        #
         # Create the Background Model
         #
+        totalModelGroup = ModelGroup("bkgModels", 
+            physGroupTest.models + selectedOrderedModels)
         counter = 0
-        for model in modelGroupToUse.models:
+        for model in totalModelGroup.models:
             model.color = colors[counter]
             counter += 1
-        backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
-            modelGroupToUse.models, settings,
+        funcs.backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
+            totalModelGroup.models, settings,
             pathToDir=backgroundsDir,
-            groupName=modelGroupToUse.name)
+            groupName=totalModelGroup.name)
 
         #
         # Signal and Background Models are ready and are in the Workspace
         # create the datacard for this category
         #
-        datacardAnalytic(category, ws, data, 
+        funcs.datacardAnalytic(category, ws, data, 
             [vbfmodel, glumodel, wpmodel, wmmodel, zhmodel], 
             ws.pdf("multipdf_{category}".format(category=names2RepsToUse[category])),
             settings,
@@ -382,10 +467,15 @@ def datacardsSingleGaus():
         ws.Print("v")
         ws.SaveAs(os.path.join(datacardsDir, workspaceFileName))
 
+    #
+    # plot all the F-Test Results
+    #
+    funcs.plotFTestResults(fTestResults, pathToDir=fffTestDir)
+
 def backgroundsWithRooMultiPdf():
     modelGroupToUse = modelGroupForMultiPdf
     pathToDir = os.path.join(backgroundfitswithroomultipdfDir, args.outDirName)
-    mkdir(pathToDir)
+    aux.mkdir(pathToDir)
     for category in categoriesToUse:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
@@ -393,17 +483,17 @@ def backgroundsWithRooMultiPdf():
         for model in modelGroupToUse.models:
             model.color = colors[counter]
             counter += 1
-        backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
+        funcs.backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
             modelGroupToUse.models, settings, pathToDir=pathToDir,
             groupName=modelGroupToUse.name)
 
 def signalFitInterpolations():
     pathToDir = os.path.join(singalfitinterpolationsDir, args.outDirName)
-    mkdir(pathToDir)
+    aux.mkdir(pathToDir)
     for category in categoriesToUse:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
-        signalFitInterpolation(category, ws, 
+        funcs.signalFitInterpolation(category, ws, 
             [
                 (vbf120, singleGaus120, diMuonMass120),
                 (vbf125, singleGaus125, diMuonMass125),
@@ -415,7 +505,7 @@ def signalFitInterpolations():
 
 def signalFitInterpolationsWithSpline():
     pathToDir = os.path.join(signalfitinterpolationswithsplineDir, args.outDirName)
-    mkdir(pathToDir)
+    aux.mkdir(pathToDir)
     for category in categoriesToUse:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
@@ -423,7 +513,7 @@ def signalFitInterpolationsWithSpline():
         print "*"*80
         print "Generating Single Gaus Splines"
         print "*"*80
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (vbf120, singleGaus120, diMuonMass120),
                 (vbf125, singleGaus125, diMuonMass125),
@@ -432,7 +522,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (glu120, singleGaus120, diMuonMass120),
                 (glu125, singleGaus125, diMuonMass125),
@@ -441,7 +531,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wp120, singleGaus120, diMuonMass120),
                 (wp125, singleGaus125, diMuonMass125),
@@ -450,7 +540,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wm120, singleGaus120, diMuonMass120),
                 (wm125, singleGaus125, diMuonMass125),
@@ -459,7 +549,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (zh120, singleGaus120, diMuonMass120),
                 (zh125, singleGaus125, diMuonMass125),
@@ -471,7 +561,7 @@ def signalFitInterpolationsWithSpline():
         print "*"*80
         print "Generating Double Gaus Splines"
         print "*"*80
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (vbf120, doubleGaus120, diMuonMass120),
                 (vbf125, doubleGaus125, diMuonMass125),
@@ -480,7 +570,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (glu120, doubleGaus120, diMuonMass120),
                 (glu125, doubleGaus125, diMuonMass125),
@@ -489,7 +579,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wp120, doubleGaus120, diMuonMass120),
                 (wp125, doubleGaus125, diMuonMass125),
@@ -498,7 +588,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wm120, doubleGaus120, diMuonMass120),
                 (wm125, doubleGaus125, diMuonMass125),
@@ -507,7 +597,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (zh120, doubleGaus120, diMuonMass120),
                 (zh125, doubleGaus125, diMuonMass125),
@@ -519,7 +609,7 @@ def signalFitInterpolationsWithSpline():
         print "*"*80
         print "Generating Triple Gaus Splines"
         print "*"*80
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (vbf120, tripleGaus120, diMuonMass120),
                 (vbf125, tripleGaus125, diMuonMass125),
@@ -528,7 +618,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (glu120, tripleGaus120, diMuonMass120),
                 (glu125, tripleGaus125, diMuonMass125),
@@ -537,7 +627,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wp120, tripleGaus120, diMuonMass120),
                 (wp125, tripleGaus125, diMuonMass125),
@@ -546,7 +636,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (wm120, tripleGaus120, diMuonMass120),
                 (wm125, tripleGaus125, diMuonMass125),
@@ -555,7 +645,7 @@ def signalFitInterpolationsWithSpline():
             settings,
             pathToDir=pathToDir
         )
-        signalFitInterpolationWithSpline(category, ws, 
+        funcs.signalFitInterpolationWithSpline(category, ws, 
             [
                 (zh120, tripleGaus120, diMuonMass120),
                 (zh125, tripleGaus125, diMuonMass125),
@@ -567,39 +657,39 @@ def signalFitInterpolationsWithSpline():
 
 def signalFits():
     pathToDir = os.path.join(signalfitsDir, args.outDirName)
-    mkdir(pathToDir)
+    aux.mkdir(pathToDir)
     initialValuesFromTH1 = True
     for category in categoriesToUse:
         ws = R.RooWorkspace("higgs")
         aux.buildMassVariable(ws, **diMuonMass125)
         for modelToUse in [singleGaus125, doubleGaus125, tripleGaus125]:
             modelToUse.color = R.kRed
-            signalFit((category, diMuonMass125), ws, vbf125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass125), ws, glu125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass125), ws, wm125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass125), ws, wp125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass125), ws, zh125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass125), ws, vbf125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass125), ws, glu125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass125), ws, wm125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass125), ws, wp125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass125), ws, zh125, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
         aux.buildMassVariable(ws, **diMuonMass120)
         for modelToUse in [singleGaus120, doubleGaus120, tripleGaus120]:
             modelToUse.color = R.kRed
-            signalFit((category, diMuonMass120), ws, vbf120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass120), ws, glu120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass120), ws, wm120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass120), ws, wp120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass120), ws, zh120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass120), ws, vbf120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass120), ws, glu120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass120), ws, wm120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass120), ws, wp120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass120), ws, zh120, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
         aux.buildMassVariable(ws, **diMuonMass130)
         for modelToUse in [singleGaus130, doubleGaus130, tripleGaus130]:
             modelToUse.color = R.kRed
-            signalFit((category, diMuonMass130), ws, vbf130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass130), ws, glu130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass130), ws, wm130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass130), ws, wp130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
-            signalFit((category, diMuonMass130), ws, zh130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass130), ws, vbf130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass130), ws, glu130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass130), ws, wm130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass130), ws, wp130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
+            funcs.signalFit((category, diMuonMass130), ws, zh130, modelToUse, settings, pathToDir=pathToDir, initialValuesFromTH1=initialValuesFromTH1)
 
 def distributions():
     logY = args.logY
     pathToDir = os.path.join(distributionsDir, args.outDirName)
-    mkdir(pathToDir)
+    aux.mkdir(pathToDir)
     for category in categoriesToUse:
         for vname in varNames:
             variable = {}
@@ -609,7 +699,7 @@ def distributions():
             if category!="NoCats" and vname=="DiMuonMass":
                 variable["min"] = 110
                 variable["max"] = 160
-            distributions((category, variable), data, 
+            funcs.distributions((category, variable), data, 
                 [glu125, vbf125, wm125, wp125, zh125],
                 [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], settings,
                 pathToDir=pathToDir,

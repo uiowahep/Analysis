@@ -109,10 +109,30 @@ def buildDefaultValuesBerstein(degree):
 def buildDefaultValuesSumExponentials(degree):
     d = {}
     for i in range(1, degree+1):
-        d["beta%d" % i] = 10
-        d["beta%dmin" % i] = -1000000
-        d["beta%dmax" % i] = 1000000
-        d["alpha%d" % i] = 1
-        d["alpha%dmin" % i] = -20
-        d["alpha%dmax" % i] = 20
+        d["alpha%d" % i] = max(-1., -0.04*(i+1))
+        d["alpha%dmin" % i] = -1.0
+        d["alpha%dmax" % i] = 0
+        if i<degree:
+            d["fraction%d" % i] = 0.9-float(i-1)*1./degree
+            d["fraction%dmin" % i] = 0.0001
+            d["fraction%dmax" % i] = 0.9999
+    return d
+def buildDefaultValuesPowerLaw(degree):
+    d = {}
+    for i in range(1, degree+1):
+        d["alpha%d" % i] = max(-10., -2.*(i+1))
+        d["alpha%dmin" % i] = -10.0
+        d["alpha%dmax" % i] = 0
+        if i<degree:
+            d["fraction%d" % i] = 0.1
+            d["fraction%dmin" % i] = 0.00001
+            d["fraction%dmax" % i] = 0.99999
+    return d
+def buildDefaultValuesLaurentSeries(degree):
+    d = {}
+    for i in range(1, degree+1):
+        if i<degree:
+            d["fraction%d" % i] = 0.25/degree
+            d["fraction%dmin" % i] = 0.0000001
+            d["fraction%dmax" % i] = 0.9999999
     return d

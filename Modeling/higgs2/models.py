@@ -51,6 +51,9 @@ class Model(object):
     def getModelId(self):
         return self.modelId
 
+    def getNDF(self):
+        return 0
+
 class SingleGaus(Model):
     def __init__(self, initialValues=None, **wargs):
         Model.__init__(self, initialValues, **wargs)
@@ -569,6 +572,104 @@ class BernsteinFast(Model):
             self.parameters.add(ws.function("bsq{order}_{modelName}".format(
                 order=deg, modelName=self.modelName)))
 
+    def getNDF(self):
+        return self.degree
+
+class ModBernsteinFast(Model):
+    def __init__(self, initialValues, **wargs):
+        self.degree = wargs["degree"]
+        Model.__init__(self, initialValues, **wargs)
+
+    def initialize(self, modelName, *kargs, **wargs):
+        Model.initialize(self, modelName, *kargs, **wargs)
+
+    def build(self, ws, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+        print self.parameters
+
+        # bernstein part
+        bern = R.RooBernsteinFast(self.degree)("bern_"+self.modelName, 
+            "bern_"+self.modelName, ws.var("x"), self.parameters)
+        getattr(ws, "import")(bern, R.RooFit.RecycleConflictNodes())
+        
+        # RooPower part
+        exp = R.RooPower("exp_"+self.modelName, "exp",
+            ws.var("x"), ws.var("tau_{modelName}".format(modelName=self.modelName)))
+        getattr(ws, "import")(exp, R.RooFit.RecycleConflictNodes())
+
+        # add them up
+        functions = R.RooArgList(exp, bern)
+        fractions = R.RooArgList(ws.var("fraction_{modelName}".format(
+            modelName=self.modelName)))
+        modbern = R.RooAddPdf(self.modelName, self.modelName,
+            functions, fractions, True)
+
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        self.parameters = R.RooArgList()
+        ws.factory("tau_{modelName}[{tau}, {taumin}, {taumax}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("fraction_{modelName}[{fraction}, {fractionmin}, {fractionmax}]".format(modelName=self.modelName, **self.initialValues))
+        for deg in range(1, self.degree+1):
+            ws.factory(("b%d_{modelName}[{b%d}, {b%dmin}, {b%dmax}]" % (
+                deg, deg, deg, deg)).format(modelName=self.modelName, **self.initialValues))
+            ws.factory(("expr::bsq%d_{modelName}('b%d_{modelName}*b%d_{modelName}', b%d_{modelName})" % (
+                deg, deg, deg, deg)).format(modelName=self.modelName))
+            self.parameters.add(ws.function("bsq{order}_{modelName}".format(
+                order=deg, modelName=self.modelName)))
+
+    def getNDF(self):
+        return self.degree + 2
+
+class DYBernsteinFast(Model):
+    def __init__(self, initialValues, **wargs):
+        self.degree = wargs["degree"]
+        self.dy = wargs["dy"]
+        Model.__init__(self, initialValues, **wargs)
+
+    def initialize(self, modelName, *kargs, **wargs):
+        Model.initialize(self, modelName, *kargs, **wargs)
+
+    def build(self, ws, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+
+        # bernstein part
+        bern = R.RooBernsteinFast(self.degree)("bern_"+self.modelName, "bern"+self.modelName,
+            ws.var("x"), self.parameters)
+        getattr(ws, "import")(bern, R.RooFit.RecycleConflictNodes())
+        
+        # dy histo part
+        # TODO: Hardcoded certain parts for now
+        fdy = R.TFile(self.dy.pathToFile)
+        hdy = fdy.Get(wargs["category"] + "/" + "DiMuonMass")
+        rdy = aux.buildRooHist(ws, hdy)
+        # 2 is the interpolation type
+        histPdf = R.RooHistPdf("dy_"+self.modelName, "dy_"+self.modelName,
+            ws.var("x"),  rdy, 2)
+        getattr(ws, "import")(histPdf, R.RooFit.RecycleConflictNodes())
+
+        # add the bern and dy parts
+        functions = R.RooArgList(histPdf, bern)
+        fractions = R.RooArgList(ws.var("fraction_{modelName}".format(
+            modelName=self.modelName)))
+        dybern = R.RooAddPdf(self.modelName, self.modelName,
+                functions, fractions, 0)
+        getattr(ws, "import")(dybern, R.RooFit.RecycleConflictNodes())
+
+        return ws.pdf(self.modelName)
+        
+    def createParameters(self, ws, **wargs):
+        self.parameters = R.RooArgList()
+        ws.factory("fraction_{modelName}[{fraction}, {fractionmin}, {fractionmax}]".format(modelName=self.modelName, **self.initialValues))
+        for deg in range(1, self.degree+1):
+            ws.factory(("b%d_{modelName}[{b%d}, {b%dmin}, {b%dmax}]" % (
+                deg, deg, deg, deg)).format(modelName=self.modelName, **self.initialValues))
+            ws.factory(("expr::bsq%d_{modelName}('b%d_{modelName}*b%d_{modelName}', b%d_{modelName})" % (
+                deg, deg, deg, deg)).format(modelName=self.modelName))
+            self.parameters.add(ws.function("bsq{order}_{modelName}".format(
+                order=deg, modelName=self.modelName)))
+
 class Bernstein(Model):
     def __init__(self, initialValues, **wargs):
         self.degree = wargs["degree"]
@@ -599,81 +700,159 @@ class SumExponentials(Model):
         Model.initialize(self, modelName, *kargs, **wargs)
 
     def build(self, ws, **wargs):
-        acc = []
-        for i in range(self.degree):
-            ws.factory("expr::exp{deg}_{modelName}('beta{deg}_{modelName}*exp(alpha{deg}_{modelName}*x)', x, alpha{deg}_{modelName}, beta{deg}_{modelName})".format(
-                deg=i+1, modelName=self.modelName))
-            acc.append("exp{deg}_{modelName}".format(deg=i+1, modelName=self.modelName))
-        resultSum = "+".join(acc)
-        resultComma = ",".join(acc)
-        ws.factory("EXPR::{modelName}('{resultSum}', {resultComma})".format(modelName=self.modelName, resultSum=resultSum, resultComma=resultComma))
+        exps = R.RooArgList()
+        for i in range(1, self.degree+1):
+            ws.factory("Exponential::exp{degree}_{modelName}(x, alpha{degree}_{modelName})".format(degree=i, modelName=self.modelName))
+            exps.add(ws.pdf("exp{degree}_{modelName}".format(degree=i, 
+                modelName=self.modelName)))
+        
+        expSum = R.RooAddPdf(self.modelName, self.modelName,
+            exps, self.fractions, True)
+        getattr(ws, "import")(expSum, R.RooFit.RecycleConflictNodes())
         return ws.pdf(self.modelName)
 
     def createParameters(self, ws, **wargs):
-        for i in range(self.degree):
-            ws.factory(("beta%d_{modelName}[{beta%d}, {beta%dmin}, {beta%dmax}]" % (i+1,i+1,
-                i+1,i+1)).format(modelName=self.modelName, **self.initialValues))
-            ws.factory(("alpha%d_{modelName}[{alpha%d}, {alpha%dmin}, {alpha%dmax}]" % (
-                i+1,i+1,
-                i+1,i+1)).format(modelName=self.modelName, **self.initialValues))
+        self.fractions = R.RooArgList()
+        for i in range(1, self.degree+1):
+            ws.factory(("alpha%d_{modelName}[{alpha%d}, {alpha%dmin}, {alpha%dmax}]" %
+                (i, i, i, i)).format(modelName=self.modelName, **self.initialValues))
+            if i<self.degree:
+                ws.factory(("fraction%d_{modelName}[{fraction%d}, {fraction%dmin}, {fraction%dmax}]" % (i,i,i,i)).format(modelName=self.modelName, **self.initialValues))
+                self.fractions.add(ws.var("fraction{degree}_{modelName}".format(degree=i,
+                    modelName=self.modelName)))
 
-class SumPowers(Model):
+    def getNDF(self):
+        return self.degree*2-1
+
+class PowerLaw(Model):
     def __init__(self, initialValues, **wargs):
+        self.degree = wargs["degree"]
         Model.__init__(self, initialValues, **wargs)
 
     def build(self, ws, **wargs):
-        
-        acc = []
-        for i in range(degree):
-            ws.factory("expr::pol_{i}_{category}('b_{i}_{category}*pow(x, a_{i}_{category})', x, a_{i}_{category}, b_{i}_{category})".format(i=i+1, category=category))
-            acc.append("pol_{i}_{category}".format(i=i+1, category=category))
-        resultSum = "+".join(acc)
-        resultComma = ",".join(acc)
-        ws.factory("EXPR::bmodelSumPowers_{category}('{resultSum}', {resultComma})".format(category=category, resultSum=resultSum, resultComma=resultComma))
+        formula = ""
+        parameters = "x"
+        if self.degree==1:
+            formula = "pow(x, alpha1_{modelName})".format(modelName=self.modelName)
+            parameters += ",alpha1_{modelName}".format(modelName=self.modelName)
+        else:
+            for i in range(1, self.degree+1):
+                parameters += ",alpha{degree}_{modelName}".format(
+                    degree=i, modelName=self.modelName)
+                if i<self.degree:
+                    parameters += ",fraction{degree}_{modelName}".format(
+                    degree=i, modelName=self.modelName)
+                for j in range(1, i):
+                    formula += "(1-fraction{degree}_{modelName})*".format(
+                        degree=j, modelName=self.modelName)
+                if i<self.degree:
+                    formula += "fraction{degree}_{modelName}*pow(x, alpha{degree}_{modelName}) + ".format(degree=i, modelName=self.modelName)
+                else:
+                    formula += "pow(x, alpha{degree}_{modelName})".format(degree=i, modelName=self.modelName)
+
+        print formula + "\n"
+        print parameters + "\n"
+        ws.factory("EXPR::{modelName}('{formula}', {parameters})".format(
+            modelName=self.modelName, formula=formula, parameters=parameters))
         return ws.pdf(self.modelName)
 
     def createParameters(self, ws, **wargs):
-        category = self.wargs["category"]
-        degree = self.wargs["degree"]
-        ndata = wargs["ndata"]
-        
-        for i in range(degree):
-            ws.factory("b_%d_%s[10, -100000000, 10000000]" % (i+1, category))
-            ws.factory("a_%d_%s[1, -20, 20]" % (i+1, category))
-        if "noNorm" in wargs: return
-        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
-            ndata*2))
+        for i in range(1, self.degree+1):
+            if i<self.degree:
+                ws.factory(("fraction%d_{modelName}[{fraction%d}, {fraction%dmin}, {fraction%dmax}]" % (i,i,i,i)).format(modelName=self.modelName, **self.initialValues))
+            ws.factory(("alpha%d_{modelName}[{alpha%d}, {alpha%dmin}, {alpha%dmax}]" % (
+                i,i,i,i)).format(modelName=self.modelName, **self.initialValues))
+            
+    def getNDF(self):
+        return self.degree*2-1
 
-class LaurentSeries(Model):
-    def __init__(self, **wargs):
-        Model.__init__(self, **wargs)
-        self.modelName = "bmodelLaurentSeries_%s" % self.wargs["category"]
-        self.exponents = [-4, -3, -5, -2, -6, -1, -7, 0, -8, 1, -9]
-        self.modelId += "_%d" % self.wargs["degree"]
+class LaurentSeriesRecursive(Model):
+    def __init__(self, initialValues, **wargs):
+        self.degree = wargs["degree"]
+        self.exponents = wargs["exponents"]
+        Model.__init__(self, initialValues, **wargs)
 
     def build(self, ws, **wargs):
-        category = self.wargs["category"]
-        degree = self.wargs["degree"]
-        
-        acc = []
-        for i in range(degree):
-            ws.factory("expr::lpol_{i}_{category}('lcoeff_{i}_{category}*pow(x, {exponent})', x, lcoeff_{i}_{category})".format(i=i+1, category=category, exponent=self.exponents[i]))
-            acc.append("lpol_{i}_{category}".format(i=i+1, category=category))
-        resultSum = "+".join(acc)
-        resultComma = ",".join(acc)
-        ws.factory("EXPR::bmodelLaurentSeries_{category}('{resultSum}', {resultComma})".format(category=category, resultSum=resultSum, resultComma=resultComma))
+        formula = ""
+        parameters = "x"
+        if self.degree==1:
+            formula = "pow(x, alpha1_{modelName})".format(modelName=self.modelName)
+            parameters += ",alpha1_{modelName}".format(modelName=self.modelName)
+        else:
+            for i in range(1, self.degree+1):
+                parameters += ",alpha{degree}_{modelName}".format(
+                    degree=i, modelName=self.modelName)
+                if i<self.degree:
+                    parameters += ",fraction{degree}_{modelName}".format(
+                    degree=i, modelName=self.modelName)
+                for j in range(1, i):
+                    formula += "(1-fraction{degree}_{modelName})*".format(
+                        degree=j, modelName=self.modelName)
+                if i<self.degree:
+                    formula += "fraction{degree}_{modelName}*pow(x, alpha{degree}_{modelName}) + ".format(degree=i, modelName=self.modelName)
+                else:
+                    formula += "pow(x, alpha{degree}_{modelName})".format(degree=i, modelName=self.modelName)
+
+        print formula + "\n"
+        print parameters + "\n"
+        ws.factory("EXPR::{modelName}('{formula}', {parameters})".format(
+            modelName=self.modelName, formula=formula, parameters=parameters))
         return ws.pdf(self.modelName)
 
     def createParameters(self, ws, **wargs):
-        category = self.wargs["category"]
-        degree = self.wargs["degree"]
-        ndata = wargs["ndata"]
+        for i in range(1, self.degree+1):
+            if i<self.degree:
+                ws.factory(("fraction%d_{modelName}[{fraction%d}, {fraction%dmin}, {fraction%dmax}]" % (i,i,i,i)).format(modelName=self.modelName, **self.initialValues))
+            
+    def getNDF(self):
+        return self.degree*2-1
+
+class LaurentSeries(Model):
+    def __init__(self, initialValues, **wargs):
+        self.degree = wargs["degree"]
+        self.exponents = wargs["exponents"]
+        Model.__init__(self, initialValues, **wargs)
+        #self.exponents = [-4, -3, -5, -2, -6, -1, -7, 0, -8, 1, -9]
+
+    def build(self, ws, **wargs):
+        R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
         
-        for i in range(degree):
-            ws.factory("lcoeff_%d_%s[10, -1000, 1000]" % (i+1, category))
-        if "noNorm" in wargs: return
-        else: ws.factory("%s_norm[%f, %f, %f]" % (self.modelName, ndata, ndata/2,
-            ndata*2))
+        powers = R.RooArgList()
+        for i in range(1, self.degree+1):
+            c = R.RooFit.RooConst(self.exponents[i-1])
+            power = R.RooPower("power{degree}_{modelName}".format(degree=i, 
+                modelName=self.modelName), "power{degree}_{modelName}".format(
+                degree=i, modelName=self.modelName), ws.var("x"), 
+                c)
+            powers.add(power)
+            getattr(ws, "import")(power, R.RooFit.RecycleConflictNodes())
+        ws.Print("v")
+        laur = R.RooAddPdf(self.modelName, self.modelName,
+            powers, self.fractions, True)
+        getattr(ws, "import")(laur, R.RooFit.RecycleConflictNodes())
+
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        self.fractions = R.RooArgList()
+        for i in range(1, self.degree):
+            ws.factory(("fraction%d_{modelName}[{fraction%d}, {fraction%dmin}, {fraction%dmax}]"% (i,i,i,i)).format(modelName=self.modelName, **self.initialValues))
+            self.fractions.add(ws.var("fraction{degree}_{modelName}".format(degree=i,
+                modelName=self.modelName)))
+
+    def getNDF(self):
+        return self.degree-1
+
+class LogPolynomial(Model):
+    def __init__(self, **wargs):
+        Model.__init__(self, **wargs)
+        self.degree = wargs["degree"]
+
+    def build(self, ws, **wargs):
+        pass
+
+    def createParameters(self, ws, **wargs):
+        pass
 
 class Polynomial(Model):
     def __init__(self, **wargs):

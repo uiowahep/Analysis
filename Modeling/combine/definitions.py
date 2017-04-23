@@ -22,7 +22,7 @@ class Command(object):
         return self.__str__()
 
     def toString(self):
-        return "\n".join(self.what)
+        return "#\n# Command: {name}\n#\n".format(name=self.name) + "\n\n".join(self.what)
 
 class Job(object):
     def __init__(self, name, cmds):
@@ -30,4 +30,4 @@ class Job(object):
         self.cmds = cmds
 
     def toString(self):
-        return "\n".join([x.toString() for x in self.cmds])
+        return "\n\n\n\n\n\n\n\n\n".join([x.toString() for x in self.cmds])

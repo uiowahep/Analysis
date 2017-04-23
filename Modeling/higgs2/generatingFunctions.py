@@ -160,7 +160,7 @@ def signalFit((category, variable), ws, signal, model, settings, **wargs):
     if initialValuesFromTH1:
         model.setInitialValuesFromTH1(hsdata)
     model.createParameters(ws)
-    pdf = model.build(ws)
+    pdf = model.build(ws, category=category)
     r = pdf.fitTo(rsdata, R.RooFit.Save(), 
         R.RooFit.Range(variable["fitmin"], variable["fitmax"]))
 
@@ -240,9 +240,14 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
             model.setInitialValuesFromModel(prevModel, ws, 
                 massDifference=(variable["central"] - prevVariable["central"]))
         model.createParameters(ws)
-        pdf = model.build(ws)
+        pdf = model.build(ws, category=category)
+        #
+        # Fit twice???
+        # Andrea has it like that??? May be second time has better initial values???
+        #
         r = pdf.fitTo(rsdata, R.RooFit.Save(),
-            R.RooFit.Range(variable["fitmin"], variable["fitmax"]))
+            R.RooFit.Range(variable["fitmin"], variable["fitmax"]),
+            R.RooFit.SumW2Error(R.kTRUE))
         prevSignal = signal
         prevModel = model
         prevVariable = variable
@@ -339,7 +344,7 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, settings, **w
             model.setInitialValuesFromModel(prevModel, ws, 
                 massDifference=(variable["central"] - prevVariable["central"]))
         model.createParameters(ws)
-        pdf = model.build(ws)
+        pdf = model.build(ws, category=category)
         r = pdf.fitTo(rsdata, R.RooFit.Save(),
             R.RooFit.Range(variable["fitmin"], variable["fitmax"]))
         prevSignal = signal
@@ -367,7 +372,7 @@ def ftestPerFamily((category, variable), ws, data, familyModelGroup, settings, *
     #
     # canvas 
     #
-    canvas = R.TCanvas("c1", "c1", 800, 600)
+    canvas = R.TCanvas("c1", "c1", 1000, 800)
     canvas.cd()
     frame = ws.var("x").frame()
     legend = R.TLegend(0.65, 0.6, 0.9, 0.9)
@@ -388,21 +393,52 @@ def ftestPerFamily((category, variable), ws, data, familyModelGroup, settings, *
     #
     # perform the actual test
     #
-    maxProb = 0.05; prevNLL = -1.0; prevModel=None; prevDegree=0
+    alpha = 0.05; prevNLL = -1.0; prevModel=None; prevDegree=0
+    modelToBeUsed = None
     prob=0
     pdfs = {}
     rdata_blind.plotOn(frame)
+    values = []
+    fTestResults = []
+    found = False
     for model in familyModelGroup.models:
         modelName = aux.buildBackgroundModelName(model, 
             settings.names2RepsToUse[category])
         model.initialize(modelName)
         model.createParameters(ws)
-        pdfs[modelName] = model.build(ws)
-        r = pdfs[modelName].fitTo(rdata)
+        pdfs[modelName] = model.build(ws, category=category)
+        r = pdfs[modelName].fitTo(rdata,
+            R.RooFit.Minimizer("Minuit2", "minimize"),
+            R.RooFit.Save(1))
         pdfs[modelName].plotOn(frame, R.RooFit.Name(model.modelId),
             R.RooFit.LineColor(model.color), R.RooFit.Normalization(norm, 
-                R.RooAbsReal.NumEvent))
-        legend.AddEntry(frame.findObject(model.modelId), model.modelId, "l")
+                    R.RooAbsReal.NumEvent))
+
+        # compute the Chi2 and the probability to which that value corresponds to 
+        NLL = r.minNll()
+        chi2 = -2.0 * (NLL - prevNLL)
+        if chi2<0. and model.degree>1: 
+            chi2 = 0.
+        if prevModel is not None:
+            prob = R.TMath.Prob(chi2, model.getNDF() - prevModel.getNDF())
+            print "probability = %f\n" % prob
+        else:
+            prob = 0.
+        #
+        # (1 - prob) < 95% => we are (1 - prob) confident in our current model of 
+        # degree N to be rejected
+        # We are looking for the first model of degree N in which we have less than 
+        # 95% confidence to be reject
+        #
+        if prob >= alpha and not found:
+            modelToBeUsed = prevModel
+            found = True
+        legend.AddEntry(frame.findObject(model.modelId), model.modelId + "  %.2f %.2f %.2f" % (prob, chi2, NLL), "l")
+        values.append("{modelId},{prob},{chi2},{NLL}".format(modelId=model.modelId,
+            prob=prob, chi2=chi2, NLL=NLL))
+        fTestResults.append(prob)
+        prevNLL = float(NLL)
+        prevModel = model
     frame.Draw()
 
     #
@@ -415,9 +451,96 @@ def ftestPerFamily((category, variable), ws, data, familyModelGroup, settings, *
     canvas.SaveAs(os.path.join(pathToDir, fileName))
 
     #
+    # save the values
+    #
+    fileName = "ftest__{category}__{familyName}.csv".format(
+        category = category, familyName=familyModelGroup.name)
+    fff = open(os.path.join(pathToDir, fileName), "w")
+    for line in values:
+        fff.write(line + "\n")
+    fff.close()
+
+    #
     # close the ROOT file
     #
     fdata.Close()
+
+    return modelToBeUsed, fTestResults
+
+def plotFTestResults(fTestResults, **wargs):
+    #
+    # initialize the values from wargs
+    #
+    pathToDir = "/tmp"
+    if "pathToDir" in wargs:
+        pathToDir = wargs["pathToDir"]
+    
+    #
+    # canvas 
+    #
+    canvas = R.TCanvas("c1", "c1", 1000, 800)
+    canvas.cd()
+    R.gStyle.SetOptStat(0)
+    #legend = R.TLegend(0.65, 0.6, 0.9, 0.9)
+
+    #
+    # Plot Probability(family, Order)
+    #
+    for category in fTestResults:
+        h = R.TH2D("probabilityBycategory__{category}".format(category=category), 
+            "probabilityBycategory {category}".format(category=category),
+            len(fTestResults[category].keys()), 0, len(fTestResults[category].keys()),
+            10, 1, 11)
+        binX = 1
+        for groupName in fTestResults[category]:
+            h.GetXaxis().SetBinLabel(binX, groupName)
+            binX += 1
+        binY=1
+        for i in range(10):
+            h.GetYaxis().SetBinLabel(binY, "%d" % binY)
+            binY += 1
+        for groupName in fTestResults[category]:
+            values = fTestResults[category][groupName]
+            order = 1
+            for prob in values:
+                if order>1:
+                    h.Fill(groupName, "%d" % (order-1), float("%.2f" % (prob*100.)))
+                order += 1
+        h.Draw("TEXT")
+
+        h.GetXaxis().SetTitle("Family")
+        h.GetYaxis().SetTitle("Reference Order")
+        R.gPad.Modified()
+        fileName = "ftestresults__probability__{category}.png".format(category=category)
+        canvas.SaveAs(os.path.join(pathToDir, fileName))
+
+    #
+    # Probability(Category, Order)
+    #
+    histos = {}
+    binX = 1
+    for category in fTestResults:
+        for groupName in fTestResults[category]:
+            if groupName not in histos:
+                histos[groupName] = R.TH2D("probability{groupName}".format(groupName=groupName), "probability {groupName}".format(groupName=groupName), len(fTestResults.keys()),
+                    0, len(fTestResults.keys()), 10, 1, 11)
+                for i in range(10):
+                    histos[groupName].GetYaxis().SetBinLabel(i+1, "%d" % (i+1))
+            histos[groupName].GetXaxis().SetBinLabel(binX, category)
+            values = fTestResults[category][groupName]
+            order = 1
+            for prob in values:
+                if order>1:
+                    histos[groupName].Fill(category, "%d" % (order-1), float("%.2f" % (prob*100.)))
+                order += 1
+        binX += 1
+    for groupName in histos:
+        histos[groupName].Draw("TEXT")
+        histos[groupName].GetXaxis().SetTitle("Category")
+        histos[groupName].GetYaxis().SetTitle("Reference Order")
+        R.gPad.Modified()
+        fileName = "ftestresults__probability__{groupName}.png".format(groupName=groupName)
+        canvas.SaveAs(os.path.join(pathToDir, fileName))
 
 def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, settings, **wargs):
     #
@@ -554,7 +677,6 @@ def backgroundsWithRooMultiPdf((category, variable), ws, data, models, settings,
         pdfs.add(ws.pdf(model.modelName))
     ccc = R.RooCategory("pdfindex_{category}".format(category=settings.names2RepsToUse[category]),
         "Index of the currently active or selected pdf")
-    ccc.defineType("something", 0)
     multipdf = R.RooMultiPdf("multipdf_{category}".format(category=settings.names2RepsToUse[category]),
         "Background Models Envelope", ccc, pdfs)
     ws.factory("multipdf_{category}_norm[{central}, {minval}, {maxval}]".format(category=settings.names2RepsToUse[category], central=norm, minval=norm/2.0, maxval=norm*2.0))
@@ -606,7 +728,7 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
         modelName = aux.buildBackgroundModelName(model, settings.names2RepsToUse[category])
         model.initialize(modelName)
         model.createParameters(ws)
-        pdfs[modelName] = model.build(ws)
+        pdfs[modelName] = model.build(ws, category=category)
         r = pdfs[modelName].fitTo(rdata, R.RooFit.Save())
         pdfs[modelName].plotOn(frame, R.RooFit.Name(model.modelId), 
             R.RooFit.LineColor(model.color), R.RooFit.Normalization(norm, R.RooAbsReal.NumEvent))

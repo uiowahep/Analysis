@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(description="Post Combine: generate various plo
 parser.add_argument("--what", type=str,
     default="plotLimits", help="What you want to run: ")
 parser.add_argument("--categoriesToSkip", type=str, nargs="*",
+    default=[],
     help="Categories that should be skipped")
 parser.add_argument("--massPoints", type=int, nargs="+",
     help="Mass Points to be used for limits/fits/etc... plotting")
@@ -22,6 +23,8 @@ parser.add_argument("--signalModel", type=str,
 parser.add_argument("--outDirName", type=str,
     default="test", help="Directory Name that has been created in the .../combineoutput/$jobLabel/ folder where all the results of running combine went to. Directory Name that will be created in .../{limits | fits | ...}/$jobLabel/ folder where all the results/plots/tables will go to")
 parser.add_argument('--unblind', action='store_true', default=False, help='True will be blinding mass region. For limits observed limit values will not be plotted')
+parser.add_argument("--nbackgrounds", type=int,
+    default=1, help="Number of background functions in the MultiPdf. TODO: This should be extracted from workspaces in principle")
 
 args = parser.parse_args()
 
@@ -289,6 +292,25 @@ def plotLimits():
         if combination in args.categoriesToSkip:
             continue
         plotLimitsByCategory(combination)
+
+def biasScan():
+    biasScanResultsDir = os.path.join(biasScanDir, args.outDirName)
+    combineoutputPathDir = os.path.join(combineoutputDir, args.outDirName)
+    mkdir(biasScanResultsDir)
+    for category in categoriesToUse:
+        if names2RepsToUse[category] in args.categoriesToSkip:
+            continue
+        for massPoint in args.massPoints:
+            for iref in range(args.nbackgrounds):
+                for icurrent in range(args.nbackgrounds):
+                    canvas = R.TCanvas("c1", "c1", 1000, 600)
+                    fileName = "mlfit{category}__{mass}__{iref}__{icurrent}__{signalModel}.root".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
+                    f = R.TFile(os.path.join(combineoutputPathDir, fileName))
+                    tree = f.Get("tree_fit_sb")
+                    tree.Draw("(mu-1)/muErr>>h(200, -10,10)")
+
+                    fileName = "pull__{category}__{mass}__{iref}__{icurrent}__{signalModel}.png".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
+                    canvas.SaveAs(os.path.join(biasScanResultsDir, fileName))
 
 def fits():
     pass
