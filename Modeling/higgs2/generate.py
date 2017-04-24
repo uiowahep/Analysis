@@ -701,7 +701,8 @@ def distributions():
                 variable["max"] = 160
             funcs.distributions((category, variable), data, 
                 [glu125, vbf125, wm125, wp125, zh125],
-                [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], settings,
+                # [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], settings,
+                [], settings,
                 pathToDir=pathToDir,
                 logY=logY)
 

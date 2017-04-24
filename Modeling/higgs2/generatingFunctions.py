@@ -38,8 +38,12 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
     # data
     # 
     fdata = R.TFile(data.pathToFile)
-    hdata = fdata.Get(category + "/" + variable["name"])
-    if hdata.GetEntries() == 0: return
+
+    hdata_name = category + "/" + variable["name"]
+    if settings.useInputFileUF: 
+        hdata_name = "net_histos/"+category+"_Net_Data"
+
+    hdata = fdata.Get(hdata_name)
     hdata.SetMarkerStyle(20)
     hdata.SetMarkerSize(0.5)
     hdata.SetMarkerColor(data.color)
@@ -54,8 +58,16 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
     fs = {}
     for signal in signals:
         fs[signal.mc.name] = R.TFile(signal.pathToFile)
-        hs[signal.mc.name] = fs[signal.mc.name].Get(category + "/" + variable["name"])
-        scale = data.jsonToUse.intlumi * signal.mc.cross_section / signal.getWeight()
+
+        if settings.useInputFileUF: 
+            hs_name = "signal_histos/" + category + "_" + signal.mc.label
+            hs_wgt  = 1.0
+        else:
+            hs_name = category + "/" + variable["name"]
+            hs_wgt  = signal.getWeight()
+
+        hs[signal.mc.name] = fs[signal.mc.name].Get(hs_name)
+        scale = data.jsonToUse.intlumi * signal.mc.cross_section / hs_wgt
         hs[signal.mc.name].Scale(scale)
         ssum.Add(hs[signal.mc.name])
         fs[signal.mc.name].Close()
@@ -72,8 +84,16 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
     fs = {}
     for back in backgrounds:
         fs[back.mc.name] = R.TFile(back.pathToFile)
-        hs[back.mc.name] = fs[back.mc.name].Get(category + "/" + variable["name"])
-        scale = data.jsonToUse.intlumi * back.mc.cross_section / back.getWeight()
+
+        if settings.useInputFileUF: 
+            hs_name = "bg_histos/" + category + "_" + back.mc.label
+            hs_wgt  = 1.0
+        else:
+            hs_name = category + "/" + variable["name"]
+            hs_wgt  = back.getWeight()
+            
+        hs[back.mc.name] = fs[back.mc.name].Get(hs_name)
+        scale = data.jsonToUse.intlumi * back.mc.cross_section / hs_wgt
         hs[back.mc.name].Scale(scale)
         hs[back.mc.name].SetFillColor(back.color)
         bsum.Add(hs[back.mc.name])
@@ -82,11 +102,12 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
     #
     # pad1
     #
-    bstack.SetMinimum(0.1)
-    bstack.Draw("hist")
-    bstack.Print("v")
-    hdata.Draw("same pe")
+    hdata.SetMinimum(0.1)
+    hdata.Draw("pe")
     hdata.Print("v")
+    if len(backgrounds) > 0:
+        bstack.Draw("histsame")
+        bstack.Print("v")
     ssum.Print("v")
     ssum.Draw("same hist")
 
@@ -94,7 +115,7 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
     # customization
     #
     if variable["min"]!=-0.999 and variable["max"]!=-0.999:
-        bstack.GetXaxis().SetRangeUser(variable["min"], variable["max"])
+        hdata.GetXaxis().SetRangeUser(variable["min"], variable["max"])
     if logY:
         pad1.SetLogy()
     R.gPad.Modified()
@@ -147,8 +168,14 @@ def signalFit((category, variable), ws, signal, model, settings, **wargs):
     # get the histogram
     #
     fsdata = R.TFile(signal.pathToFile)
-    hsdata = fsdata.Get(category + "/" + variable["name"])
-    hsdata.Scale(1/signal.getWeight())
+
+    hsdata_name = category + "/" + variable["name"]
+    if settings.useInputFileUF: 
+        hsdata_name = "signal_histos/" + category + "_" + signal.mc.label
+
+    hsdata = fsdata.Get(hsdata_name)
+    if not settings.useInputFileUF:
+        hsdata.Scale(1/signal.getWeight())
 #    hsdata.GetXaxis().SetRange(variable["min"], variable["max"])
     rsdata = aux.buildRooHist(ws, hsdata)
 
@@ -215,7 +242,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
     
     #
     # for each mass point, perform a fit.
-    # initial values for each consequetive model will be derived from the 
+    # initial values for each consecutive model will be derived from the 
     # previous mass point
     #
     imodel = 0
@@ -226,8 +253,14 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
     for (signal, model, variable) in tupleSignalModelVariable:
         frame = ws.var("x").frame()
         fsdata = R.TFile(signal.pathToFile)
-        hsdata = fsdata.Get(category + "/" + variable["name"])
-        hsdata.Scale(1/signal.getWeight())
+
+        hsdata_name = category + "/" + variable["name"]
+        if settings.useInputFileUF: 
+            hsdata_name = "signal_histos/" + category + "_" + signal.mc.label
+
+        hsdata = fsdata.Get(hsdata_name)
+        if not settings.useInputFileUF:
+            hsdata.Scale(1/signal.getWeight())
         rsdata = aux.buildRooHist(ws, hsdata)
         binfirst = hsdata.FindBin(variable["min"])
         binlast = hsdata.FindBin(variable["max"])
@@ -327,15 +360,21 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, settings, **w
     
     #
     # for each mass point, perform a fit.
-    # initial values for each consequetive model will be derived from the 
+    # initial values for each consecutive model will be derived from the 
     # previous mass point
     #
     imodel = 0
     prevSignal=None; prevModel=None; prevVariable=None
     for (signal, model, variable) in tupleSignalModelVariable:
         fsdata = R.TFile(signal.pathToFile)
-        hsdata = fsdata.Get(category + "/" + variable["name"])
-        hsdata.Scale(1/signal.getWeight())
+
+        hsdata_name = category + "/" + variable["name"]
+        if settings.useInputFileUF: 
+            hsdata_name = "signal_histos/" + category + "_" + signal.mc.label
+
+        hsdata = fsdata.Get(hsdata_name)
+        if not settings.useInputFileUF:
+            hsdata.Scale(1/signal.getWeight())
         rsdata = aux.buildRooHist(ws, hsdata)
         model.initialize(aux.buildSignalModelName(model, 
             settings.names2RepsToUse[category],
@@ -381,7 +420,12 @@ def ftestPerFamily((category, variable), ws, data, familyModelGroup, settings, *
     # Get the data histogram
     #
     fdata = R.TFile(data.pathToFile)
-    hdata = fdata.Get(category + "/" + variable["name"])
+
+    hdata_name = category + "/" + variable["name"]
+    if settings.useInputFileUF: 
+        hdata_name = "net_histos/"+category+"_Net_Data"
+
+    hdata = fdata.Get(hdata_name)
     hdata_blind = hdata.Clone("Blind")
     aux.blindHistogram(hdata_blind, 120, 130)
     rdata = aux.buildRooHist(ws, hdata)
@@ -665,7 +709,12 @@ def backgroundsWithRooMultiPdf((category, variable), ws, data, models, settings,
     #
     backgroundFits((category, variable), ws, data, models, settings, **wargs)
     fdata = R.TFile(data.pathToFile)
-    hdata = fdata.Get(category + "/" + variable["name"])
+
+    hdata_name = category + "/" + variable["name"]
+    if settings.useInputFileUF: 
+        hdata_name = "net_histos/"+category+"_Net_Data"
+
+    hdata = fdata.Get(hdata_name)
     rdata = aux.buildRooHist(ws, hdata)
     norm = rdata.sumEntries()
 
@@ -708,7 +757,12 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
     # get the data histogram
     #
     fdata = R.TFile(data.pathToFile)
-    hdata = fdata.Get(category + "/" + variable["name"])
+
+    hdata_name = category + "/" + variable["name"]
+    if settings.useInputFileUF: 
+        hdata_name = "net_histos/"+category+"_Net_Data"
+
+    hdata = fdata.Get(hdata_name)
     hdata_blind = hdata.Clone("Blind")
     aux.blindHistogram(hdata_blind, 120, 130)
     rdata = aux.buildRooHist(ws, hdata)

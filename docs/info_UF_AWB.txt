@@ -12,6 +12,28 @@ exec /bin/bash
 eval `scramv1 runtime -sh`
 source $PWD/config/env.sh
 
+
+############################################################
+###  New procedure from Modeling/higgs2/ - AWB 24.04.17  ###
+############################################################
+
+## Edit parameters for this particular job
+Configuration/higgs/UF_AWB_settings.py
+
+## Check names of signal / data histograms 
+Configuration/higgs/Samples.py ("label = ")
+Modeling/higgs2/generatingFunctions.py ("useInputFileUF")
+
+## Generate workspaces
+cd Modeling/higgs2/
+python generate.py -m UF_AWB --outDirName=someLabel --what=datacardsDoubleGaus
+## "--what" option is very flexible, can run single operations, or chain several together
+
+
+###########################################################
+###  Old procedure from Modeling/higgs/ - AWB 24.04.17  ###
+###########################################################
+
 ## Edit parameters for this particular job
 AuxTools/python/UF_AWB_settings.py
 Modeling/higgs/categories_UF_AWB.py
