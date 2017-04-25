@@ -28,6 +28,8 @@ parser.add_argument("--outDirName", type=str,
     default="test", help="Directory Name that will be created in the .../combineoutput/$jobLabel/ folder where all the results will go to. Directory Name that will be created in the .../combinesubmissions/$joblabel/ folder where all the launchers will go to.")
 parser.add_argument("--splitLevel", type=int,
     default=10, help="Split Level for when we create launchers to submit for batch processing")
+parser.add_argument("--nToys", type=int,
+    default=100, help="Number of Toys whenever this is needed")
 parser.add_argument("--queue", type=str,
     default="1nh", help="Lxplus Batch Queue")
 
@@ -194,10 +196,10 @@ def biasScan():
             category=names2RepsToUse[category]))
         for massPoint in args.massPoints:
             physicsModelParametersToSet["MH"] = massPoint
-            # this is list of cmd strings that have to go as a single Command!
-            cmdStrings = []
             # iterate thru all of the pdfs in our envelope
             for iref in range(multipdf.getNumPdfs()):
+                # this is list of cmd strings that have to go as a single Command!
+                cmdStrings = []
                 # set the pdfindex_category to the iref
                 physicsModelParametersToSet["pdfindex_{category}".format(
                     category=names2RepsToUse[category])] = iref
@@ -206,11 +208,12 @@ def biasScan():
                     str(massPoint) + "__" + str(iref) + "__" + args.signalModel
                 # generate the toys command
                 cmdStrings.append("# GenerateOnly\n")
-                cmdGenerateOnly = "combine -d {datacard} -n {outputModifier} -M GenerateOnly --setPhysicsModelParameters {physicsModelParametersToSet} --toysFrequentist -t 100 --expectSignal 1 --saveToys -m {mass} --freezeNuisances {nuisancesToFreeze}".format(
+                cmdGenerateOnly = "combine -d {datacard} -n {outputModifier} -M GenerateOnly --setPhysicsModelParameters {physicsModelParametersToSet} --toysFrequentist -t {nToys} --expectSignal 1 --saveToys -m {mass} --freezeNuisances {nuisancesToFreeze}".format(
                     datacard=datacard, mass=massPoint, 
                     outputModifier=outputModifierGenerateOnly,
                     physicsModelParametersToSet=map2string(physicsModelParametersToSet),
-                    nuisancesToFreeze=",".join(ourNuisances))
+                    nuisancesToFreeze=",".join(ourNuisances),
+                    nToys = args.nToys)
                 cmdStrings.append(cmdGenerateOnly)
                 for ibkg in range(multipdf.getNumPdfs()):
                     currentPdfName = multipdf.getPdf(ibkg).GetName()
@@ -235,19 +238,26 @@ def biasScan():
                         "__" + args.signalModel
                     # perform the fit for that function
                     cmdStrings.append("# MaxLikelihoodFit\n")
-                    cmdMaxLikelihoodFit = "combine -d {datacard} -M MaxLikelihoodFit  --setPhysicsModelParameters {physicsModelParametersToSet} --toysFile higgsCombine{outputModifierGenerateOnly}.GenerateOnly.mH{mass}.123456.root  -t 100 --rMin 0.1 --rMax 50 --freezeNuisances {nuisancesToFreeze} -m {mass} -n {outputModifier} --saveShapes --plots".format(datacard=datacard,
+                    cmdMaxLikelihoodFit = "combine -d {datacard} -M MaxLikelihoodFit  --setPhysicsModelParameters {physicsModelParametersToSet} --toysFile higgsCombine{outputModifierGenerateOnly}.GenerateOnly.mH{mass}.123456.root  -t {nToys} --rMin 0.1 --rMax 50 --freezeNuisances {nuisancesToFreeze} -m {mass} -n {outputModifier} --saveShapes --plots".format(datacard=datacard,
                         physicsModelParametersToSet=map2string(physicsModelParametersToSet),
                         outputModifierGenerateOnly=outputModifierGenerateOnly,
                         mass=massPoint, 
                         nuisancesToFreeze=",".join(ourNuisances +
                             otherModelsParametersToFreeze),
-                        outputModifier=outputModifier)
+                        outputModifier=outputModifier,
+                        nToys = args.nToys)
                     cmdStrings.append(cmdMaxLikelihoodFit)
+                # create a single Command
+                # We must not split Generation[iref] + Fit[iref, *]
+                # this is exactly what we do - splitting on
+                # iref!
+                cmd = defs.Command(category, cmdStrings)
+                cmds.append(cmd)
             # remove that pdfindex..... from the dictionary!
             del physicsModelParametersToSet["pdfindex_{category}".format(
                 category=names2RepsToUse[category])]
-            cmd = defs.Command(category, cmdStrings)
-            cmds.append(cmd)
+#            cmd = defs.Command(category, cmdStrings)
+#            cmds.append(cmd)
         # remove the current pdfindex from the list of nuisances to be frozen!
         ourNuisances.remove("pdfindex_{category}".format(
             category=names2RepsToUse[category]))
