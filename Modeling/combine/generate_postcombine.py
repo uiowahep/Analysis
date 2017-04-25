@@ -304,13 +304,30 @@ def biasScan():
             for iref in range(args.nbackgrounds):
                 for icurrent in range(args.nbackgrounds):
                     canvas = R.TCanvas("c1", "c1", 1000, 600)
-                    fileName = "mlfit{category}__{mass}__{iref}__{icurrent}__{signalModel}.root".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
-                    f = R.TFile(os.path.join(combineoutputPathDir, fileName))
-                    tree = f.Get("tree_fit_sb")
-                    tree.Draw("(mu-1)/muErr>>h(200, -10,10)")
+                    try:
+                        fileName = "mlfit{category}__{mass}__{iref}__{icurrent}__{signalModel}.root".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
+                        f = R.TFile(os.path.join(combineoutputPathDir, fileName))
+                        tree = f.Get("tree_fit_sb")
+                        tree.Draw("(mu-1)/muErr>>h(200, -10,10)")
 
-                    fileName = "pull__{category}__{mass}__{iref}__{icurrent}__{signalModel}.png".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
-                    canvas.SaveAs(os.path.join(biasScanResultsDir, fileName))
+                        # get the histogram and perform some manipulations
+                        hist = R.gFile.Get("h")
+                        import array
+                        probs = array.array("d", [0.5])
+                        quantiles = array.array("d", [0])
+                        hist.GetQuantiles(1, quantiles, probs)
+
+                        latex = R.TLatex()
+                        latex.SetNDC()
+                        latex.SetTextSize(0.02)
+                        latex.SetTextAlign(13) # align at top
+                        latex.SetTextSize(0.03)
+                        latex.DrawLatex(0.2, 0.8, "Median = " + str(quantiles[0]))
+
+                        cfileName = "pull__{category}__{mass}__{iref}__{icurrent}__{signalModel}.png".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
+                        canvas.SaveAs(os.path.join(biasScanResultsDir, cfileName))
+                    except:
+                        print "There was a problem with file: {file}".format(file=fileName)
 
 def fits():
     pass

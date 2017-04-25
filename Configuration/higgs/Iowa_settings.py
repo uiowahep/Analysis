@@ -340,11 +340,11 @@ laurent_defaultValues = aux.buildDefaultValuesLaurentSeries(20)
 ################################################
 ### Mass Variables/Fit Ranges/Drawing Ranges ###
 ################################################
-diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":110, "max":250,
+diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":115, "max":140,
     "fitmin" : 115, "fitmax" : 135}
-diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":110, "max":250,
+diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":115, "max":140,
     "fitmin" : 110, "fitmax" : 130}
-diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":110, "max":250,
+diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":115, "max":140,
     "fitmin" : 120, "fitmax" : 140}
 
 """
