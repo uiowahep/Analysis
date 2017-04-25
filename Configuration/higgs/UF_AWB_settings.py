@@ -27,7 +27,8 @@ run1Categories = [
 # Run 2 Categories list - BDT categorization
 #
 run2Categories = [
-    'c10', 'c11', 'c12'
+    'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6',
+    'c7', 'c8', 'c9', 'c10', 'c11', 'c12'
     ]
 
 run2Reps2Names = {}
@@ -42,13 +43,25 @@ for i in range(len(run2Categories)): ## Keep the names the same for now
 # NOTE: run2CategoriesForCombination is used rather than run2Categories!
 #
 run2Combinations = {
-    'comb_10_11' : [
+    'bdt0' : [
+        run2Names2Reps['c0'],
+        run2Names2Reps['c2'],
+        run2Names2Reps['c8']],
+    'bdt1' : [
+        run2Names2Reps['c7'],
+        run2Names2Reps['c4'],
+        run2Names2Reps['c1'],
+        run2Names2Reps['c6'],
+        run2Names2Reps['c5']],
+    'bdt2' : [
+        run2Names2Reps['c3'],
         run2Names2Reps['c10'],
         run2Names2Reps['c11']],
-    'comb_12' : [
+    'bdt3' : [
+        run2Names2Reps['c9'],
         run2Names2Reps['c12']]
 }
-run2Combinations['combTotal'] = run2Combinations['comb_10_11'] + run2Combinations['comb_12']
+run2Combinations['combTotal'] = run2Combinations['bdt0'] + run2Combinations['bdt1'] + run2Combinations['bdt2'] + run2Combinations['bdt3']
 
 
 ########################
@@ -63,9 +76,28 @@ massListToUse     = [120, 125, 130]
 signalModelNames  = ['TripleGaus']
 
 
+#########################################
+### General Combine-specific Settings ###
+#########################################
+
+quantiles2Reps = {
+    -1.0 : "observed",
+    0.16 : "m1sigma",
+    0.84 : "p1sigma",
+    0.025 : "m2sigma",
+    0.975 : "p2sigma",
+    0.5 : "expected"
+}
+physicsModelParametersToSet = {}
+nuisancesToFreeze = ["MH"]
+def map2string(m, sep=","):
+    return ",".join(["{key}={value}".format(key=x, value=m[x]) for x in m])
+
+
 #######################
 ### Directory Setup ###
 #######################
+cmsswDir                             = '/afs/cern.ch/user/a/abrinke1/HiggsToMuMu/CMSSW_7_4_7/src/'
 projectDirToUse                      = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits2/'
 CM.mkdir(projectDirToUse)
 histDir                              = os.path.join(projectDirToUse, 'results', jobLabel)
@@ -88,6 +120,13 @@ combineoutputDir                     = os.path.join(projectDirToUse, 'combineout
 CM.mkdir(combineoutputDir)
 combinesubmissionsDir                = os.path.join(projectDirToUse, 'combinesubmissions', jobLabel)
 CM.mkdir(combinesubmissionsDir)
+limitsDir = os.path.join(projectDirToUse, "limits", jobLabel)
+CM.mkdir(limitsDir)
+ftestDir = os.path.join(projectDirToUse, "ftest", jobLabel)
+CM.mkdir(ftestDir)
+biasScanDir = os.path.join(projectDirToUse, "biasScan", jobLabel)
+CM.mkdir(biasScanDir)
+
 
 #################
 ###  Samples  ###
@@ -170,72 +209,85 @@ doubleGaus130_initialValues = {
     'coef' : 0.1, 'coefmin' : 0.0001, 'coefmax': 1
 }
 tripleGaus125_initialValues = {
-    'mean1':125, 'mean1min':115, 'mean1max':135,
-    'sigma1':1.0, 'sigma1min':0.1, 'sigma1max':10,
+    'mean1':125, 'mean1min':124, 'mean1max':126,
+    'sigma1':1.5, 'sigma1min':0.8, 'sigma1max':4,
     'mean2':125, 'mean2min':115, 'mean2max':135,
     'sigma2':1.0, 'sigma2min':0.1, 'sigma2max':10,
     'mean3':125, 'mean3min':115, 'mean3max':135,
-    'sigma3':1.0, 'sigma3min':0.1, 'sigma3max':10,
-    'coef1' : 0.1, 'coef1min' : 0.0001, 'coef1max' : 1,
+    'sigma3':1.0, 'sigma3min':2, 'sigma3max':20,
+    'coef1' : 0.7, 'coef1min' : 0.4, 'coef1max' : 1,
     'coef2' : 0.1, 'coef2min' : 0.0001, 'coef2max' : 1,
 }
 tripleGaus120_initialValues = {
-    'mean1':120, 'mean1min':110, 'mean1max':130,
-    'sigma1':1.0, 'sigma1min':0.1, 'sigma1max':10,
+    'mean1':120, 'mean1min':119, 'mean1max':121,
+    'sigma1':1.5, 'sigma1min':0.8, 'sigma1max':4,
     'mean2':120, 'mean2min':110, 'mean2max':130,
     'sigma2':1.0, 'sigma2min':0.1, 'sigma2max':10,
     'mean3':120, 'mean3min':110, 'mean3max':130,
-    'sigma3':1.0, 'sigma3min':0.1, 'sigma3max':10,
-    'coef1' : 0.1, 'coef1min' : 0.0001, 'coef1max' : 1,
+    'sigma3':1.0, 'sigma3min':2, 'sigma3max':20,
+    'coef1' : 0.7, 'coef1min' : 0.4, 'coef1max' : 1,
     'coef2' : 0.1, 'coef2min' : 0.0001, 'coef2max' : 1,
 }
 tripleGaus130_initialValues = {
-    'mean1':130, 'mean1min':120, 'mean1max':140,
-    'sigma1':1.0, 'sigma1min':0.1, 'sigma1max':10,
+    'mean1':130, 'mean1min':129, 'mean1max':131,
+    'sigma1':1.5, 'sigma1min':0.8, 'sigma1max':4,
     'mean2':130, 'mean2min':120, 'mean2max':140,
     'sigma2':1.0, 'sigma2min':0.1, 'sigma2max':10,
     'mean3':130, 'mean3min':120, 'mean3max':140,
-    'sigma3':1.0, 'sigma3min':0.1, 'sigma3max':10,
-    'coef1' : 0.1, 'coef1min' : 0.0001, 'coef1max' : 1,
+    'sigma3':1.0, 'sigma3min':2, 'sigma3max':20,
+    'coef1' : 0.7, 'coef1min' : 0.4, 'coef1max' : 1,
     'coef2' : 0.1, 'coef2min' : 0.0001, 'coef2max' : 1,
 }
 
 # expGaus
 expGaus_defaultValues = {
-    'a1' : 1.0, 'a1min' : -20, 'a1max' : 20,
-    'a2' : 0.3, 'a2min' : -20, 'a2max' : 20
+    "a1" : 1.0, "a1min" : -20, "a1max" : 20,
+    "a2" : 0.3, "a2min" : -20, "a2max" : 20
+}
+
+# BWZ
+bwz_defaultValues = {
+    "zmass" : 91.2, "zmassmin": 90, "zmassmax" : 92,
+    "zwidth" : 2.5, "zwidthmin" : 0, "zwidthmax" : 30,
+    "expParam" : -1e-03, "expParammin" : -1e-02, "expParammax" : 1e-02
 }
 # BWZ Redux
 bwzredux_defaultValues = {
-    'a1' : 1.39, 'a1min' : 0.7, 'a1max' : 2.1,
-    'a2' : 0.47, 'a2min' : 0.30, 'a2max' : 0.62,
-    'a3' : -0.26, 'a3min' : -0.40, 'a3max' : -0.12
+    "a1" : 1.39, "a1min" : 0.7, "a1max" : 2.1,
+    "a2" : 0.47, "a2min" : 0.30, "a2max" : 0.62,
+    "a3" : -0.26, "a3min" : -0.40, "a3max" : -0.12
 }
 # BWZ Gamma
 bwzgamma_defaultValues = {
-    'zwidth' : 2.5, 'zwidthmin' : 0, 'zwidthmax' : 30,
-    'zmass' : 91.2, 'zmassmin' : 90, 'zmassmax' : 92,
-    'expParam' : -0.0053, 'expParammin' : -0.0073, 'expParammax' : -0.0033,
-    'fraction' : 0.379, 'fractionmin' : 0.2, 'fractionmax' : 1
+    "zwidth" : 2.5, "zwidthmin" : 0, "zwidthmax" : 30,
+    "zmass" : 91.2, "zmassmin" : 90, "zmassmax" : 92,
+    "expParam" : -0.1, "expParammin": -1, "expParammax": -0.001,
+#    "expParam" : -0.0053, "expParammin" : -0.0073, "expParammax" : -0.0033,
+    "fraction" : 0.379, "fractionmin" : 0.2, "fractionmax" : 1
 }
 # bernsteins
 bernstein_defaultValues = aux.buildDefaultValuesBerstein(20)
 # sum exponentials
 sumExp_defaultValues = aux.buildDefaultValuesSumExponentials(20)
+# power Law
+powLaw_defaultValues = aux.buildDefaultValuesPowerLaw(20)
+# laurent series
+exponents = [-4, -3, -5, -2, -6, -1, -7, 0, -8, 1, -9, 2, -10, 3, -11]
+laurent_defaultValues = aux.buildDefaultValuesLaurentSeries(20)
 
 ################################################
 ### Mass Variables/Fit Ranges/Drawing Ranges ###
 ################################################
-diMuonMass125 = {'name':'DiMuonMass', 'central':125, 'min':110, 'max':160,
-    'fitmin' : 115, 'fitmax' : 135}
-diMuonMass120 = {'name':'DiMuonMass', 'central':120, 'min':110, 'max':160,
-    'fitmin' : 110, 'fitmax' : 130}
-diMuonMass130 = {'name':'DiMuonMass', 'central':130, 'min':110, 'max':160,
-    'fitmin' : 120, 'fitmax' : 140}
+diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":110, "max":160,
+    "fitmin" : 115, "fitmax" : 135}
+diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":110, "max":160,
+    "fitmin" : 110, "fitmax" : 130}
+diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":110, "max":160,
+    "fitmin" : 120, "fitmax" : 140}
 
-'''
+"""
 a list of common things, not configurations, but common...
-'''
+"""
 
 ######################
 ### Pool of Colors ###
@@ -250,12 +302,12 @@ colors = [
 ### Map CMS DAS Higgs Signal Name to Combine Notation ###
 #########################################################
 mapDASNames2Combine = {
-    'VBF' : 'vbfH_13TeV',
-    'GluGlu' : 'ggH_13TeV',
-    'WMinusH' : 'WminusH_13TeV',
-    'WPlusH' : 'WplusH_13TeV',
-    'ZH' : 'ZH_13TeV',
-    'ttH' : 'ttH_13TeV'
+    "VBF" : "vbfH_13TeV",
+    "GluGlu" : "ggH_13TeV",
+    "WMinusH" : "WminusH_13TeV",
+    "WPlusH" : "WplusH_13TeV",
+    "ZH" : "ZH_13TeV",
+    "ttH" : "ttH_13TeV"
 }
 
 ##################################
@@ -274,11 +326,14 @@ tripleGaus130 = models.TripleGaus(tripleGaus130_initialValues)
 
 # background
 expGaus = models.ExpGaus(expGaus_defaultValues)
+bwz = models.BWZ(bwz_defaultValues)
 bwzRedux = models.BWZRedux(bwzredux_defaultValues)
 bwzGamma = models.BWZGamma(bwzgamma_defaultValues)
+bernsteinsFast = [models.BernsteinFast(bernstein_defaultValues, degree=i) for i in range(1, 8)]
 bernsteins = [models.Bernstein(bernstein_defaultValues, degree=i) for i in range(1, 11)]
-sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 11)]
-
+sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 8)]
+powerLaw = [models.PowerLaw(powLaw_defaultValues, degree=i) for i in range(1, 10)]
+laurentSeries = [models.LaurentSeries(laurent_defaultValues, degree=i, exponents=exponents) for i in range(2, 10)]
 
 class ModelGroup(object):
     def __init__(self, name, models):
@@ -286,16 +341,23 @@ class ModelGroup(object):
         self.name = name
         object.__init__(self)
 
-bernsteinModels = ModelGroup('bersteinModels', bernsteins)
-sumExpModels = ModelGroup('sumExpModels', sumExps)
-allPhysBkgModels = ModelGroup('allPhysBkgModels', [expGaus, bwzRedux, bwzGamma])
-bernsteinsPlusPhysModels = ModelGroup('bersteinsPlusPhysModels',
+bernsteinModels = ModelGroup("bersteinModels", bernsteins)
+sumExpModels = ModelGroup("sumExpModels", sumExps)
+allPhysBkgModels = ModelGroup("allPhysBkgModels", [bwz, expGaus, bwzRedux, bwzGamma])
+laurentModels = ModelGroup("LaurentSeries", laurentSeries)
+powerLawModels = ModelGroup("PowerLaw", powerLaw)
+bernsteinsPlusPhysModels = ModelGroup("bersteinsPlusPhysModels",
     allPhysBkgModels.models + bernsteins)
-sumExpsPlusPhysModels = ModelGroup('sumExpsPlusPhysModels', allPhysBkgModels.models + sumExps)
-allBackgroundModels = ModelGroup('allBackgroundModels', allPhysBkgModels.models + bernsteins + sumExps)
+bernsteinsFastModels = ModelGroup("bernsteinFastModels", bernsteinsFast)
+sumExpsPlusPhysModels = ModelGroup("sumExpsPlusPhysModels", allPhysBkgModels.models + sumExps)
+allBackgroundModels = ModelGroup("allBackgroundModels", allPhysBkgModels.models + bernsteinsFastModels.models)
 
-backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
-modelGroupForMultiPdf = ModelGroup('modelGroupForMultiPdf', [expGaus, bwzRedux, bwzGamma,
+#backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
+backgroundModelGroups = [bernsteinsFastModels, allPhysBkgModels, allBackgroundModels]
+modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
     models.Bernstein(bernstein_defaultValues, degree=6)])
-modelGroupTest = ModelGroup('modelGroupTest', [bwzRedux, bwzGamma])
-
+modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma, 
+    models.BernsteinFast(bernstein_defaultValues, degree=5)])
+physGroupTest = ModelGroup("physModelsGroup", [bwzRedux, bwzGamma, expGaus, bwz])
+orderedGroupsTest = [bernsteinsFastModels, sumExpModels]
+orderedModelGroups = [bernsteinsFastModels, sumExpModels, powerLawModels]

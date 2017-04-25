@@ -91,7 +91,12 @@ def datacardsTripleGaus():
         # create the RooDataHist and import it into the Workspace here explicitly
         #
         fdata = R.TFile(data.pathToFile)
-        hdata = fdata.Get(category + "/" + "DiMuonMass")
+
+        hdata_name = category + "/DiMuonMass"
+        if settings.useInputFileUF:
+            hdata_name = "net_histos/"+category+"_Net_Data"
+
+        hdata = fdata.Get(hdata_name)
         rdata = aux.buildRooHist(ws, hdata,
             "data_obs_{category}".format(category=names2RepsToUse[category]))
         getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
@@ -224,7 +229,12 @@ def datacardsDoubleGaus():
         # create the RooDataHist and import it into the Workspace here explicitly
         #
         fdata = R.TFile(data.pathToFile)
-        hdata = fdata.Get(category + "/" + "DiMuonMass")
+
+        hdata_name = category + "/DiMuonMass"
+        if settings.useInputFileUF:
+            hdata_name = "net_histos/"+category+"_Net_Data"
+
+        hdata = fdata.Get(hdata_name)
         rdata = aux.buildRooHist(ws, hdata,
             "data_obs_{category}".format(category=names2RepsToUse[category]))
         getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
@@ -357,7 +367,12 @@ def datacardsSingleGaus():
         # create the RooDataHist and import it into the Workspace here explicitly
         #
         fdata = R.TFile(data.pathToFile)
-        hdata = fdata.Get(category + "/" + "DiMuonMass")
+
+        hdata_name = category + "/DiMuonMass"
+        if settings.useInputFileUF:
+            hdata_name = "net_histos/"+category+"_Net_Data"
+
+        hdata = fdata.Get(hdata_name)
         rdata = aux.buildRooHist(ws, hdata,
             "data_obs_{category}".format(category=names2RepsToUse[category]))
         getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
