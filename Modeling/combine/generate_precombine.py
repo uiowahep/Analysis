@@ -51,18 +51,25 @@ def split(cmds, splitLevel=10):
     
     return jobs
 
-def writeHeader(launcherFile):
+def writeHeader(launcherFile, someName):
     """
     adds a header to the output launcher script that does:
         cd to CMSSW_SRC directory
         initialize the vars
         cd back to the directory from which we are to run combine
     """
-    runCombineFromDir = os.path.join(combineoutputDir, args.outDirName)
+    launcherFile.write("mkdir {name}\ncd {name}\n".format(name=someName))
+    launcherFile.write("MYHOME=$PWD\n")
     launcherFile.write("cd {pathToCMSSW}\n".format(pathToCMSSW=cmsswDir))
     launcherFile.write("eval `scramv1 runtime -sh`\n")
-    launcherFile.write("cd {runCombineFromDir}\n".format(
-        runCombineFromDir=runCombineFromDir))
+    launcherFile.write("cd $MYHOME\n")
+
+def writeTail(launcherFile):
+    """
+    """
+    outputDir = os.path.join(combineoutputDir, args.outDirName)
+    launcherFile.write("cp *.root {outputDir}\n".format(outputDir=outputDir))
+    launcherFile.write("cp *.png {outputDir}\n".format(outputDir=outputDir))
 
 def createLaunchers(cmds, submitDir, label):
     """
@@ -75,9 +82,12 @@ def createLaunchers(cmds, submitDir, label):
         launcherFile = os.path.join(submitDir, "launcher_{label}_{name}.sh".format(name=job.name, label=label))
         launchFile = open(os.path.join(submitDir, "launcher_{label}_{name}.sh".format(
             name=job.name, label=label)), "w")
-        writeHeader(launchFile)
+        writeHeader(launchFile, job.name)
         launchFile.write("\n")
         launchFile.write(job.toString())
+        launchFile.write("\n")
+        launchFile.write("\n")
+        writeTail(launchFile)
         launchFile.write("\n")
         launchFile.close()
         logFile = os.path.join(submitDir, "log_{label}_{name}.txt".format(name=job.name,
