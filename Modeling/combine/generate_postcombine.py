@@ -297,10 +297,16 @@ def biasScan():
     biasScanResultsDir = os.path.join(biasScanDir, args.outDirName)
     combineoutputPathDir = os.path.join(combineoutputDir, args.outDirName)
     mkdir(biasScanResultsDir)
+    hMeans = {}
+    hMedians = {}
     for category in categoriesToUse:
         if names2RepsToUse[category] in args.categoriesToSkip:
             continue
         for massPoint in args.massPoints:
+            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)] = R.TH2D("Means_{category}_{mass}".format(category=category, mass=massPoint), "Means", args.nbackgrounds, 0, args.nbackgrounds,
+                args.nbackgrounds, 0, args.nbackgrounds)
+            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)] = R.TH2D("Madians_{category}_{mass}".format(category=category, mass=massPoint), "Medians", args.nbackgrounds, 0, args.nbackgrounds,
+                args.nbackgrounds, 0, args.nbackgrounds)
             for iref in range(args.nbackgrounds):
                 for icurrent in range(args.nbackgrounds):
                     canvas = R.TCanvas("c1", "c1", 1000, 600)
@@ -324,10 +330,26 @@ def biasScan():
                         latex.SetTextSize(0.03)
                         latex.DrawLatex(0.2, 0.8, "Median = " + str(quantiles[0]))
 
+                        hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].Fill(iref, icurrent, hist.GetMean())
+                        hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].Fill(iref, icurrent, quantiles[0])
+
                         cfileName = "pull__{category}__{mass}__{iref}__{icurrent}__{signalModel}.png".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
                         canvas.SaveAs(os.path.join(biasScanResultsDir, cfileName))
                     except:
                         print "There was a problem with file: {file}".format(file=fileName)
+                    finally:
+                        f.Close()
+            # plot the 2D
+            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetTitle("Ref Model")
+            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetTitle("Fit Model")
+            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].Draw("TEXT")
+            canvas.SaveAs(os.path.join(biasScanResultsDir, "pullMeans2D__{category}__{mass}__{signalModel}.png".format(
+                category=names2RepsToUse[category], mass=massPoint, signalModel=args.signalModel)))
+            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetTitle("Ref Model")
+            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetTitle("Fit Model")
+            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].Draw("TEXT")
+            canvas.SaveAs(os.path.join(biasScanResultsDir, "pullMedians2D__{category}__{mass}__{signalModel}.png".format(
+                category=names2RepsToUse[category], mass=massPoint, signalModel=args.signalModel)))
 
 def fits():
     pass
