@@ -12,9 +12,9 @@ def main():
 
     applyKalman = False
     applyRochester = False
-    kalmanInputData = None
-    kalmanInputMC = None
-    rochesterInput = 
+    kalmanInputData = "afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis/resources/kalman/DATA_80X_13TeV.root"
+    kalmanInputMC = "afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis/resources/kalman/MC_80X_13TeV.root"
+    rochesterInput = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis/resources/rochester"
 
     #   set the variables
     bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-30042017"
@@ -180,10 +180,16 @@ def main():
                 genPUMC=0, 
                 puMCfilename=puMCfilename,
                 puDATAfilename=puDATAfilename)
+            if applyKalman:
+                cmd += " --kalman={kalmanInput}".format(kalmanInput=kalmanInputMC)
         else:
             cmd = ("{executable} --input={input} --output={output} --isMC={isMC} "
                 ).format(executable=executable,
                 input=input_filelist, output=output, isMC=0)
+            if applyKalman:
+                cmd += " --kalman={kalmanInput}".format(kalmanInput=kalmanInputData)
+        if applyRochester:
+            cmd += " --rochester={rochesterInput}".format(rochesterInput=rochesterInput)
         cmdlist.append(cmd)
         if batchSubmission:
             launchername = "launcher_%d.sh" % jobid
