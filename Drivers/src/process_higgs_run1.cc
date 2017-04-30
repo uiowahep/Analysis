@@ -19,6 +19,8 @@
 #include "TLorentzVector.h"
 #include "LumiReweightingStandAlone.h"
 #include "HistogramSets.h"
+#include "KalmanMuonCalibrator.h"
+#include "RoccoR.h"
 
 #include "boost/program_options.hpp"
 #include <signal.h>
@@ -59,6 +61,10 @@ bool __genPUMC;
 std::string __puMCfilename;
 std::string __puDATAfilename;
 bool __continueRunning = true;
+bool __kalman = false;
+bool __rochester = false;
+std::string __rochesterInput;
+std::string __kalmanInput;
 
 /*
  *  Define all the Constants
@@ -643,6 +649,19 @@ void process()
             data_pileupfile.Data(), "pileup", "pileup");
 	}
 
+    // init the Kalman Calibration Instance
+    KalmanMuonCalibrator *kalman = NULL;
+    std::cout << "Hello World" << std::endl;
+    std::cout << __kalmanInput  << "  " << __kalman << std::endl;
+    if (__kalman) {
+        kalman = new KalmanMuonCalibrator(__kalmanInput);
+    }
+    RoccoR *rochester = NULL;
+    std::cout << "Hello World" << std::endl;
+    std::cout << __rochesterInput << std::endl;
+    if (__rochester) 
+        rochester = new RoccoR(__rochesterInput);
+
 	//	Main Loop
 	uint32_t numEntries = streamer._chain->GetEntries();
 	for (uint32_t i=0; i<numEntries && __continueRunning; i++)
@@ -665,6 +684,31 @@ void process()
         // pass HLT 
 		if (!(aux->_hasHLTFired[0] || aux->_hasHLTFired[1]))
 			continue;
+
+        // apply the corrections
+        for (Muons::iterator it=muons->begin(); it!=muons->end(); ++it) {
+            if (__kalman) {
+                double pt_corrected = kalman->getCorrectedPt(it->_pt, it->_eta, 
+                    it->_phi, it->_charge);
+                double pt_smeared = kalman->smear(pt_corrected, it->_eta);
+                if (__isMC)
+                    it->_pt = pt_smeared;
+                else
+                    it->_pt = pt_corrected;
+            }
+
+            if (__rochester) {
+                double sf = 1.0;
+                if (__isMC)
+                    sf = rochester->kScaleAndSmearMC(it->_charge, 
+                        it->_pt, it->_eta, it->_phi, it->_nTLs, gRandom->Rndm(),
+                        gRandom->Rndm(), 0, 0);
+                else 
+                    sf = rochester->kScaleDT(it->_charge, it->_pt,
+                        it->_eta, it->_phi, 0, 0);
+                it->_pt*=sf;
+            }
+        }
 
         // select the muons that pass the initial cuts
         Muons selectedMuons;
@@ -753,7 +797,7 @@ int main(int argc, char** argv)
 	signal(SIGTERM, &sigHandler);
 	signal(SIGINT, &sigHandler);
 
-	std::string none;
+	std::string none = "None";
 	bool genPUMC = false;
 
 	/*
@@ -766,8 +810,10 @@ int main(int argc, char** argv)
 		("isMC", po::value<bool>(), "type of data: DATA vs MC")
 		("output", po::value<std::string>(), "output file name")
 		("genPUMC", po::value<bool>(&genPUMC)->default_value(false), "true if should generate the MC PU file")
-		("puMC", po::value<std::string>(&none)->default_value("None"), "MC PU Reweight file")
-		("puDATA", po::value<std::string>(&none)->default_value("None"), "DATA PU Reweight file")
+		("puMC", po::value<std::string>()->default_value("None"), "MC PU Reweight file")
+		("puDATA", po::value<std::string>()->default_value("None"), "DATA PU Reweight file")
+        ("kalman", po::value<std::string>()->default_value(none), "Path to a file with Kalman correcvtions")
+        ("rochester", po::value<std::string>()->default_value(none), "Path to a file with Rochester Corrections")
 	;
 
 	po::variables_map vm;
@@ -787,6 +833,15 @@ int main(int argc, char** argv)
 	__genPUMC = vm["genPUMC"].as<bool>();
 	__puMCfilename = vm["puMC"].as<std::string>();
 	__puDATAfilename = vm["puDATA"].as<std::string>();
+    __kalmanInput = vm["kalman"].as<std::string>();
+    __rochesterInput = vm["rochester"].as<std::string>();
+    std::cout << __kalmanInput << std::endl;
+    std::cout << __rochesterInput << std::endl;
+    std::cout << none << std::endl;
+    if (__kalmanInput != none)
+        __kalman = true;
+    if (__rochesterInput != none)
+        __rochester = true;
     printCuts();
 
 	//	start processing

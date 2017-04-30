@@ -10,6 +10,12 @@ def main():
     import Configuration.higgs.Samples as S
     import Configuration.higgs.Dataset as DS
 
+    applyKalman = False
+    applyRochester = False
+    kalmanInputData = None
+    kalmanInputMC = None
+    rochesterInput = 
+
     #   set the variables
     bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-30042017"
     executable = os.path.join(bindir, "process_higgs_run1")
