@@ -63,7 +63,7 @@ bool __continueRunning = true;
 /*
  *  Define all the Constants
  */
-double _muonMatchedPt = 24.;
+double _muonMatchedPt = 26.;
 double _muonMatchedEta = 2.4;
 double _muonPt = 10.;
 double _muonEta = 2.4;
@@ -147,9 +147,12 @@ bool passVertex(Vertices* v)
 
 bool passMuon(Muon const& m)
 {
+    double muonIsolation = (m._sumChargedHadronPtR04 + std::max(0.,
+        m._sumNeutralHadronEtR04 + m._sumPhotonEtR04 - 0.5*m._sumPUPtR04)) / m._pt;
+
 	if (m._isGlobal && m._isTracker &&
 		m._pt>_muonPt && TMath::Abs(m._eta)<_muonEta &&
-		m._isTight && (m._trackIsoSumPt/m._pt)<_muonIso)
+		m._isMedium && muonIsolation<0.25)
 		return true;
 	return false;
 }
@@ -217,8 +220,8 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
 	{
 		if (it->_pt>30 && TMath::Abs(it->_eta)<4.7)
 		{
-			if (!(jetMuondR(it->_eta, it->_phi, mu1._eta, mu1._phi)<0.3) && 
-				!(jetMuondR(it->_eta, it->_phi, mu2._eta, mu2._phi)<0.3))
+			if (jetMuondR(it->_eta, it->_phi, mu1._eta, mu1._phi)>0.4 && 
+				jetMuondR(it->_eta, it->_phi, mu2._eta, mu2._phi)>0.4)
 			{
 				TLorentzVector p4;
 				p4.SetPtEtaPhiM(it->_pt, it->_eta, it->_phi, it->_mass);

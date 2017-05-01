@@ -283,7 +283,7 @@ void categorize(Jets* jets, Muon const& mu1, Muon const&  mu2,
                         vbf = true;
                         pVBF = std::make_pair(i, j);
 			        }
-			        if (dijetmass>250 && p4dimuon.Pt()>50)
+                    else if (dijetmass>250 && p4dimuon.Pt()>50)
 			        {
                         ggFT = true;
                         pGGFT = std::make_pair(i, j);
