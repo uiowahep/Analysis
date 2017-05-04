@@ -308,20 +308,20 @@ class TripleGaus(Model):
     
     def setInitialValuesFromTH1(self, th1, **wargs):
         self.initialValues = {
-            "mean1" : th1.GetMean(), "mean1min" : th1.GetMean() - 2*th1.GetRMS(),
-            "mean1max" : th1.GetMean() + 2*th1.GetRMS(),
-            "sigma1" : th1.GetRMS(), "sigma1min" : 0,
-            "sigma1max" : 2*th1.GetRMS(),
-            "mean2" : th1.GetMean(), "mean2min" : th1.GetMean() - 2*th1.GetRMS(),
-            "mean2max" : th1.GetMean() + 2*th1.GetRMS(),
-            "sigma2" : th1.GetRMS(), "sigma2min" : 0,
-            "sigma2max" : 2*th1.GetRMS(),
-            "mean3" : th1.GetMean(), "mean3min" : th1.GetMean() - 2*th1.GetRMS(),
-            "mean3max" : th1.GetMean() + 2*th1.GetRMS(),
-            "sigma3" : th1.GetRMS(), "sigma3min" : 0,
-            "sigma3max" : 2*th1.GetRMS(),
-            "coef1" : 0.3, "coef1min" : 0, "coef1max" : 1,
-            "coef2" : 0.4, "coef2min" : 0, "coef2max" : 1
+            "mean1" : th1.GetMean(), "mean1min" : th1.GetMean() - 0.2*th1.GetRMS(),
+            "mean1max" : th1.GetMean() + 0.2*th1.GetRMS(),
+            "sigma1" : 0.6*th1.GetRMS(), "sigma1min" : 0.2*th1.GetRMS(),
+            "sigma1max" : 1.2*th1.GetRMS(),
+            "mean2" : th1.GetMean(), "mean2min" : th1.GetMean() - 0.4*th1.GetRMS(),
+            "mean2max" : th1.GetMean() + 0.4*th1.GetRMS(),
+            "sigma2" : 1.0*th1.GetRMS(), "sigma2min" : 0.4*th1.GetRMS(),
+            "sigma2max" : 1.8*th1.GetRMS(),
+            "mean3" : th1.GetMean(), "mean3min" : th1.GetMean() - 2.4*th1.GetRMS(),
+            "mean3max" : th1.GetMean() + 0.8*th1.GetRMS(),
+            "sigma3" : 2.4*th1.GetRMS(), "sigma3min" : 1.2*th1.GetRMS(),
+            "sigma3max" : 4.8*th1.GetRMS(),
+            "coef1" : 0.7, "coef1min" : 0.5, "coef1max" : 1,
+            "coef2" : 0.6, "coef2min" : 0.0, "coef2max" : 1
         }
         print self.initialValues 
     

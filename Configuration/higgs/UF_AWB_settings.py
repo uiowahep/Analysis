@@ -67,7 +67,7 @@ run2Combinations['combTotal'] = run2Combinations['bdt0'] + run2Combinations['bdt
 ########################
 ### General Settings ###
 ########################
-jobLabel          = 'AWB_Apr24_test_v1'
+jobLabel          = 'AWB_May3_test_v1'
 categoriesToUse   = run2Categories
 combinationsToUse = run2Combinations
 reps2NamesToUse   = run2Reps2Names
@@ -97,7 +97,7 @@ def map2string(m, sep=","):
 #######################
 ### Directory Setup ###
 #######################
-cmsswDir                             = '/afs/cern.ch/user/a/abrinke1/HiggsToMuMu/CMSSW_7_4_7/src/'
+cmsswDir                             = '/afs/cern.ch/user/a/abrinke1/CMSSW_7_4_7/src/'
 projectDirToUse                      = '/afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits2/'
 CM.mkdir(projectDirToUse)
 histDir                              = os.path.join(projectDirToUse, 'results', jobLabel)
@@ -131,7 +131,7 @@ CM.mkdir(biasScanDir)
 #################
 ###  Samples  ###
 #################
-inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/w_sig_120_130/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root'
+inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/sys_and_fine_binning/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root'
 useInputFileUF = True
 
 jsonToUse = samp.jsonfiles['2016_ReReco_36460']

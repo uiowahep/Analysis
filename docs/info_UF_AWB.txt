@@ -9,7 +9,9 @@ cd ../../ViktorAnalysis
 
 ## Go into bash, source CMSSW
 exec /bin/bash
+cd ~/CMSSW_7_4_7/src/
 eval `scramv1 runtime -sh`
+cd -
 source $PWD/config/env.sh
 
 
@@ -24,11 +26,20 @@ Configuration/higgs/UF_AWB_settings.py
 Configuration/higgs/Samples.py ("label = ")
 Modeling/higgs2/generatingFunctions.py ("useInputFileUF")
 
-## Generate workspaces
+## Generate fits and workspaces
 cd Modeling/higgs2/
-python generate.py -m UF_AWB --outDirName=someLabel --what=datacardsDoubleGaus
+python generate.py -m UF_AWB --outDirName someLabel --what datacardsTripleGaus
 ## "--what" option is very flexible, can run single operations, or chain several together
 
+## Run combine
+cd ../../Modeling/combine/
+python generate_precombine.py -m UF_AWB --what combineCards --inDirName someLabel --signalModel TripleGaus
+python generate_precombine.py -m UF_AWB --what text2workspace --inDirName someLabel --signalModel TripleGaus
+python generate_precombine.py -m UF_AWB --what categories --inDirName someLabel --outDirName someLabel2 --method Asymptotic --massPoints 120 125 130 --signalModel TripleGaus --categoriesToSkip cat0 --splitLevel 1 --queue 1nh
+
+## Submit to queue
+
+bjobs  ## Check status of jobs
 
 ###########################################################
 ###  Old procedure from Modeling/higgs/ - AWB 24.04.17  ###
