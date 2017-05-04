@@ -257,8 +257,8 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
     massPoints = []
     norms = []
     for (signal, model, variable) in tupleSignalModelVariable:
-        frame = ws.var("x").frame()
         fsdata = R.TFile(signal.pathToFile)
+        frame = ws.var("x").frame()
 
         hsdata_name = category + "/" + variable["name"]
         if settings.useInputFileUF: 

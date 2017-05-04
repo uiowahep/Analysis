@@ -510,9 +510,9 @@ def signalFitInterpolations():
         aux.buildMassVariable(ws, **diMuonMass125)
         funcs.signalFitInterpolation(category, ws, 
             [
-                (vbf120, singleGaus120, diMuonMass120),
-                (vbf125, singleGaus125, diMuonMass125),
-                (vbf130, singleGaus130, diMuonMass130),
+                (vbf120, tripleGaus120, diMuonMass120),
+                (vbf125, tripleGaus125, diMuonMass125),
+                (vbf130, tripleGaus130, diMuonMass130),
             ],
             settings,
             pathToDir=pathToDir

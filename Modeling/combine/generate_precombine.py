@@ -3,7 +3,6 @@
 import argparse
 import os, sys
 import definitions as defs
-from Configuration.higgs.Iowa_settings import *
 from Modeling.higgs2.aux import mkdir
 
 parser = argparse.ArgumentParser()
@@ -34,6 +33,16 @@ parser.add_argument("--queue", type=str,
     default="1nh", help="Lxplus Batch Queue")
 
 args = parser.parse_args()
+
+if args.mode == "Iowa":
+    import Configuration.higgs.Iowa_settings as settings
+    from Configuration.higgs.Iowa_settings import *
+elif args.mode == "UF_AWB":
+    import Configuration.higgs.UF_AWB_settings as settings
+    from Configuration.higgs.UF_AWB_settings import *
+elif args.mode == "UF_AWC":
+    import Configuration.higgs.UF_AWC_settings as settings
+    from Configuration .higgs.UF_AWC_settings import *
 
 def split(cmds, splitLevel=10):
     """
