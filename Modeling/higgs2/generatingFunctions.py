@@ -44,6 +44,8 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
         hdata_name = "net_histos/"+category+"_Net_Data"
 
     hdata = fdata.Get(hdata_name)
+    if variable["name"] == "DiMuonMass":
+        hdata.Rebin(settings.rebinGroup)
     hdata.SetMarkerStyle(20)
     hdata.SetMarkerSize(0.5)
     hdata.SetMarkerColor(data.color)
@@ -67,6 +69,8 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
             hs_wgt  = signal.getWeight()
 
         hs[signal.mc.name] = fs[signal.mc.name].Get(hs_name)
+        if variable["name"] == "DiMuonMass":
+            hs[signal.mc.name].Rebin(settings.rebinGroup)
         scale = data.jsonToUse.intlumi * signal.mc.cross_section / hs_wgt
         hs[signal.mc.name].Scale(scale)
         ssum.Add(hs[signal.mc.name])
@@ -93,6 +97,8 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
             hs_wgt  = back.getWeight()
             
         hs[back.mc.name] = fs[back.mc.name].Get(hs_name)
+        if variable["name"] == "DiMuonMass":
+            hs[back.mc.name].Rebin(settings.rebinGroup)
         scale = data.jsonToUse.intlumi * back.mc.cross_section / hs_wgt
         hs[back.mc.name].Scale(scale)
         hs[back.mc.name].SetFillColor(back.color)
@@ -102,7 +108,7 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
     #
     # pad1
     #
-    hdata.SetMinimum(0.1)
+    hdata.SetMinimum(0.001)
     hdata.Draw("pe")
     hdata.Print("v")
     if len(backgrounds) > 0:

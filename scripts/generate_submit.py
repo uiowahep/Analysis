@@ -12,13 +12,14 @@ def main():
 
     applyKalman = False
     applyRochester = False
-    kalmanInputData = "afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis/resources/kalman/DATA_80X_13TeV.root"
-    kalmanInputMC = "afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis/resources/kalman/MC_80X_13TeV.root"
+    kalmanInputData = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis/resources/kalman/DATA_80X_13TeV.root"
+    kalmanInputMC = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis/resources/kalman/MC_80X_13TeV.root"
     rochesterInput = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis/resources/rochester"
 
     #   set the variables
     bindir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/bin/build-30042017"
-    executable = os.path.join(bindir, "process_higgs_run1")
+    #executable = os.path.join(bindir, "process_higgs_run1")
+    executable = os.path.join(bindir, "process_HiggsAnalysis_Run1Categorization")
     batchSubmission = True
     storage = "EOS"
     cmsswdir = "/afs/cern.ch/work/v/vkhriste/Projects/HiggsAnalysis/CMSSW_8_0_25/src/Analysis"
