@@ -19,6 +19,8 @@
 #include "TLorentzVector.h"
 #include "LumiReweightingStandAlone.h"
 #include "HistogramSets.h"
+#include "RoccoR.h"
+#include "KalmanMuonCalibrator.h"
 
 #include "boost/program_options.hpp"
 #include <signal.h>
@@ -59,6 +61,10 @@ bool __genPUMC;
 std::string __puMCfilename;
 std::string __puDATAfilename;
 bool __continueRunning = true;
+bool __kalman = false;
+bool __rochester = false;
+std::string __rochesterInput;
+std::string __kalmanInput;
 
 /*
  *  Define all the Constants
@@ -75,7 +81,7 @@ double _dijetMass_VBFTight = 650;
 double _dijetdEta_VBFTight = 3.5;
 double _dijetMass_ggFTight = 250.;
 double _dimuonPt_ggFTight = 50.;
-double _dimuonPt_01JetsTight = 10.;
+double _dimuonPt_01JetsTight = 25.;
 
 std::string const NTUPLEMAKER_NAME =  "ntuplemaker_H2DiMuonMaker";
 
@@ -574,6 +580,13 @@ void process()
             data_pileupfile.Data(), "pileup", "pileup");
 	}
 
+    KalmanMuonCalibrator *kalman = NULL;
+    if (__kalman)
+        kalman = new KalmanMuonCalibrator(__kalmanInput);
+    RoccoR *rochester = NULL;
+    if (__rochester)
+        rochester = new RoccoR(__rochesterInput);
+
 	//	Main Loop
 	uint32_t numEntries = streamer._chain->GetEntries();
 	for (uint32_t i=0; i<numEntries && __continueRunning; i++)
@@ -594,6 +607,32 @@ void process()
 			continue;
 		if (!(aux->_hasHLTFired[0] || aux->_hasHLTFired[1]))
 			continue;
+
+        //
+        //// apply the corrections
+        for (Muons::iterator it=muons->begin(); it!=muons->end(); ++it) {
+            if (__kalman) {
+                double pt_corrected = kalman->getCorrectedPt(it->_pt, it->_eta,
+                    it->_phi, it->_charge);
+                double pt_smeared = kalman->smear(pt_corrected, it->_eta);
+                if (__isMC)
+                    it->_pt = pt_smeared;
+                else 
+                    it->_pt = pt_corrected;
+            }
+
+            if (__rochester) {
+                double sf = 1.0;
+                if (__isMC) 
+                    sf = rochester->kScaleAndSmearMC(it->_charge,
+                        it->_pt, it->_eta, it->_phi, it->_nTLs, gRandom->Rndm(),
+                        gRandom->Rndm(), 0, 0);
+                else 
+                    sf = rochester->kScaleDT(it->_charge, it->_pt,
+                        it->_eta, it->_phi, 0, 0);
+                it->_pt*=sf;
+            }
+        }
 
         //  prepare the pairs of muons
         for (analysis::core::Muons::const_iterator it=muons->begin();
@@ -673,6 +712,8 @@ int main(int argc, char** argv)
         ("dijetMass_ggFTight", po::value<double>(&_dijetMass_ggFTight)->default_value(_dijetMass_ggFTight), "DiJet Mass ggFTight-Category Cut")
         ("dimuonPt_ggFTight", po::value<double>(&_dimuonPt_ggFTight)->default_value(_dimuonPt_ggFTight), "DiMuon Pt ggFTight-Category Cut")
         ("dimuonPt_01JetsTight", po::value<double>(&_dimuonPt_01JetsTight)->default_value(_dimuonPt_01JetsTight), "DiMuon Pt 01JetsTight-Category Cut")
+        ("kalman", po::value<std::string>()->default_value(none), "Path to a file with Kalman correcvtions")
+        ("rochester", po::value<std::string>()->default_value(none), "Path to a file with Rochester Corrections")
 	;
 
 	po::variables_map vm;
@@ -705,7 +746,13 @@ int main(int argc, char** argv)
     _dijetMass_ggFTight = vm["dijetMass_ggFTight"].as<double>();
     _dimuonPt_ggFTight = vm["dimuonPt_ggFTight"].as<double>();
     _dimuonPt_01JetsTight = vm["dimuonPt_01JetsTight"].as<double>();
+    __kalmanInput = vm["kalman"].as<std::string>();
+    __rochesterInput = vm["rochester"].as<std::string>();
     printCuts();
+    if (__kalmanInput != none)
+        __kalman = true;
+    if (__rochesterInput != none)
+        __rochester = true;
 
 	//	start processing
 	process();
