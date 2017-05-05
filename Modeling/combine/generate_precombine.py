@@ -227,13 +227,26 @@ def biasScan():
                 
                 outputModifierGenerateOnly = names2RepsToUse[category] + "__" + \
                     str(massPoint) + "__" + str(iref) + "__" + args.signalModel
+                # retrieve the names of all other parameters
+                # that we have to fix. Given that we fit with ibkg
+                # parameters of other models must be frozen
+                # for the fit to be executed 100% correctly!!!
+                otherModelsParametersToFreezeForGenOnly = []
+                for var in allVariables:
+                    for ipdf in range(multipdf.getNumPdfs()):
+                        if iref==ipdf: continue
+                        currentPdfName = multipdf.getPdf(ipdf).GetName()
+                        if currentPdfName in var:
+                            otherModelsParametersToFreezeForGenOnly.append(var)
+                            break
                 # generate the toys command
                 cmdStrings.append("# GenerateOnly\n")
                 cmdGenerateOnly = "combine -d {datacard} -n {outputModifier} -M GenerateOnly --setPhysicsModelParameters {physicsModelParametersToSet} --toysFrequentist -t {nToys} --expectSignal {injectSignal} --saveToys -m {mass} --freezeNuisances {nuisancesToFreeze}".format(
                     datacard=datacard, mass=massPoint, 
                     outputModifier=outputModifierGenerateOnly,
                     physicsModelParametersToSet=map2string(physicsModelParametersToSet),
-                    nuisancesToFreeze=",".join(ourNuisances),
+                    nuisancesToFreeze=",".join(ourNuisances + 
+                        otherModelsParametersToFreezeForGenOnly),
                     nToys = args.nToys,
                     injectSignal = args.injectSig)
                 cmdStrings.append(cmdGenerateOnly)

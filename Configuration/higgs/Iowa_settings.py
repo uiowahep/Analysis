@@ -99,19 +99,20 @@ run1Combinations["combNoVBFTight"] = run1Combinations["comb2JetsggF"] + run1Comb
 ### General Settings ###
 ########################
 #jobLabel = "vR1_20170329_1241"
-#jobLabel = "vR1_20170412_2336"
+jobLabel = "vR1_20170412_2336"
 #jobLabel = "vR1_20170430_1726" # No Corrections
 #jobLabel = "vR1_20170430_1728" # Rochester
 #jobLabel = "vR1_20170430_1729" # R + K
 #jobLabel = "vR1_20170501_1527"
 #jobLabel = "vR1_20170504_1448"
-jobLabel = "vR1_20170504_1456"
+#jobLabel = "vR1_20170504_1456"
 categoriesToUse = run1Categories
 combinationsToUse = run1Combinations
 reps2NamesToUse = run1Reps2Names
 names2RepsToUse = run1Names2Reps
 
 # by how much to decrease the number of bins!
+# For now only for distributions, not applied to fitting/datacard generation
 rebinGroup = 20
 
 #########################################
