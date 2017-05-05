@@ -684,7 +684,7 @@ int main(int argc, char** argv)
 	signal(SIGTERM, &sigHandler);
 	signal(SIGINT, &sigHandler);
 
-	std::string none;
+	std::string none = "None";
 	bool genPUMC = false;
 
 	/*
@@ -697,8 +697,8 @@ int main(int argc, char** argv)
 		("isMC", po::value<bool>(), "type of data: DATA vs MC")
 		("output", po::value<std::string>(), "output file name")
 		("genPUMC", po::value<bool>(&genPUMC)->default_value(false), "true if should generate the MC PU file")
-		("puMC", po::value<std::string>(&none)->default_value("None"), "MC PU Reweight file")
-		("puDATA", po::value<std::string>(&none)->default_value("None"), "DATA PU Reweight file")
+		("puMC", po::value<std::string>()->default_value("None"), "MC PU Reweight file")
+		("puDATA", po::value<std::string>()->default_value("None"), "DATA PU Reweight file")
         ("muonMatchedPt", po::value<double>(&_muonMatchedPt)->default_value(_muonMatchedPt), "Muon Matched Pt Cut")
         ("muonMatchedEta", po::value<double>(&_muonMatchedEta)->default_value(_muonMatchedEta), "Muon Matched Eta Cut")
         ("muonPt", po::value<double>(&_muonPt)->default_value(_muonPt), "Muon Pt Cut")

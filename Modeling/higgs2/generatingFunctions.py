@@ -131,9 +131,28 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
     #
     pad2.cd()
     hratio = aux.buildRatioHistogram(hdata, bsum)
+    hratio.SetTitle("")
+    hratio.GetYaxis().SetTitle("Data / MC")
+    hratio.GetXaxis().SetTitle(variable["name"])
+    hratio.GetYaxis().SetNdivisions(6, R.kFALSE)
+    hratio.GetYaxis().SetTitleSize(10)
+    hratio.GetYaxis().SetTitleFont(43)
+    hratio.GetYaxis().SetTitleOffset(1.55)
+    hratio.GetYaxis().SetLabelFont(43)
+    hratio.GetYaxis().SetLabelSize(15)
+    hratio.GetXaxis().SetTitleSize(20)
+    hratio.GetXaxis().SetTitleFont(43)
+    hratio.GetXaxis().SetTitleOffset(4)
+    hratio.GetXaxis().SetLabelFont(43)
+    hratio.GetXaxis().SetLabelSize(15)
     hratio.Draw("ep")
+    hratio.SetStats(R.kFALSE)
     if variable["min"]!=-0.999 and variable["max"]!=-0.999:
         hratio.GetXaxis().SetRangeUser(variable["min"], variable["max"])
+    hratio.SetMaximum(1.6)
+    hratio.SetMinimum(0.4)
+    hratio.SetMarkerStyle(20)
+    hratio.SetMarkerSize(0.5)
     R.gPad.Modified()
 
     logYstr = "logY" if logY else ""
