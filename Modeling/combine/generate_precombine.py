@@ -29,6 +29,8 @@ parser.add_argument("--splitLevel", type=int,
     default=10, help="Split Level for when we create launchers to submit for batch processing")
 parser.add_argument("--nToys", type=int,
     default=100, help="Number of Toys whenever this is needed")
+parser.add_argument("--injectSig", type=float,
+    default=1.0, help="Signal strength injected")
 parser.add_argument("--queue", type=str,
     default="1nh", help="Lxplus Batch Queue")
 
@@ -227,12 +229,13 @@ def biasScan():
                     str(massPoint) + "__" + str(iref) + "__" + args.signalModel
                 # generate the toys command
                 cmdStrings.append("# GenerateOnly\n")
-                cmdGenerateOnly = "combine -d {datacard} -n {outputModifier} -M GenerateOnly --setPhysicsModelParameters {physicsModelParametersToSet} --toysFrequentist -t {nToys} --expectSignal 1 --saveToys -m {mass} --freezeNuisances {nuisancesToFreeze}".format(
+                cmdGenerateOnly = "combine -d {datacard} -n {outputModifier} -M GenerateOnly --setPhysicsModelParameters {physicsModelParametersToSet} --toysFrequentist -t {nToys} --expectSignal {injectSignal} --saveToys -m {mass} --freezeNuisances {nuisancesToFreeze}".format(
                     datacard=datacard, mass=massPoint, 
                     outputModifier=outputModifierGenerateOnly,
                     physicsModelParametersToSet=map2string(physicsModelParametersToSet),
                     nuisancesToFreeze=",".join(ourNuisances),
-                    nToys = args.nToys)
+                    nToys = args.nToys,
+                    injectSignal = args.injectSig)
                 cmdStrings.append(cmdGenerateOnly)
                 for ibkg in range(multipdf.getNumPdfs()):
                     currentPdfName = multipdf.getPdf(ibkg).GetName()
@@ -257,7 +260,7 @@ def biasScan():
                         "__" + args.signalModel
                     # perform the fit for that function
                     cmdStrings.append("# MaxLikelihoodFit\n")
-                    cmdMaxLikelihoodFit = "combine -d {datacard} -M MaxLikelihoodFit  --setPhysicsModelParameters {physicsModelParametersToSet} --toysFile higgsCombine{outputModifierGenerateOnly}.GenerateOnly.mH{mass}.123456.root  -t {nToys} --rMin 0.1 --rMax 50 --freezeNuisances {nuisancesToFreeze} -m {mass} -n {outputModifier} --saveShapes --plots".format(datacard=datacard,
+                    cmdMaxLikelihoodFit = "combine -d {datacard} -M MaxLikelihoodFit  --setPhysicsModelParameters {physicsModelParametersToSet} --toysFile higgsCombine{outputModifierGenerateOnly}.GenerateOnly.mH{mass}.123456.root  -t {nToys} --rMin 0.1 --rMax 100 --freezeNuisances {nuisancesToFreeze} -m {mass} -n {outputModifier} --saveShapes --plots".format(datacard=datacard,
                         physicsModelParametersToSet=map2string(physicsModelParametersToSet),
                         outputModifierGenerateOnly=outputModifierGenerateOnly,
                         mass=massPoint, 

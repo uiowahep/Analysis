@@ -30,6 +30,7 @@ run2Categories = [
     'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6',
     'c7', 'c8', 'c9', 'c10', 'c11', 'c12'
     ]
+# run2Categories = ['c11', 'c12']
 
 run2Reps2Names = {}
 run2Names2Reps = {}
@@ -63,11 +64,16 @@ run2Combinations = {
 }
 run2Combinations['combTotal'] = run2Combinations['bdt0'] + run2Combinations['bdt1'] + run2Combinations['bdt2'] + run2Combinations['bdt3']
 
+# run2Combinations = {
+#     'bdt11' : [run2Names2Reps['c11']],
+#     'bdt12' : [run2Names2Reps['c12']]
+# }
+# run2Combinations['combTotal'] = run2Combinations['bdt11'] + run2Combinations['bdt12']
 
 ########################
 ### General Settings ###
 ########################
-jobLabel          = 'AWB_May3_test_v1'
+jobLabel          = 'AWB_May4'
 categoriesToUse   = run2Categories
 combinationsToUse = run2Combinations
 reps2NamesToUse   = run2Reps2Names
