@@ -28,17 +28,23 @@ Modeling/higgs2/generatingFunctions.py ("useInputFileUF")
 
 ## Generate fits and workspaces
 cd Modeling/higgs2/
-python generate.py -m UF_AWB --outDirName someLabel --what datacardsTripleGaus
+python generate.py --mode UF_AWB --outDirName someLabel --what datacardsTripleGaus
 ## "--what" option is very flexible, can run single operations, or chain several together
 
 ## Run combine
-cd ../../Modeling/combine/
-python generate_precombine.py -m UF_AWB --what combineCards --inDirName someLabel --signalModel TripleGaus
-python generate_precombine.py -m UF_AWB --what text2workspace --inDirName someLabel --signalModel TripleGaus
-python generate_precombine.py -m UF_AWB --what categories --inDirName someLabel --outDirName someLabel2 --method Asymptotic --massPoints 120 125 130 --signalModel TripleGaus --categoriesToSkip cat0 --splitLevel 1 --queue 1nh
+cd ../combine/
+python generate_precombine.py --mode UF_AWB --what combineCards --inDirName someLabel --signalModel TripleGaus
+python generate_precombine.py --mode UF_AWB --what text2workspace --inDirName someLabel --signalModel TripleGaus
+python generate_precombine.py --mode UF_AWB --what categories --inDirName someLabel --outDirName someLabel2 --method Asymptotic --massPoints 120 125 130 --signalModel TripleGaus --categoriesToSkip cat0 --splitLevel 1 --queue 8nh
+
+python generate_precombine.py --mode UF_AWB --what biasScan --inDirName c11_c12_v1 --outDirName c11_c12_bias_v1 --massPoints 120 125 130 --signalModel TripleGaus --splitLevel 1 --queue 8nh --nToys 1600
+
+python generate_postcombine.py --mode UF_AWB --what biasScan --outDirName c11_c12_bias_v1 --massPoints 120 125 130 --signalModel TripleGaus --nbackgrounds 6
 
 ## Submit to queue
 
+cd /afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits2/combinesubmissions/AWB_May4/allCats_bias_v1/ 
+./submit_biasScan_TripleGaus.sh
 bjobs  ## Check status of jobs
 
 ###########################################################
