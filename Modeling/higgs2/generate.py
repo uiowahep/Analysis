@@ -17,6 +17,7 @@ parser.add_argument('-m', '--mode', type=str, default='Iowa',
 parser.add_argument("--outDirName", type=str,
     default="test", help="Directory Name that will be created in the .../{distributions | signalfits | etc}/$jobLabel/ - all of the plots/datacards/workspaces will be created inside of that folder")
 parser.add_argument('--unblind', action='store_true', default=False, help='True will be blinding mass region. For limits observed limit values will not be plotted')
+parser.add_argument('--withSystematics', action='store_true', default=False, help='Nuisances for systematics will be added to each datacard')
 parser.add_argument("--logY", action="store_true", default=False,
     help="Will force all the plots on the logY scale")
 
@@ -193,7 +194,8 @@ def datacardsTripleGaus():
             settings,
             pathToDir=datacardsDir,
             workspaceFileName=workspaceFileName,
-            workspaceName=workspaceName
+            workspaceName=workspaceName,
+            withSystematics=args.withSystematics
         )
 
         #

@@ -62,7 +62,7 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
         fs[signal.mc.name] = R.TFile(signal.pathToFile)
 
         if settings.useInputFileUF: 
-            hs_name = "signal_histos/" + category + "_" + signal.mc.label
+            hs_name = "signal_histos/" + category + "_" + signal.mc.uflabel
             hs_wgt  = 1.0
         else:
             hs_name = category + "/" + variable["name"]
@@ -90,7 +90,7 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
         fs[back.mc.name] = R.TFile(back.pathToFile)
 
         if settings.useInputFileUF: 
-            hs_name = "bg_histos/" + category + "_" + back.mc.label
+            hs_name = "bg_histos/" + category + "_" + back.mc.uflabel
             hs_wgt  = 1.0
         else:
             hs_name = category + "/" + variable["name"]
@@ -196,7 +196,7 @@ def signalFit((category, variable), ws, signal, model, settings, **wargs):
 
     hsdata_name = category + "/" + variable["name"]
     if settings.useInputFileUF: 
-        hsdata_name = "signal_histos/" + category + "_" + signal.mc.label
+        hsdata_name = "signal_histos/" + category + "_" + signal.mc.uflabel
 
     hsdata = fsdata.Get(hsdata_name)
     if not settings.useInputFileUF:
@@ -281,7 +281,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
 
         hsdata_name = category + "/" + variable["name"]
         if settings.useInputFileUF: 
-            hsdata_name = "signal_histos/" + category + "_" + signal.mc.label
+            hsdata_name = "signal_histos/" + category + "_" + signal.mc.uflabel
 
         hsdata = fsdata.Get(hsdata_name)
         if not settings.useInputFileUF:
@@ -395,7 +395,7 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, settings, **w
 
         hsdata_name = category + "/" + variable["name"]
         if settings.useInputFileUF: 
-            hsdata_name = "signal_histos/" + category + "_" + signal.mc.label
+            hsdata_name = "signal_histos/" + category + "_" + signal.mc.uflabel
 
         hsdata = fsdata.Get(hsdata_name)
         if not settings.useInputFileUF:
@@ -624,6 +624,9 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, settings, 
     workspaceName = "higgs"
     if "workspaceName" in wargs:
         workspaceName = wargs["workspaceName"]
+    withSystematics = False
+    if "withSystematics" in wargs:
+        withSystematics = wargs["withSystematics"]
 
     #
     # datacard content as a list of strings.
@@ -714,6 +717,42 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, settings, 
     #
     content.append("pdfindex_{category} discrete".format(category=settings.names2RepsToUse[category]))
     content.append(delimString)
+
+    #
+    # add the systematics
+    #
+    if withSystematics:
+        # computed nuisances
+        for uncname in settings.nuisances:
+            values = settings.nuisances[uncname][settings.names2RepsToUse[category]]
+            content.append("{uncname} lnN - {uncsPerProcessList}".format(
+                uncname=uncname, uncsPerProcessList=" ".join(
+                ["%s/%s" % (values[aux.unpackSignalModelName(model.modelName)[-1]][0],
+                    values[aux.unpackSignalModelName(model.modelName)[-1]][1]) for model in signalModels])))
+
+        # lumi/br/xsec
+        lumistring = "lumi_13TeV lnN - {lll}".format(lll=" ".join([
+            settings.nuisance_lumi for x in signalModels]))
+        content.append(lumistring)
+        brstring = "br_hmm lnN - {lll}".format(lll=" ".join([
+            settings.nuisance_br for x in signalModels]))
+        content.append(brstring)
+        xsecgluglustring = "xsec_ggH lnN - {lll}".format(lll=" ".join([
+            settings.nuisance_xsecs["GluGlu"] if "GluGlu" in model.modelName else "-"
+            for model in signalModels]))
+        xsecvbfstring = "xsec_qqH lnN - {lll}".format(lll=" ".join([
+            settings.nuisance_xsecs["VBF"] if "VBF" in model.modelName else "-"
+            for model in signalModels]))
+        xsecwhstring = "xsec_WH lnN - {lll}".format(lll=" ".join([
+            settings.nuisance_xsecs["WPlusH"] if "WPlusH" in model.modelName or "WMinusH" in model.modelName else "-"
+            for model in signalModels]))
+        xseczhstring = "xsec_ZH lnN - {lll}".format(lll=" ".join([
+            settings.nuisance_xsecs["ZH"] if "ZH" in model.modelName else "-"
+            for model in signalModels]))
+        content.append(xsecgluglustring)
+        content.append(xsecvbfstring)
+        content.append(xsecwhstring)
+        content.append(xseczhstring)
 
     #
     # join all the lines in content with "\n"

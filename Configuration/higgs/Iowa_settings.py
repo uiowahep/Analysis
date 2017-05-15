@@ -173,6 +173,18 @@ dataPathToFile = histDir + "/" + "result__merged__Cert_271036-284044_13TeV_23Sep
 inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/w_sig_120_130/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root'
 useInputFileUF = False
 
+systematicsPathToFile = ""
+nuisances = aux.readInSystematics(systematicsPathToFile)
+nuisance_lumi = "1.027"
+nuisance_br = "1.017"
+nuisance_xsecs = {
+    "GluGlu" : "1.05",
+    "VBF" : "1.022",
+    "WPlusH" : "1.02",
+    "WMinusH" : "1.02",
+    "ZH" : "0.965/1.041"
+}
+
 # background files
 dyPathToFile = histDir + "/" + "result__DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"
 ttPathToFile = histDir + "/" + "result__TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__80X__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__69mb__Mu24.root"

@@ -47,6 +47,26 @@ def blindRooData(rhist):
     ds = R.RooDataHist("data_blind", "data_blind", R.RooArgList(ws.set("obs").Clone()), hdata)
     return ds
 
+def readInSystematics(pathToFile):
+    uncs = {}
+    if pathToFile=="": return uncs
+    f = open(pathToFile)
+    for line in f:
+        if line=="" or line=="\n": continue
+        values = line.split(",")
+        uncname = values[0]
+        category = values[1]
+        pp = values[2]
+        down = values[3]
+        up = values[4]
+
+        if uncname not in uncs:
+            uncs[uncname] = {}
+        if category not in uncs[uncname]:
+            uncs[uncname][category] = {}
+        uncs[uncname][category][pp] = (down, up)
+    return uncs
+
 def buildRatioPad(canvas):
     canvas.cd()
     pad1 = R.TPad("p1", "p1", 0, 0.3, 1, 1.0)
