@@ -672,10 +672,10 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, settings, 
     # MC processes/rates
     #
     categoryList = [settings.names2RepsToUse[category] for i in range(len(signalModels)+1)]
-    processNamesList = [aux.unpackSignalModelName(model.modelName)[-1]
-        for model in signalModels] + ["BKG"]
-    processNumbersList = ["%d" % (-len(signalModels)+i) for i in range(1, len(signalModels)+2)]
-    rateString = ["%.2f" % data.jsonToUse.intlumi for i in range(len(signalModels))] + ["1"]
+    processNamesList = ["BKG"] + [aux.unpackSignalModelName(model.modelName)[-1]
+        for model in signalModels]
+    processNumbersList = ["%d" % (1 - i) for i in range(len(signalModels)+1)]
+    rateString = ["1"] + ["%.2f" % data.jsonToUse.intlumi for i in range(len(signalModels))]
     binString = "bin {CategoryList}".format(CategoryList=" ".join(categoryList))
     content.append(binString)
     processNamesString = "process {ProcessNamesList}".format(
@@ -703,8 +703,9 @@ def datacardAnalytic(category, ws, data, signalModels, backgroundPdf, settings, 
     
     # 
     # fake uncertainty to make RooMultiPdf work
+    # fake goes on signal.
     #
-    fakeUncList = ["1.0001"] + ["-" for i in range(len(signalModels))]
+    fakeUncList = ["-" for i in range(len(signalModels))] + ["1.0001"]
     fakeUncString = "fake lnN {fakeUncList}".format(fakeUncList=" ".join(fakeUncList))
     content.append(fakeUncString)
 
