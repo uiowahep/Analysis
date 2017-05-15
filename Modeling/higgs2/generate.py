@@ -333,7 +333,8 @@ def datacardsDoubleGaus():
             settings,
             pathToDir=datacardsDir,
             workspaceFileName=workspaceFileName,
-            workspaceName=workspaceName
+            workspaceName=workspaceName,
+            withSystematics=args.withSystematics
         )
 
         #
@@ -472,7 +473,8 @@ def datacardsSingleGaus():
             settings,
             pathToDir=datacardsDir,
             workspaceFileName=workspaceFileName,
-            workspaceName=workspaceName
+            workspaceName=workspaceName,
+            withSystematics=args.withSystematics
         )
 
         #

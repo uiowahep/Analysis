@@ -27,18 +27,6 @@ run1Categories = [
 ]
 
 #
-# Run 2 Categories list
-#
-run2Categories = run1Categories[:]
-run2Categories.extend(
-    [
-        "1bJets", "1bJets4l", "1bJets4l2Mu2e", "1bJets4l3Mu1e", "1bJets4l4Mu",
-        "1bJets3l", "1bJets2l", "0bJets", "0bJets4l", "0bJets4l2Mu1e", "0bJets4l3Mu0e",
-        "0bJets4l3Mu1e", "0bJets4l4Mu0e", "0bJets4l2Mu2e",
-    ]
-)
-
-#
 # Category Representations
 #
 run1CatReps = ["cat%d" % i for i in range(len(run1Categories))]
@@ -93,23 +81,60 @@ run1Combinations = {
 run1Combinations["combTotal"] = run1Combinations["comb01Jets"] + run1Combinations["comb2Jets"]
 run1Combinations["combNoVBFTight"] = run1Combinations["comb2JetsggF"] + run1Combinations["comb01Jets"]
 
+#
+# Run 2 Categories - BDT
+#
+run2Categories = [
+    'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6',
+    'c7', 'c8', 'c9', 'c10', 'c11', 'c12'
+]
+run2CatReps = ["cat%d" % i for i in range(len(run2Categories))]
+run2Reps2Names = {}
+run2Names2Reps = {}
+for i in range(len(run2Categories)):
+    run2Reps2Names[run2CatReps[i]] = run2Categories[i]
+    run2Names2Reps[run2Categories[i]] = run2CatReps[i]
 
+# 
+# Run 2 Combinations
+#
+run2Combinations = {
+    'bdt0' : [
+        run2Names2Reps['c0'],
+        run2Names2Reps['c2'],
+        run2Names2Reps['c8']],
+    'bdt1' : [
+        run2Names2Reps['c7'],
+        run2Names2Reps['c4'],
+        run2Names2Reps['c1'],
+        run2Names2Reps['c6'],
+        run2Names2Reps['c5']],
+    'bdt2' : [
+        run2Names2Reps['c3'],
+        run2Names2Reps['c10'],
+        run2Names2Reps['c11']],
+    'bdt3' : [
+        run2Names2Reps['c9'],
+        run2Names2Reps['c12']]
+}
+run2Combinations['combTotal'] = run2Combinations['bdt0'] + run2Combinations['bdt1'] + run2Combinations['bdt2'] + run2Combinations['bdt3']
 
 ########################
 ### General Settings ###
 ########################
 #jobLabel = "vR1_20170329_1241"
-jobLabel = "vR1_20170412_2336"
+#jobLabel = "vR1_20170412_2336"
+jobLabel = "test_Andrews"
 #jobLabel = "vR1_20170430_1726" # No Corrections
 #jobLabel = "vR1_20170430_1728" # Rochester
 #jobLabel = "vR1_20170430_1729" # R + K
 #jobLabel = "vR1_20170501_1527"
 #jobLabel = "vR1_20170504_1448"
 #jobLabel = "vR1_20170504_1456"
-categoriesToUse = run1Categories
-combinationsToUse = run1Combinations
-reps2NamesToUse = run1Reps2Names
-names2RepsToUse = run1Names2Reps
+categoriesToUse = run2Categories
+combinationsToUse = run2Combinations
+reps2NamesToUse = run2Reps2Names
+names2RepsToUse = run2Names2Reps
 
 # by how much to decrease the number of bins!
 # For now only for distributions, not applied to fitting/datacard generation
@@ -171,9 +196,9 @@ jsonToUse = S.jsonfiles["2016_ReReco_36460"]
 dataPathToFile = histDir + "/" + "result__merged__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24.root"
 
 inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/w_sig_120_130/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root'
-useInputFileUF = False
+useInputFileUF = True
 
-systematicsPathToFile = ""
+systematicsPathToFile = "/afs/cern.ch/work/v/vkhriste/public/Higgs2Mu/systematics/nuisances_Andrea_BDT.csv"
 nuisances = aux.readInSystematics(systematicsPathToFile)
 nuisance_lumi = "1.027"
 nuisance_br = "1.017"
@@ -231,7 +256,32 @@ zh125MC = S.mcMoriond2017datasets_1["Z_125"]
 zh120MC = S.mcMoriond2017datasets_1["Z_120"]
 zh130MC = S.mcMoriond2017datasets_1["Z_130"]
 
+# sampel objects
+data = defs.Data('NoCats', jsonToUse, inputFileUF, color=R.kBlack)
+dy = defs.MC("NoCats", inputFileUF, dyMC, color=R.kBlue)
+tt = defs.MC("NoCats", inputFileUF, ttMC, color=R.kGreen)
+wJetsToLNu = defs.MC("NoCats", inputFileUF, wJetsToLNuMC, color=R.kYellow)
+wwTo2L2Nu = defs.MC("NoCats", inputFileUF, wwTo2L2NuMC, color=R.kGray)
+wzTo3LNu = defs.MC("NoCats", inputFileUF, wzTo3LNuMC, color=R.kViolet)
+
+glu125 = defs.MC('NoCats', inputFileUF, glu125MC, color=R.kBlue)
+glu120 = defs.MC('NoCats', inputFileUF, glu120MC, color=R.kBlue)
+glu130 = defs.MC('NoCats', inputFileUF, glu130MC, color=R.kBlue)
+vbf125 = defs.MC('NoCats', inputFileUF, vbf125MC, color=R.kRed)
+vbf120 = defs.MC('NoCats', inputFileUF, vbf120MC, color=R.kRed)
+vbf130 = defs.MC('NoCats', inputFileUF, vbf130MC, color=R.kRed)
+wm125  = defs.MC('NoCats', inputFileUF, wm125MC, color=R.kGreen)
+wm120  = defs.MC('NoCats', inputFileUF, wm120MC, color=R.kGreen)
+wm130  = defs.MC('NoCats', inputFileUF, wm130MC, color=R.kGreen)
+wp125  = defs.MC('NoCats', inputFileUF, wp125MC, color=R.kGreen)
+wp120  = defs.MC('NoCats', inputFileUF, wp120MC, color=R.kGreen)
+wp130  = defs.MC('NoCats', inputFileUF, wp130MC, color=R.kGreen)
+zh125  = defs.MC('NoCats', inputFileUF, zh125MC, color=R.kViolet)
+zh120  = defs.MC('NoCats', inputFileUF, zh120MC, color=R.kViolet)
+zh130  = defs.MC('NoCats', inputFileUF, zh130MC, color=R.kViolet)
+
 # sample objects
+ssssssssss = """
 data = defs.Data("NoCats", jsonToUse, dataPathToFile, color=R.kBlack)
 dy = defs.MC("NoCats", dyPathToFile, dyMC, color=R.kBlue)
 tt = defs.MC("NoCats", ttPathToFile, ttMC, color=R.kGreen)
@@ -253,6 +303,7 @@ wp130 = defs.MC("NoCats", wp130PathToFile, wp130MC, color=None)
 zh125 = defs.MC("NoCats", zh125PathToFile, zh125MC, color=None)
 zh120 = defs.MC("NoCats", zh120PathToFile, zh120MC, color=None)
 zh130 = defs.MC("NoCats", zh130PathToFile, zh130MC, color=None)
+"""
 
 ########################
 ### Models' Settings ###

@@ -140,6 +140,18 @@ CM.mkdir(biasScanDir)
 inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/sys_and_fine_binning/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root'
 useInputFileUF = True
 
+systematicsPathToFile = "/afs/cern.ch/work/v/vkhriste/public/Higgs2Mu/systematics/nuisances_Andrea_BDT.csv"
+nuisances = aux.readInSystematics(systematicsPathToFile)
+nuisance_lumi = "1.027"
+nuisance_br = "1.017"
+nuisance_xsecs = {
+    "GluGlu" : "1.05",
+    "VBF" : "1.022",
+    "WPlusH" : "1.02",
+    "WMinusH" : "1.02",
+    "ZH" : "0.965/1.041"
+}
+
 jsonToUse = samp.jsonfiles['2016_ReReco_36460']
 
 glu125MC = samp.mcMoriond2017datasets_1['GluGlu_125']

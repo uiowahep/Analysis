@@ -58,7 +58,7 @@ def readInSystematics(pathToFile):
         category = values[1]
         pp = values[2]
         down = values[3]
-        up = values[4]
+        up = values[4].rstrip()
 
         if uncname not in uncs:
             uncs[uncname] = {}
