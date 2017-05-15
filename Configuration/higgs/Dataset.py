@@ -18,6 +18,10 @@ class Dataset(object):
             self.label = self.name[1:].replace("/", "__")
         else:
             self.label = wargs["label"]
+        if "uflabel" not in wargs.keys():
+            self.uflabel = ""
+        else:
+            self.uflabel = wargs["uflabel"]
         self.year = wargs["year"]
         self.globaltag = wargs["globaltag"]
         if 'test_file' not in wargs.keys():
@@ -33,6 +37,7 @@ class Dataset(object):
         self.year = other.year
         self.test_file = other.test_file
         self.globaltag = other.globaltag
+        self.uflabel = other.uflabel
 
     def __repr__(self):
         return self.__str__()
