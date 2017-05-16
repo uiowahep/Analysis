@@ -21,9 +21,11 @@ parser.add_argument("--signalModel", type=str,
     default="SingleGaus", help="Name of the Signal Model to be used")
 parser.add_argument("--outDirName", type=str,
     default="test", help="Directory Name that has been created in the .../combineoutput/$jobLabel/ folder where all the results of running combine went to. Directory Name that will be created in .../{limits | fits | ...}/$jobLabel/ folder where all the results/plots/tables will go to")
+parser.add_argument("--workspacesDirName", type=str,
+    default="", help="Directory name that contains the datacards and workspaces")
 parser.add_argument('--unblind', action='store_true', default=False, help='True will be blinding mass region. For limits observed limit values will not be plotted')
-parser.add_argument("--nbackgrounds", type=int,
-    default=1, help="Number of background functions in the MultiPdf. TODO: This should be extracted from workspaces in principle")
+parser.add_argument("--modelsToSkip", type=str, nargs="*", default=[],
+    help="Model Names that will be skipped for Bias Scan Evaluation")
 
 args = parser.parse_args()
 
@@ -306,6 +308,7 @@ def plotLimits():
 def biasScan():
     biasScanResultsDir = os.path.join(biasScanDir, args.outDirName)
     combineoutputPathDir = os.path.join(combineoutputDir, args.outDirName)
+    workspacesDir = os.path.join(datacardsworkspacesDir, args.workspacesDirName)
     mkdir(biasScanResultsDir)
     hMeans = {}
     hMedians = {}
@@ -313,20 +316,40 @@ def biasScan():
         if names2RepsToUse[category] in args.categoriesToSkip:
             continue
 
-        for massPoint in args.massPoints:
-            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)] = R.TH2D("Means_{category}_{mass}".format(category=category, mass=massPoint), "Means", args.nbackgrounds+1, 0, args.nbackgrounds+1,
-                args.nbackgrounds+1, 0, args.nbackgrounds+1)
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)] = R.TH2D("Madians_{category}_{mass}".format(category=category, mass=massPoint), "Medians", args.nbackgrounds+1, 0, args.nbackgrounds+1,
-                args.nbackgrounds+1, 0, args.nbackgrounds+1)
+        # extract the multi pdf
+        workspaceFileName = "workspace__{category}__{signalModel}.root".format(
+            category=names2RepsToUse[category], signalModel=args.signalModel)
+        refWorkspaceFile = R.TFile(os.path.join(workspacesDir, workspaceFileName))
+        higgsWorkspace = refWorkspaceFile.Get("higgs")
+        multipdf = higgsWorkspace.pdf("multipdf_{category}".format(
+            category=names2RepsToUse[category]))
 
-            for iref in range(args.nbackgrounds):
-                for icurrent in range(args.nbackgrounds):
+        for massPoint in args.massPoints:
+            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)] = R.TH2D("Means_{category}_{mass}".format(category=category, mass=massPoint), "Means", multipdf.getNumPdfs()+1, 0, multipdf.getNumPdfs()+1,
+                multipdf.getNumPdfs()+1, 0, multipdf.getNumPdfs()+1)
+            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)] = R.TH2D("Madians_{category}_{mass}".format(category=category, mass=massPoint), "Medians", multipdf.getNumPdfs()+1, 0, multipdf.getNumPdfs()+1,
+                multipdf.getNumPdfs()+1, 0, multipdf.getNumPdfs()+1)
+
+            for iref in range(multipdf.getNumPdfs()):
+                refPdfName = multipdf.getPdf(iref).GetName()
+                q = False
+                for xxx in args.modelsToSkip:
+                    if xxx==refPdfName.split("_")[0]:
+                        q = True
+                if q==True: continue
+                for icurrent in range(multipdf.getNumPdfs()):
+                    fitPdfName = multipdf.getPdf(icurrent).GetName()
+                    q = False
+                    for xxx in args.modelsToSkip:
+                        if xxx==fitPdfName.split("_")[0]:
+                            q = True
+                    if q==True: continue
                     canvas = R.TCanvas("c1", "c1", 1000, 600)
                     try:
                         fileName = "mlfit{category}__{mass}__{iref}__{icurrent}__{signalModel}.root".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
                         f = R.TFile(os.path.join(combineoutputPathDir, fileName))
                         tree = f.Get("tree_fit_sb")
-                        tree.Draw("(mu-1)/muErr>>h(400, -10,10)")
+                        tree.Draw("(mu-1)/muErr>>h(800, -20,20)")
 
                         # get the histogram and perform some manipulations
                         hist = R.gFile.Get("h")
@@ -343,61 +366,40 @@ def biasScan():
                         latex.DrawLatex(0.2, 0.8, "Median = " + str(quantiles[0]))
 
                         hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].Fill(iref, icurrent, hist.GetMean()*100)
+                        hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(iref+1, refPdfName)
+                        hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(icurrent+1, fitPdfName)
                         hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].Fill(iref, icurrent, quantiles[0]*100)
+                        hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(iref+1, refPdfName)
+                        hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(icurrent+1, fitPdfName)
+
 
                         cfileName = "pull__{category}__{mass}__{iref}__{icurrent}__{signalModel}.png".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
                         canvas.SaveAs(os.path.join(biasScanResultsDir, cfileName))
-                    except:
-                        print "There was a problem with file: {file}".format(file=fileName)
+                    except Exception as exc:
+                        print "There was a problem with file: {file}\n".format(file=fileName)
+                        print type(exc)
+                        print exc.args
+                        print exc
                     finally:
                         f.Close()
             # plot the 2D
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(1, 'BWZRedux')
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(1, 'BWZRedux')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(1, 'BWZRedux')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(1, 'BWZRedux')
-            
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(2, 'BWZGamma')
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(2, 'BWZGamma')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(2, 'BWZGamma')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(2, 'BWZGamma')
-            
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(3, 'BWZ')
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(3, 'BWZ')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(3, 'BWZ')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(3, 'BWZ')
-            
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(4, '2-par Exp')
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(4, '2-par Exp')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(4, '2-par Exp')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(4, '2-par Exp')
-            
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(5, 'Bernstein')
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(5, 'Bernstein')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(5, 'Bernstein')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(5, 'Bernstein')
-            
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(6, '#Sigma Exps')
-            hMeans  ["Mean_{category}_{mass}"  .format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(6, '#Sigma Exps')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetBinLabel(6, '#Sigma Exps')
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetBinLabel(6, '#Sigma Exps')
-            
-
             hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].SetTitle("Mean (#mu_{fit} - #mu_{0})/#sigma #mu_{fit} (%%), %s, %d GeV" % (category, massPoint))
+            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].SetStats(0)
             hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetTitle("Fit Model")
             hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetTitle("Reference Model")
-            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetRangeUser(0,5)
-            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetRangeUser(0,5)
-            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetZaxis().SetRangeUser(-100,+100)
+#            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetRangeUser(0,5)
+#            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetRangeUser(0,5)
+            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetZaxis().SetRangeUser(-200,+200)
             hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].Draw("COLZTEXT")
             canvas.SaveAs(os.path.join(biasScanResultsDir, "pullMeans2D__{category}__{mass}__{signalModel}.png".format(
                 category=names2RepsToUse[category], mass=massPoint, signalModel=args.signalModel)))
             hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].SetTitle("Median (#mu_{fit} - #mu_{0})/#sigma #mu_{fit} (%%), %s, %d GeV" % (category, massPoint))
+            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].SetStats(0)
             hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetTitle("Fit Model")
             hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetTitle("Reference Model")
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetRangeUser(0,5)
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetRangeUser(0,5)
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetZaxis().SetRangeUser(-100,+100)
+#            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetRangeUser(0,5)
+#            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetRangeUser(0,5)
+            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetZaxis().SetRangeUser(-200,+200)
             hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].Draw("COLZTEXT")
             canvas.SaveAs(os.path.join(biasScanResultsDir, "pullMedians2D__{category}__{mass}__{signalModel}.png".format(
                 category=names2RepsToUse[category], mass=massPoint, signalModel=args.signalModel)))

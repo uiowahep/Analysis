@@ -273,7 +273,7 @@ def biasScan():
                         "__" + args.signalModel
                     # perform the fit for that function
                     cmdStrings.append("# MaxLikelihoodFit\n")
-                    cmdMaxLikelihoodFit = "combine -d {datacard} -M MaxLikelihoodFit  --setPhysicsModelParameters {physicsModelParametersToSet} --toysFile higgsCombine{outputModifierGenerateOnly}.GenerateOnly.mH{mass}.123456.root  -t {nToys} --rMin 0.1 --rMax 100 --freezeNuisances {nuisancesToFreeze} -m {mass} -n {outputModifier} --saveShapes --plots".format(datacard=datacard,
+                    cmdMaxLikelihoodFit = "combine -d {datacard} -M MaxLikelihoodFit  --setPhysicsModelParameters {physicsModelParametersToSet} --toysFile higgsCombine{outputModifierGenerateOnly}.GenerateOnly.mH{mass}.123456.root  -t {nToys} --rMin -100 --rMax 100 --freezeNuisances {nuisancesToFreeze} -m {mass} -n {outputModifier}".format(datacard=datacard,
                         physicsModelParametersToSet=map2string(physicsModelParametersToSet),
                         outputModifierGenerateOnly=outputModifierGenerateOnly,
                         mass=massPoint, 
