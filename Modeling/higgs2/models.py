@@ -37,10 +37,10 @@ class Model(object):
         pass
 
     def extract(self, ws, **wargs):
-        return None
+        return Nonei
 
     def __str__(self):
-        return "Unknown Model"
+        return self.modelId
 
     def __repr__(self):
         return self.__str__()
@@ -291,6 +291,9 @@ class TripleGaus(Model):
         Model.initialize(self, modelName, *kargs, **wargs)
 
     def build(self, ws, **wargs):
+        print "-"*90 + "\n"
+        print "-"*90 + "\n"
+        print "building finalmodel"
         g1 = ws.factory("Gaussian::g1_{modelName}(x, mean1_{modelName}, sigma1_{modelName})".format(
             modelName=self.modelName))
         g2 = ws.factory("Gaussian::g2_{modelName}(x, mean2_{modelName}, sigma2_{modelName})".format(
@@ -298,9 +301,16 @@ class TripleGaus(Model):
         g3 = ws.factory("Gaussian::g3_{modelName}(x, mean3_{modelName}, sigma3_{modelName})".format(
             modelName=self.modelName))
         self.gaussians = R.RooArgList(g1, g2, g3)
-        self.fractions = R.RooArgList(ws.var("coef1_{modelName}".format(
-            modelName=self.modelName)), ws.var("coef2_{modelName}".format(
-            modelName=self.modelName)))
+        if "Spline" in wargs:
+            self.fractions = R.RooArgList(ws.function("coef1_{modelName}".format(
+                modelName=self.modelName)), ws.function("coef2_{modelName}".format(
+                modelName=self.modelName)))
+        else:
+            self.fractions = R.RooArgList(ws.var("coef1_{modelName}".format(
+                modelName=self.modelName)), ws.var("coef2_{modelName}".format(
+                modelName=self.modelName)))
+        print self.fractions.getSize()
+        print self.gaussians.getSize()
         tripleGaus = R.RooAddPdf(self.modelName, self.modelName,
             self.gaussians, self.fractions, R.kTRUE)
         getattr(ws, "import")(tripleGaus, R.RooFit.RecycleConflictNodes())
@@ -345,6 +355,9 @@ class TripleGaus(Model):
         coef1sArray = array.array("f", coef1s)
         coef2sArray = array.array("f", coef2s)
         massPointsArray = array.array("f", massPoints)
+
+        print pmatrix
+        print massPoints
         
         mean1sSpline = R.RooSpline1D("mean1_{modelName}".format(modelName=self.modelName),
             "mean1_{modelName}".format(modelName=self.modelName),
@@ -378,7 +391,7 @@ class TripleGaus(Model):
         getattr(ws, "import")(sigma3sSpline, R.RooFit.RecycleConflictNodes())
         getattr(ws, "import")(coef1sSpline, R.RooFit.RecycleConflictNodes())
         getattr(ws, "import")(coef2sSpline, R.RooFit.RecycleConflictNodes())
-        return self.build(ws)
+        return self.build(ws, Spline=True)
     
     def setNormalization(self, ws, massPoints, norms, **wargs):
         R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")

@@ -326,6 +326,11 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
         # exctract the parameters
         lParameters = model.getParameterValuesAsList(ws)
         parameters.append(lParameters)
+        print "*"*90 + "\n"
+        print "*"*90 + "\n"
+        print lParameters
+        print parameters
+        r.Print("v")
 
 #        pdf.plotOn(frame, R.RooFit.LineColor(R.kBlue))
         imodel+=1
@@ -337,11 +342,16 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
     #
     frame = ws.var("x").frame()
     paramsTransposed = aux.transpose(parameters)
+    print "*"*90 + "\n"
+    print "*"*90 + "\n"
+    print "*"*90 + "\n"
+    print "*"*90 + "\n"
     print parameters
     print paramsTransposed
     finalmodel = prevModel.__class__()
-    finalmodel.initialize(aux.buildSignalModelName(model, 
+    finalmodel.initialize(aux.buildSignalModelName(finalmodel, 
         settings.names2RepsToUse[category], signal.mc.buildProcessName()))
+    print finalmodel.modelName
     finalpdf = finalmodel.buildWithParameterMatrix(ws, massPoints, paramsTransposed)
     finalmodel.setNormalization(ws, massPoints, norms)
     finalpdf.Print("v")
