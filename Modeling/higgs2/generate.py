@@ -166,7 +166,7 @@ def datacardsTripleGaus():
                 counter+=1
             selectedModel, values = funcs.ftestPerFamily(
                 (category, diMuonMass125), ws, data, modelGroup,
-                settings, pathToDir=fffTestDir)
+                settings, pathToDir=fffTestDir, unblind=args.unblind)
             if selectedModel is not None:
                 selectedOrderedModels.append(selectedModel)
             fTestResults[category][modelGroup.name] = values
@@ -182,7 +182,7 @@ def datacardsTripleGaus():
             counter += 1
         funcs.backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
             totalModelGroup.models, settings, pathToDir=backgroundsDir,
-            groupName=totalModelGroup.name)
+            groupName=totalModelGroup.name, unblind=args.unblind)
 
         #
         # Signal and Background Models are ready and are in the Workspace
@@ -720,7 +720,8 @@ def distributions():
                 variable["max"] = 160
             funcs.distributions((category, variable), data, 
                 [glu125, vbf125, wm125, wp125, zh125],
-                 [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], settings,
+#                 [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], settings,
+                 [wwTo2L2Nu, tt, dy], settings,
                 pathToDir=pathToDir,
                 logY=logY)
 

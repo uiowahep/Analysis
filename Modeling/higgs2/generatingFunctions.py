@@ -49,6 +49,12 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
     hdata.SetMarkerStyle(20)
     hdata.SetMarkerSize(0.5)
     hdata.SetMarkerColor(data.color)
+    hdata.SetTitle(category)
+    hdata.SetStats(R.kFALSE)
+
+    leg = R.TLegend(0.75, 0.7, 1.0, 1.0)
+    leg.SetHeader("Samples")
+    leg.AddEntry(hdata, "Data")
 
     #
     # signals
@@ -76,6 +82,8 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
         ssum.Add(hs[signal.mc.name])
         fs[signal.mc.name].Close()
     ssum.SetLineColor(R.kRed)
+    ssum.SetLineWidth(2)
+    leg.AddEntry(ssum, "Signal")
 
     #
     # backgrounds
@@ -90,20 +98,26 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
         fs[back.mc.name] = R.TFile(back.pathToFile)
 
         if settings.useInputFileUF: 
-            hs_name = "bg_histos/" + category + "_" + back.mc.uflabel
+            hs_name = "net_histos/" + category + "_" + back.mc.uflabel
             hs_wgt  = 1.0
+            scale = 1.0
         else:
             hs_name = category + "/" + variable["name"]
             hs_wgt  = back.getWeight()
+            scale = data.jsonToUse.intlumi * back.mc.cross_section / hs_wgt
             
         hs[back.mc.name] = fs[back.mc.name].Get(hs_name)
         if variable["name"] == "DiMuonMass":
             hs[back.mc.name].Rebin(settings.rebinGroup)
-        scale = data.jsonToUse.intlumi * back.mc.cross_section / hs_wgt
         hs[back.mc.name].Scale(scale)
         hs[back.mc.name].SetFillColor(back.color)
         bsum.Add(hs[back.mc.name])
         bstack.Add(hs[back.mc.name])
+
+        if settings.useInputFileUF:
+            leg.AddEntry(hs[back.mc.name], back.mc.ufPlotLabel)
+        else:
+            leg.AddEntry(hs[back.mc.name], back.mc.plotLabel)
 
     #
     # pad1
@@ -124,6 +138,7 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
         hdata.GetXaxis().SetRangeUser(variable["min"], variable["max"])
     if logY:
         pad1.SetLogy()
+    leg.Draw()
     R.gPad.Modified()
 
     #
@@ -442,6 +457,9 @@ def ftestPerFamily((category, variable), ws, data, familyModelGroup, settings, *
     pathToDir = "/tmp"
     if "pathToDir" in wargs:
         pathToDir = wargs["pathToDir"]
+    unblind = False
+    if "unblind" in wargs:
+        unblind = wargs["unblind"]
 
     #
     # canvas 
@@ -476,7 +494,10 @@ def ftestPerFamily((category, variable), ws, data, familyModelGroup, settings, *
     modelToBeUsed = None
     prob=0
     pdfs = {}
-    rdata_blind.plotOn(frame)
+    if not unblind:
+        rdata_blind.plotOn(frame)
+    else:
+        rdata.plotOn(frame)
     values = []
     fTestResults = []
     found = False
@@ -819,6 +840,9 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
     groupName = "someGroup"
     if "groupName" in wargs:
         groupName = wargs["groupName"]
+    unblind = False
+    if "unblind" in wargs:
+        unblind = wargs["unblind"]
 
     #
     # get the canvas and legend set up
@@ -841,6 +865,7 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
     hdata_blind = hdata.Clone("Blind")
     aux.blindHistogram(hdata_blind, 120, 130)
     rdata = aux.buildRooHist(ws, hdata)
+    rdata.SetTitle(category)
     rdata_blind = aux.buildRooHist(ws, hdata_blind)
     norm = rdata.sumEntries()
     print "Integral = %f" % hdata.Integral()
@@ -851,7 +876,10 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
     #
     counter = 0
     pdfs = {}
-    rdata_blind.plotOn(frame)
+    if not unblind:
+        rdata_blind.plotOn(frame)
+    else:
+        rdata.plotOn(frame)
 #    rdata.plotOn(frame)
     for model in models:
         modelName = aux.buildBackgroundModelName(model, settings.names2RepsToUse[category])
@@ -865,6 +893,7 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
 #            R.RooFit.LineColor(model.color))
         legend.AddEntry(frame.findObject(model.modelId), model.modelId, "l")
         print model.modelId
+    frame.SetTitle(category)
     frame.Draw()
     
     #

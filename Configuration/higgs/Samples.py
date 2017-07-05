@@ -365,6 +365,7 @@ mcMoriond2017datasets_1 = {
     #
     "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-herwigpp_30M/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
         name = "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-herwigpp_30M/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        plotLabel = "DY",
         isData = False,
         year = 2016,
         isSignal = False,
@@ -375,6 +376,9 @@ mcMoriond2017datasets_1 = {
     ),
     "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_HCALDebug_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
         name = "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_HCALDebug_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        uflabel = "Drell_Yan_",
+        ufPlotLabel = "DY",
+        plotLabel = "DY",
         isData = False,
         year = 2016,
         isSignal = False,
@@ -385,6 +389,9 @@ mcMoriond2017datasets_1 = {
     ),
     "/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
         name = "/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        uflabel = "TTbar_Plus_SingleTop",
+        ufPlotLabel = "TTbar + STop",
+        plotLabel = "TTbar",
         year = 2016,
         isData = False,
         isSignal = False,
@@ -397,6 +404,7 @@ mcMoriond2017datasets_1 = {
     # don't know much about these
     "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
         name = "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        plotLabel = "WJets -> LNu",
         year = 2016,
         isData = False,
         isSignal = False,
@@ -406,6 +414,7 @@ mcMoriond2017datasets_1 = {
     ),
     "/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
         name = "/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        plotLabel = "WJets -> LNu",
         year = 2016,
         isData = False,
         isSignal = False,
@@ -415,6 +424,9 @@ mcMoriond2017datasets_1 = {
     ),
     "/WWTo2L2Nu_13TeV-powheg-herwigpp/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
         name = "/WWTo2L2Nu_13TeV-powheg-herwigpp/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        uflabel = "Diboson_plus",
+        plotLabel = "WW -> 2L2Nu",
+        ufPlotLabel = "VV + ",
         year = 2016,
         isData = False,
         isSignal = False,
@@ -424,6 +436,7 @@ mcMoriond2017datasets_1 = {
     ),
     "/WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" : DS.MCDataset(
         name = "/WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
+        plotLabel = "WZ -> 3LNu",
         year = 2016,
         isData = False,
         isSignal = False,

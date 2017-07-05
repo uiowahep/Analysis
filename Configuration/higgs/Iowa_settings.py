@@ -11,8 +11,9 @@ import Samples as S
 # all the standard variable names
 #
 varNames = [
-    "DiJetMass", "DiJetdeta", "DiMuonpt", "DiMuonMass",
-    "DiMuoneta", "DiMuondphi", "Muonpt", "Muoneta", "Muonphi"
+    "DiMuonMass"
+#    ,"DiJetMass", "DiJetdeta", "DiMuonpt",
+#    "DiMuoneta", "DiMuondphi", "Muonpt", "Muoneta", "Muonphi"
 ]
 
 #
@@ -124,13 +125,15 @@ run2Combinations['combTotal'] = run2Combinations['bdt0'] + run2Combinations['bdt
 ########################
 #jobLabel = "vR1_20170329_1241"
 #jobLabel = "vR1_20170412_2336"
-jobLabel = "bdt_110to160"
+#jobLabel = "vR1_20170504_1457"
 #jobLabel = "vR1_20170430_1726" # No Corrections
 #jobLabel = "vR1_20170430_1728" # Rochester
 #jobLabel = "vR1_20170430_1729" # R + K
 #jobLabel = "vR1_20170501_1527"
 #jobLabel = "vR1_20170504_1448"
 #jobLabel = "vR1_20170504_1456"
+#jobLabel = "vR1_20170504_1457"
+jobLabel = "bdt_110to160"
 categoriesToUse = run2Categories
 combinationsToUse = run2Combinations
 reps2NamesToUse = run2Reps2Names
@@ -138,7 +141,7 @@ names2RepsToUse = run2Names2Reps
 
 # by how much to decrease the number of bins!
 # For now only for distributions, not applied to fitting/datacard generation
-rebinGroup = 20
+rebinGroup = 5
 
 #########################################
 ### General Combine-specific Settings ###
@@ -260,9 +263,9 @@ zh130MC = S.mcMoriond2017datasets_1["Z_130"]
 data = defs.Data('NoCats', jsonToUse, inputFileUF, color=R.kBlack)
 dy = defs.MC("NoCats", inputFileUF, dyMC, color=R.kBlue)
 tt = defs.MC("NoCats", inputFileUF, ttMC, color=R.kGreen)
-wJetsToLNu = defs.MC("NoCats", inputFileUF, wJetsToLNuMC, color=R.kYellow)
+#wJetsToLNu = defs.MC("NoCats", inputFileUF, wJetsToLNuMC, color=R.kYellow)
 wwTo2L2Nu = defs.MC("NoCats", inputFileUF, wwTo2L2NuMC, color=R.kGray)
-wzTo3LNu = defs.MC("NoCats", inputFileUF, wzTo3LNuMC, color=R.kViolet)
+#wzTo3LNu = defs.MC("NoCats", inputFileUF, wzTo3LNuMC, color=R.kViolet)
 
 glu125 = defs.MC('NoCats', inputFileUF, glu125MC, color=R.kBlue)
 glu120 = defs.MC('NoCats', inputFileUF, glu120MC, color=R.kBlue)
@@ -281,7 +284,7 @@ zh120  = defs.MC('NoCats', inputFileUF, zh120MC, color=R.kViolet)
 zh130  = defs.MC('NoCats', inputFileUF, zh130MC, color=R.kViolet)
 
 # sample objects
-ssssssssss = """
+ssss = """
 data = defs.Data("NoCats", jsonToUse, dataPathToFile, color=R.kBlack)
 dy = defs.MC("NoCats", dyPathToFile, dyMC, color=R.kBlue)
 tt = defs.MC("NoCats", ttPathToFile, ttMC, color=R.kGreen)
