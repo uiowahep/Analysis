@@ -17,6 +17,7 @@ parser.add_argument('-m', '--mode', type=str, default='Iowa',
 parser.add_argument("--outDirName", type=str,
     default="test", help="Directory Name that will be created in the .../{distributions | signalfits | etc}/$jobLabel/ - all of the plots/datacards/workspaces will be created inside of that folder")
 parser.add_argument('--unblind', action='store_true', default=False, help='True will be blinding mass region. For limits observed limit values will not be plotted')
+parser.add_argument('--withSystematics', action='store_true', default=False, help='Nuisances for systematics will be added to each datacard')
 parser.add_argument("--logY", action="store_true", default=False,
     help="Will force all the plots on the logY scale")
 
@@ -165,7 +166,7 @@ def datacardsTripleGaus():
                 counter+=1
             selectedModel, values = funcs.ftestPerFamily(
                 (category, diMuonMass125), ws, data, modelGroup,
-                settings, pathToDir=fffTestDir)
+                settings, pathToDir=fffTestDir, unblind=args.unblind)
             if selectedModel is not None:
                 selectedOrderedModels.append(selectedModel)
             fTestResults[category][modelGroup.name] = values
@@ -181,7 +182,7 @@ def datacardsTripleGaus():
             counter += 1
         funcs.backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
             totalModelGroup.models, settings, pathToDir=backgroundsDir,
-            groupName=totalModelGroup.name)
+            groupName=totalModelGroup.name, unblind=args.unblind)
 
         #
         # Signal and Background Models are ready and are in the Workspace
@@ -193,7 +194,8 @@ def datacardsTripleGaus():
             settings,
             pathToDir=datacardsDir,
             workspaceFileName=workspaceFileName,
-            workspaceName=workspaceName
+            workspaceName=workspaceName,
+            withSystematics=args.withSystematics
         )
 
         #
@@ -235,7 +237,6 @@ def datacardsDoubleGaus():
             hdata_name = "net_histos/"+category+"_Net_Data"
 
         hdata = fdata.Get(hdata_name)
-        hdata.Rebin(200,110,150)  ## To test different mass ranges, need to rebin.  Manual hack - fix??? - AWB 13.07.17
         rdata = aux.buildRooHist(ws, hdata,
             "data_obs_{category}".format(category=names2RepsToUse[category]))
         getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())
@@ -332,7 +333,8 @@ def datacardsDoubleGaus():
             settings,
             pathToDir=datacardsDir,
             workspaceFileName=workspaceFileName,
-            workspaceName=workspaceName
+            workspaceName=workspaceName,
+            withSystematics=args.withSystematics
         )
 
         #
@@ -471,7 +473,8 @@ def datacardsSingleGaus():
             settings,
             pathToDir=datacardsDir,
             workspaceFileName=workspaceFileName,
-            workspaceName=workspaceName
+            workspaceName=workspaceName,
+            withSystematics=args.withSystematics
         )
 
         #
@@ -717,7 +720,8 @@ def distributions():
                 variable["max"] = 160
             funcs.distributions((category, variable), data, 
                 [glu125, vbf125, wm125, wp125, zh125],
-                 [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], settings,
+#                 [wJetsToLNu, wwTo2L2Nu, wzTo3LNu, tt, dy], settings,
+                 [wwTo2L2Nu, tt, dy], settings,
                 pathToDir=pathToDir,
                 logY=logY)
 
