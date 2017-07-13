@@ -463,6 +463,7 @@ def ftestPerFamily((category, variable), ws, data, familyModelGroup, settings, *
     # perform the actual test
     #
     alpha = 0.05; prevNLL = -1.0; prevModel=None; prevDegree=0
+    ## alpha = 0.50 ## Change to 1 sigma - AWB 18.05.17
     modelToBeUsed = None
     prob=0
     pdfs = {}

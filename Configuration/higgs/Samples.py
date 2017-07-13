@@ -200,7 +200,7 @@ mcMoriond2017datasets_1 = {
     #
     "GluGlu_125" : DS.MCDataset(
         name = "/GluGlu_HToMuMu_M125_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_gg",
+        label = "H2Mu_gg",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -211,7 +211,7 @@ mcMoriond2017datasets_1 = {
     ),
     "GluGlu_120" : DS.MCDataset(
         name = "/GluGlu_HToMuMu_M120_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_gg_120",
+        label = "H2Mu_gg_120",
         isData = False,
         year = 2016, isSignal = True,
         initial_cmssw = "80X",
@@ -220,7 +220,7 @@ mcMoriond2017datasets_1 = {
     ),
     "GluGlu_130" : DS.MCDataset(
         name = "/GluGlu_HToMuMu_M130_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_gg_130",
+        label = "H2Mu_gg_130",
         isData = False,
         year = 2016, isSignal = True,
         initial_cmssw = "80X",
@@ -229,7 +229,7 @@ mcMoriond2017datasets_1 = {
     ),
     "VBF_125" : DS.MCDataset(
         name = "/VBF_HToMuMu_M125_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_VBF",
+        label = "H2Mu_VBF",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -240,7 +240,7 @@ mcMoriond2017datasets_1 = {
     ),
     "VBF_120" : DS.MCDataset(
         name = "/VBF_HToMuMu_M120_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_VBF_120",
+        label = "H2Mu_VBF_120",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -251,7 +251,7 @@ mcMoriond2017datasets_1 = {
     ),
     "VBF_130" : DS.MCDataset(
         name = "/VBF_HToMuMu_M130_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_VBF_130",
+        label = "H2Mu_VBF_130",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -262,7 +262,7 @@ mcMoriond2017datasets_1 = {
     ),
     "WM_125" : DS.MCDataset( 
         name = "/WMinusH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_WH_neg",
+        label = "H2Mu_WH_neg",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -273,7 +273,7 @@ mcMoriond2017datasets_1 = {
     ),
     "WM_120" : DS.MCDataset(
         name = "/WMinusH_HToMuMu_M120_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_WH_neg_120",
+        label = "H2Mu_WH_neg_120",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -284,7 +284,7 @@ mcMoriond2017datasets_1 = {
     ),
     "WM_130" : DS.MCDataset(
         name = "/WMinusH_HToMuMu_M130_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_WH_neg_130",
+        label = "H2Mu_WH_neg_130",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -295,7 +295,7 @@ mcMoriond2017datasets_1 = {
     ),
     "WP_125" : DS.MCDataset(
         name = "/WPlusH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_WH_pos",
+        label = "H2Mu_WH_pos",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -306,7 +306,7 @@ mcMoriond2017datasets_1 = {
     ),
     "WP_120" : DS.MCDataset(
         name = "/WPlusH_HToMuMu_M120_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_WH_pos_120",
+        label = "H2Mu_WH_pos_120",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -317,7 +317,7 @@ mcMoriond2017datasets_1 = {
     ),
     "WP_130" : DS.MCDataset(
         name = "/WPlusH_HToMuMu_M130_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
-#        label = "H2Mu_WH_pos_130",
+        label = "H2Mu_WH_pos_130",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -328,7 +328,7 @@ mcMoriond2017datasets_1 = {
     ),
     "Z_125" : DS.MCDataset(
         name = "/ZH_HToMuMu_M125_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
- #       label = "H2Mu_ZH",
+        label = "H2Mu_ZH",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -339,7 +339,7 @@ mcMoriond2017datasets_1 = {
     ),
     "Z_120" : DS.MCDataset(
         name = "/ZH_HToMuMu_M120_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
- #       label = "H2Mu_ZH_120",
+        label = "H2Mu_ZH_120",
         isData = False,
         year = 2016,
         isSignal = True,
@@ -350,7 +350,7 @@ mcMoriond2017datasets_1 = {
     ),
     "Z_130" : DS.MCDataset(
         name = "/ZH_HToMuMu_M130_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM",
- #       label = "H2Mu_ZH_130",
+        label = "H2Mu_ZH_130",
         isData = False,
         year = 2016,
         isSignal = True,

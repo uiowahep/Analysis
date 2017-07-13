@@ -235,6 +235,7 @@ def datacardsDoubleGaus():
             hdata_name = "net_histos/"+category+"_Net_Data"
 
         hdata = fdata.Get(hdata_name)
+        hdata.Rebin(200,110,150)  ## To test different mass ranges, need to rebin.  Manual hack - fix??? - AWB 13.07.17
         rdata = aux.buildRooHist(ws, hdata,
             "data_obs_{category}".format(category=names2RepsToUse[category]))
         getattr(ws, "import")(rdata, R.RooFit.RecycleConflictNodes())

@@ -30,7 +30,7 @@ run2Categories = [
     'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6',
     'c7', 'c8', 'c9', 'c10', 'c11', 'c12'
     ]
-# run2Categories = ['c11', 'c12']
+# run2Categories = ['c7', 'c8']
 
 run2Reps2Names = {}
 run2Names2Reps = {}
@@ -65,15 +65,15 @@ run2Combinations = {
 run2Combinations['combTotal'] = run2Combinations['bdt0'] + run2Combinations['bdt1'] + run2Combinations['bdt2'] + run2Combinations['bdt3']
 
 # run2Combinations = {
-#     'bdt11' : [run2Names2Reps['c11']],
-#     'bdt12' : [run2Names2Reps['c12']]
+#     'bdt7' : [run2Names2Reps['c7']],
+#     'bdt8' : [run2Names2Reps['c8']]
 # }
-# run2Combinations['combTotal'] = run2Combinations['bdt11'] + run2Combinations['bdt12']
+# run2Combinations['combTotal'] = run2Combinations['bdt7'] + run2Combinations['bdt8']
 
 ########################
 ### General Settings ###
 ########################
-jobLabel          = 'AWB_May4'
+jobLabel          = 'AWB_May19'
 categoriesToUse   = run2Categories
 combinationsToUse = run2Combinations
 reps2NamesToUse   = run2Reps2Names
@@ -137,7 +137,8 @@ CM.mkdir(biasScanDir)
 #################
 ###  Samples  ###
 #################
-inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/sys_and_fine_binning/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root'
+## inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/sys_and_fine_binning/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root'
+inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rfiles/validate_UNBLINDED_dimu_mass_Roch_90_200_categories3_tree_categorization_final_36814_dyAMC-J_minpt10_b-4_sig-xlumi0.root'
 useInputFileUF = True
 
 jsonToUse = samp.jsonfiles['2016_ReReco_36460']
@@ -257,20 +258,71 @@ bwz_defaultValues = {
     "zwidth" : 2.5, "zwidthmin" : 0, "zwidthmax" : 30,
     "expParam" : -1e-03, "expParammin" : -1e-02, "expParammax" : 1e-02
 }
-# BWZ Redux
+
+# # BWZ Redux
+# bwzredux_defaultValues = {
+#     "a1" : 1.39, "a1min" : 0.7, "a1max" : 2.1,
+#     "a2" : 0.47, "a2min" : 0.30, "a2max" : 0.62,
+#     "a3" : -0.26, "a3min" : -0.40, "a3max" : -0.12
+# }
+
+# BWZ Redux - bigger windows
 bwzredux_defaultValues = {
-    "a1" : 1.39, "a1min" : 0.7, "a1max" : 2.1,
-    "a2" : 0.47, "a2min" : 0.30, "a2max" : 0.62,
-    "a3" : -0.26, "a3min" : -0.40, "a3max" : -0.12
+    "a1" : 2.0, "a1min" : -10., "a1max" : 10.,
+    "a2" : 0.7, "a2min" : -10., "a2max" : 10.,
+    "a3" : 0.5, "a3min" : -10., "a3max" : 10.
 }
-# BWZ Gamma
+
+# BWZ Redux Fixed
+bwzreduxfixed_defaultValues = {
+    "a2" : 0.7, "a2min" : -10., "a2max" : 10.,
+    "a3" : 0.5, "a3min" : -10., "a3max" : 10.
+}
+
+# BWZ Redux x Line
+bwzreduxtimesline_defaultValues = {
+    "a1" : 2.0, "a1min" : -10., "a1max" : 10.,
+    "a2" : 0.7, "a2min" : -10., "a2max" : 10.,
+    "a3" : 0.5, "a3min" : -10., "a3max" : 10.,
+    "a4" : 0.1, "a4min" : -6.4, "a4max" : 6.4  ## +/- 2*pi 
+}
+
+# BWZ Redux + Line
+bwzreduxplusline_defaultValues = {
+    "a1" : 2.0, "a1min" : -10., "a1max" : 10.,
+    "a2" : 0.7, "a2min" : -10., "a2max" : 10.,
+    "a3" : 0.5, "a3min" : -10., "a3max" : 10.,
+    "a4" : 0.1, "a4min" : -6.4, "a4max" : 6.4,  ## +/- 2*pi 
+    "a5" : 1.0, "a5min" : -10., "a5max" : 10.,
+}
+
+# BWZ Redux x Line + Line
+bwzreduxtimesplusline_defaultValues = {
+    "a1" : 2.0, "a1min" : -10., "a1max" : 10.,
+    "a2" : 0.7, "a2min" : -10., "a2max" : 10.,
+    "a3" : 0.5, "a3min" : -10., "a3max" : 10.,
+    "a4" : 0.1, "a4min" : -6.4, "a4max" : 6.4,  ## +/- 2*pi 
+    "a5" : 1.0, "a5min" : -10., "a5max" : 10.,
+    "a6" : 0.1, "a6min" : -6.4, "a6max" : 6.4  ## +/- 2*pi 
+}
+
+# # BWZ Gamma
+# bwzgamma_defaultValues = {
+#     "zwidth" : 2.5, "zwidthmin" : 0, "zwidthmax" : 30,
+#     "zmass" : 91.2, "zmassmin" : 90, "zmassmax" : 92,
+#     "expParam" : -0.1, "expParammin": -1, "expParammax": -0.001,
+# #    "expParam" : -0.0053, "expParammin" : -0.0073, "expParammax" : -0.0033,
+#     "fraction" : 0.379, "fractionmin" : 0.2, "fractionmax" : 1
+# }
+
+# BWZ Gamma - bigger windows
 bwzgamma_defaultValues = {
     "zwidth" : 2.5, "zwidthmin" : 0, "zwidthmax" : 30,
-    "zmass" : 91.2, "zmassmin" : 90, "zmassmax" : 92,
-    "expParam" : -0.1, "expParammin": -1, "expParammax": -0.001,
-#    "expParam" : -0.0053, "expParammin" : -0.0073, "expParammax" : -0.0033,
-    "fraction" : 0.379, "fractionmin" : 0.2, "fractionmax" : 1
+    "zmass" : 91.2, "zmassmin" : 80, "zmassmax" : 100,
+    "expParam" : -0.1, "expParammin": -100, "expParammax": -0.00001,
+    "fraction" : 0.379, "fractionmin" : 0.001, "fractionmax" : 1
 }
+
 # bernsteins
 bernstein_defaultValues = aux.buildDefaultValuesBerstein(20)
 # sum exponentials
@@ -280,15 +332,16 @@ powLaw_defaultValues = aux.buildDefaultValuesPowerLaw(20)
 # laurent series
 exponents = [-4, -3, -5, -2, -6, -1, -7, 0, -8, 1, -9, 2, -10, 3, -11]
 laurent_defaultValues = aux.buildDefaultValuesLaurentSeries(20)
+sumpoly_defaultValues = aux.buildDefaultValuesSumPoly(20)
 
 ################################################
 ### Mass Variables/Fit Ranges/Drawing Ranges ###
 ################################################
-diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":110, "max":160,
+diMuonMass125 = {"name":"DiMuonMass", "central":125, "min":110, "max":150,
     "fitmin" : 115, "fitmax" : 135}
-diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":110, "max":160,
+diMuonMass120 = {"name":"DiMuonMass", "central":120, "min":110, "max":150,
     "fitmin" : 110, "fitmax" : 130}
-diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":110, "max":160,
+diMuonMass130 = {"name":"DiMuonMass", "central":130, "min":110, "max":150,
     "fitmin" : 120, "fitmax" : 140}
 
 """
@@ -299,9 +352,10 @@ a list of common things, not configurations, but common...
 ### Pool of Colors ###
 ######################
 colors = [
-    R.kBlack, R.kRed, R.kGreen, R.kBlue, R.kYellow, R.kViolet, R.kGray,
+    R.kRed, R.kGreen, R.kBlue, R.kYellow, R.kViolet, R.kGray,
     R.kOrange, R.kPink, R.kMagenta, R.kAzure, R.kCyan, R.kTeal,
-    R.kSpring
+    R.kSpring, R.kRed+1, R.kGreen+1, R.kBlue+1, R.kYellow+1, 
+    R.kViolet+1, R.kGray+1, R.kOrange+1, R.kPink+1, R.kMagenta+1
 ]
 
 #########################################################
@@ -334,12 +388,17 @@ tripleGaus130 = models.TripleGaus(tripleGaus130_initialValues)
 expGaus = models.ExpGaus(expGaus_defaultValues)
 bwz = models.BWZ(bwz_defaultValues)
 bwzRedux = models.BWZRedux(bwzredux_defaultValues)
+bwzReduxFixed = models.BWZReduxFixed(bwzreduxfixed_defaultValues)
+bwzReduxTimesLine = models.BWZReduxTimesLine(bwzreduxtimesline_defaultValues)
+bwzReduxPlusLine = models.BWZReduxPlusLine(bwzreduxplusline_defaultValues)
+bwzReduxTimesPlusLine = models.BWZReduxTimesPlusLine(bwzreduxtimesplusline_defaultValues)
 bwzGamma = models.BWZGamma(bwzgamma_defaultValues)
 bernsteinsFast = [models.BernsteinFast(bernstein_defaultValues, degree=i) for i in range(1, 8)]
 bernsteins = [models.Bernstein(bernstein_defaultValues, degree=i) for i in range(1, 11)]
-sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 8)]
+sumExps = [models.SumExponentials(sumExp_defaultValues, degree=i) for i in range(1, 11)]
 powerLaw = [models.PowerLaw(powLaw_defaultValues, degree=i) for i in range(1, 10)]
 laurentSeries = [models.LaurentSeries(laurent_defaultValues, degree=i, exponents=exponents) for i in range(2, 10)]
+sumPolys = [models.SumPoly(sumpoly_defaultValues, degree=i) for i in range(2, 20)]
 
 class ModelGroup(object):
     def __init__(self, name, models):
@@ -349,9 +408,13 @@ class ModelGroup(object):
 
 bernsteinModels = ModelGroup("bersteinModels", bernsteins)
 sumExpModels = ModelGroup("sumExpModels", sumExps)
-allPhysBkgModels = ModelGroup("allPhysBkgModels", [bwz, expGaus, bwzRedux, bwzGamma])
+
+# allPhysBkgModels = ModelGroup("allPhysBkgModels", [bwz, expGaus, bwzRedux, bwzGamma])
+allPhysBkgModels = ModelGroup("allPhysBkgModels", [bwzRedux])
+
 laurentModels = ModelGroup("LaurentSeries", laurentSeries)
 powerLawModels = ModelGroup("PowerLaw", powerLaw)
+sumPolysModels = ModelGroup("SumPoly", sumPolys)
 bernsteinsPlusPhysModels = ModelGroup("bersteinsPlusPhysModels",
     allPhysBkgModels.models + bernsteins)
 bernsteinsFastModels = ModelGroup("bernsteinFastModels", bernsteinsFast)
@@ -359,11 +422,19 @@ sumExpsPlusPhysModels = ModelGroup("sumExpsPlusPhysModels", allPhysBkgModels.mod
 allBackgroundModels = ModelGroup("allBackgroundModels", allPhysBkgModels.models + bernsteinsFastModels.models)
 
 #backgroundModelGroups = [allPhysBkgModels, bernsteinsPlusPhysModels, bernsteinModels]
-backgroundModelGroups = [bernsteinsFastModels, allPhysBkgModels, allBackgroundModels]
-modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
+#backgroundModelGroups = [bernsteinsFastModels, allPhysBkgModels, allBackgroundModels]
+backgroundModelGroups = [ModelGroup("testOne", sumPolys)]
+
+# modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [expGaus, bwzRedux, bwzGamma,
+#     models.Bernstein(bernstein_defaultValues, degree=6)])
+modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [bwzRedux,
     models.Bernstein(bernstein_defaultValues, degree=6)])
+
 modelGroupTest = ModelGroup("modelGroupTest", [bwzRedux, bwzGamma, 
     models.BernsteinFast(bernstein_defaultValues, degree=5)])
-physGroupTest = ModelGroup("physModelsGroup", [bwzRedux, bwzGamma, expGaus, bwz])
-orderedGroupsTest = [bernsteinsFastModels, sumExpModels]
-orderedModelGroups = [bernsteinsFastModels, sumExpModels, powerLawModels]
+
+# physGroupTest = ModelGroup("physModelsGroup", [bwzRedux, bwzGamma, expGaus, bwz])
+physGroupTest = ModelGroup("physModelsGroup", [bwzRedux, bwzReduxTimesLine, bwzReduxPlusLine, bwzReduxTimesPlusLine])
+orderedGroupsTest = [sumPolysModels, sumExpModels, bernsteinsFastModels]
+
+orderedModelGroups = [sumPolysModels, sumExpModels, powerLawModels]
