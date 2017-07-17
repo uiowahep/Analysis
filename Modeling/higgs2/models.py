@@ -37,7 +37,7 @@ class Model(object):
         pass
 
     def extract(self, ws, **wargs):
-        return Nonei
+        return None
 
     def __str__(self):
         return self.modelId
@@ -76,9 +76,9 @@ class SingleGaus(Model):
         meansArray = array.array("f", means)
         sigmasArray = array.array("f", sigmas)
         massPointsArray = array.array("f", massPoints)
-        print meansArray
-        print sigmasArray
-        print massPointsArray
+        # print meansArray
+        # print sigmasArray
+        # print massPointsArray
         meansSpline = R.RooSpline1D("mean_{modelName}".format(modelName=self.modelName),
             "mean_{modelName}".format(modelName=self.modelName),
             ws.var("MH"), len(means), massPointsArray, meansArray)
@@ -113,7 +113,7 @@ class SingleGaus(Model):
             "sigma" : th1.GetRMS(), "sigmamin" : 0,
             "sigmamax" : 2*th1.GetRMS()
         }
-        print self.initialValues
+        # print self.initialValues
     
     def getParameterValuesAsList(self, ws, **args):
         return \
@@ -234,7 +234,7 @@ class DoubleGaus(Model):
 
     def setInitialValuesFromModel(self, model, ws, **wargs):
         massDifference = wargs["massDifference"]
-        print self.initialValues
+        # print self.initialValues
         
         mean1 = ws.var("mean1_{modelName}".format(modelName=model.modelName)).getVal()+massDifference
         sigma1 = ws.var("sigma1_{modelName}".format(modelName=model.modelName)).getVal()
@@ -246,19 +246,19 @@ class DoubleGaus(Model):
         self.initialValues["mean2"] = mean2
         self.initialValues["sigma2"] = sigma2
         self.initialValues["coef"] = coef
-        print self.initialValues
+        # print self.initialValues
 
     def createParameters(self, ws, **wargs):
         # gaus vars
-        print self.initialValues
+        # print self.initialValues
         ws.factory("mean1_{modelName}[{mean1}, {mean1min}, {mean1max}]".format(
             modelName=self.modelName, **self.initialValues))
         ws.factory("sigma1_{modelName}[{sigma1}, {sigma1min}, {sigma1max}]".format(
             modelName=self.modelName, **self.initialValues))
         ws.Print("v")
-        print "mean1_{modelName}".format(modelName=self.modelName)
-        print ws.var("mean1_{modelName}".format(modelName=self.modelName))
-        print ws.var("sigma1_{modelName}".format(modelName=self.modelName))
+        # print "mean1_{modelName}".format(modelName=self.modelName)
+        # print ws.var("mean1_{modelName}".format(modelName=self.modelName))
+        # print ws.var("sigma1_{modelName}".format(modelName=self.modelName))
         ws.var("mean1_{modelName}".format(modelName=self.modelName)).setUnit("GeV")
         ws.var("sigma1_{modelName}".format(modelName=self.modelName)).setUnit("GeV")
         ws.factory("mean2_{modelName}[{mean2}, {mean2min}, {mean2max}]".format(
@@ -291,9 +291,9 @@ class TripleGaus(Model):
         Model.initialize(self, modelName, *kargs, **wargs)
 
     def build(self, ws, **wargs):
-        print "-"*90 + "\n"
-        print "-"*90 + "\n"
-        print "building finalmodel"
+        # print "-"*90 + "\n"
+        # print "-"*90 + "\n"
+        # print "building finalmodel"
         g1 = ws.factory("Gaussian::g1_{modelName}(x, mean1_{modelName}, sigma1_{modelName})".format(
             modelName=self.modelName))
         g2 = ws.factory("Gaussian::g2_{modelName}(x, mean2_{modelName}, sigma2_{modelName})".format(
@@ -309,8 +309,8 @@ class TripleGaus(Model):
             self.fractions = R.RooArgList(ws.var("coef1_{modelName}".format(
                 modelName=self.modelName)), ws.var("coef2_{modelName}".format(
                 modelName=self.modelName)))
-        print self.fractions.getSize()
-        print self.gaussians.getSize()
+        # print self.fractions.getSize()
+        # print self.gaussians.getSize()
         tripleGaus = R.RooAddPdf(self.modelName, self.modelName,
             self.gaussians, self.fractions, R.kTRUE)
         getattr(ws, "import")(tripleGaus, R.RooFit.RecycleConflictNodes())
@@ -333,7 +333,7 @@ class TripleGaus(Model):
             "coef1" : 0.7, "coef1min" : 0.5, "coef1max" : 1,
             "coef2" : 0.6, "coef2min" : 0.0, "coef2max" : 1
         }
-        print self.initialValues 
+        # print self.initialValues 
     
     def buildWithParameterMatrix(self, ws, massPoints, pmatrix, **wargs):
         R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
@@ -356,8 +356,8 @@ class TripleGaus(Model):
         coef2sArray = array.array("f", coef2s)
         massPointsArray = array.array("f", massPoints)
 
-        print pmatrix
-        print massPoints
+        # print pmatrix
+        # print massPoints
         
         mean1sSpline = R.RooSpline1D("mean1_{modelName}".format(modelName=self.modelName),
             "mean1_{modelName}".format(modelName=self.modelName),
@@ -511,28 +511,174 @@ class BWZ(Model):
         ws.var("zwidth_{modelName}".format(modelName=self.modelName)).setConstant(R.kTRUE)
         ws.var("zmass_{modelName}".format(modelName=self.modelName)).setConstant(R.kTRUE)
 
-class BWZRedux(Model):
+
+class BWZRedux(Model):  ## With power term ("a1") floating
+
     def __init__(self, initialValues, **wargs):
         Model.__init__(self, initialValues, **wargs)
 
-    def initialie(self, modelName, *kargs, **wargs):
+    def initialize(self, modelName, *kargs, **wargs):
         Model.initialize(self, modelName, *kargs, **wargs)
     
     def build(self, ws, **wargs):
-        ws.factory("expr::f_{modelName}('(a2_{modelName}*(x/100)+a3_{modelName}*(x/100)^2)', x, a2_{modelName}, a3_{modelName})".format(modelName=self.modelName))
-        ws.factory("EXPR::{modelName}('exp(f_{modelName})*(2.5)/(pow(x-91.2, a1_{modelName}) + pow(2.5/2, a1_{modelName}))', x, a1_{modelName}, f_{modelName})".format(modelName=self.modelName))
+        ws.factory("expr::f_{modelName}('(a2sq_{modelName}*(x/100)-a3sq_{modelName}*(x/100)^2)', x, a2sq_{modelName}, a3sq_{modelName})".format(modelName=self.modelName))
+        ws.factory("EXPR::{modelName}('exp(f_{modelName})/(pow(x-91.2, a1sq_{modelName}) + pow(2.5/2, a1sq_{modelName}))', x, a1sq_{modelName}, f_{modelName})".format(modelName=self.modelName))
         return ws.pdf(self.modelName)
 
     def createParameters(self, ws, **wargs):
         ws.factory("a1_{modelName}[{a1}, {a1min}, {a1max}]".format(
             modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a1sq_{modelName}('a1_{modelName}*a1_{modelName}', a1_{modelName})".format(
+            modelName=self.modelName))
         ws.factory("a2_{modelName}[{a2}, {a2min}, {a2max}]".format(
             modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a2sq_{modelName}('a2_{modelName}*a2_{modelName}', a2_{modelName})".format(
+            modelName=self.modelName))
         ws.factory("a3_{modelName}[{a3}, {a3min}, {a3max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a3sq_{modelName}('a3_{modelName}*a3_{modelName}', a3_{modelName})".format(
+            modelName=self.modelName))
+
+    def extractParameters(self, ws, fitws, **wargs):
+        pass
+
+
+class BWZReduxFixed(Model):  ## With power term ("a1") fixed to 2
+    def __init__(self, initialValues, **wargs):
+        Model.__init__(self, initialValues, **wargs)
+
+    def initialize(self, modelName, *kargs, **wargs):
+        Model.initialize(self, modelName, *kargs, **wargs)
+    
+    def build(self, ws, **wargs):
+        ws.factory("expr::f_{modelName}('(a2sq_{modelName}*(x/100)-a3sq_{modelName}*(x/100)^2)', x, a2sq_{modelName}, a3sq_{modelName})".format(modelName=self.modelName))
+        ws.factory("EXPR::{modelName}('exp(f_{modelName})/(pow(x-91.2, a1sq_{modelName}) + pow(2.5/2, a1sq_{modelName}))', x, a1sq_{modelName}, f_{modelName})".format(modelName=self.modelName))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        ws.factory("a2_{modelName}[{a2}, {a2min}, {a2max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a2sq_{modelName}('a2_{modelName}*a2_{modelName}', a2_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a3_{modelName}[{a3}, {a3min}, {a3max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a3sq_{modelName}('a3_{modelName}*a3_{modelName}', a3_{modelName})".format(
+            modelName=self.modelName))
+
+    def extractParameters(self, ws, fitws, **wargs):
+        pass
+
+
+class BWZReduxTimesLine(Model):  ## Multiplying by constant slope term (hardcoded for 110 - 150 GeV).  Manual hack - fix??? - AWB 13.07.17
+    def __init__(self, initialValues, **wargs):
+        Model.__init__(self, initialValues, **wargs)
+
+    def initialize(self, modelName, *kargs, **wargs):
+        Model.initialize(self, modelName, *kargs, **wargs)
+    
+    def build(self, ws, **wargs):
+        ws.factory("expr::f_{modelName}('(a2sq_{modelName}*(x/100)-a3sq_{modelName}*(x/100)^2)', x, a2sq_{modelName}, a3sq_{modelName})".format(modelName=self.modelName))
+        ws.factory("expr::g_{modelName}('(1+sin(a4_{modelName})*((x-110)/40))', x, a4_{modelName})".format(modelName=self.modelName))
+        ws.factory("EXPR::{modelName}('exp(f_{modelName})*g_{modelName}/(pow(x-91.2, a1sq_{modelName}) + pow(2.5/2, a1sq_{modelName}))', x, a1sq_{modelName}, f_{modelName}, g_{modelName})".format(modelName=self.modelName))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        ws.factory("a1_{modelName}[{a1}, {a1min}, {a1max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a1sq_{modelName}('a1_{modelName}*a1_{modelName}', a1_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a2_{modelName}[{a2}, {a2min}, {a2max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a2sq_{modelName}('a2_{modelName}*a2_{modelName}', a2_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a3_{modelName}[{a3}, {a3min}, {a3max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a3sq_{modelName}('a3_{modelName}*a3_{modelName}', a3_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a4_{modelName}[{a4}, {a4min}, {a4max}]".format(
             modelName=self.modelName, **self.initialValues))
 
     def extractParameters(self, ws, fitws, **wargs):
         pass
+
+
+class BWZReduxPlusLine(Model):  ## Add constant plus slope term (hardcoded for 110 - 150 GeV).  Manual hack - fix??? - AWB 13.07.17
+    def __init__(self, initialValues, **wargs):
+        Model.__init__(self, initialValues, **wargs)
+
+    def initialize(self, modelName, *kargs, **wargs):
+        Model.initialize(self, modelName, *kargs, **wargs)
+    
+    def build(self, ws, **wargs):
+        ws.factory("expr::f_{modelName}('(a2sq_{modelName}*(x/100)-a3sq_{modelName}*(x/100)^2)', x, a2sq_{modelName}, a3sq_{modelName})".format(modelName=self.modelName))
+        ws.factory("expr::g_{modelName}('(a5sq_{modelName}*(1+sin(a4_{modelName})*((x-130)/20)))', x, a4_{modelName}, a5sq_{modelName})".format(modelName=self.modelName))
+        ws.factory("EXPR::{modelName}('(g_{modelName} + exp(f_{modelName})/(pow(x-91.2, a1sq_{modelName}) + pow(2.5/2, a1sq_{modelName})))', x, a1sq_{modelName}, f_{modelName}, g_{modelName})".format(modelName=self.modelName))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        ws.factory("a1_{modelName}[{a1}, {a1min}, {a1max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a1sq_{modelName}('a1_{modelName}*a1_{modelName}', a1_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a2_{modelName}[{a2}, {a2min}, {a2max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a2sq_{modelName}('a2_{modelName}*a2_{modelName}', a2_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a3_{modelName}[{a3}, {a3min}, {a3max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a3sq_{modelName}('a3_{modelName}*a3_{modelName}', a3_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a4_{modelName}[{a4}, {a4min}, {a4max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("a5_{modelName}[{a5}, {a5min}, {a5max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a5sq_{modelName}('a5_{modelName}*a5_{modelName}', a5_{modelName})".format(
+            modelName=self.modelName))
+
+    def extractParameters(self, ws, fitws, **wargs):
+        pass
+
+
+
+class BWZReduxTimesPlusLine(Model):  ## Add constant plus slope term (hardcoded for 110 - 150 GeV).  Manual hack - fix??? - AWB 13.07.17
+    def __init__(self, initialValues, **wargs):
+        Model.__init__(self, initialValues, **wargs)
+
+    def initialize(self, modelName, *kargs, **wargs):
+        Model.initialize(self, modelName, *kargs, **wargs)
+    
+    def build(self, ws, **wargs):
+        ws.factory("expr::f_{modelName}('(a2sq_{modelName}*(x/100)-a3sq_{modelName}*(x/100)^2)', x, a2sq_{modelName}, a3sq_{modelName})".format(modelName=self.modelName))
+        ws.factory("expr::g_{modelName}('(a5sq_{modelName}*(1+sin(a4_{modelName})*((x-130)/20)))', x, a4_{modelName}, a5sq_{modelName})".format(modelName=self.modelName))
+        ws.factory("expr::h_{modelName}('(1+sin(a6_{modelName})*((x-110)/40))', x, a6_{modelName})".format(modelName=self.modelName))
+        ws.factory("EXPR::{modelName}('(g_{modelName} + exp(f_{modelName})*h_{modelName}/(pow(x-91.2, a1sq_{modelName}) + pow(2.5/2, a1sq_{modelName})))', x, a1sq_{modelName}, f_{modelName}, g_{modelName}, h_{modelName})".format(modelName=self.modelName))
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        ws.factory("a1_{modelName}[{a1}, {a1min}, {a1max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a1sq_{modelName}('a1_{modelName}*a1_{modelName}', a1_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a2_{modelName}[{a2}, {a2min}, {a2max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a2sq_{modelName}('a2_{modelName}*a2_{modelName}', a2_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a3_{modelName}[{a3}, {a3min}, {a3max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a3sq_{modelName}('a3_{modelName}*a3_{modelName}', a3_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a4_{modelName}[{a4}, {a4min}, {a4max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("a5_{modelName}[{a5}, {a5min}, {a5max}]".format(
+            modelName=self.modelName, **self.initialValues))
+        ws.factory("expr::a5sq_{modelName}('a5_{modelName}*a5_{modelName}', a5_{modelName})".format(
+            modelName=self.modelName))
+        ws.factory("a6_{modelName}[{a6}, {a6min}, {a6max}]".format(
+            modelName=self.modelName, **self.initialValues))
+
+    def extractParameters(self, ws, fitws, **wargs):
+        pass
+
 
 class BWZGamma(Model):
     def __init__(self, initialValues, **wargs):
@@ -569,7 +715,7 @@ class BernsteinFast(Model):
 
     def build(self, ws, **wargs):
         R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
-        print self.parameters
+        # print self.parameters
         bern = R.RooBernsteinFast(self.degree)(self.modelName, self.modelName,
             ws.var("x"), self.parameters)
         getattr(ws, "import")(bern, R.RooFit.RecycleConflictNodes())
@@ -598,7 +744,7 @@ class ModBernsteinFast(Model):
 
     def build(self, ws, **wargs):
         R.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
-        print self.parameters
+        # print self.parameters
 
         # bernstein part
         bern = R.RooBernsteinFast(self.degree)("bern_"+self.modelName, 
@@ -653,7 +799,7 @@ class DYBernsteinFast(Model):
         getattr(ws, "import")(bern, R.RooFit.RecycleConflictNodes())
         
         # dy histo part
-        # TODO: Hardcoded certain parts for now
+        # TODO: Hardcoded certain parts for now.  Manual hack - fix??? - AWB 13.07.17
         fdy = R.TFile(self.dy.pathToFile)
         hdy = fdy.Get(wargs["category"] + "/" + "DiMuonMass")
         rdy = aux.buildRooHist(ws, hdy)
@@ -715,7 +861,7 @@ class SumExponentials(Model):
     def build(self, ws, **wargs):
         exps = R.RooArgList()
         for i in range(1, self.degree+1):
-            ws.factory("Exponential::exp{degree}_{modelName}(x, alpha{degree}_{modelName})".format(degree=i, modelName=self.modelName))
+            ws.factory("Exponential::exp{degree}_{modelName}(x, alphasq{degree}_{modelName})".format(degree=i, modelName=self.modelName))
             exps.add(ws.pdf("exp{degree}_{modelName}".format(degree=i, 
                 modelName=self.modelName)))
         
@@ -729,6 +875,8 @@ class SumExponentials(Model):
         for i in range(1, self.degree+1):
             ws.factory(("alpha%d_{modelName}[{alpha%d}, {alpha%dmin}, {alpha%dmax}]" %
                 (i, i, i, i)).format(modelName=self.modelName, **self.initialValues))
+            ws.factory(("expr::alphasq%d_{modelName}('(-0.000000001 - alpha%d_{modelName}*alpha%d_{modelName})', alpha%d_{modelName})" %
+                (i, i, i, i)).format(modelName=self.modelName, **self.initialValues))
             if i<self.degree:
                 ws.factory(("fraction%d_{modelName}[{fraction%d}, {fraction%dmin}, {fraction%dmax}]" % (i,i,i,i)).format(modelName=self.modelName, **self.initialValues))
                 self.fractions.add(ws.var("fraction{degree}_{modelName}".format(degree=i,
@@ -736,6 +884,45 @@ class SumExponentials(Model):
 
     def getNDF(self):
         return self.degree*2-1
+
+
+
+class SumPoly(Model):  ## Hardcoded for 110 - 150 GeV).  Manual hack - fix??? - AWB 13.07.17
+    def __init__(self, initialValues, **wargs):
+        self.degree = wargs["degree"]
+        Model.__init__(self, initialValues, **wargs)
+
+    def initialize(self, modelName, *kargs, **wargs):
+        Model.initialize(self, modelName, *kargs, **wargs)
+
+    def build(self, ws, **wargs):
+	formula = ""
+	parameters = "x"
+        for i in range(self.degree):
+	    formula += "alphasq{degree}_{modelName}*pow((150-x)/40, {degree})".format(degree=i, modelName=self.modelName)
+	    parameters += ",alphasq{degree}_{modelName}".format(degree=i, modelName=self.modelName)	    
+	    if i<self.degree-1:
+	        formula += "+"
+       
+	ws.factory("EXPR::{modelName}('{formula}', {parameters})".format(
+	    modelName=self.modelName, formula=formula, parameters=parameters)) 
+        return ws.pdf(self.modelName)
+
+    def createParameters(self, ws, **wargs):
+        for i in range(self.degree):
+            ws.factory(("alpha%d_{modelName}[{alpha%d}, {alpha%dmin}, {alpha%dmax}]" %
+                (i, i, i, i)).format(modelName=self.modelName, **self.initialValues))
+            ws.factory(("expr::alphasq%d_{modelName}('alpha%d_{modelName}*alpha%d_{modelName}', alpha%d_{modelName})" %
+                (i, i, i, i)).format(modelName=self.modelName))
+
+    def getNDF(self):
+        return self.degree
+
+
+
+
+
+
 
 class PowerLaw(Model):
     def __init__(self, initialValues, **wargs):
@@ -763,8 +950,8 @@ class PowerLaw(Model):
                 else:
                     formula += "pow(x, alpha{degree}_{modelName})".format(degree=i, modelName=self.modelName)
 
-        print formula + "\n"
-        print parameters + "\n"
+        # print formula + "\n"
+        # print parameters + "\n"
         ws.factory("EXPR::{modelName}('{formula}', {parameters})".format(
             modelName=self.modelName, formula=formula, parameters=parameters))
         return ws.pdf(self.modelName)
@@ -806,8 +993,8 @@ class LaurentSeriesRecursive(Model):
                 else:
                     formula += "pow(x, alpha{degree}_{modelName})".format(degree=i, modelName=self.modelName)
 
-        print formula + "\n"
-        print parameters + "\n"
+        # print formula + "\n"
+        # print parameters + "\n"
         ws.factory("EXPR::{modelName}('{formula}', {parameters})".format(
             modelName=self.modelName, formula=formula, parameters=parameters))
         return ws.pdf(self.modelName)
@@ -877,7 +1064,7 @@ class Polynomial(Model):
         category = self.wargs["category"]
         degree = self.wargs["degree"]
         lParameters = ",".join("p%d_%s" % (i, category) for i in range(1, degree+1))
-        print lParameters
+        # print lParameters
         ws.factory('Polynomial::%s(x, {%s})' % (self.modelName, lParameters))
         return ws.pdf(self.modelName)
 

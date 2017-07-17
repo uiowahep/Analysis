@@ -42,7 +42,7 @@ def blindHistogram(hdata, mmin, mmax):
 
 def blindRooData(rhist):
     hdata = rhist.createHistogram("hdata", ws.var("x"),
-        R.RooFit.Binning(50, 110, 160))
+        R.RooFit.Binning(200, 110, 150))  ## Manual hack for mass range - fix??? - AWB 13.07.17
     blindData(hdata)
     ds = R.RooDataHist("data_blind", "data_blind", R.RooArgList(ws.set("obs").Clone()), hdata)
     return ds
@@ -123,19 +123,21 @@ def buildDefaultValuesBerstein(degree):
     d = {}
     for i in range(1, degree+1):
         d["b%d" % i] = 0.1*(i+1)
-        d["b%dmin" % i] = -5.
-        d["b%dmax" % i] = 5.
+        # d["b%dmin" % i] = -5.
+        # d["b%dmax" % i] = 5.
+        d["b%dmin" % i] = -50.  ## Expand for bias scan - AWB 06.05.17
+        d["b%dmax" % i] = 50.
     return d
 def buildDefaultValuesSumExponentials(degree):
     d = {}
     for i in range(1, degree+1):
-        d["alpha%d" % i] = max(-1., -0.04*(i+1))
-        d["alpha%dmin" % i] = -1.0
-        d["alpha%dmax" % i] = 0
+        d["alpha%d" % i] = pow(min(1., 0.04*(i+1)), 0.5)
+        d["alpha%dmin" % i] = -1.
+        d["alpha%dmax" % i] =  1.
         if i<degree:
             d["fraction%d" % i] = 0.9-float(i-1)*1./degree
-            d["fraction%dmin" % i] = 0.0001
-            d["fraction%dmax" % i] = 0.9999
+            d["fraction%dmin" % i] = 0.000001
+            d["fraction%dmax" % i] = 0.999999
     return d
 def buildDefaultValuesPowerLaw(degree):
     d = {}
@@ -155,4 +157,12 @@ def buildDefaultValuesLaurentSeries(degree):
             d["fraction%d" % i] = 0.25/degree
             d["fraction%dmin" % i] = 0.0000001
             d["fraction%dmax" % i] = 0.9999999
+    return d
+
+def buildDefaultValuesSumPoly(degree):
+    d = {}
+    for i in range(degree):
+        d["alpha%d" % i] = 0.25/degree
+        d["alpha%dmin" % i] = -1
+        d["alpha%dmax" % i] = 1
     return d

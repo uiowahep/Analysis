@@ -198,7 +198,8 @@ aux.mkdir(biasScanDir)
 jsonToUse = S.jsonfiles["2016_ReReco_36460"]
 dataPathToFile = histDir + "/" + "result__merged__Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON__Mu24.root"
 
-inputFileUF = "/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/sys_and_fine_binning/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root"
+## inputFileUF = "/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/sys_and_fine_binning/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root"
+inputFileUF = "/afs/cern.ch/work/a/acarnes/public/h2mumu/rfiles/validate_UNBLINDED_dimu_mass_Roch_90_200_categories3_tree_categorization_final_36814_dyAMC-J_minpt10_b-4_sig-xlumi0.root"
 useInputFileUF = True
 
 systematicsPathToFile = "/afs/cern.ch/work/v/vkhriste/public/Higgs2Mu/systematics/nuisances_Andrea_BDT.csv"

@@ -366,7 +366,6 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
     finalmodel = prevModel.__class__()
     finalmodel.initialize(aux.buildSignalModelName(finalmodel, 
         settings.names2RepsToUse[category], signal.mc.buildProcessName()))
-    print finalmodel.modelName
     finalpdf = finalmodel.buildWithParameterMatrix(ws, massPoints, paramsTransposed)
     finalmodel.setNormalization(ws, massPoints, norms)
     finalpdf.Print("v")
