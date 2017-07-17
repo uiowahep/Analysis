@@ -31,21 +31,22 @@ cd Modeling/higgs2/
 python generate.py --mode UF_AWB --outDirName someLabel --what datacardsTripleGaus
 ## "--what" option is very flexible, can run single operations, or chain several together
 
-## Run combine
 cd ../combine/
 python generate_precombine.py --mode UF_AWB --what combineCards --inDirName someLabel --signalModel TripleGaus
 python generate_precombine.py --mode UF_AWB --what text2workspace --inDirName someLabel --signalModel TripleGaus
+
+## Submit jobs for limits
 python generate_precombine.py --mode UF_AWB --what categories --inDirName someLabel --outDirName someLabel2 --method Asymptotic --massPoints 120 125 130 --signalModel TripleGaus --categoriesToSkip cat0 --splitLevel 1 --queue 8nh
 
-python generate_precombine.py --mode UF_AWB --what biasScan --inDirName c11_c12_v1 --outDirName c11_c12_bias_v1 --massPoints 120 125 130 --signalModel TripleGaus --splitLevel 1 --queue 8nh --nToys 1600
+## Submit jobs for bias scans
+python generate_precombine.py --mode UF_AWB --what biasScan --inDirName someLabel --outDirName someLabel3 --massPoints 120 125 130 --signalModel TripleGaus --splitLevel 1 --queue 8nh --nToys 1600
+cd projectDirToUse/combinesubmissions/jobLabel/someLabel3/
+./submit_biasScan_TripleGaus.sh  ## Submit to the queue
+bjobs                            ## Check status of jobs
 
-python generate_postcombine.py --mode UF_AWB --what biasScan --outDirName c11_c12_bias_v1 --massPoints 120 125 130 --signalModel TripleGaus --nbackgrounds 6
+## Analyze results of bias scans
+python generate_postcombine.py --mode UF_AWB --what biasScan --outDirName someLabel3 --massPoints 120 125 130 --signalModel TripleGaus
 
-## Submit to queue
-
-cd /afs/cern.ch/work/a/abrinke1/public/H2Mu/Limits2/combinesubmissions/AWB_May4/allCats_bias_v1/ 
-./submit_biasScan_TripleGaus.sh
-bjobs  ## Check status of jobs
 
 ###########################################################
 ###  Old procedure from Modeling/higgs/ - AWB 24.04.17  ###
