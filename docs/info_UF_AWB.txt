@@ -45,7 +45,7 @@ cd projectDirToUse/combinesubmissions/jobLabel/someLabel3/
 bjobs                            ## Check status of jobs
 
 ## Analyze results of bias scans
-python generate_postcombine.py --mode UF_AWB --what biasScan --outDirName someLabel3 --massPoints 120 125 130 --signalModel TripleGaus
+python generate_postcombine.py --mode UF_AWB --what biasScan --workspacesDirName someLabel --outDirName someLabel3 --massPoints 120 125 130 --signalModel TripleGaus
 
 
 ###########################################################
