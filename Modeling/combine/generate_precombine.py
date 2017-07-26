@@ -4,6 +4,7 @@ import argparse
 import os, sys
 import definitions as defs
 from Modeling.higgs2.aux import mkdir
+from random import randint
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--what", type=str,
@@ -29,6 +30,8 @@ parser.add_argument("--splitLevel", type=int,
     default=10, help="Split Level for when we create launchers to submit for batch processing")
 parser.add_argument("--nToys", type=int,
     default=100, help="Number of Toys whenever this is needed")
+parser.add_argument("--saveAllShapes", type=int,
+    default=0, help="Save all of the shapes. Throw one toy at a time nToys times.")
 parser.add_argument("--injectSig", type=float,
     default=1.0, help="Signal strength injected")
 parser.add_argument("--queue", type=str,
@@ -42,9 +45,17 @@ if args.mode == "Iowa":
 elif args.mode == "UF_AWB":
     import Configuration.higgs.UF_AWB_settings as settings
     from Configuration.higgs.UF_AWB_settings import *
-elif args.mode == "UF_AWC":
-    import Configuration.higgs.UF_AWC_settings as settings
-    from Configuration .higgs.UF_AWC_settings import *
+elif args.mode == "UF_AMC":
+    import Configuration.higgs.UF_AMC_settings as settings
+    from Configuration .higgs.UF_AMC_settings import *
+
+nIter = 1          # number of iterations with nToys thrown per iteration
+nToys = args.nToys # number of toys to throw total
+
+# Throw one toy per iteration for nToys iterations in order to save all of the fit info from each toy and fit
+if args.saveAllShapes != 0:
+    nToys = 1
+    nIter = args.nToys
 
 def split(cmds, splitLevel=10):
     """
@@ -74,13 +85,23 @@ def writeHeader(launcherFile, someName):
     launcherFile.write("cd {pathToCMSSW}\n".format(pathToCMSSW=cmsswDir))
     launcherFile.write("eval `scramv1 runtime -sh`\n")
     launcherFile.write("cd $MYHOME\n")
+    launcherFile.write("\n")
+    if(nIter != 1):
+        launcherFile.write("nIter={niter}\n".format(niter=nIter))
+        launcherFile.write("i=0\n")
+        launcherFile.write("while [ $i -lt $nIter ]; do\n")
+        launcherFile.write("echo \" ########## i=$i ##########\" \n")
+    launcherFile.write("SEED=$RANDOM\n")
 
 def writeTail(launcherFile):
     """
     """
     outputDir = os.path.join(combineoutputDir, args.outDirName)
-    launcherFile.write("cp *.root {outputDir}\n".format(outputDir=outputDir))
-    launcherFile.write("cp *.png {outputDir}\n".format(outputDir=outputDir))
+    launcherFile.write("mv *.root {outputDir}\n".format(outputDir=outputDir))
+    launcherFile.write("mv *.png {outputDir}\n".format(outputDir=outputDir))
+    if(nIter != 1):
+        launcherFile.write("i=$[$i + 1]\n")
+        launcherFile.write("done\n")
 
 def createLaunchers(cmds, submitDir, label):
     """
@@ -241,13 +262,14 @@ def biasScan():
                             break
                 # generate the toys command
                 cmdStrings.append("# GenerateOnly\n")
-                cmdGenerateOnly = "combine -d {datacard} -n {outputModifier} -M GenerateOnly --setPhysicsModelParameters {physicsModelParametersToSet} --toysFrequentist -t {nToys} --expectSignal {injectSignal} --saveToys -m {mass} --freezeNuisances {nuisancesToFreeze}".format(
+                cmdGenerateOnly = "combine -d {datacard} -n {outputModifier} -M GenerateOnly --setPhysicsModelParameters {physicsModelParametersToSet} --toysFrequentist -t {nToys} -s {seed} --expectSignal {injectSignal} --saveToys -m {mass} --freezeNuisances {nuisancesToFreeze}".format(
                     datacard=datacard, mass=massPoint, 
                     outputModifier=outputModifierGenerateOnly,
                     physicsModelParametersToSet=map2string(physicsModelParametersToSet),
                     nuisancesToFreeze=",".join(ourNuisances + 
                         otherModelsParametersToFreezeForGenOnly),
-                    nToys = args.nToys,
+                    nToys = nToys,
+                    seed="$SEED",
                     injectSignal = args.injectSig)
                 cmdStrings.append(cmdGenerateOnly)
                 for ibkg in range(multipdf.getNumPdfs()):
@@ -273,15 +295,18 @@ def biasScan():
                         "__" + args.signalModel
                     # perform the fit for that function
                     cmdStrings.append("# MaxLikelihoodFit\n")
-                    cmdMaxLikelihoodFit = "combine -d {datacard} -M MaxLikelihoodFit  --setPhysicsModelParameters {physicsModelParametersToSet} --toysFile higgsCombine{outputModifierGenerateOnly}.GenerateOnly.mH{mass}.123456.root  -t {nToys} --rMin -50 --rMax 50 --freezeNuisances {nuisancesToFreeze} -m {mass} -n {outputModifier}".format(datacard=datacard, ## --saveShapes --plots
+                    cmdMaxLikelihoodFit = "combine -d {datacard} -M MaxLikelihoodFit  --setPhysicsModelParameters {physicsModelParametersToSet} --toysFile higgsCombine{outputModifierGenerateOnly}.GenerateOnly.mH{mass}.{seed}.root  -t {nToys} -s {seed} --rMin -20 --rMax 20 --freezeNuisances {nuisancesToFreeze} -m {mass} -n {outputModifier} --saveShapes --robustFit 1 --initFromBonly --maxFailedSteps 100 --stepSize 0.01".format(datacard=datacard, ## --saveShapes --plots
                         physicsModelParametersToSet=map2string(physicsModelParametersToSet),
                         outputModifierGenerateOnly=outputModifierGenerateOnly,
                         mass=massPoint, 
                         nuisancesToFreeze=",".join(ourNuisances +
                             otherModelsParametersToFreeze),
                         outputModifier=outputModifier,
-                        nToys = args.nToys)
+                        seed="$SEED",
+                        nToys = nToys)
                     cmdStrings.append(cmdMaxLikelihoodFit)
+                    if nIter !=1:
+                        cmdStrings.append("rename mlfit saveShapes_${SEED} mlfit*.root")
                 # create a single Command
                 # We must not split Generation[iref] + Fit[iref, *]
                 # this is exactly what we do - splitting on

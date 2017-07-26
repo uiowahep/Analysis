@@ -36,9 +36,9 @@ if args.mode == "Iowa":
 elif args.mode == "UF_AWB":
     import Configuration.higgs.UF_AWB_settings as settings
     from Configuration.higgs.UF_AWB_settings import *
-elif args.mode == "UF_AWC":
-    import Configuration.higgs.UF_AWC_settings as settings
-    from Configuration .higgs.UF_AWC_settings import *
+elif args.mode == "UF_AMC":
+    import Configuration.higgs.UF_AMC_settings as settings
+    from Configuration .higgs.UF_AMC_settings import *
 
 def createLegend(n, i=0):
     if i==0:
@@ -357,7 +357,8 @@ def plotLimitsByMass(mass):
     titlesToUse = []
 #    catscombsToUse = combinationsToUse.keys())# + reps2NamesToUse.keys()
     def sortme(l):
-        return sorted(l, cmp=lambda x,y: cmp(int(x[3:]), int(y[3:])))
+        return l
+        #return sorted(l, cmp=lambda x,y: cmp(int(x[1:]), int(y[1:])))
     catscombsToUse = sortme(reps2NamesToUse.keys())
     for category in catscombsToUse:
         if category in args.categoriesToSkip:
@@ -545,7 +546,7 @@ def biasScan():
                         fileName = "mlfit{category}__{mass}__{iref}__{icurrent}__{signalModel}.root".format(category=names2RepsToUse[category], mass=massPoint, iref=iref, icurrent=icurrent, signalModel=args.signalModel)
                         f = R.TFile(os.path.join(combineoutputPathDir, fileName))
                         tree = f.Get("tree_fit_sb")
-                        tree.Draw("(mu-1)/muErr>>h(800, -20,20)")
+                        tree.Draw("(mu-1)/muErr>>h(500, -5,5)")
 
                         # get the histogram and perform some manipulations
                         hist = R.gFile.Get("h")
@@ -585,7 +586,7 @@ def biasScan():
             hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetTitle("Reference Model")
 #            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetRangeUser(0,5)
 #            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetRangeUser(0,5)
-            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetZaxis().SetRangeUser(-200,+200)
+            hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].GetZaxis().SetRangeUser(-100,+100)
             hMeans["Mean_{category}_{mass}".format(category=category, mass=massPoint)].Draw("COLZTEXT")
             canvas.SaveAs(os.path.join(biasScanResultsDir, "pullMeans2D__{category}__{mass}__{signalModel}.png".format(
                 category=names2RepsToUse[category], mass=massPoint, signalModel=args.signalModel)))
@@ -595,7 +596,7 @@ def biasScan():
             hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetTitle("Reference Model")
 #            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetXaxis().SetRangeUser(0,5)
 #            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetYaxis().SetRangeUser(0,5)
-            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetZaxis().SetRangeUser(-200,+200)
+            hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].GetZaxis().SetRangeUser(-100,+100)
             hMedians["Median_{category}_{mass}".format(category=category, mass=massPoint)].Draw("COLZTEXT")
             canvas.SaveAs(os.path.join(biasScanResultsDir, "pullMedians2D__{category}__{mass}__{signalModel}.png".format(
                 category=names2RepsToUse[category], mass=massPoint, signalModel=args.signalModel)))

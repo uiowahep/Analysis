@@ -7,6 +7,10 @@ import generatingFunctions as funcs
 import aux
 import argparse
 
+##################################################
+# Parse the options fromt the command line
+##################################################
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--what", type=str, default="distributions", 
     help="number identifies the function to run")
@@ -23,6 +27,12 @@ parser.add_argument("--logY", action="store_true", default=False,
 
 args = parser.parse_args()
 
+##################################################
+# Pull in the correct config file
+##################################################
+
+# Each user has a config file used to set up the directories to save the output to,
+# the bkg and signal fits to use, the names of the jobs, etc
 if args.mode == "Iowa":
     import Configuration.higgs.Iowa_settings as settings
     from Configuration.higgs.Iowa_settings import *
@@ -70,8 +80,10 @@ def ftest():
     funcs.plotFTestResults(fTestResults, pathToDir=pathToDir)
 
 def datacardsTripleGaus():
-    physGroupToUse = physGroupTest
-    orderedGroupsToUse = orderedGroupsTest
+    physGroupToUse = physGroupTest           # The physics derived background fit functions (non ordered)
+    orderedGroupsToUse = orderedGroupsTest   # The ordered background fits (berenstein, sumexp, etc)
+
+    # book keeping, set up output dirs for signal, bkg, datacards, and workspaces
     workspaceName = "higgs"
     signalSplinesDir = os.path.join(signalfitinterpolationswithsplineDir, args.outDirName)
     backgroundsDir = os.path.join(backgroundfitswithroomultipdfDir, args.outDirName)
@@ -80,8 +92,13 @@ def datacardsTripleGaus():
     aux.mkdir(signalSplinesDir); aux.mkdir(backgroundsDir); aux.mkdir(datacardsDir)
     aux.mkdir(fffTestDir)
     fTestResults = {}
+
+    # run over every category and fit the signal and background and make the workspaces
     for category in categoriesToUse:
         fTestResults[category] = {}
+
+        # Create workspace for category
+        # use the representation of the name rather than the complicated name, should set up reps in config file
         workspaceFileName = "workspace__{category}__{signalModelId}.root".format(
             category=names2RepsToUse[category], signalModelId = tripleGaus120.modelId)
         ws = R.RooWorkspace(workspaceName)
@@ -89,7 +106,7 @@ def datacardsTripleGaus():
         aux.buildMH(ws, mhmin=120, mhmax=130)
         
         #
-        # create the RooDataHist and import it into the Workspace here explicitly
+        # Create the RooDataHist and import it into the Workspace
         #
         fdata = R.TFile(data.pathToFile)
 
@@ -97,6 +114,8 @@ def datacardsTripleGaus():
         if settings.useInputFileUF:
             hdata_name = "net_histos/"+category+"_Net_Data"
 
+        # Get data histogram from the input file for the category
+        # Turn it into a roo data histogram to use with roofit
         hdata = fdata.Get(hdata_name)
         rdata = aux.buildRooHist(ws, hdata,
             "data_obs_{category}".format(category=names2RepsToUse[category]))
@@ -109,9 +128,14 @@ def datacardsTripleGaus():
         print "*"*80
         print "Generating Triple Gaus Splines"
         print "*"*80
+        # vbf120, tripleGaus120, diMuonMass120 imported from config file
+            # vbf120 is of defs.MC('NoCats', inputFileUF, vbf120MC, color=R.kRed)
+                # vbf120MC = samp.mcMoriond2017datasets_1['VBF_120']
+            # tripleGaus120 = models.TripleGaus(tripleGaus120_initialValues)
+            # diMuonMass120 = {name: DiMuonMass, central: 120, min:110, max:160, fitmin:110, fitmax:130}
         vbfmodel = funcs.signalFitInterpolationWithSpline(category, ws, 
             [
-                (vbf120, tripleGaus120, diMuonMass120),
+                (vbf120, tripleGaus120, diMuonMass120),   # (mc sample, fit, fit window)
                 (vbf125, tripleGaus125, diMuonMass125),
                 (vbf130, tripleGaus130, diMuonMass130),
             ], 
@@ -158,17 +182,25 @@ def datacardsTripleGaus():
         #
         # Perform the F-Test and select the proper order of the 
         #
-        selectedOrderedModels = []
-        for modelGroup in orderedGroupsToUse:
+        selectedOrderedModels = [] # ordered models for this category that passed the f-test
+
+        for modelGroup in orderedGroupsToUse:  # ModelGroup has a name for the group and a list of models
             counter = 0;
             for m in modelGroup.models:
                 m.color = colors[counter]
                 counter+=1
+
+            # return the model with the order that passes the ftest
+                # e.g. berenstein6 for berensten model group or sumExp3 for sum exp model group
+            
+            # ftestPerFamily imported from Modeling/higgs2/generatingFunctions.py
             selectedModel, values = funcs.ftestPerFamily(
                 (category, diMuonMass125), ws, data, modelGroup,
                 settings, pathToDir=fffTestDir, unblind=args.unblind)
             if selectedModel is not None:
                 selectedOrderedModels.append(selectedModel)
+
+            # Save ftest results for each category,modelgroup
             fTestResults[category][modelGroup.name] = values
 
         #
@@ -180,6 +212,9 @@ def datacardsTripleGaus():
         for model in totalModelGroup.models:
             model.color = colors[counter]
             counter += 1
+
+        # Multipdf for background with physics based models and the ftest passed ordered models
+        # !!! DOES NOT use modelGroupForMultiPdf from config file !!!
         funcs.backgroundsWithRooMultiPdf((category, diMuonMass125), ws, data, 
             totalModelGroup.models, settings, pathToDir=backgroundsDir,
             groupName=totalModelGroup.name, unblind=args.unblind)
@@ -492,6 +527,8 @@ def datacardsSingleGaus():
     #
     funcs.plotFTestResults(fTestResults, pathToDir=fffTestDir)
 
+# Not sure what these are for... the datacards use funcs.X versions of these
+# from import Modeling/higgs2/generatingFunctions.py as funcs and NOT these functions
 def backgroundsWithRooMultiPdf():
     modelGroupToUse = modelGroupForMultiPdf
     pathToDir = os.path.join(backgroundfitswithroomultipdfDir, args.outDirName)
