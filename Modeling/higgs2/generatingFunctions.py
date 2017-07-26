@@ -183,6 +183,8 @@ def distributions((category, variable), data, signals, backgrounds, settings, **
     for x in fs:
         fs[x].Close()
 
+# Fits signal model to signal histogram for that category
+# Saves model and fit params to the workspace
 def signalFit((category, variable), ws, signal, model, settings, **wargs):
     """
     assume Workspace exists and x-variable is already present
@@ -205,7 +207,8 @@ def signalFit((category, variable), ws, signal, model, settings, **wargs):
     frame = ws.var("x").frame()
 
     #
-    # get the histogram
+    # get the histogram from the input root file
+    # and convert to a roo hist
     #
     fsdata = R.TFile(signal.pathToFile)
 
@@ -222,12 +225,36 @@ def signalFit((category, variable), ws, signal, model, settings, **wargs):
     #
     # set up the model and perform the fit
     #
+
+    # Simply set the name for the model based upon the model, category, and M=120,125,or 130 
     model.initialize(aux.buildSignalModelName(model, settings.names2RepsToUse[category], 
         signal.mc.buildProcessName(), variable["central"]))
+
+    # Set the initial signal model parameters based upon the mean and rms of the signal histogram
+    # for this category, seems reasonable for single gauss, but not sure what it does for double
+    # and triple gauss
     if initialValuesFromTH1:
         model.setInitialValuesFromTH1(hsdata)
-    model.createParameters(ws)
-    pdf = model.build(ws, category=category)
+    model.createParameters(ws)                 # Create params for model and add to workspace
+    pdf = model.build(ws, category=category)   # Create model using the params we just added to the workspace
+                                               # Add model to workspace
+
+    # Fit the model and get the result
+    # !!!! SHOULD MAKE SURE THE FIT CONVERGED AND MATRIX IS CORRECT !!!!
+    # RooFitResult::covQual()==3
+    #   status = -1 :  not available (inversion failed or Hesse failed)
+    #   status =  0 : available but not positive defined
+    #   status =  1 : covariance only approximate
+    #   status =  2 : full matrix but forced pos def
+    #   status =  3 : full accurate matrix
+    # RooFitResult::status()==0
+    #   status = 0    : OK
+    #   status = 1    : Covariance was mad  epos defined
+    #   status = 2    : Hesse is invalid
+    #   status = 3    : Edm is above max
+    #   status = 4    : Reached call limit
+    #   status = 5    : Any other failure
+    # status = 100 * hesseStatus + 10 * minosStatus +  minuit2SummaryStatus
     r = pdf.fitTo(rsdata, R.RooFit.Save(), 
         R.RooFit.Range(variable["fitmin"], variable["fitmax"]))
 
@@ -243,6 +270,7 @@ def signalFit((category, variable), ws, signal, model, settings, **wargs):
         "brNDC")
     ttt.Draw()
     frame.addObject(ttt)
+    frame.SetTitle("{category}_{higgsMass}_{processName}".format(category=category, higgsMass=variable["central"], processName=signal.mc.buildProcessName()))
     frame.Draw()
     mods = "default"
     if initialValuesFromTH1:
@@ -332,6 +360,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
         pdf.plotOn(frame, R.RooFit.LineColor(R.kBlue))
 
         # draw the frame and save the canvas
+        frame.SetTitle("{category}_{higgsMass}_{processName}".format(category=category, higgsMass=variable["central"], processName=signal.mc.buildProcessName()))
         frame.Draw()
         fileName = "signalFit__{category}__{higgsMass}__{processName}__{modelId}__{mods}.png".format(
             category=category, higgsMass=variable["central"], processName=signal.mc.buildProcessName(),
@@ -380,6 +409,7 @@ def signalFitInterpolationWithSpline(category, ws, tupleSignalModelVariable, set
     #
     # save the canvas
     #
+    frame.SetTitle("{category}_{processName}".format(category=category, processName=signal.mc.buildProcessName()))
     frame.Draw()
     fileName = "signalFitInterpolationWithSpline__{category}__{processName}__{modelId}__{mods}.png".format(category=category, processName=signal.mc.buildProcessName(), modelId=model.modelId, mods="")
     canvas.SaveAs(os.path.join(pathToDir, fileName))
@@ -445,6 +475,7 @@ def signalFitInterpolation(category, ws, tupleSignalModelVariable, settings, **w
     #
     # save the canvas
     #
+    frame.SetTitle("{category}_{processName}".format(category=category, processName=signal.mc.buildProcessName()))
     frame.Draw()
     fileName = "signalFitInterpolation__{category}__{processName}__{modelId}__{mods}.png".format(category=category, processName=signal.mc.buildProcessName(), modelId=model.modelId, mods="")
     canvas.SaveAs(os.path.join(pathToDir, fileName))
@@ -538,6 +569,8 @@ def ftestPerFamily((category, variable), ws, data, familyModelGroup, settings, *
         fTestResults.append(prob)
         prevNLL = float(NLL)
         prevModel = model
+
+    frame.SetTitle("{category}_{familyName}".format(category=category, familyName=familyModelGroup.name))
     frame.Draw()
 
     #
@@ -607,6 +640,7 @@ def plotFTestResults(fTestResults, **wargs):
                 order += 1
         h.Draw("TEXT")
 
+        h.SetTitle("{category}".format(category=category))
         h.GetXaxis().SetTitle("Family")
         h.GetYaxis().SetTitle("Reference Order")
         R.gPad.Modified()
@@ -634,6 +668,7 @@ def plotFTestResults(fTestResults, **wargs):
                 order += 1
         binX += 1
     for groupName in histos:
+        histos[groupName].SetTitle("{category}".format(category=category))
         histos[groupName].Draw("TEXT")
         histos[groupName].GetXaxis().SetTitle("Category")
         histos[groupName].GetYaxis().SetTitle("Reference Order")
@@ -892,7 +927,7 @@ def backgroundFits((category, variable), ws, data, models, settings, **wargs):
 #            R.RooFit.LineColor(model.color))
         legend.AddEntry(frame.findObject(model.modelId), model.modelId, "l")
         print model.modelId
-    frame.SetTitle(category)
+    frame.SetTitle("{category}_{groupName}".format(category=category, groupName=groupName))
     frame.Draw()
     
     #

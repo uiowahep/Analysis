@@ -305,33 +305,33 @@ doubleGaus130_initialValues = {
 }
 tripleGaus125_initialValues = {
     'mean1':125, 'mean1min':124, 'mean1max':126,
-    'sigma1':1.5, 'sigma1min':0.8, 'sigma1max':4,
-    'mean2':125, 'mean2min':115, 'mean2max':135,
-    'sigma2':1.0, 'sigma2min':0.1, 'sigma2max':10,
-    'mean3':125, 'mean3min':115, 'mean3max':135,
-    'sigma3':1.0, 'sigma3min':2, 'sigma3max':20,
-    'coef1' : 0.7, 'coef1min' : 0.4, 'coef1max' : 1,
-    'coef2' : 0.1, 'coef2min' : 0.0001, 'coef2max' : 1,
+    'sigma1':1.1, 'sigma1min':0.5, 'sigma1max':1.7,
+    'mean2':120, 'mean2min':124, 'mean2max':126,
+    'sigma2':2.5, 'sigma2min':1.7, 'sigma2max':4,
+    'mean3':121, 'mean3min':116, 'mean3max':123,
+    'sigma3':4.5, 'sigma3min':3, 'sigma3max':7,
+    'coef1' : 0.78, 'coef1min' : 0.0001, 'coef1max' : 1,
+    'coef2' : 0.16, 'coef2min' : 0.0001, 'coef2max' : 1,
 }
 tripleGaus120_initialValues = {
     'mean1':120, 'mean1min':119, 'mean1max':121,
-    'sigma1':1.5, 'sigma1min':0.8, 'sigma1max':4,
-    'mean2':120, 'mean2min':110, 'mean2max':130,
-    'sigma2':1.0, 'sigma2min':0.1, 'sigma2max':10,
-    'mean3':120, 'mean3min':110, 'mean3max':130,
-    'sigma3':1.0, 'sigma3min':2, 'sigma3max':20,
-    'coef1' : 0.7, 'coef1min' : 0.4, 'coef1max' : 1,
-    'coef2' : 0.1, 'coef2min' : 0.0001, 'coef2max' : 1,
+    'sigma1':1.1, 'sigma1min':0.5, 'sigma1max':1.7,
+    'mean2':120, 'mean2min':119, 'mean2max':121,
+    'sigma2':2.5, 'sigma2min':1.7, 'sigma2max':4,
+    'mean3':116, 'mean3min':111, 'mean3max':118,
+    'sigma3':4.5, 'sigma3min':3, 'sigma3max':7,
+    'coef1' : 0.78, 'coef1min' : 0.0001, 'coef1max' : 1,
+    'coef2' : 0.16, 'coef2min' : 0.0001, 'coef2max' : 1,
 }
 tripleGaus130_initialValues = {
     'mean1':130, 'mean1min':129, 'mean1max':131,
-    'sigma1':1.5, 'sigma1min':0.8, 'sigma1max':4,
-    'mean2':130, 'mean2min':120, 'mean2max':140,
-    'sigma2':1.0, 'sigma2min':0.1, 'sigma2max':10,
-    'mean3':130, 'mean3min':120, 'mean3max':140,
-    'sigma3':1.0, 'sigma3min':2, 'sigma3max':20,
-    'coef1' : 0.7, 'coef1min' : 0.4, 'coef1max' : 1,
-    'coef2' : 0.1, 'coef2min' : 0.0001, 'coef2max' : 1,
+    'sigma1':1.1, 'sigma1min':0.5, 'sigma1max':1.7,
+    'mean2':120, 'mean2min':129, 'mean2max':131,
+    'sigma2':2.5, 'sigma2min':1.7, 'sigma2max':4,
+    'mean3':126, 'mean3min':121, 'mean3max':128,
+    'sigma3':4.5, 'sigma3min':3, 'sigma3max':7,
+    'coef1' : 0.78, 'coef1min' : 0.0001, 'coef1max' : 1,
+    'coef2' : 0.16, 'coef2min' : 0.0001, 'coef2max' : 1,
 }
 
 # expGaus
@@ -348,6 +348,10 @@ bwz_defaultValues = {
 }
 
 # BWZ Redux
+#        ws.factory("bwzredux_a1_%s[1.39, 0.7, 2.1]" % category)
+#        ws.factory("bwzredux_a2_%s[0.47, 0.30, 0.62]" % category)
+#        ws.factory("bwzredux_a3_%s[-0.26, -0.40, -0.12]" % category)
+
 bwzredux_defaultValues = {                     # for c8
     "a1" : 1.35, "a1min" : -10., "a1max" : 10.,
     "a2" : 1.36, "a2min" : -10., "a2max" : 10.,
