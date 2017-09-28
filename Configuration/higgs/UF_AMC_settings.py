@@ -27,13 +27,9 @@ run1Categories = [
 # Run 2 Categories list - BDT categorization
 #
 run2Categories = [
-     'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6',
-     'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c7or8',
-     'c7LowEta', 'c7HighEta', 'c8LowEta', 'c8HighEta',
-     'c8Random1', 'c8Random2'
-     ]
-#run2Categories = ['c7', 'c8']
-#run2Categories = ['c12']
+                  'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6',
+                  'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15'
+                 ]
 
 run2Reps2Names = {}
 run2Names2Reps = {}
@@ -47,7 +43,7 @@ for i in range(len(run2Categories)): ## Keep the names the same for now
 # NOTE: run2CategoriesForCombination is used rather than run2Categories!
 #
 run2Combinations = {
-    'allBaseline' : [
+    'all' : [
         run2Names2Reps['c0'],
         run2Names2Reps['c1'],
         run2Names2Reps['c2'],
@@ -60,66 +56,10 @@ run2Combinations = {
         run2Names2Reps['c9'],
         run2Names2Reps['c10'],
         run2Names2Reps['c11'],
-        run2Names2Reps['c12']],
-    'allC7C8Comb' : [
-        run2Names2Reps['c0'],
-        run2Names2Reps['c1'],
-        run2Names2Reps['c2'],
-        run2Names2Reps['c3'],
-        run2Names2Reps['c4'],
-        run2Names2Reps['c5'],
-        run2Names2Reps['c6'],
-        run2Names2Reps['c7or8'],
-        run2Names2Reps['c9'],
-        run2Names2Reps['c10'],
-        run2Names2Reps['c11'],
-        run2Names2Reps['c12']],
-    'allC7Split' : [
-        run2Names2Reps['c0'],
-        run2Names2Reps['c1'],
-        run2Names2Reps['c2'],
-        run2Names2Reps['c3'],
-        run2Names2Reps['c4'],
-        run2Names2Reps['c5'],
-        run2Names2Reps['c6'],
-        run2Names2Reps['c7LowEta'],
-        run2Names2Reps['c7HighEta'],
-        run2Names2Reps['c8'],
-        run2Names2Reps['c9'],
-        run2Names2Reps['c10'],
-        run2Names2Reps['c11'],
-        run2Names2Reps['c12']],
-    'allC8Split' : [
-        run2Names2Reps['c0'],
-        run2Names2Reps['c1'],
-        run2Names2Reps['c2'],
-        run2Names2Reps['c3'],
-        run2Names2Reps['c4'],
-        run2Names2Reps['c5'],
-        run2Names2Reps['c6'],
-        run2Names2Reps['c7'],
-        run2Names2Reps['c8LowEta'],
-        run2Names2Reps['c8HighEta'],
-        run2Names2Reps['c9'],
-        run2Names2Reps['c10'],
-        run2Names2Reps['c11'],
-        run2Names2Reps['c12']],
-    'allC7C8Split' : [
-        run2Names2Reps['c0'],
-        run2Names2Reps['c1'],
-        run2Names2Reps['c2'],
-        run2Names2Reps['c3'],
-        run2Names2Reps['c4'],
-        run2Names2Reps['c5'],
-        run2Names2Reps['c6'],
-        run2Names2Reps['c7LowEta'],
-        run2Names2Reps['c7HighEta'],
-        run2Names2Reps['c8LowEta'],
-        run2Names2Reps['c8HighEta'],
-        run2Names2Reps['c9'],
-        run2Names2Reps['c10'],
-        run2Names2Reps['c11'],
-        run2Names2Reps['c12']],
+        run2Names2Reps['c12'],
+        run2Names2Reps['c13'],
+        run2Names2Reps['c14'],
+        run2Names2Reps['c15']],
     'c0to3' : [
         run2Names2Reps['c0'],
         run2Names2Reps['c1'],
@@ -136,14 +76,12 @@ run2Combinations = {
     'c10to12' : [
         run2Names2Reps['c10'],
         run2Names2Reps['c11'],
-        run2Names2Reps['c12']]
+        run2Names2Reps['c12']],
+    'c13to15' : [
+        run2Names2Reps['c13'],
+        run2Names2Reps['c14'],
+        run2Names2Reps['c15']]
 }
-
-#run2Combinations = {
-#    'bdt7' : [run2Names2Reps['c7']],
-#    'bdt8' : [run2Names2Reps['c8']]
-#}
-#run2Combinations['combTotal'] = run2Combinations['bdt7'] + run2Combinations['bdt8']
 
 ########################
 ### General Settings ###
@@ -214,10 +152,16 @@ CM.mkdir(biasScanDir)
 #################
 ## inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rootfiles/sys_and_fine_binning/validate_UNBLINDED_dimu_mass_Roch_110_160_categories3_tree_categorization_final_36814_dyAMC_minpt10.root'
 #inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rfiles/validate_UNBLINDED_dimu_mass_Roch_90_200_categories3_tree_categorization_final_36814_dyAMC-J_minpt10_b-4_sig-xlumi0.root'
-inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rfiles/validate_UNBLINDED_dimu_mass_KaMu_90_200_categories3_tree_categorization_hybrid_c7_c8_comb_split_testing_36814_dyAMC-J_minpt20_b-4_sig-xlumi0.root'
+#inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rfiles/validate_UNBLINDED_dimu_mass_KaMu_90_200_categories3_tree_categorization_hybrid_c7_c8_comb_split_testing_36814_dyAMC-J_minpt20_b-4_sig-xlumi0.root'
+inputFileUF = '/afs/cern.ch/work/a/acarnes/public/h2mumu/rfiles/'
+#inputFileUF += 'validate_UNBLINDED_dimu_mass_Roch_90_200_categories3_tree_bdt_res_eta_n16_mbg25_unc0_np1p0000_sf0_sd0_sb1_PoissonSignificance_36814_dyAMC-J_minpt20_b-4_sig-xlumi0.root'
+#inputFileUF+= 'validate_UNBLINDED_dimu_mass_Roch_90_200_categories3_tree_bdt_res_eta_n16_mbg25_unc0_np1p0000_sf1_sd0_sb0_PoissonSignificance_36814_dyAMC-J_minpt20_b-4_sig-xlumi0.root'
+inputFileUF+= 'validate_UNBLINDED_dimu_mass_Roch_90_200_categories3_tree_bdt_res_mass_n16_mbg25_unc0_np1p0000_sf0_sd0_sb1_PoissonSignificance_36814_dyAMC-J_minpt20_b-4_sig-xlumi0.root'
+#inputFileUF+= 'validate_UNBLINDED_dimu_mass_Roch_90_200_categories3_tree_bdt_res_mass_n16_mbg25_unc0_np1p0000_sf1_sd0_sb0_PoissonSignificance_36814_dyAMC-J_minpt20_b-4_sig-xlumi0.root'
 useInputFileUF = True
 
-systematicsPathToFile = "/afs/cern.ch/work/a/acarnes/public/h2mumu/csv/nuisances_2.csv"
+#systematicsPathToFile = "/afs/cern.ch/work/a/acarnes/public/h2mumu/csv/nuisances_2.csv"
+systematicsPathToFile = ""
 nuisances = aux.readInSystematics(systematicsPathToFile)
 nuisance_lumi = "1.027"
 nuisance_br = "1.017"
@@ -353,9 +297,9 @@ bwz_defaultValues = {
 #        ws.factory("bwzredux_a3_%s[-0.26, -0.40, -0.12]" % category)
 
 bwzredux_defaultValues = {                     # for c8
-    "a1" : 1.35, "a1min" : -10., "a1max" : 10.,
-    "a2" : 1.36, "a2min" : -10., "a2max" : 10.,
-    "a3" : 8.6 , "a3min" : -10., "a3max" : 10.
+    "a1" : 1.39, "a1min" : -10., "a1max" : 10.,
+    "a2" : 0.47, "a2min" : -10., "a2max" : 10.,
+    "a3" : -0.26 , "a3min" : -10., "a3max" : 10.
 }
 #bwzredux_defaultValues = {                     # original
 #    "a1" : 2.0, "a1min" : -10., "a1max" : 10.,
@@ -500,13 +444,8 @@ allPhysBkgModels     = ModelGroup("allPhysBkgModels",    [bwzRedux])
 
 # physGroupTest and orderedGroupsTest are required, these should correspond to those in modelGroupForMultiPdf
 physGroupTest      = ModelGroup("physModelsGroup",  [bwzRedux]) # A model group
-orderedGroupsTest  = [sumExpModels, bernsteinsFastModels]       # A list of model groups, ordered for F-Test
-
-modelGroupForMultiPdf = ModelGroup(
-    "modelGroupForMultiPdf", 
-    [ bwzRedux, 
-      models.SumExponentials(sumExp_defaultValues,    degree=5),
-      models.BernsteinFast  (bernstein_defaultValues, degree=7) ] )
+orderedGroupsTest  = []       # A list of model groups, ordered for F-Test
+modelGroupForMultiPdf = ModelGroup("modelGroupForMultiPdf", [bwzRedux])
 
 #orderedModelGroups = [sumPolysModels, sumExpModels, bernsteinModels]                      # NOT USED
 #backgroundModelGroups = [bernsteinModels, sumPolysModels, allPhysBkgModels, sumExpModels] # NOT USED
