@@ -1080,7 +1080,6 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 //
 bool H2DiMuonMaker::passHLT(edm::Event const& e)
 {
-#if 0
 	const boost::regex re("_v[0-9]+");
 	edm::TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
 
@@ -1105,8 +1104,6 @@ bool H2DiMuonMaker::passHLT(edm::Event const& e)
 	}
 
 	return pass;
-#endif
-    return true;
 }
 
 //	
