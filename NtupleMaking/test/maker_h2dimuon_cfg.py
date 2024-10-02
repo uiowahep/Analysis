@@ -78,8 +78,8 @@ if thisIsData:
 else:
     print('Running over MC sample')
 
-print "Sample Name:    " +  ntuple.name
-print ""; print ""
+print("Sample Name:    " +  ntuple.name)
+print(""); print("")
 
 #
 #   Pool Source with proper LSs
