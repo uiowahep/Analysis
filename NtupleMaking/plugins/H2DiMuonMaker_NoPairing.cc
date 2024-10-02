@@ -1206,6 +1206,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 //
 bool H2DiMuonMaker_NoPairing::passHLT(edm::Event const& e)
 {
+#if 0
 	const boost::regex re("_v[0-9]+");
 	edm::TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
 
@@ -1230,6 +1231,9 @@ bool H2DiMuonMaker_NoPairing::passHLT(edm::Event const& e)
 	}
 
 	return pass;
+#endif
+
+    return true;
 }
 
 //	
@@ -1239,6 +1243,7 @@ bool H2DiMuonMaker_NoPairing::passHLT(edm::Event const& e)
 bool H2DiMuonMaker_NoPairing::isHLTMatched(uint32_t itrigger, edm::Event const& e,
 	pat::Muon const& mu)
 {
+#if 0
 	const boost::regex re("_v[0-9]+");
 	edm::TriggerNames const& triggerNames = e.triggerNames(*_hTriggerResults);
 	for (uint32_t i=0; i<_hTriggerResults->size(); i++)
@@ -1262,6 +1267,9 @@ bool H2DiMuonMaker_NoPairing::isHLTMatched(uint32_t itrigger, edm::Event const& 
 	}
 
 	return false;
+#endif
+
+    return true;
 }
 
 //
