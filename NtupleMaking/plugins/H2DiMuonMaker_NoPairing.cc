@@ -26,7 +26,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -108,7 +108,7 @@
 #include "Analysis/Core/interface/Electron.h"
 #include "Analysis/Core/interface/Tau.h"
 
-class H2DiMuonMaker_NoPairing : public edm::EDAnalyzer
+class H2DiMuonMaker_NoPairing : public edm::stream::EDAnalyzer
 {
 	public:
 		H2DiMuonMaker_NoPairing(edm::ParameterSet const&);
