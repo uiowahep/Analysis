@@ -328,7 +328,6 @@ void H2DiMuonMaker::endJob()
 //
 void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 {
-#if 0
 
 	// count total
 	_meta._nEventsProcessed++;
@@ -1073,7 +1072,6 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	//	Dump objects to The ROOT Tree - ONLY after passing all the cuts
 	//
 	_tEvents->Fill();
-#endif
 }
 
 //
