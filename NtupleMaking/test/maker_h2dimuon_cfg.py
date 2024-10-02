@@ -35,9 +35,9 @@ for key in data_datasets.keys():
         break
 
 if dataset==None:
-    print "-"*40
-    print "dataset is None"
-    print "-"*40
+    print("-"*40)
+    print("dataset is None")
+    print("-"*40)
     sys.exit(1)
 
 ntuple = DS.Ntuple(dataset, 
@@ -69,14 +69,14 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 #
 #   Debug/Loggin
 #
-print ""; print ""
+print(""); print ("")
 print 'Loading Global Tag: ' + globalTag
 process.GlobalTag.globaltag = globalTag
-print ""; print ""
+print(""); print ("")
 if thisIsData:
-    print 'Running over data sample'
+    print('Running over data sample')
 else:
-    print 'Running over MC sample'
+    print('Running over MC sample')
 
 print "Sample Name:    " +  ntuple.name
 print ""; print ""
