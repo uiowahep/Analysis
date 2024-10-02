@@ -159,6 +159,7 @@ class H2DiMuonMaker_NoPairing : public edm::one::EDAnalyzer<edm::one::SharedReso
 		analysis::core::GenParticle	_genHpostFSR;
 		analysis::core::Track		_track1HpostFSR, _track2HpostFSR;
 
+#if 0
 		//	Input Tags/Tokens
 		edm::InputTag _tagMuons;
 		edm::InputTag _tagElectrons;
@@ -225,6 +226,7 @@ class H2DiMuonMaker_NoPairing : public edm::one::EDAnalyzer<edm::one::SharedReso
             m_hJetCParametersAK4;
         JetCorrectionUncertainty *m_jecuAK5;
         JetCorrectionUncertainty *m_jecuAK4;
+#endif
 
         //  some flags
         bool _useElectrons;
@@ -252,6 +254,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 	_tMeta->Branch("Meta", (MetaHiggs*)&_meta);
     _tEvents->Branch("Auxiliary", &m_aux);
 
+#if 0
 	//
 	//	Tags/Tokens
 	//
@@ -391,6 +394,7 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
     _meta._tauIDNames = ps.getUntrackedParameter<std::vector<std::string> >("tauIDNames");
     _useElectrons = ps.getUntrackedParameter<bool>("useElectrons");
     _useTaus = ps.getUntrackedParameter<bool>("useTaus");
+#endif
     
     //  additional branching based on flags
     if (_useElectrons)
@@ -490,6 +494,8 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 	_track1HpostFSR.reset();
 	_track2HpostFSR.reset();
     m_aux.reset();
+
+#if 0
 
     //
     // get the Jet Enetry Corrections
@@ -1191,6 +1197,7 @@ void H2DiMuonMaker_NoPairing::analyze(edm::Event const& e, edm::EventSetup const
 	//	Dump objects to The ROOT Tree - ONLY after passing all the cuts
 	//
 	_tEvents->Fill();
+#endif
 }
 
 //

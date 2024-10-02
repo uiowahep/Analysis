@@ -149,6 +149,7 @@ class H2DiMuonMaker : public edm::one::EDAnalyzer<edm::one::SharedResources>
 		analysis::core::GenParticle	_genHpostFSR;
 		analysis::core::Track		_track1HpostFSR, _track2HpostFSR;
 
+#if 0
 		//	Input Tags/Tokens
 		edm::InputTag _tagMuons;
 		edm::InputTag _tagBS;
@@ -180,6 +181,7 @@ class H2DiMuonMaker : public edm::one::EDAnalyzer<edm::one::SharedResources>
 
 		edm::Handle<edm::TriggerResults> _hTriggerResults;
 		edm::Handle<pat::TriggerObjectStandAloneCollection> _hTriggerObjects;
+#endif
 };
 
 H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
@@ -201,6 +203,8 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 	_tEvents->Branch("EventAuxiliary", (EventAuxiliary*)&_eaux);
 	_tEvents->Branch("MET", (MET*)&_met);
 	_tMeta->Branch("Meta", (MetaHiggs*)&_meta);
+
+#if 0
 
 	//
 	//	Tags/Tokens
@@ -277,6 +281,7 @@ H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
 	_meta._maxTrackIsoSumPt = ps.getUntrackedParameter<double>(
 		"maxTrackIsoSumPt");
 	_meta._maxRelCombIso = ps.getUntrackedParameter<double>("maxRelCombIso");
+#endif
 
 	//	additional branching for MC
 	if (_meta._isMC)
@@ -327,6 +332,8 @@ void H2DiMuonMaker::endJob()
 //
 void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 {
+#if 0
+
 	// count total
 	_meta._nEventsProcessed++;
 
@@ -1070,6 +1077,7 @@ void H2DiMuonMaker::analyze(edm::Event const& e, edm::EventSetup const&)
 	//	Dump objects to The ROOT Tree - ONLY after passing all the cuts
 	//
 	_tEvents->Fill();
+#endif
 }
 
 //
