@@ -21,7 +21,7 @@
 //
 
 using namespace analysis::core;
-class QIE10Maker : public edm::stream::EDAnalyzer {
+class QIE10Maker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit QIE10Maker(const edm::ParameterSet&);
       ~QIE10Maker();
