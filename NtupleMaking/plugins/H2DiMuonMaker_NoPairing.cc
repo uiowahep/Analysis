@@ -91,7 +91,9 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#if 0
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#endif
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 //	MY Classes
