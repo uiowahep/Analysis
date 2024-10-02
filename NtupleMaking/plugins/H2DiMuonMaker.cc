@@ -149,7 +149,6 @@ class H2DiMuonMaker : public edm::one::EDAnalyzer<edm::one::SharedResources>
 		analysis::core::GenParticle	_genHpostFSR;
 		analysis::core::Track		_track1HpostFSR, _track2HpostFSR;
 
-#if 0
 		//	Input Tags/Tokens
 		edm::InputTag _tagMuons;
 		edm::InputTag _tagBS;
@@ -181,7 +180,6 @@ class H2DiMuonMaker : public edm::one::EDAnalyzer<edm::one::SharedResources>
 
 		edm::Handle<edm::TriggerResults> _hTriggerResults;
 		edm::Handle<pat::TriggerObjectStandAloneCollection> _hTriggerObjects;
-#endif
 };
 
 H2DiMuonMaker::H2DiMuonMaker(edm::ParameterSet const& ps)
