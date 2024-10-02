@@ -433,8 +433,10 @@ H2DiMuonMaker_NoPairing::H2DiMuonMaker_NoPairing(edm::ParameterSet const& ps)
 	}
 
     // some setups
+#if 0
     m_jecuAK5 = NULL;
     m_jecuAK4 = NULL;
+#endif
 }
 
 void H2DiMuonMaker_NoPairing::beginJob()
