@@ -70,7 +70,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 #   Debug/Loggin
 #
 print(""); print ("")
-print 'Loading Global Tag: ' + globalTag
+print('Loading Global Tag: ' + globalTag)
 process.GlobalTag.globaltag = globalTag
 print(""); print ("")
 if thisIsData:
