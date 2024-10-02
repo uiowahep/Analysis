@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 pt = 24
 
 #   to switch between modules
-name = "H2DiMuonMaker_NoPairing"
+name = "H2DiMuonMaker"
 
 ntuplemaker_H2DiMuonMaker = cms.EDAnalyzer(name,
     #   Tags
