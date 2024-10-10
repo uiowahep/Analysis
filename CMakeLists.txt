@@ -31,6 +31,11 @@ endif()
 
 find_package(Boost REQUIRED)
 find_package(ROOT REQUIRED)
+  
+tcpp_debug_var(ROOT_LIBRARIES)
+tcpp_debug_var(ROOT_DEFINITIONS)
+tcpp_debug_var(ROOT_INCLUDE_DIRS)
+tcpp_debug_var(ROOT_CXX_FLAGS)
 
 message(STATUS "before")
 tcpp_auto_addsubdirs(src)
