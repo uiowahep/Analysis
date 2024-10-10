@@ -1,11 +1,7 @@
 #ifndef Analysis_Core_MET_h
 #define Analysis_Core_MET_h
 
-#ifndef STANDALONE
-#include "Analysis/Core/interface/Object.h"
-#else
 #include "Object.h"
-#endif
 
 namespace analysis
 {
@@ -32,20 +28,10 @@ namespace analysis
 				float _phi;
 				float _sumEt;
 
-#ifdef STANDALONE
-				ClassDef(MET, 1)
-#endif
 		};
 
 		typedef std::vector<analysis::core::MET> METs;
 	}
 }
-
-//
-//	Using the unique
-//
-#ifdef STANDALONE
-ClassImpUnique(analysis::core::MET, MET)
-#endif
 
 #endif

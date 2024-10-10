@@ -1,11 +1,7 @@
 #ifndef Analysis_Core_Event_h
 #define Analysis_Core_Event_h
 
-#ifndef STANDALONE
-#include "Analysis/Core/interface/Object.h"
-#else
 #include "Object.h"
-#endif
 
 namespace analysis
 {
@@ -32,9 +28,6 @@ namespace analysis
 				int _bx;
 				int _orbit;
 
-#ifdef STANDALONE
-				ClassDef(Event, 1)
-#endif
 		};
 
 		class EventAuxiliary : public Object
@@ -54,19 +47,11 @@ namespace analysis
 				int _genWeight;
 				std::vector<bool> _hasHLTFired;
 
-#ifdef STANDALONE
-				ClassDef(EventAuxiliary, 1)
-#endif
 		};
 
 		typedef std::vector<analysis::core::EventAuxiliary> EventAuxiliaries;
 		typedef std::vector<analysis::core::Event> Events;
 	}
 }
-
-#ifdef STANDALONE
-ClassImpUnique(analysis::core::Event, Event)
-ClassImpUnique(analysis::core::EventAuxiliary, EventAuxiliary)
-#endif
 
 #endif

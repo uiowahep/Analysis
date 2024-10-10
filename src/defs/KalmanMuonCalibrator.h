@@ -1,3 +1,5 @@
+#pragma once
+
 #include "TFile.h"
 #include "TH3F.h"
 #include "TH2F.h"

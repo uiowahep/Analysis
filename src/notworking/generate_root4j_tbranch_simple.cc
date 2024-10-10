@@ -1,5 +1,3 @@
-
-#ifdef STANDALONE
 #include "TFile.h"
 #include "TChain.h"
 #include "TTree.h"
@@ -155,4 +153,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-#endif

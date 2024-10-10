@@ -23,3 +23,5 @@
 *.swk
 *.swl
 crab_projects/
+build/
+.cache

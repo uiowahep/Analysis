@@ -1,11 +1,7 @@
 #ifndef Analysis_Core_Tau_h
 #define Analysis_Core_Tau_h
 
-#ifndef STANDALONE
-#include "Analysis/Core/interface/Track.h"
-#else
 #include "Track.h"
-#endif
 
 namespace analysis
 {
@@ -26,17 +22,10 @@ namespace analysis
                 std::vector<float> _ids;
                 bool _isPF;
 
-#ifdef STANDALONE
-                ClassDef(Tau, 1)
-#endif
         };
 
         typedef std::vector<analysis::core::Tau> Taus;
     }
 }
-
-#ifdef STANDALONE
-ClassImpUnique(analysis::core::Tau, Tau)
-#endif
 
 #endif

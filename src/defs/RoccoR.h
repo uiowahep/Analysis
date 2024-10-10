@@ -1,3 +1,5 @@
+#pragma once
+
 #include "TRandom3.h"
 #include "TMath.h"
 
@@ -219,8 +221,6 @@ class RoccoR{
     private:
 	std::vector<std::vector<RocOne> > RC;
 };
-#ifndef ElectroWeakAnalysis_RoccoR
-#define ElectroWeakAnalysis_RoccoR
 
 #include <fstream>
 #include <sstream>
@@ -605,13 +605,3 @@ double RoccoR::kScaleAndSmearMC(int Q, double pt, double eta, double phi, int n,
 double RoccoR::kScaleFromGenMC(int Q, double pt, double eta, double phi, int n, double gt, double w, int s, int m) const{
     return RC[s][m].kScaleFromGenMC(Q, pt, eta, phi, n, gt, w);
 }
-
-
-#endif
-
-
-
-
-
-
-

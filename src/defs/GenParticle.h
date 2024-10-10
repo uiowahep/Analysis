@@ -1,11 +1,7 @@
 #ifndef Analysis_Core_GenParticle_h
 #define Analysis_Core_GenParticle_h
 
-#ifndef STANDALONE
-#include "Analysis/Core/interface/Object.h"
-#else
 #include "Object.h"
-#endif
 
 namespace analysis
 {
@@ -32,20 +28,10 @@ namespace analysis
 				float _rapid;
 				float _phi;
 
-#ifdef STANDALONE
-				ClassDef(GenParticle, 1)
-#endif
 		};
 
 		typedef std::vector<analysis::core::GenParticle> GenParticles;
 	}
 }
-
-//	
-//	Note - we are using Unique!!!
-//
-#ifdef STANDALONE
-ClassImpUnique(analysis::core::GenParticle, GenParticle)
-#endif
 
 #endif

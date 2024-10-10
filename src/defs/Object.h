@@ -1,13 +1,6 @@
 #ifndef Analysis_Core_Object_h
 #define Analysis_Core_Object_h
 
-/**
- *	file:
- *	Author:
- *
- *	Description:	Common Base Class 
- */
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -18,9 +11,7 @@
 
 using namespace std;
 
-#ifdef STANDALONE
 #include "TObject.h"
-#endif
 
 namespace analysis
 {
@@ -34,21 +25,11 @@ namespace analysis
 
 				virtual void reset() {}
 
-#ifdef STANDALONE
-				ClassDef(Object, 1)
-#endif
 		};
 
 		typedef std::vector<analysis::core::Object> Objects;
 	}
 }
-
-//
-//	Unique!
-//
-#ifdef STANDALONE
-ClassImpUnique(analysis::core::Object, Object)
-#endif
 
 #endif
 

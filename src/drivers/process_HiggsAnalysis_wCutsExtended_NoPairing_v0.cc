@@ -1,6 +1,3 @@
-
-//	
-#ifdef STANDALONE
 #include "Muon.h"
 #include "Jet.h"
 #include "Vertex.h"
@@ -9,6 +6,7 @@
 #include "Constants.h"
 #include "Streamer.h"
 #include "MetaHiggs.h"
+#include "defs/Macros.h"
 
 //	ROOT headers
 #include "TFile.h"
@@ -58,7 +56,7 @@ bool __isMC;
 bool __genPUMC;
 std::string __puMCfilename;
 std::string __puDATAfilename;
-bool __continueRunning = true;
+std::atomic<bool> __continueRunning = true;
 
 /*
  *  Define all the Constants
@@ -551,14 +549,20 @@ void process()
 	set01JetsLooseEE.init();
 
 	//	get the total events, etc...
+#if 0
 	long long int numEventsWeighted = sampleinfo(__inputfilename);
+#endif
+    /// TODO understand what this is
+    /// how was filled
+    /// how used downstream
+    auto numEventsWeighted = 100;
     hEventWeights->Fill(0.5, numEventsWeighted);
 
 	//	generate the MC Pileup histogram
 	if (__genPUMC && __isMC)
 		generatePUMC();
 
-	Streamer streamer(__inputfilename, NTUPLEMAKER_NAME+"/Events");
+	Streamer streamer(__inputfilename, "Events");
 	streamer.chainup();
 
     Muons *muons=NULL;
@@ -569,12 +573,43 @@ void process()
 	Event *event=NULL;
 	EventAuxiliary *aux=NULL;
 	MET *met=NULL;
+
+#define ROOT_CHAIN streamer._chain
+
+    SET_BRANCH_UINT(nMuon);
+    SET_BRANCH_FLOAT_ARRAY(Muon_pt);
+    SET_BRANCH_FLOAT_ARRAY(Muon_phi);
+    SET_BRANCH_FLOAT_ARRAY(Muon_eta);
+    SET_BRANCH_BOOL_ARRAY(Muon_isGlobal);
+    SET_BRANCH_BOOL_ARRAY(Muon_isTracker);
+    SET_BRANCH_UCHAR_ARRAY(Muon_miniIsoId);
+    SET_BRANCH_BOOL_ARRAY(Muon_tightId);
+
+    SET_BRANCH_FLOAT(PV_ndof);
+    SET_BRANCH_FLOAT(PV_z);
+
+    SET_BRANCH_FLOAT(MET_pt);
+
+    SET_BRANCH_UINT(nJet);
+    SET_BRANCH_FLOAT_ARRAY(Jet_eta);
+    SET_BRANCH_FLOAT_ARRAY(Jet_mass);
+    SET_BRANCH_FLOAT_ARRAY(Jet_pt);
+    SET_BRANCH_FLOAT_ARRAY(Jet_phi);
+
+
+    muons = new std::vector<Muon>();
+    jets = new std::vector<Jet>();
+    vertices = new std::vector<Vertex>();
+    met = new MET();
+
+#if 0
 	streamer._chain->SetBranchAddress("Muons", &muons);
 	streamer._chain->SetBranchAddress("Jets", &jets);
 	streamer._chain->SetBranchAddress("Vertices", &vertices);
 	streamer._chain->SetBranchAddress("Event", &event);
 	streamer._chain->SetBranchAddress("EventAuxiliary", &aux);
 	streamer._chain->SetBranchAddress("MET", &met);
+#endif
 
 	//	init the PU reweighter
 	reweight::LumiReWeighting *weighter = NULL;
@@ -592,8 +627,32 @@ void process()
 	uint32_t numEntries = streamer._chain->GetEntries();
 	for (uint32_t i=0; i<numEntries && __continueRunning; i++)
 	{
+        muons->clear();
+        jets->clear();
+        vertices->clear();
         muons1.clear(); muons2.clear();
 		streamer._chain->GetEntry(i);
+
+        for (size_t i=0; i<nMuon; i++) {
+            Muon mu;
+            mu._pt = Muon_pt[i];
+            mu._eta = Muon_eta[i];
+            mu._phi = Muon_phi[i];
+            mu._isGlobal = Muon_isGlobal[i];
+            mu._isTracker = Muon_isTracker[i];
+            mu._isTight = Muon_tightId[i];
+            muons->push_back(std::move(mu));
+        }
+
+        for (size_t i=0; i<nJet; i++) {
+            Jet jet;
+            jet._pt = Jet_pt[i];
+            jet._eta = Jet_eta[i];
+            jet._phi = Jet_phi[i];
+            jet._mass = Jet_mass[i];
+            jets->push_back(std::move(jet));
+        }
+
 		if (i%1000==0)
 			std::cout << "### Event " << i << " / " << numEntries
 				<< std::endl;
@@ -740,5 +799,3 @@ int main(int argc, char** argv)
 	process();
 	return 0;
 }
-
-#endif

@@ -1,11 +1,6 @@
-#ifndef Analysis_Core_Vertex_h
-#define Analysis_Core_Vertex_h
+#pragma once
 
-#ifndef STANDALONE
-#include "Analysis/Core/interface/Object.h"
-#else
 #include "Object.h"
-#endif
 
 namespace analysis
 {
@@ -43,18 +38,8 @@ namespace analysis
 				float _ndf;
 				float _normChi2;
 
-#ifdef STANDALONE
-				ClassDef(Vertex,1)
-#endif
 		};
 
 		typedef std::vector<analysis::core::Vertex> Vertices;
 	}
 }
-
-
-#ifdef STANDALONE
-ClassImpUnique(analysis::core::Vertex, Vertex)
-#endif
-
-#endif

@@ -1,17 +1,7 @@
 #ifndef Analysis_Core_MetaHigss_h
 #define Analysis_Core_MetaHigss_h
 
-/**
- *	file:
- *	Author:
- *	Description:
- */
-
-#ifndef STANDALONE
-#include "Analysis/Core/interface/Object.h"
-#else
 #include "Object.h"
-#endif
 
 namespace analysis
 {
@@ -32,9 +22,6 @@ namespace analysis
                 int m_numHT;
                 double m_ptSum;
 
-#ifdef STANDALONE
-				ClassDef(Auxiliary, 1)
-#endif
         };
 
 		class MetaHiggs : public analysis::core::Object
@@ -106,16 +93,8 @@ namespace analysis
 				float _maxTrackIsoSumPt;
 				float _maxRelCombIso;
 
-#ifdef STANDALONE
-				ClassDef(MetaHiggs, 1)
-#endif
 		};
 	}
 }
-
-#ifdef STANDALONE
-ClassImpUnique(analysis::dimuon::MetaHiggs, MetaHiggs)
-ClassImpUnique(analysis::dimuon::Auxiliary, Auxiliary)
-#endif
 
 #endif

@@ -1,11 +1,8 @@
-#ifndef Analysis_Core_Muon_h
-#define Analysis_Core_Muon_h
+#pragma once
 
-#ifndef STANDALONE
-#include "Analysis/Core/interface/Track.h"
-#else
-#include "Track.h"
-#endif
+#include <vector>
+
+#include "defs/Track.h"
 
 namespace analysis
 {
@@ -124,17 +121,8 @@ namespace analysis
 				float _sumPUPtR04;
 
 
-#ifdef STANDALONE
-				ClassDef(Muon, 1)
-#endif
 		};
 
 		typedef std::vector<analysis::core::Muon> Muons;
 	}
 }
-
-#ifdef STANDALONE
-ClassImpUnique(analysis::core::Muon, Muon)
-#endif
-
-#endif

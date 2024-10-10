@@ -1,7 +1,4 @@
-#ifndef Analysis__Drivers_HistogramSets_h
-#define  Analysis__Drivers_HistogramSets_h
-
-#ifdef STANDALONE
+#pragma once
 
 #include "TString.h"
 #include "TH1D.h"
@@ -67,7 +64,3 @@ namespace analysis
 		};
 	}
 }
-
-#endif
-
-#endif

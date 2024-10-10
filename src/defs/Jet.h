@@ -1,12 +1,7 @@
 #ifndef Analysis_Core_Jet_h
 #define Analysis_Core_Jet_h
 
-#ifndef STANDALONE
-#include "Analysis/Core/interface/GenJet.h"
-#else
 #include "GenJet.h"
-#endif
-
 
 namespace analysis
 {
@@ -109,17 +104,10 @@ namespace analysis
 				float _geninvf;
 				float _genauxf;
 
-#ifdef STANDALONE 
-				ClassDef(Jet, 1)
-#endif
 		};
 
 		typedef std::vector<analysis::core::Jet> Jets;
 	}
 }
-
-#ifdef STANDALONE
-ClassImpUnique(analysis::core::Jet, Jet)
-#endif
 
 #endif
