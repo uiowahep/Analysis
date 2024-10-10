@@ -653,6 +653,13 @@ void process()
             jets->push_back(std::move(jet));
         }
 
+        Vertex vtx;
+        vtx._ndf = PV_ndof;
+        vtx._z = PV_z;
+        vertices->push_back(std::move(vtx));
+
+        met->_pt = MET_pt;
+
 		if (i%1000==0)
 			std::cout << "### Event " << i << " / " << numEntries
 				<< std::endl;

@@ -6,7 +6,7 @@
     static_assert(true, "")
 
 #define SET_BRANCH_FLOAT(NAME) \
-    UInt_t NAME; \
+    Float_t NAME; \
     (ROOT_CHAIN)->SetBranchAddress(#NAME, &NAME); \
     static_assert(true, "")
 
