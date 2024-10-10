@@ -32,7 +32,9 @@ endif()
 find_package(Boost REQUIRED)
 find_package(ROOT REQUIRED)
 
-tcpp_auto_addsubdirs(src/)
+message(STATUS "before")
+tcpp_auto_addsubdirs(src)
+message(STATUS "after")
 
 #	
 #	find and add ROOT
