@@ -38,7 +38,7 @@ tcpp_debug_var(ROOT_INCLUDE_DIRS)
 tcpp_debug_var(ROOT_CXX_FLAGS)
 
 message(STATUS "before")
-tcpp_auto_addsubdirs(src)
+tcpp_auto_addsubdirs(src/)
 message(STATUS "after")
 
 #	
